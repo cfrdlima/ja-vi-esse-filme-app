@@ -4,7 +4,7 @@ import 'package:ja_vi_esse_filme/core/theme/app_colors.dart';
 
 void main() {
   group('AppColors.darkScheme', () {
-    final scheme = AppColors.darkScheme;
+    const scheme = AppColors.darkScheme;
 
     test('deve ser um esquema escuro', () {
       expect(scheme.brightness, Brightness.dark);
