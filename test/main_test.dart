@@ -22,4 +22,11 @@ void main() {
     final context = tester.element(find.byType(Scaffold));
     expect(Theme.of(context).brightness, Brightness.dark);
   });
+
+  testWidgets('o app deve abrir no shell de navegação', (tester) async {
+    await tester.pumpWidget(const MainApp());
+    await tester.pumpAndSettle();
+
+    expect(find.byType(NavigationBar), findsOneWidget);
+  });
 }
