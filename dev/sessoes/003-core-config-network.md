@@ -33,7 +33,13 @@ Confirmar a decisão 001 com essa forma de autenticação.
 - [x] Log padrão — GREEN / REFACTOR
 - [x] `env/example.json` com `TMDB_READ_ACCESS_TOKEN`, README atualizado e decisão 001 confirmada
 - [x] Tríade: `flutter analyze` limpo, `flutter test` verde (sem UI nesta sessão)
-- [ ] `/revisar` com `code-reviewer` e `security-auditor` (a sessão mexe em rede e config)
+- [x] `/revisar` com `code-reviewer` e `security-auditor` (a sessão mexe em rede e config)
+- [ ] Revisão A — RED/GREEN: o `language` passado na `query` prevalece sobre o `pt-BR` padrão
+- [ ] Revisão A — RED/GREEN: path montado por `pathSegments` (barra inicial, base com barra final) e recusa de `.`, `..`, `?` e `#`
+- [ ] Revisão A — RED/GREEN: corpo com charset inválido, `ArgumentError` e `FormatException` do client viram falha tipada
+- [ ] Revisão B — RED/GREEN: redator sem diferenciar maiúsculas (`bearer`, `BEARER`, `Session_Id`), com `guest_session_id` e `access_token`, `toString` de `Map`, `%3D`, JSON escapado e valor com aspas escapadas
+- [ ] Revisão C — RED/GREEN: `AppConfig` transforma URL malformada em `ConfigException`; recusa host vazio, userinfo, query, fragment e host fora da allowlist; faz `trim` no token
+- [ ] Revisão D: stack trace passa pelo redator; documentar que `UnexpectedFailure.reason` nunca recebe corpo nem URL; `await expectLater` nos testes do client; renomear o teste do `AppConfig` e comentar a dependência dos defines; usar `{}` em vez da fixture no teste de URL
 
 ## Decisões
 - [001 — Chave do TMDB e sessão do usuário](../decisoes/001-chave-tmdb-e-sessao.md): confirmada como aceita, com o token v4 no header `Authorization: Bearer`
@@ -54,3 +60,8 @@ Confirmar a decisão 001 com essa forma de autenticação.
 - `main.dart` não foi mexido, como combinado: o `TmdbClient` só é montado junto com a primeira feature.
 - **Ação do usuário:** em `env/dev.json`, trocar `TMDB_API_KEY` por `TMDB_READ_ACCESS_TOKEN`, com o "API Read Access Token" do TMDB.
 - Tríade: `dart format` sem mudanças, `flutter analyze` sem issues, `flutter test` com 163 testes passando e `gitleaks` sem vazamentos. Não há UI nesta sessão, então não houve verificação no emulador.
+- Revisão (`code-reviewer` + `security-auditor`): nada bloqueante; os dois aprovaram. Itens que ficam para depois:
+  - POST/DELETE e o 204 com corpo vazio no `TmdbClient`, na sessão de login (Fase 2).
+  - A query da base URL é descartada pelo `replace`; rever junto com o proxy.
+  - O `debugPrint` do reporter sai do release (`kDebugMode`) quando o crash reporter entrar (Fase 4).
+  - Não haverá `==` nas falhas: a UI vai fazer `switch` por tipo.
