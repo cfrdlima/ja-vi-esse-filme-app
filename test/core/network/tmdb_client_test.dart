@@ -194,6 +194,14 @@ void main() {
       expect(client.get('movie/11'), throwsA(isA<NetworkFailure>()));
     });
 
+    test('deve lançar NetworkFailure em falha de TLS', () {
+      final client = clientThrowing(
+        const HandshakeException('certificado inválido'),
+      );
+
+      expect(client.get('movie/11'), throwsA(isA<NetworkFailure>()));
+    });
+
     test('não deve levar a URL da requisição na falha', () async {
       final client = clientThrowing(
         http.ClientException(
@@ -207,6 +215,20 @@ void main() {
           .then<Object?>((_) => null, onError: (Object error) => error);
 
       expect(failure.toString(), isNot(contains('segredo')));
+    });
+  });
+
+  group('corpo inválido', () {
+    test('deve lançar UnexpectedFailure quando o corpo não é JSON', () {
+      final client = clientRespondingWith('<html>erro</html>', 200);
+
+      expect(client.get('movie/11'), throwsA(isA<UnexpectedFailure>()));
+    });
+
+    test('deve lançar UnexpectedFailure quando o JSON não é um objeto', () {
+      final client = clientRespondingWith('[1, 2, 3]', 200);
+
+      expect(client.get('movie/11'), throwsA(isA<UnexpectedFailure>()));
     });
   });
 }
