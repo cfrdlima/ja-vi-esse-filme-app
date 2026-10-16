@@ -57,6 +57,44 @@ void main() {
       expect(captured.url.queryParameters['language'], 'en-US');
     });
 
+    test('deve ignorar a barra no início do path', () async {
+      final client = clientRespondingWith('{}', 200);
+
+      await client.get('/movie/11');
+
+      expect(captured.url.path, '/3/movie/11');
+    });
+
+    test('deve aceitar base URL terminada em barra', () async {
+      final client = TmdbClient(
+        httpClient: MockClient((request) async {
+          captured = request;
+          return http.Response('{}', 200);
+        }),
+        config: AppConfig(
+          tmdbReadToken: 'token-de-teste',
+          tmdbBaseUrl: Uri.parse('https://api.themoviedb.org/3/'),
+        ),
+      );
+
+      await client.get('movie/11');
+
+      expect(captured.url.path, '/3/movie/11');
+    });
+
+    for (final path in [
+      'movie/../../account',
+      './movie/11',
+      'movie/11?x=1',
+      'movie/11#a',
+    ]) {
+      test('deve recusar o path inseguro "$path"', () {
+        final client = clientRespondingWith('{}', 200);
+
+        expect(() => client.get(path), throwsArgumentError);
+      });
+    }
+
     test('deve autenticar com o token de leitura no header Bearer', () async {
       final client = clientRespondingWith('{}', 200);
 
