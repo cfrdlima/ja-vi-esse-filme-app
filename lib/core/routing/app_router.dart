@@ -1,6 +1,6 @@
-import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 
+import '../widgets/placeholder_screen.dart';
 import 'app_shell.dart';
 
 abstract final class AppRoutes {
@@ -17,15 +17,21 @@ GoRouter createAppRouter() => GoRouter(
       builder: (_, _, navigationShell) =>
           AppShell(navigationShell: navigationShell),
       branches: [
-        _branch(AppRoutes.discover),
-        _branch(AppRoutes.search),
-        _branch(AppRoutes.shelf),
-        _branch(AppRoutes.profile),
+        _branch(AppRoutes.discover, title: 'Descobrir'),
+        _branch(AppRoutes.search, title: 'Buscar'),
+        _branch(AppRoutes.shelf, title: 'Minha estante'),
+        _branch(AppRoutes.profile, title: 'Perfil'),
       ],
     ),
   ],
 );
 
-StatefulShellBranch _branch(String path) => StatefulShellBranch(
-  routes: [GoRoute(path: path, builder: (_, _) => const SizedBox.shrink())],
-);
+StatefulShellBranch _branch(String path, {required String title}) =>
+    StatefulShellBranch(
+      routes: [
+        GoRoute(
+          path: path,
+          builder: (_, _) => PlaceholderScreen(title: title),
+        ),
+      ],
+    );
