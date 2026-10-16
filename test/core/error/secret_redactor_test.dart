@@ -32,6 +32,66 @@ void main() {
     expect(text, '{"success":true,"session_id": "***"}');
   });
 
+  test('deve mascarar bearer em minúsculas', () {
+    final text = redactSecrets(r'authorization: bearer abc123');
+
+    expect(text, r'authorization: bearer ***');
+  });
+
+  test('deve mascarar BEARER em maiúsculas', () {
+    final text = redactSecrets(r'BEARER abc123');
+
+    expect(text, r'BEARER ***');
+  });
+
+  test('deve mascarar nome de segredo com outra grafia', () {
+    final text = redactSecrets(r'Session_Id=abc&page=2');
+
+    expect(text, r'Session_Id=***&page=2');
+  });
+
+  test('deve mascarar guest_session_id na query', () {
+    final text = redactSecrets(r'guest_session_id=abc');
+
+    expect(text, r'guest_session_id=***');
+  });
+
+  test('deve mascarar guest_session_id em JSON', () {
+    final text = redactSecrets(r'{"guest_session_id":"abc"}');
+
+    expect(text, r'{"guest_session_id":"***"}');
+  });
+
+  test('deve mascarar access_token da auth v4', () {
+    final text = redactSecrets(r'{"access_token":"abc"}');
+
+    expect(text, r'{"access_token":"***"}');
+  });
+
+  test('deve mascarar session_id no toString de um Map', () {
+    final text = redactSecrets(r'{session_id: abc, page: 1}');
+
+    expect(text, r'{session_id: ***, page: 1}');
+  });
+
+  test('deve mascarar session_id codificado na URL', () {
+    final text = redactSecrets(r'next=%2Faccount%3Fsession_id%3Dabc');
+
+    expect(text, r'next=%2Faccount%3Fsession_id%3D***');
+  });
+
+  test('deve mascarar session_id em JSON escapado', () {
+    final text = redactSecrets(r'{\"session_id\": \"abc\"}');
+
+    expect(text, r'{\"session_id\": \"***\"}');
+  });
+
+  test('deve mascarar o valor inteiro mesmo com aspas escapadas', () {
+    final text = redactSecrets(r'{"session_id":"a\"bc"}');
+
+    expect(text, r'{"session_id":"***"}');
+  });
+
   test('deve manter texto sem segredo como está', () {
     final text = redactSecrets('Falha de rede ao buscar filmes');
 
