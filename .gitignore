@@ -51,3 +51,11 @@ android/key.properties
 *.jks
 *.keystore
 coverage/
+
+# config local (chaves)
+env/*.json
+!env/example.json
+android/key.properties
+*.jks
+*.keystore
+coverage/
