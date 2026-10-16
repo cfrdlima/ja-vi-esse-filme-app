@@ -6,8 +6,8 @@
 Gerar o design system do app com a skill `ui-ux-pro-max` (stack Flutter) em `design-system/ja-vi-esse-filme/MASTER.md`, aprovado pelo usuário. Depois, traduzi-lo em tokens testados em `lib/core/theme/` (Material 3, tema escuro, fontes empacotadas) e aplicar o tema no `MaterialApp`.
 
 ## Checklist
-- [ ] B1. Gerar e persistir o design system (`--design-system --persist`, stack Flutter) → `design-system/ja-vi-esse-filme/MASTER.md`
-- [ ] B1. Apresentar paleta, tipografia, estilo e anti-padrões → **aguardar ok**
+- [x] B1. Gerar e persistir o design system (`--design-system --persist`, stack Flutter) → `design-system/ja-vi-esse-filme/MASTER.md`
+- [x] B1. Apresentar paleta, tipografia, estilo e anti-padrões → **aguardar ok**
 - [ ] B2. Baixar as fontes (`.ttf`, OFL) para `assets/fonts/` e declará-las no `pubspec.yaml` (sem `google_fonts`)
 - [ ] Cores — RED: teste do `ColorScheme` escuro com as cores do `MASTER.md`
 - [ ] Cores — GREEN: `app_colors.dart` + `ColorScheme`
@@ -22,11 +22,13 @@ Gerar o design system do app com a skill `ui-ux-pro-max` (stack Flutter) em `des
 - [ ] Tema — GREEN: `app_theme.dart` / REFACTOR: aplicar no `MaterialApp` do `main.dart`
 - [ ] Validar no emulador
 - [ ] Corrigir no `CLAUDE.md` a versão do SDK (o `pubspec.yaml` usa `^3.12.2`; o `CLAUDE.md` diz `^3.7`)
-- [ ] Incluir no `MASTER.md` o Hero do pôster (grade → detalhes) e o feedback de toque (auditoria ⚠️15)
+- [x] Incluir no `MASTER.md` o Hero do pôster (grade → detalhes) e o feedback de toque (auditoria ⚠️15)
 - [ ] Prever `ListView.builder`/`GridView.builder` na skill `tela-4-estados` (auditoria ⚠️16)
 - [ ] `/revisar` e `/fechar-sessao`
 
 ## Decisões
+- Paleta da skill ajustada (aprovada): `primary` = dourado `#CA8A04`; índigos só como superfície/secundária; `outline` `#6366F1`; `watched` `#34D399`; `error` `#F87171` (o `#EF4444` dava 4,48 sobre o card).
+- Tipografia: Playfair Display (títulos) + Inter (texto), aprovada pelo usuário.
 - [002 — Adotar a skill ui-ux-pro-max como fonte da verdade de design](../decisoes/002-ui-ux-pro-max-fonte-de-design.md)
 
 ## Commits
