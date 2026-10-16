@@ -26,5 +26,5 @@ void registerErrorHandlers({ErrorReporter report = _logError}) {
 // já convertem as suas em falhas tipadas, e o redator é a segunda barreira.
 void _logError(Object error, StackTrace? stack) {
   debugPrint(redactSecrets('Erro não tratado: $error'));
-  if (stack != null) debugPrint(stack.toString());
+  if (stack != null) debugPrint(redactSecrets(stack.toString()));
 }
