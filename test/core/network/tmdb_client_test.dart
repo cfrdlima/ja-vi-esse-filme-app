@@ -52,4 +52,17 @@ void main() {
       expect(captured.headers['Authorization'], 'Bearer token-de-teste');
     });
   });
+
+  group('resposta 200', () {
+    test('deve devolver o JSON decodificado', () async {
+      final client = clientRespondingWith(
+        readFixture('tmdb_authentication_ok.json'),
+        200,
+      );
+
+      final json = await client.get('authentication');
+
+      expect(json['status_message'], 'Success.');
+    });
+  });
 }
