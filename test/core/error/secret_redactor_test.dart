@@ -26,6 +26,12 @@ void main() {
     expect(text, 'Authorization: Bearer ***');
   });
 
+  test('deve mascarar session_id em JSON, como na resposta da sessão', () {
+    final text = redactSecrets('{"success":true,"session_id": "79191836"}');
+
+    expect(text, '{"success":true,"session_id": "***"}');
+  });
+
   test('deve manter texto sem segredo como está', () {
     final text = redactSecrets('Falha de rede ao buscar filmes');
 
