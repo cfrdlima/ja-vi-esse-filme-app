@@ -8,22 +8,22 @@ Gerar o design system do app com a skill `ui-ux-pro-max` (stack Flutter) em `des
 ## Checklist
 - [x] B1. Gerar e persistir o design system (`--design-system --persist`, stack Flutter) → `design-system/ja-vi-esse-filme/MASTER.md`
 - [x] B1. Apresentar paleta, tipografia, estilo e anti-padrões → **aguardar ok**
-- [ ] B2. Baixar as fontes (`.ttf`, OFL) para `assets/fonts/` e declará-las no `pubspec.yaml` (sem `google_fonts`)
-- [ ] Cores — RED: teste do `ColorScheme` escuro com as cores do `MASTER.md`
-- [ ] Cores — GREEN: `app_colors.dart` + `ColorScheme`
-- [ ] Cores — REFACTOR
-- [ ] Contraste — RED: os pares texto/fundo principais atingem AA (luminância relativa)
-- [ ] Contraste — GREEN / REFACTOR
-- [ ] Tipografia — RED: o `TextTheme` usa as famílias empacotadas
-- [ ] Tipografia — GREEN: `app_typography.dart` / REFACTOR
-- [ ] Tokens extras — RED: a `ThemeExtension` expõe espaçamentos, raios e a cor de "já visto"
-- [ ] Tokens extras — GREEN: `app_spacing.dart` + `ThemeExtension` / REFACTOR
-- [ ] Tema — RED: `AppTheme.dark()` é Material 3, escuro e registra a extensão
-- [ ] Tema — GREEN: `app_theme.dart` / REFACTOR: aplicar no `MaterialApp` do `main.dart`
+- [x] B2. Baixar as fontes (`.ttf`, OFL) para `assets/fonts/` e declará-las no `pubspec.yaml` (sem `google_fonts`)
+- [x] Cores — RED: teste do `ColorScheme` escuro com as cores do `MASTER.md`
+- [x] Cores — GREEN: `app_colors.dart` + `ColorScheme`
+- [x] Cores — REFACTOR
+- [x] Contraste — RED: os pares texto/fundo principais atingem AA (luminância relativa)
+- [x] Contraste — GREEN / REFACTOR
+- [x] Tipografia — RED: o `TextTheme` usa as famílias empacotadas
+- [x] Tipografia — GREEN: `app_typography.dart` / REFACTOR
+- [x] Tokens extras — RED: a `ThemeExtension` expõe espaçamentos, raios e a cor de "já visto"
+- [x] Tokens extras — GREEN: `app_spacing.dart` + `ThemeExtension` / REFACTOR
+- [x] Tema — RED: `AppTheme.dark()` é Material 3, escuro e registra a extensão
+- [x] Tema — GREEN: `app_theme.dart` / REFACTOR: aplicar no `MaterialApp` do `main.dart`
 - [ ] Validar no emulador
-- [ ] Corrigir no `CLAUDE.md` a versão do SDK (o `pubspec.yaml` usa `^3.12.2`; o `CLAUDE.md` diz `^3.7`)
+- [x] Corrigir no `CLAUDE.md` a versão do SDK (o `pubspec.yaml` usa `^3.12.2`; o `CLAUDE.md` diz `^3.7`)
 - [x] Incluir no `MASTER.md` o Hero do pôster (grade → detalhes) e o feedback de toque (auditoria ⚠️15)
-- [ ] Prever `ListView.builder`/`GridView.builder` na skill `tela-4-estados` (auditoria ⚠️16)
+- [x] Prever `ListView.builder`/`GridView.builder` na skill `tela-4-estados` (auditoria ⚠️16)
 - [ ] `/revisar` e `/fechar-sessao`
 
 ## Decisões
@@ -34,6 +34,9 @@ Gerar o design system do app com a skill `ui-ux-pro-max` (stack Flutter) em `des
 ## Commits
 
 ## Notas
+- Fontes: TTF variáveis oficiais do `google/fonts` (Playfair Display `[wght]`, Inter `[opsz,wght]`), com o `OFL.txt` de cada uma em `assets/fonts/`. No Flutter 3.44, o `FontWeight` controla o eixo `wght` sozinho. Falta registrar as licenças no `LicenseRegistry` (tela "Sobre", Fase 1).
+- Contraste: o RED do ciclo veio dos tokens de "já visto", que ainda não existiam. Os outros pares já tinham sido calculados ao aprovar a paleta, então passaram de primeira; um teste extra garante que o cálculo reprova um par ruim (índigo sobre o fundo).
+- Tipografia, REFACTOR: troquei a subclasse de `TextStyle` por funções. A subclasse muda o `runtimeType`, e isso quebra o `==` do `TextStyle`.
 - Auditoria de prontidão (`dev/checklist-prontidao.md`): PRONTO COM RESSALVAS, sem bloqueantes. O usuário resolve emulador e licenças Android no terminal.
 - **No `/fechar-sessao` desta sessão:**
   - No `PLANO.md`, marcar a criação do projeto como feita e incluir os itens que a auditoria achou fora do plano:
