@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
@@ -64,5 +66,25 @@ void main() {
 
       expect(json['status_message'], 'Success.');
     });
+
+    test(
+      'deve decodificar texto acentuado mesmo sem charset no header',
+      () async {
+        final client = TmdbClient(
+          httpClient: MockClient(
+            (_) async => http.Response.bytes(
+              utf8.encode('{"title": "Cidade de Deus — São Paulo"}'),
+              200,
+              headers: {'content-type': 'application/json'},
+            ),
+          ),
+          config: config,
+        );
+
+        final json = await client.get('movie/598');
+
+        expect(json['title'], 'Cidade de Deus — São Paulo');
+      },
+    );
   });
 }
