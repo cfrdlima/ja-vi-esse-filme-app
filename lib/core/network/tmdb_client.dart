@@ -31,7 +31,7 @@ class TmdbClient {
     );
     final response = await _send(url);
     _throwOnError(response);
-    return jsonDecode(response.body) as Map<String, Object?>;
+    return _decodeObject(response.body);
   }
 
   // As exceções do http e do dart:io carregam a URI, que pode ter segredo.
@@ -46,7 +46,8 @@ class TmdbClient {
           .timeout(_timeout);
     } on http.ClientException {
       throw const NetworkFailure();
-    } on SocketException {
+    } on IOException {
+      // SocketException (sem rede) e TlsException (certificado) caem aqui.
       throw const NetworkFailure();
     } on TimeoutException {
       throw const NetworkFailure();
@@ -63,6 +64,16 @@ class TmdbClient {
       >= 500 && < 600 => ServerFailure(status),
       _ => UnexpectedFailure('status $status'),
     };
+  }
+
+  Map<String, Object?> _decodeObject(String body) {
+    try {
+      final json = jsonDecode(body);
+      if (json is Map<String, Object?>) return json;
+      throw const UnexpectedFailure('o JSON não é um objeto');
+    } on FormatException {
+      throw const UnexpectedFailure('o corpo não é JSON');
+    }
   }
 
   Duration? _retryAfter(http.Response response) {
