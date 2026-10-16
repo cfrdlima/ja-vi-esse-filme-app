@@ -21,11 +21,11 @@ Endurecer a base antes do `core/network`: manifest seguro e com o nome do app, l
 - [x] Falha 5xx: confirmar que já está no item `core/network` do PLANO (nada a codar agora)
 - [x] Tríade: `flutter analyze` limpo, `flutter test` verde, app abre no emulador
 - [x] `security-auditor` no diff (a sessão mexe no manifest)
-- [ ] Revisão 1+2 — RED: handlers apresentam o erro no console só em debug e repassam a stack trace ao reporter
-- [ ] Revisão 1+2 — GREEN: `FlutterError.presentError` protegido por `kDebugMode` / REFACTOR
-- [ ] Revisão 3 — RED/GREEN: teste do manifest checa os atributos dentro da tag `<application>`, com regex tolerante a espaço para `INTERNET`
-- [ ] Revisão 4: remover as regras já incluídas (`avoid_print`, `sort_child_properties_last`, `prefer_final_fields`, `use_super_parameters`) e acrescentar `discarded_futures`
-- [ ] Revisão 7: na decisão 003, dizer que o risco da opção 1 é perder aparelhos, e não quebrar o build
+- [x] Revisão 1+2 — RED: handlers apresentam o erro no console só em debug e repassam a stack trace ao reporter
+- [x] Revisão 1+2 — GREEN: `FlutterError.presentError` protegido por `kDebugMode` / REFACTOR
+- [x] Revisão 3 — RED/GREEN: teste do manifest checa os atributos dentro da tag `<application>`, com regex tolerante a espaço para `INTERNET`
+- [x] Revisão 4: remover as regras já incluídas (`avoid_print`, `sort_child_properties_last`, `prefer_final_fields`, `use_super_parameters`) e acrescentar `discarded_futures`
+- [x] Revisão 7: na decisão 003, dizer que o risco da opção 1 é perder aparelhos, e não quebrar o build
 
 ## Decisões
 - [003 — minSdk 24 herdado do Flutter](../decisoes/003-min-sdk.md)
@@ -50,3 +50,5 @@ Endurecer a base antes do `core/network`: manifest seguro e com o nome do app, l
   - 5: `main()` sem teste de composição. Extrair um `bootstrap()` testável quando o `main` crescer.
   - 6: atualizar o README e o `env/example.json` para o token v4 na sessão do `TmdbClient`.
   - O redator e o destino real do `report` em release entram na sessão do `TmdbClient`, porque o `developer.log` não aparece em release.
+- Revisão 1+2: os 3 testes novos (console em debug e stack trace repassada nos dois handlers) passaram de primeira, porque cobrem comportamento que já existia. Para confirmar que valem, fiz checagem de mutação: remover o `presentError` derruba 1 teste e trocar a stack por `null` derruba 2. O `kDebugMode` não tem teste, porque `flutter test` sempre roda em debug.
+- Revisão 3: mutações conferidas no teste do manifest. Com `allowBackup` na `<activity>` ou o `INTERNET` só em comentário, o teste falha. Com `" />` no lugar de `"/>`, continua verde.

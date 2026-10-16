@@ -6,7 +6,7 @@
 O `android/app/build.gradle.kts` usa `minSdk = flutter.minSdkVersion`, `targetSdk = flutter.targetSdkVersion` e `compileSdk = flutter.compileSdkVersion`. No Flutter 3.44.5 esses valores são 24 (Android 7.0), 36 e 36. A auditoria de prontidão pediu que o minSdk fosse justificado.
 
 ## Opções consideradas
-1. **Herdar os valores do Flutter**: acompanha o mínimo que o engine suporta sem manutenção extra. Risco: um upgrade do Flutter pode subir o minSdk sem que ninguém perceba.
+1. **Herdar os valores do Flutter**: acompanha o mínimo que o engine suporta sem manutenção extra. Risco: um upgrade do Flutter pode subir o minSdk sem que ninguém perceba. O build não quebra, mas o app deixa de instalar nos aparelhos mais antigos.
 2. **Fixar `minSdk = 24` no gradle**: o valor fica explícito. Custo: se o Flutter passar a exigir mais, o número fixo fica desatualizado e precisa ser trocado à mão.
 3. **Subir para 26 ou mais**: só se justificaria se algum plugin exigisse, e hoje nenhum exige.
 
