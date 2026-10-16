@@ -43,6 +43,17 @@ void main() {
       expect(theme.textTheme.bodyLarge!.fontFamily, AppTypography.bodyFamily);
     });
 
+    test('deve usar Inter também no primaryTextTheme', () {
+      expect(
+        theme.primaryTextTheme.bodyLarge!.fontFamily,
+        AppTypography.bodyFamily,
+      );
+    });
+
+    test('deve manter o letterSpacing do MASTER.md após o merge com o M3', () {
+      expect(theme.textTheme.bodyLarge!.letterSpacing, 0);
+    });
+
     test('deve aplicar a cor do texto às famílias empacotadas', () {
       expect(theme.textTheme.bodyLarge!.color, AppColors.foreground);
     });

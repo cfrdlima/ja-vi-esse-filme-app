@@ -7,7 +7,13 @@ abstract final class AppTypography {
   static const headingFamily = 'PlayfairDisplay';
   static const bodyFamily = 'Inter';
 
+  // O MASTER.md não herda o letterSpacing do M3 (0,25–0,5), que deixa a
+  // Inter aberta demais; só os labels ganham um leve respiro.
+  static const _labelLetterSpacing = 0.1;
+
   static final textTheme = TextTheme(
+    displayLarge: _heading(FontWeight.w700, size: 57, lineHeight: 64),
+    displayMedium: _heading(FontWeight.w700, size: 45, lineHeight: 52),
     displaySmall: _heading(FontWeight.w700, size: 36, lineHeight: 44),
     headlineLarge: _heading(FontWeight.w700, size: 32, lineHeight: 40),
     headlineMedium: _heading(FontWeight.w700, size: 28, lineHeight: 36),
@@ -18,9 +24,9 @@ abstract final class AppTypography {
     bodyLarge: _body(FontWeight.w400, size: 16, lineHeight: 24),
     bodyMedium: _body(FontWeight.w400, size: 14, lineHeight: 20),
     bodySmall: _body(FontWeight.w400, size: 12, lineHeight: 16),
-    labelLarge: _body(FontWeight.w500, size: 14, lineHeight: 20),
-    labelMedium: _body(FontWeight.w500, size: 12, lineHeight: 16),
-    labelSmall: _body(FontWeight.w500, size: 11, lineHeight: 16),
+    labelLarge: _label(size: 14, lineHeight: 20),
+    labelMedium: _label(size: 12, lineHeight: 16),
+    labelSmall: _label(size: 11, lineHeight: 16),
   );
 
   static TextStyle _heading(
@@ -35,6 +41,14 @@ abstract final class AppTypography {
     required double lineHeight,
   }) => _style(bodyFamily, weight, size, lineHeight);
 
+  static TextStyle _label({required double size, required double lineHeight}) =>
+      _style(
+        bodyFamily,
+        FontWeight.w500,
+        size,
+        lineHeight,
+      ).copyWith(letterSpacing: _labelLetterSpacing);
+
   // O MASTER.md dá a altura de linha em dp; o TextStyle espera um
   // multiplicador do tamanho da fonte.
   static TextStyle _style(
@@ -47,5 +61,6 @@ abstract final class AppTypography {
     fontWeight: weight,
     fontSize: size,
     height: lineHeight / size,
+    letterSpacing: 0,
   );
 }

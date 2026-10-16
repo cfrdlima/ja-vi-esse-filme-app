@@ -17,6 +17,8 @@ abstract final class AppTheme {
       useMaterial3: true,
       colorScheme: scheme,
       scaffoldBackgroundColor: scheme.surface,
+      // Família padrão para o que a escala não cobre (ex.: primaryTextTheme).
+      fontFamily: AppTypography.bodyFamily,
       textTheme: AppTypography.textTheme,
       extensions: const [AppThemeTokens.dark],
       filledButtonTheme: FilledButtonThemeData(
