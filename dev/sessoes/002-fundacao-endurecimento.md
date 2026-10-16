@@ -1,6 +1,6 @@
 # Sessão 002 — Fase 0: fundação e endurecimento
 
-**Data**: 2026-10-16 · **Branch**: `feature/002-fundacao-endurecimento` · **Status**: aberta
+**Data**: 2026-10-16 · **Branch**: `feature/002-fundacao-endurecimento` · **Status**: fechada
 
 ## Objetivo
 Endurecer a base antes do `core/network`: manifest seguro e com o nome do app, lints estritos, `.gitignore` limpo e handlers globais de erro. Também documentar o projeto (README, `pubspec`, `setup-claude.sh`) e registrar a justificativa do minSdk.
@@ -31,6 +31,23 @@ Endurecer a base antes do `core/network`: manifest seguro e com o nome do app, l
 - [003 — minSdk 24 herdado do Flutter](../decisoes/003-min-sdk.md)
 
 ## Commits
+- `79921e2` docs: abre sessão 002
+- `5402d7c` chore: analysis_options estrito
+- `5b8454d` test: manifest com INTERNET, sem backup, sem cleartext e com o nome do app
+- `987393d` fix: manifest com INTERNET, sem backup, sem cleartext e com o nome do app
+- `9698fcc` test: handlers globais reportam erros do Flutter e assíncronos
+- `cb1e669` add: handlers globais de erro registrados no main
+- `de989c9` chore: .gitignore sem bloco duplicado e com .env*
+- `6dd74b3` docs: README do projeto e descrição real no pubspec
+- `63a5acc` chore: setup-claude.sh cita a skill ui-ux-pro-max
+- `9316da0` docs: decisão 003 sobre o minSdk 24
+- `9caf175` docs: registra verificação no emulador e achados da auditoria na sessão 002
+- `2510ff1` docs: achados aceitos da revisão viram tarefas da sessão 002
+- `741c161` test: handlers apresentam o erro no console e repassam a stack trace
+- `a9ab798` fix: erro do framework só vai ao console em debug
+- `525ea22` test: manifest checa atributos na tag application e ignora comentários
+- `dd230b4` chore: tira lints já incluídos e acrescenta discarded_futures
+- `d97548d` docs: decisão 003 explicita o risco do minSdk herdado e fecha as tarefas da revisão
 
 ## Notas
 - Lints: `require_trailing_commas` ficou de fora porque briga com o formatador do Dart 3.7+, que já decide as vírgulas sozinho. Ligar o modo estrito só gerou 1 issue (`prefer_const_declarations` em `app_colors_test.dart`).
@@ -52,3 +69,4 @@ Endurecer a base antes do `core/network`: manifest seguro e com o nome do app, l
   - O redator e o destino real do `report` em release entram na sessão do `TmdbClient`, porque o `developer.log` não aparece em release.
 - Revisão 1+2: os 3 testes novos (console em debug e stack trace repassada nos dois handlers) passaram de primeira, porque cobrem comportamento que já existia. Para confirmar que valem, fiz checagem de mutação: remover o `presentError` derruba 1 teste e trocar a stack por `null` derruba 2. O `kDebugMode` não tem teste, porque `flutter test` sempre roda em debug.
 - Revisão 3: mutações conferidas no teste do manifest. Com `allowBackup` na `<activity>` ou o `INTERNET` só em comentário, o teste falha. Com `" />` no lugar de `"/>`, continua verde.
+- Fechamento: `dart format` sem mudanças, `flutter analyze` sem issues, `flutter test` com 134 testes passando e `gitleaks` sem vazamentos. Depois da auditoria de segurança, o código só mudou para o `kDebugMode` (menos log) e nos testes.
