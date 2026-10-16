@@ -109,12 +109,30 @@ void main() {
       expect((input.filled, input.fillColor), (true, AppColors.muted));
     });
 
-    test('o campo de texto em foco deve ter borda outline', () {
+    test('o campo de texto em foco deve ter borda outline de 2dp', () {
       final border =
           theme.inputDecorationTheme.focusedBorder! as OutlineInputBorder;
       expect(
-        (border.borderSide.color, border.borderRadius),
-        (AppColors.outline, BorderRadius.circular(radii.sm)),
+        (border.borderSide.color, border.borderSide.width, border.borderRadius),
+        (AppColors.outline, 2.0, BorderRadius.circular(radii.sm)),
+      );
+    });
+
+    test('o campo de texto com erro deve ter borda error de 1dp', () {
+      final border =
+          theme.inputDecorationTheme.errorBorder! as OutlineInputBorder;
+      expect(
+        (border.borderSide.color, border.borderSide.width, border.borderRadius),
+        (AppColors.error, 1.0, BorderRadius.circular(radii.sm)),
+      );
+    });
+
+    test('o campo de texto com erro e em foco deve ter borda error de 2dp', () {
+      final border =
+          theme.inputDecorationTheme.focusedErrorBorder! as OutlineInputBorder;
+      expect(
+        (border.borderSide.color, border.borderSide.width, border.borderRadius),
+        (AppColors.error, 2.0, BorderRadius.circular(radii.sm)),
       );
     });
 

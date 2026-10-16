@@ -8,6 +8,7 @@ import 'app_typography.dart';
 /// `ThemeData` do app, montado a partir dos tokens do `MASTER.md`.
 abstract final class AppTheme {
   static const _minTouchTarget = Size(64, 48);
+  static const _focusedBorderWidth = 2.0;
 
   static ThemeData dark() {
     const scheme = AppColors.darkScheme;
@@ -50,7 +51,12 @@ abstract final class AppTheme {
         border: _inputBorder(radii.sm, BorderSide.none),
         focusedBorder: _inputBorder(
           radii.sm,
-          BorderSide(color: scheme.outline),
+          BorderSide(color: scheme.outline, width: _focusedBorderWidth),
+        ),
+        errorBorder: _inputBorder(radii.sm, BorderSide(color: scheme.error)),
+        focusedErrorBorder: _inputBorder(
+          radii.sm,
+          BorderSide(color: scheme.error, width: _focusedBorderWidth),
         ),
       ),
       navigationBarTheme: NavigationBarThemeData(
