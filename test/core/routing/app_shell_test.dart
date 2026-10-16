@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ja_vi_esse_filme/core/routing/app_shell.dart';
 import 'package:ja_vi_esse_filme/core/theme/app_theme.dart';
+
+import '../../helpers/back_navigation.dart';
 
 /// Router de teste com uma sub-rota em cada aba, que o router real ainda não
 /// tem, para exercitar a pilha de navegação dentro da aba.
@@ -57,31 +58,6 @@ Future<bool> pressBack(WidgetTester tester, GoRouter router) async {
   final handled = await router.routerDelegate.popRoute();
   await tester.pumpAndSettle();
   return handled;
-}
-
-/// Grava o último aviso ao Android sobre quem trata o voltar. Com predictive
-/// back, se o app disser que não trata, o sistema fecha a activity sem
-/// chamar o Flutter.
-ValueGetter<bool?> recordFrameworkHandlesBack(WidgetTester tester) {
-  bool? last;
-  // Sem app em primeiro plano, o Flutter não avisa nada ao sistema.
-  tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
-  tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
-    SystemChannels.platform,
-    (call) async {
-      if (call.method == 'SystemNavigator.setFrameworkHandlesBack') {
-        last = call.arguments as bool;
-      }
-      return null;
-    },
-  );
-  addTearDown(
-    () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
-      SystemChannels.platform,
-      null,
-    ),
-  );
-  return () => last;
 }
 
 void main() {

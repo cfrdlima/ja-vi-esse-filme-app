@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ja_vi_esse_filme/core/routing/app_router.dart';
 import 'package:ja_vi_esse_filme/core/theme/app_theme.dart';
+
+import '../../helpers/back_navigation.dart';
 
 Future<GoRouter> pumpAppRouter(
   WidgetTester tester, {
@@ -207,28 +208,12 @@ void main() {
     testWidgets('deve avisar o Android que trata o voltar fora de Descobrir', (
       tester,
     ) async {
-      bool? frameworkHandlesBack;
-      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
-      tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
-        SystemChannels.platform,
-        (call) async {
-          if (call.method == 'SystemNavigator.setFrameworkHandlesBack') {
-            frameworkHandlesBack = call.arguments as bool;
-          }
-          return null;
-        },
-      );
-      addTearDown(
-        () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
-          SystemChannels.platform,
-          null,
-        ),
-      );
+      final frameworkHandlesBack = recordFrameworkHandlesBack(tester);
       await pumpAppRouter(tester);
 
       await tapDestination(tester, 'Estante');
 
-      expect(frameworkHandlesBack, isTrue);
+      expect(frameworkHandlesBack(), isTrue);
     });
   });
 }
