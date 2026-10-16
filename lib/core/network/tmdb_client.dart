@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:http/http.dart' as http;
 
@@ -8,10 +10,15 @@ import '../error/failures.dart';
 /// Único ponto de acesso HTTP ao TMDB. Trocar para um proxy (decisão 001) é
 /// mudar só a base URL e os headers montados aqui.
 class TmdbClient {
-  TmdbClient({required this._httpClient, required this._config});
+  TmdbClient({
+    required this._httpClient,
+    required this._config,
+    this._timeout = const Duration(seconds: 15),
+  });
 
   final http.Client _httpClient;
   final AppConfig _config;
+  final Duration _timeout;
 
   Future<Map<String, Object?>> get(
     String path, {
@@ -22,12 +29,28 @@ class TmdbClient {
       path: '${base.path}/$path',
       queryParameters: {...query, 'language': 'pt-BR'},
     );
-    final response = await _httpClient.get(
-      url,
-      headers: {'Authorization': 'Bearer ${_config.tmdbReadToken}'},
-    );
+    final response = await _send(url);
     _throwOnError(response);
     return jsonDecode(response.body) as Map<String, Object?>;
+  }
+
+  // As exceções do http e do dart:io carregam a URI, que pode ter segredo.
+  // Viram NetworkFailure sem nada da requisição.
+  Future<http.Response> _send(Uri url) async {
+    try {
+      return await _httpClient
+          .get(
+            url,
+            headers: {'Authorization': 'Bearer ${_config.tmdbReadToken}'},
+          )
+          .timeout(_timeout);
+    } on http.ClientException {
+      throw const NetworkFailure();
+    } on SocketException {
+      throw const NetworkFailure();
+    } on TimeoutException {
+      throw const NetworkFailure();
+    }
   }
 
   void _throwOnError(http.Response response) {
