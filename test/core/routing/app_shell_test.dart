@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ja_vi_esse_filme/core/routing/app_shell.dart';
@@ -54,6 +55,31 @@ Future<bool> pressBack(WidgetTester tester, GoRouter router) async {
   final handled = await router.routerDelegate.popRoute();
   await tester.pumpAndSettle();
   return handled;
+}
+
+/// Grava o último aviso ao Android sobre quem trata o voltar. Com predictive
+/// back, se o app disser que não trata, o sistema fecha a activity sem
+/// chamar o Flutter.
+ValueGetter<bool?> recordFrameworkHandlesBack(WidgetTester tester) {
+  bool? last;
+  // Sem app em primeiro plano, o Flutter não avisa nada ao sistema.
+  tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+  tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+    SystemChannels.platform,
+    (call) async {
+      if (call.method == 'SystemNavigator.setFrameworkHandlesBack') {
+        last = call.arguments as bool;
+      }
+      return null;
+    },
+  );
+  addTearDown(
+    () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+      SystemChannels.platform,
+      null,
+    ),
+  );
+  return () => last;
 }
 
 void main() {
@@ -127,5 +153,45 @@ void main() {
 
       expect(handled, isFalse);
     });
+  });
+
+  group('aviso de voltar ao Android', () {
+    testWidgets('deve avisar que trata o voltar ao abrir outra aba', (
+      tester,
+    ) async {
+      final frameworkHandlesBack = recordFrameworkHandlesBack(tester);
+      await pumpShell(tester);
+
+      await tapDestination(tester, 2);
+
+      expect(frameworkHandlesBack(), isTrue);
+    });
+
+    testWidgets(
+      'deve avisar que não trata o voltar ao retornar à primeira aba',
+      (tester) async {
+        final frameworkHandlesBack = recordFrameworkHandlesBack(tester);
+        await pumpShell(tester);
+        await tapDestination(tester, 2);
+
+        await tapDestination(tester, 0);
+
+        expect(frameworkHandlesBack(), isFalse);
+      },
+    );
+
+    testWidgets(
+      'deve avisar que trata o voltar ao desempilhar até a raiz de outra aba',
+      (tester) async {
+        final frameworkHandlesBack = recordFrameworkHandlesBack(tester);
+        final router = await pumpShell(tester);
+        router.go('/b/detalhe');
+        await tester.pumpAndSettle();
+
+        await pressBack(tester, router);
+
+        expect(frameworkHandlesBack(), isTrue);
+      },
+    );
   });
 }

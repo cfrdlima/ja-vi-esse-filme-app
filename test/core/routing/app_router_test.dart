@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ja_vi_esse_filme/core/routing/app_router.dart';
@@ -198,5 +199,36 @@ void main() {
         expect(outside, isEmpty);
       });
     }
+  });
+
+  group('botão voltar', () {
+    // Com predictive back, o Android fecha o app sem chamar o Flutter se o
+    // último aviso disser que o app não trata o voltar.
+    testWidgets('deve avisar o Android que trata o voltar fora de Descobrir', (
+      tester,
+    ) async {
+      bool? frameworkHandlesBack;
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+      tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        SystemChannels.platform,
+        (call) async {
+          if (call.method == 'SystemNavigator.setFrameworkHandlesBack') {
+            frameworkHandlesBack = call.arguments as bool;
+          }
+          return null;
+        },
+      );
+      addTearDown(
+        () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+          SystemChannels.platform,
+          null,
+        ),
+      );
+      await pumpAppRouter(tester);
+
+      await tapDestination(tester, 'Estante');
+
+      expect(frameworkHandlesBack, isTrue);
+    });
   });
 }
