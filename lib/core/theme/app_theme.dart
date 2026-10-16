@@ -10,6 +10,8 @@ abstract final class AppTheme {
   static const _minTouchTarget = Size(64, 48);
   static const _focusedBorderWidth = 2.0;
   static const _scrimOpacity = 0.5;
+  // Opacidade padrão do M3 para contornos de componentes desabilitados.
+  static const _disabledOpacity = 0.12;
 
   static ThemeData dark() {
     const scheme = AppColors.darkScheme;
@@ -31,12 +33,20 @@ abstract final class AppTheme {
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
-        style: OutlinedButton.styleFrom(
-          minimumSize: _minTouchTarget,
-          foregroundColor: scheme.onSurface,
-          side: BorderSide(color: scheme.outline),
-          shape: _rounded(radii.sm),
-        ),
+        style:
+            OutlinedButton.styleFrom(
+              minimumSize: _minTouchTarget,
+              foregroundColor: scheme.onSurface,
+              shape: _rounded(radii.sm),
+            ).copyWith(
+              side: WidgetStateProperty.resolveWith(
+                (states) => BorderSide(
+                  color: states.contains(WidgetState.disabled)
+                      ? scheme.onSurface.withValues(alpha: _disabledOpacity)
+                      : scheme.outline,
+                ),
+              ),
+            ),
       ),
       cardTheme: CardThemeData(
         color: scheme.surfaceContainer,

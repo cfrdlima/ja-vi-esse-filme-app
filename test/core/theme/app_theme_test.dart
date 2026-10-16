@@ -82,6 +82,15 @@ void main() {
       );
     });
 
+    test('o botão secundário desabilitado deve ter borda onSurface a 12%', () {
+      expect(
+        theme.outlinedButtonTheme.style!.side!.resolve({
+          WidgetState.disabled,
+        })!.color,
+        AppColors.foreground.withValues(alpha: 0.12),
+      );
+    });
+
     test('o card deve usar surfaceContainer, raio md e nenhuma sombra', () {
       final card = theme.cardTheme;
       expect(
