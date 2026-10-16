@@ -115,5 +115,14 @@ void main() {
 
       expect(printed.join('\n'), isNot(contains('s3cr3t')));
     });
+
+    test('deve mascarar segredos na stack trace', () {
+      PlatformDispatcher.instance.onError!(
+        StateError('falha'),
+        StackTrace.fromString('#0 get (session_id=s3cr3t)'),
+      );
+
+      expect(printed.join('\n'), isNot(contains('s3cr3t')));
+    });
   });
 }
