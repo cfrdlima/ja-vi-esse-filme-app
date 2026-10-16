@@ -16,7 +16,7 @@ Ele é a reescrita do projeto web `cfrdlima/Ja-vi-esse-filme` (Next.js + React +
 
 ## Stack
 
-- **Flutter** (Dart SDK ^3.7), Android primeiro, Material 3, tema escuro como padrão.
+- **Flutter** 3.44 (Dart SDK ^3.12.2, conforme o `pubspec.yaml`), Android primeiro, Material 3, tema escuro como padrão.
 - **API TMDB** (`https://api.themoviedb.org/3`), com imagens em `https://image.tmdb.org/t/p/<tamanho>`.
 - `http` como cliente HTTP, `go_router` para rotas e `provider` + `ChangeNotifier` para estado.
 - `cached_network_image` para pôsteres, `flutter_secure_storage` para a sessão TMDB e `shared_preferences` só para flags locais sem nada sensível.

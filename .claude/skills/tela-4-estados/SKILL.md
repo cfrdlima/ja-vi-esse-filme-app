@@ -11,7 +11,7 @@ description: Receita para construir ou alterar uma tela Flutter deste app com os
    - erro → mensagem amigável (nunca a exceção crua) + botão "Tentar de novo" que dispara a ação;
    - sucesso → conteúdo renderizado.
 3. **Estrutura** — a tela faz `switch` exaustivo no estado selado e delega cada estado a um widget próprio (`_LoadingView`, `_EmptyView`… como classes, não métodos `_buildX`).
-4. **Pôsteres** — proporção 2:3, `cached_network_image` com tamanho de imagem do TMDB adequado (`w342` em grade, `w500` em detalhes) e placeholder desenhado quando `posterPath == null`.
+4. **Pôsteres** — proporção 2:3, `cached_network_image` com tamanho de imagem do TMDB adequado (`w342` em grade, `w500` em detalhes) e placeholder desenhado quando `posterPath == null`. Listas e grades sempre com `ListView.builder`/`GridView.builder` (nunca a lista inteira de filhos de uma vez) e itens `const` quando possível.
 5. **Acessibilidade** — `Semantics(label: …)` em pôster e ícone clicável; alvo de toque ≥ 48dp; testar com `textScaler` 1.5 sem overflow (inclua um widget test para isso).
 6. **Validação visual** — rode no emulador; se o MCP do Flutter estiver ativo, tire screenshot de cada estado e compare com o `MASTER.md`/override da tela. Para tela nova, consulte a `ui-ux-pro-max` (stack Flutter) antes de codar.
 7. `flutter analyze` + `flutter test` verdes.
