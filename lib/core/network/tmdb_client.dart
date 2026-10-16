@@ -26,7 +26,7 @@ class TmdbClient {
   }) async {
     final response = await _send(_buildUrl(path, query));
     _throwOnError(response);
-    return _decodeObject(response.body);
+    return _decodeObject(response.bodyBytes);
   }
 
   /// [path] é relativo à base e fixo no código; entrada do usuário vai só na
@@ -64,6 +64,10 @@ class TmdbClient {
       throw const NetworkFailure();
     } on TimeoutException {
       throw const NetworkFailure();
+    } on Exception {
+      // A mensagem original pode ter a URI; não é repassada. Error (bug de
+      // programação) não é capturado de propósito.
+      throw const UnexpectedFailure('falha inesperada no envio');
     }
   }
 
@@ -79,13 +83,15 @@ class TmdbClient {
     };
   }
 
-  Map<String, Object?> _decodeObject(String body) {
+  // O TMDB responde em UTF-8; decodificar os bytes aqui mantém o charset
+  // inválido dentro do mesmo tratamento de corpo inválido.
+  Map<String, Object?> _decodeObject(List<int> bytes) {
     try {
-      final json = jsonDecode(body);
+      final json = jsonDecode(utf8.decode(bytes));
       if (json is Map<String, Object?>) return json;
       throw const UnexpectedFailure('o JSON não é um objeto');
     } on FormatException {
-      throw const UnexpectedFailure('o corpo não é JSON');
+      throw const UnexpectedFailure('o corpo não é JSON em UTF-8');
     }
   }
 
