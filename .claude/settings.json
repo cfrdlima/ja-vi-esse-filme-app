@@ -41,5 +41,23 @@
         ]
       }
     ]
+  },
+  "extraKnownMarketplaces": {
+    "dart-flutter": {
+      "source": {
+        "source": "github",
+        "repo": "flutter/agent-plugins"
+      }
+    },
+    "claude-code-plugins": {
+      "source": {
+        "source": "github",
+        "repo": "anthropics/claude-code"
+      }
+    }
+  },
+  "enabledPlugins": {
+    "dart-flutter@dart-flutter": true,
+    "frontend-design@claude-code-plugins": true
   }
 }
