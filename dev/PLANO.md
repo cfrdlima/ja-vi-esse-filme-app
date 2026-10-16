@@ -3,12 +3,9 @@
 > Fonte da verdade do que construir. Atualizado por `/fechar-sessao`.
 
 ## Última sessão
-**002 — Fase 0: fundação e endurecimento** (fechada em 2026-10-16) · [log](sessoes/002-fundacao-endurecimento.md)
-O manifest ganhou `INTERNET`, perdeu o backup, proíbe cleartext e mostra o nome do app, tudo com teste. Também entraram lints estritos, handlers globais de erro com reporter injetável, `.gitignore` limpo, README e a decisão 003 (minSdk 24). São 134 testes.
-**Próximo passo:** `/sessao 003 — core/config e core/network`.
-- Confirmar a decisão 001 com o token v4 de leitura no header `Authorization: Bearer`.
-- `core/config` lendo `--dart-define-from-file`.
-- `TmdbClient` com falhas tipadas e o redator de segredos no log.
+**003 — Fase 0: core/config e core/network** (fechada em 2026-10-16) · [log](sessoes/003-core-config-network.md)
+O `AppConfig` lê os defines e só aceita HTTPS para `api.themoviedb.org`. O `TmdbClient` usa o token v4 no header `Authorization: Bearer` e transforma todo erro em falha tipada sem URL. O reporter de erros mascara segredos com `redactSecrets`. A decisão 001 foi aceita. São 191 testes.
+**Próximo passo:** `/sessao 004 — shell de navegação com go_router` (Descobrir / Buscar / Minha estante / Perfil), consultando a `ui-ux-pro-max` e com verificação no emulador. A alternativa é começar pela CI, mais curta.
 
 ## Fase 0 — Fundação
 - [x] Criar projeto (`io.github.cfrdlima.ja_vi_esse_filme`), `analysis_options.yaml`, `.gitignore` com `env/*.json` (exceto `example.json`)
@@ -19,15 +16,15 @@ O manifest ganhou `INTERNET`, perdeu o backup, proíbe cleartext e mostra o nome
 - [x] `setup-claude.sh` atualizado (citar a skill `ui-ux-pro-max`)
 - [x] Registrar a justificativa do minSdk 24 (decisão curta ou `CLAUDE.md`)
 - [x] Handlers globais de erro no `main.dart` (`FlutterError.onError` e `PlatformDispatcher.instance.onError`)
-- [ ] `core/config` lendo `--dart-define-from-file` + `env/example.json` (token v4 de leitura; atualizar o README junto)
+- [x] `core/config` lendo `--dart-define-from-file` + `env/example.json` (token v4 de leitura; atualizar o README junto)
 - [x] Gerar design system com `ui-ux-pro-max` (stack Flutter) → `design-system/ja-vi-esse-filme/MASTER.md`
 - [x] `core/theme` com tokens do `MASTER.md` (tema escuro, fontes empacotadas)
-- [ ] `core/network`: cliente TMDB com falhas tipadas (rede, 401, 404, 429, 5xx) — TDD com `MockClient`
-- [ ] `core/network`: autenticar com o token v4 em `Authorization: Bearer`, sem `api_key` na query (auditoria da sessão 002)
-- [ ] Redator de segredos (`api_key`, `session_id`, `request_token`) aplicado no `report` dos handlers, que em release ainda precisa de um destino real (o `developer.log` não aparece)
+- [x] `core/network`: cliente TMDB com falhas tipadas (rede, 401, 404, 429, 5xx) — TDD com `MockClient`
+- [x] `core/network`: autenticar com o token v4 em `Authorization: Bearer`, sem `api_key` na query (auditoria da sessão 002)
+- [x] Redator de segredos (`api_key`, `session_id`, `request_token`) aplicado no `report` dos handlers, que em release ainda precisa de um destino real (o `developer.log` não aparece)
 - [ ] `go_router` com shell de navegação (Descobrir / Buscar / Minha estante / Perfil)
 - [ ] CI (GitHub Actions): format, analyze, test, gitleaks, com a versão do Flutter fixada (3.44.5)
-- [ ] Confirmar decisão 001 (chave TMDB e proxy)
+- [x] Confirmar decisão 001 (chave TMDB e proxy)
 
 ## Antes da Fase 1
 - [ ] Decisão: strings de UI centralizadas (`flutter_localizations` + ARB) ou em constantes
@@ -43,6 +40,7 @@ O manifest ganhou `INTERNET`, perdeu o backup, proíbe cleartext e mostra o nome
 - [ ] Tela "Sobre" com atribuição ao TMDB, política de privacidade e licenças das fontes (`LicenseRegistry`)
 
 ## Fase 2 — Conta TMDB
+- [ ] `TmdbClient` com POST/DELETE e tratamento do 204 com corpo vazio (pré-requisito do login)
 - [ ] Login via sessão TMDB (request_token → navegador → session_id no secure storage), validando a origem do retorno do deep link
 - [ ] Logout invalidando a sessão
 - [ ] `data_extraction_rules.xml` (+ `fullBackupContent`) junto com o `flutter_secure_storage`, e a falha de leitura da sessão tratada como "deslogado"
@@ -57,5 +55,6 @@ O manifest ganhou `INTERNET`, perdeu o backup, proíbe cleartext e mostra o nome
 ## Fase 4 — Polimento e release
 - [ ] Acessibilidade e fonte grande
 - [ ] Ícone, splash, nome do app
-- [ ] Crash reporting (Crashlytics ou Sentry — exige decisão de dependência)
+- [ ] Crash reporting (Crashlytics ou Sentry — exige decisão de dependência); ao entrar, tirar o `debugPrint` do reporter do release (`kDebugMode`)
+- [ ] Rever a decisão 001 (proxy) antes da loja: host do proxy em `AppConfig.allowedHosts`, e atenção ao `replace(queryParameters:)`, que descarta a query da base URL
 - [ ] Build release ofuscado e assinado: pôr `--obfuscate --split-debug-info=build/symbols` no comando do `CLAUDE.md` e trocar a assinatura de debug
