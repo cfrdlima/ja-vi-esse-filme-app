@@ -24,7 +24,16 @@ Gerar o design system do app com a skill `ui-ux-pro-max` (stack Flutter) em `des
 - [x] Corrigir no `CLAUDE.md` a versão do SDK (o `pubspec.yaml` usa `^3.12.2`; o `CLAUDE.md` diz `^3.7`)
 - [x] Incluir no `MASTER.md` o Hero do pôster (grade → detalhes) e o feedback de toque (auditoria ⚠️15)
 - [x] Prever `ListView.builder`/`GridView.builder` na skill `tela-4-estados` (auditoria ⚠️16)
-- [ ] `/revisar` e `/fechar-sessao`
+- [x] `/revisar` (code-reviewer: 0 bloqueantes, 7 importantes, 6 sugestões; tratar 1–7)
+- [ ] Revisão 1 — RED/GREEN: `ColorScheme` com `surfaceContainerLowest/Low/Highest`, `surfaceDim/Bright`, `outlineVariant` e `scrim` do MASTER
+- [ ] Revisão 2 — RED/GREEN: ícone da aba ativa em `onPrimary` sobre o indicador dourado
+- [ ] Revisão 3 — RED/GREEN: `fontFamily` Inter no `ThemeData`, `displayLarge/Medium` em Playfair, `letterSpacing` do MASTER
+- [ ] Revisão 4 — RED/GREEN: borda de foco com 2dp, `errorBorder` e `focusedErrorBorder`
+- [ ] Revisão 5 — RED/GREEN: `bottomSheetTheme` e scrim de 50% em diálogo e sheet
+- [ ] Revisão 6 — RED/GREEN: token `focusRing` na `ThemeExtension`
+- [ ] Revisão 7 — RED/GREEN: borda do `OutlinedButton` desabilitado
+- [ ] Validar de novo no emulador
+- [ ] `/fechar-sessao`
 
 ## Decisões
 - Paleta da skill ajustada (aprovada): `primary` = dourado `#CA8A04`; índigos só como superfície/secundária; `outline` `#6366F1`; `watched` `#34D399`; `error` `#F87171` (o `#EF4444` dava 4,48 sobre o card).
