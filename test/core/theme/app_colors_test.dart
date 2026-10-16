@@ -26,6 +26,13 @@ void main() {
       'outline': ((s) => s.outline, 0xFF6366F1),
       'error': ((s) => s.error, 0xFFF87171),
       'onError': ((s) => s.onError, 0xFF000000),
+      'surfaceContainerLowest': ((s) => s.surfaceContainerLowest, 0xFF0A0A1A),
+      'surfaceContainerLow': ((s) => s.surfaceContainerLow, 0xFF151529),
+      'surfaceContainerHighest': ((s) => s.surfaceContainerHighest, 0xFF2C2C42),
+      'surfaceDim': ((s) => s.surfaceDim, 0xFF0F0F23),
+      'surfaceBright': ((s) => s.surfaceBright, 0xFF2C2C42),
+      'outlineVariant': ((s) => s.outlineVariant, 0xFF3F3F5A),
+      'scrim': ((s) => s.scrim, 0xFF000000),
     };
 
     expectedRoles.forEach((role, expectation) {

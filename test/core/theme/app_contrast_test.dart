@@ -19,6 +19,9 @@ void main() {
     'fundo': AppColors.background,
     'card': AppColors.card,
     'muted': AppColors.muted,
+    'superfície mais baixa': AppColors.surfaceLowest,
+    'superfície baixa': AppColors.surfaceLow,
+    'superfície mais alta': AppColors.surfaceHighest,
   };
 
   test('o cálculo deve reprovar o índigo sobre o fundo', () {
