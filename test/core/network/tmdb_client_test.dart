@@ -35,26 +35,30 @@ void main() {
 
   group('requisição', () {
     test('deve montar a URL com base, path, query e language=pt-BR', () async {
-      final client = clientRespondingWith(
-        readFixture('tmdb_authentication_ok.json'),
-        200,
-      );
+      final client = clientRespondingWith('{}', 200);
 
       await client.get('search/movie', query: {'query': 'Matrix'});
 
       expect(
-        captured.url,
-        Uri.parse(
-          'https://api.themoviedb.org/3/search/movie?query=Matrix&language=pt-BR',
-        ),
+        captured.url.toString().split('?').first,
+        'https://api.themoviedb.org/3/search/movie',
       );
+      expect(captured.url.queryParameters, {
+        'query': 'Matrix',
+        'language': 'pt-BR',
+      });
+    });
+
+    test('deve respeitar o language passado na query', () async {
+      final client = clientRespondingWith('{}', 200);
+
+      await client.get('movie/11', query: {'language': 'en-US'});
+
+      expect(captured.url.queryParameters['language'], 'en-US');
     });
 
     test('deve autenticar com o token de leitura no header Bearer', () async {
-      final client = clientRespondingWith(
-        readFixture('tmdb_authentication_ok.json'),
-        200,
-      );
+      final client = clientRespondingWith('{}', 200);
 
       await client.get('authentication');
 
