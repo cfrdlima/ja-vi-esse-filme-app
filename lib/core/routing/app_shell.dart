@@ -10,12 +10,13 @@ class AppShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Fora da primeira aba, o voltar do Android leva a ela em vez de fechar o
-    // app. A sub-rota de uma aba é desempilhada antes, pelo navigator dela.
+    // Quem leva o voltar para a primeira aba é o [BackToFirstTab]. Este
+    // PopScope existe para avisar o Android na troca de aba, que não mexe na
+    // pilha de nenhum navigator e por isso não gera aviso sozinha.
     return PopScope(
-      canPop: navigationShell.currentIndex == _firstTab,
+      canPop: navigationShell.currentIndex == firstTab,
       onPopInvokedWithResult: (didPop, _) {
-        if (!didPop) navigationShell.goBranch(_firstTab);
+        if (!didPop) navigationShell.goBranch(firstTab);
       },
       child: Scaffold(
         body: navigationShell,
@@ -45,11 +46,36 @@ class AppShell extends StatelessWidget {
     );
   }
 
-  static const _firstTab = 0;
+  static const firstTab = 0;
 
   // Tocar a aba já selecionada volta para a raiz dela, como no Material.
   void _goToTab(int index) => navigationShell.goBranch(
     index,
     initialLocation: index == navigationShell.currentIndex,
   );
+}
+
+/// Raiz de uma aba que não é a primeira: o voltar do Android leva à primeira
+/// aba em vez de fechar o app.
+///
+/// O PopScope precisa ficar dentro do navigator da aba. É ele que avisa o
+/// Android, a cada mudança na pilha da aba, se o app trata o voltar; sem isso,
+/// com predictive back, o sistema fecha o app sem chamar o Flutter.
+class BackToFirstTab extends StatelessWidget {
+  const BackToFirstTab({required this.child, super.key});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) {
+          StatefulNavigationShell.of(context).goBranch(AppShell.firstTab);
+        }
+      },
+      child: child,
+    );
+  }
 }

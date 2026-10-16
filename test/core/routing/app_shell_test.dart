@@ -19,7 +19,9 @@ GoRouter createTestRouter() => GoRouter(
             routes: [
               GoRoute(
                 path: '/$tab',
-                builder: (_, _) => Text('raiz $tab'),
+                builder: (_, _) => tab == 'a'
+                    ? Text('raiz $tab')
+                    : BackToFirstTab(child: Text('raiz $tab')),
                 routes: [
                   GoRoute(
                     path: 'detalhe',
