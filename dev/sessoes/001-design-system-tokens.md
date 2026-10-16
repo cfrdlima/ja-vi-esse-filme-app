@@ -20,7 +20,7 @@ Gerar o design system do app com a skill `ui-ux-pro-max` (stack Flutter) em `des
 - [x] Tokens extras — GREEN: `app_spacing.dart` + `ThemeExtension` / REFACTOR
 - [x] Tema — RED: `AppTheme.dark()` é Material 3, escuro e registra a extensão
 - [x] Tema — GREEN: `app_theme.dart` / REFACTOR: aplicar no `MaterialApp` do `main.dart`
-- [ ] Validar no emulador
+- [x] Validar no emulador (Medium Phone API 36: fundo `#0F0F23` e texto em Inter; o Pixel 9 Pro não subiu porque havia locks de uma instância anterior em `~/.android/avd/Pixel_9_Pro.avd/`)
 - [x] Corrigir no `CLAUDE.md` a versão do SDK (o `pubspec.yaml` usa `^3.12.2`; o `CLAUDE.md` diz `^3.7`)
 - [x] Incluir no `MASTER.md` o Hero do pôster (grade → detalhes) e o feedback de toque (auditoria ⚠️15)
 - [x] Prever `ListView.builder`/`GridView.builder` na skill `tela-4-estados` (auditoria ⚠️16)
