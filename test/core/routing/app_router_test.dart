@@ -21,6 +21,20 @@ Future<void> tapDestination(WidgetTester tester, String label) async {
   await tester.pumpAndSettle();
 }
 
+/// O `Scaffold` da tela de Descobrir, que só mantém o mesmo `State` se a aba
+/// não for reconstruída do zero.
+ScaffoldState discoverScaffoldState(WidgetTester tester) => tester.state(
+  find
+      .ancestor(
+        of: find.descendant(
+          of: find.byType(AppBar),
+          matching: find.text('Descobrir'),
+        ),
+        matching: find.byType(Scaffold),
+      )
+      .first,
+);
+
 void main() {
   group('shell de navegação', () {
     testWidgets('deve abrir na aba Descobrir', (tester) async {
@@ -36,6 +50,20 @@ void main() {
           .widgetList<NavigationDestination>(find.byType(NavigationDestination))
           .map((destination) => destination.label);
       expect(labels, ['Descobrir', 'Buscar', 'Minha estante', 'Perfil']);
+    });
+  });
+
+  group('pilha por aba', () {
+    testWidgets('deve manter o estado da aba ao trocar e voltar', (
+      tester,
+    ) async {
+      await pumpAppRouter(tester);
+      final before = discoverScaffoldState(tester);
+
+      await tapDestination(tester, 'Buscar');
+      await tapDestination(tester, 'Descobrir');
+
+      expect(discoverScaffoldState(tester), same(before));
     });
   });
 
