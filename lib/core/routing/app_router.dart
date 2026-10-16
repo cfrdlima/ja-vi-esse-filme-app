@@ -2,6 +2,7 @@ import 'package:go_router/go_router.dart';
 
 import '../widgets/placeholder_screen.dart';
 import 'app_shell.dart';
+import 'not_found_screen.dart';
 
 abstract final class AppRoutes {
   static const discover = '/descobrir';
@@ -12,6 +13,8 @@ abstract final class AppRoutes {
 
 GoRouter createAppRouter() => GoRouter(
   initialLocation: AppRoutes.discover,
+  errorBuilder: (context, _) =>
+      NotFoundScreen(onGoHome: () => context.go(AppRoutes.discover)),
   routes: [
     StatefulShellRoute.indexedStack(
       builder: (_, _, navigationShell) =>
