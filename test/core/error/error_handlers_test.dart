@@ -84,4 +84,36 @@ void main() {
 
     expect(handled, isTrue);
   });
+
+  group('reporter padrão', () {
+    late DebugPrintCallback originalDebugPrint;
+    late List<String> printed;
+
+    setUp(() {
+      originalDebugPrint = debugPrint;
+      printed = [];
+      debugPrint = (message, {wrapWidth}) => printed.add(message ?? '');
+      registerErrorHandlers();
+    });
+
+    tearDown(() => debugPrint = originalDebugPrint);
+
+    test('deve imprimir o erro não tratado', () {
+      PlatformDispatcher.instance.onError!(
+        StateError('falha ao buscar filmes'),
+        StackTrace.empty,
+      );
+
+      expect(printed.join('\n'), contains('falha ao buscar filmes'));
+    });
+
+    test('deve mascarar segredos antes de imprimir', () {
+      PlatformDispatcher.instance.onError!(
+        StateError('GET /account?session_id=s3cr3t'),
+        StackTrace.empty,
+      );
+
+      expect(printed.join('\n'), isNot(contains('s3cr3t')));
+    });
+  });
 }
