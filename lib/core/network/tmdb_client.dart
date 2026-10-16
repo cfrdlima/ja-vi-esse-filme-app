@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:http/http.dart' as http;
 
 import '../config/app_config.dart';
@@ -12,15 +14,19 @@ class TmdbClient {
   final http.Client _httpClient;
   final AppConfig _config;
 
-  Future<void> get(String path, {Map<String, String> query = const {}}) async {
+  Future<Map<String, Object?>> get(
+    String path, {
+    Map<String, String> query = const {},
+  }) async {
     final base = _config.tmdbBaseUrl;
     final url = base.replace(
       path: '${base.path}/$path',
       queryParameters: {...query, 'language': 'pt-BR'},
     );
-    await _httpClient.get(
+    final response = await _httpClient.get(
       url,
       headers: {'Authorization': 'Bearer ${_config.tmdbReadToken}'},
     );
+    return jsonDecode(response.body) as Map<String, Object?>;
   }
 }
