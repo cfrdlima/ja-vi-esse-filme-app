@@ -273,4 +273,44 @@ void main() {
       expect(client.get('movie/11'), throwsA(isA<UnexpectedFailure>()));
     });
   });
+
+  group('exceção inesperada', () {
+    test('deve lançar UnexpectedFailure com UTF-8 inválido no corpo', () {
+      final client = TmdbClient(
+        httpClient: MockClient(
+          (_) async => http.Response.bytes(
+            [0xff, 0xfe, 0xfd],
+            200,
+            headers: {'content-type': 'application/json; charset=utf-8'},
+          ),
+        ),
+        config: config,
+      );
+
+      expect(client.get('movie/11'), throwsA(isA<UnexpectedFailure>()));
+    });
+
+    test(
+      'deve lançar UnexpectedFailure quando o envio lança outra Exception',
+      () {
+        final client = TmdbClient(
+          httpClient: MockClient(
+            (_) async => throw const FormatException('header inválido'),
+          ),
+          config: config,
+        );
+
+        expect(client.get('movie/11'), throwsA(isA<UnexpectedFailure>()));
+      },
+    );
+
+    test('deve deixar erro de programação (Error) escapar sem conversão', () {
+      final client = TmdbClient(
+        httpClient: MockClient((_) async => throw ArgumentError('bug')),
+        config: config,
+      );
+
+      expect(client.get('movie/11'), throwsArgumentError);
+    });
+  });
 }
