@@ -9,7 +9,9 @@ typedef ErrorReporter = void Function(Object error, StackTrace? stack);
 /// Captura erros do framework e erros assíncronos que escapariam da zona raiz.
 void registerErrorHandlers({ErrorReporter report = _logError}) {
   FlutterError.onError = (details) {
-    FlutterError.presentError(details);
+    // Em release, o console padrão também imprime no logcat, sem passar pelo
+    // report. O report fica como o único caminho do erro fora do debug.
+    if (kDebugMode) FlutterError.presentError(details);
     report(details.exception, details.stack);
   };
   PlatformDispatcher.instance.onError = (error, stack) {
