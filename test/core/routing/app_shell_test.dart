@@ -48,6 +48,14 @@ Future<void> tapDestination(WidgetTester tester, int index) async {
   await tester.pumpAndSettle();
 }
 
+/// Simula o botão voltar do Android; `false` significa que o sistema fecharia
+/// o app.
+Future<bool> pressBack(WidgetTester tester, GoRouter router) async {
+  final handled = await router.routerDelegate.popRoute();
+  await tester.pumpAndSettle();
+  return handled;
+}
+
 void main() {
   group('aba ativa', () {
     testWidgets('deve voltar para a raiz ao tocar na aba já selecionada', (
@@ -75,5 +83,49 @@ void main() {
         expect(router.state.matchedLocation, '/a/detalhe');
       },
     );
+  });
+
+  group('botão voltar', () {
+    testWidgets('deve levar para a primeira aba quando está na raiz de outra', (
+      tester,
+    ) async {
+      final router = await pumpShell(tester);
+      await tapDestination(tester, 2);
+
+      await pressBack(tester, router);
+
+      expect(router.state.matchedLocation, '/a');
+    });
+
+    testWidgets('deve tratar o voltar na raiz de outra aba', (tester) async {
+      final router = await pumpShell(tester);
+      await tapDestination(tester, 2);
+
+      final handled = await pressBack(tester, router);
+
+      expect(handled, isTrue);
+    });
+
+    testWidgets('deve desempilhar a sub-rota antes de trocar de aba', (
+      tester,
+    ) async {
+      final router = await pumpShell(tester);
+      router.go('/b/detalhe');
+      await tester.pumpAndSettle();
+
+      await pressBack(tester, router);
+
+      expect(router.state.matchedLocation, '/b');
+    });
+
+    testWidgets('deve deixar o sistema fechar o app na raiz da primeira aba', (
+      tester,
+    ) async {
+      final router = await pumpShell(tester);
+
+      final handled = await pressBack(tester, router);
+
+      expect(handled, isFalse);
+    });
   });
 }
