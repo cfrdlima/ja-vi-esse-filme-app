@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
@@ -152,6 +154,59 @@ void main() {
       final client = clientRespondingWith('', 422);
 
       expect(client.get('movie/11'), throwsA(isA<UnexpectedFailure>()));
+    });
+  });
+
+  group('falha de rede', () {
+    TmdbClient clientThrowing(Object error) {
+      return TmdbClient(
+        httpClient: MockClient((_) async => throw error),
+        config: config,
+      );
+    }
+
+    test('deve lançar NetworkFailure quando o http lança ClientException', () {
+      final client = clientThrowing(
+        http.ClientException(
+          'Connection closed',
+          Uri.parse('https://api.themoviedb.org/3/movie/11'),
+        ),
+      );
+
+      expect(client.get('movie/11'), throwsA(isA<NetworkFailure>()));
+    });
+
+    test('deve lançar NetworkFailure quando não há conexão', () {
+      final client = clientThrowing(
+        const SocketException('Failed host lookup'),
+      );
+
+      expect(client.get('movie/11'), throwsA(isA<NetworkFailure>()));
+    });
+
+    test('deve lançar NetworkFailure quando a resposta demora demais', () {
+      final client = TmdbClient(
+        httpClient: MockClient((_) => Completer<http.Response>().future),
+        config: config,
+        timeout: const Duration(milliseconds: 1),
+      );
+
+      expect(client.get('movie/11'), throwsA(isA<NetworkFailure>()));
+    });
+
+    test('não deve levar a URL da requisição na falha', () async {
+      final client = clientThrowing(
+        http.ClientException(
+          'Connection closed',
+          Uri.parse('https://api.themoviedb.org/3/account?session_id=segredo'),
+        ),
+      );
+
+      final failure = await client
+          .get('account')
+          .then<Object?>((_) => null, onError: (Object error) => error);
+
+      expect(failure.toString(), isNot(contains('segredo')));
     });
   });
 }
