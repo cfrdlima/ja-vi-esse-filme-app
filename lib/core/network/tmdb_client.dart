@@ -24,14 +24,27 @@ class TmdbClient {
     String path, {
     Map<String, String> query = const {},
   }) async {
-    final base = _config.tmdbBaseUrl;
-    final url = base.replace(
-      path: '${base.path}/$path',
-      queryParameters: {'language': 'pt-BR', ...query},
-    );
-    final response = await _send(url);
+    final response = await _send(_buildUrl(path, query));
     _throwOnError(response);
     return _decodeObject(response.body);
+  }
+
+  /// [path] é relativo à base e fixo no código; entrada do usuário vai só na
+  /// [query], que o `Uri` codifica.
+  Uri _buildUrl(String path, Map<String, String> query) {
+    final segments = path.split('/').where((s) => s.isNotEmpty).toList();
+    final unsafe = segments.any(
+      (s) => s == '.' || s == '..' || s.contains('?') || s.contains('#'),
+    );
+    if (unsafe) throw ArgumentError.value(path, 'path', 'path inseguro');
+    final base = _config.tmdbBaseUrl;
+    return base.replace(
+      pathSegments: [
+        ...base.pathSegments.where((s) => s.isNotEmpty),
+        ...segments,
+      ],
+      queryParameters: {'language': 'pt-BR', ...query},
+    );
   }
 
   // As exceções do http e do dart:io carregam a URI, que pode ter segredo.
