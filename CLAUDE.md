@@ -12,7 +12,7 @@ Ele é a reescrita do projeto web `cfrdlima/Ja-vi-esse-filme` (Next.js + React +
 
 - Roadmap e o que vem a seguir: `dev/PLANO.md` (fonte da verdade).
 - Decisões: `dev/decisoes/`. Leia a **001** antes de mexer em auth, rede ou chaves.
-- Design: `docs/DESIGN.md` (tokens, tipografia e padrões de tela).
+- Design: `design-system/ja-vi-esse-filme/MASTER.md` (fonte da verdade, gerado pela skill `ui-ux-pro-max`). Regras de adaptação em `docs/DESIGN.md`.
 
 ## Stack
 
@@ -90,11 +90,11 @@ Siga o _Clean Code_ sempre que possível, sem dogma. Se um princípio brigar com
 
 ## Design / UI
 
-- Siga `docs/DESIGN.md`. Cores, tipografia e espaçamento vêm de `core/theme/` (`ThemeData` + `ThemeExtension`). **Nada de `Color(0x...)` ou tamanho mágico dentro de widget.**
+- Siga o `MASTER.md` do design system e as regras de `docs/DESIGN.md`. Cores, tipografia e espaçamento vêm de `core/theme/` (`ThemeData` + `ThemeExtension`). **Nada de `Color(0x...)` ou tamanho mágico dentro de widget.**
 - **Toda tela tem os 4 estados**: carregando (skeleton, não spinner solto), vazio, erro (com "tentar de novo") e sucesso.
 - Acessibilidade: `Semantics` em pôster e ícone clicável, alvo de toque ≥ 48dp, contraste AA e suporte a fonte grande sem overflow.
 - Pôster sem `poster_path` mostra um placeholder desenhado, nunca uma imagem quebrada.
-- Para UI nova, use a skill `frontend-design` para a direção visual antes de codar. Depois de mexer na tela, valide no emulador.
+- Direção visual e regras de UX vêm da skill `ui-ux-pro-max`, **sempre com stack Flutter**. Antes de criar uma tela nova, consulte a skill para os padrões daquela tela. Se precisar de regra específica, gere um override em `pages/<tela>.md`. A `frontend-design` é opcional, só para explorar conceitos. Depois de mexer na tela, valide no emulador (screenshot via MCP do Flutter).
 
 ## Segurança (não negociável)
 
@@ -147,3 +147,9 @@ Commits: `add:`, `fix:`, `refactor:`, `test:`, `docs:`, `chore:`, com mensagem c
 - Não adicionar dependência sem perguntar.
 - Não inventar campo do TMDB. Na dúvida, confira a documentação oficial (Context7/web) antes de modelar.
 - Não repetir aqui o plano ou as decisões. Aponte para `dev/`.
+
+## Skills e plugins
+
+Plugins declarados em `.claude/settings.json` (`dart-flutter`, `frontend-design`), MCP em `.mcp.json` (`context7`; o MCP do Flutter vem com o plugin) e skills próprias em `.claude/skills/` (`tmdb-endpoint`, `nova-feature-clean`, `tela-4-estados`, `ui-ux-pro-max`).
+A `ui-ux-pro-max` é a fonte de design; quando ela sugerir algo de web (imports do Google Fonts, CSS, Tailwind), traduza para o equivalente Flutter conforme `docs/DESIGN.md`.
+**Em conflito com skills instaladas, a arquitetura e as convenções deste CLAUDE.md prevalecem** (ex.: `flutter-apply-architecture-best-practices` propõe outra divisão de camadas — siga a Clean Architecture por feature daqui).

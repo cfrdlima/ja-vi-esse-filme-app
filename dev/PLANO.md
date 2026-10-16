@@ -8,7 +8,8 @@ _Nenhuma ainda. Comece com `/sessao`._
 ## Fase 0 — Fundação
 - [ ] Criar projeto (`flutter create --org <seu.dominio> ja_vi_esse_filme`), `analysis_options.yaml`, `.gitignore` com `env/*.json` (exceto `example.json`)
 - [ ] `core/config` lendo `--dart-define-from-file` + `env/example.json`
-- [ ] `core/theme` com tokens do `docs/DESIGN.md` (tema escuro)
+- [ ] Gerar design system com `ui-ux-pro-max` (stack Flutter) → `design-system/ja-vi-esse-filme/MASTER.md`
+- [ ] `core/theme` com tokens do `MASTER.md` (tema escuro, fontes empacotadas)
 - [ ] `core/network`: cliente TMDB com falhas tipadas (rede, 401, 404, 429) — TDD com `MockClient`
 - [ ] `go_router` com shell de navegação (Descobrir / Buscar / Minha estante / Perfil)
 - [ ] CI (GitHub Actions): format, analyze, test, gitleaks
