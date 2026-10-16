@@ -39,6 +39,8 @@ final class ServerFailure extends Failure {
 final class UnexpectedFailure extends Failure {
   const UnexpectedFailure(this.reason);
 
+  /// Texto fixo escrito no código, que vai para o `toString` e para o log.
+  /// Nunca receba aqui corpo de resposta, URL ou mensagem de outra exceção.
   final String reason;
 
   @override
