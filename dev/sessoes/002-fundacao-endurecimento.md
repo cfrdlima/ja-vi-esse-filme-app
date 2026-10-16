@@ -21,6 +21,11 @@ Endurecer a base antes do `core/network`: manifest seguro e com o nome do app, l
 - [x] Falha 5xx: confirmar que já está no item `core/network` do PLANO (nada a codar agora)
 - [x] Tríade: `flutter analyze` limpo, `flutter test` verde, app abre no emulador
 - [x] `security-auditor` no diff (a sessão mexe no manifest)
+- [ ] Revisão 1+2 — RED: handlers apresentam o erro no console só em debug e repassam a stack trace ao reporter
+- [ ] Revisão 1+2 — GREEN: `FlutterError.presentError` protegido por `kDebugMode` / REFACTOR
+- [ ] Revisão 3 — RED/GREEN: teste do manifest checa os atributos dentro da tag `<application>`, com regex tolerante a espaço para `INTERNET`
+- [ ] Revisão 4: remover as regras já incluídas (`avoid_print`, `sort_child_properties_last`, `prefer_final_fields`, `use_super_parameters`) e acrescentar `discarded_futures`
+- [ ] Revisão 7: na decisão 003, dizer que o risco da opção 1 é perder aparelhos, e não quebrar o build
 
 ## Decisões
 - [003 — minSdk 24 herdado do Flutter](../decisoes/003-min-sdk.md)
@@ -41,3 +46,7 @@ Endurecer a base antes do `core/network`: manifest seguro e com o nome do app, l
   - **Antes do primeiro APK de release:** o comando de build do `CLAUDE.md` não tem `--obfuscate --split-debug-info=build/symbols`, que a decisão 001 exige. O release ainda assina com a chave de debug.
   - **Na sessão que adicionar o `flutter_secure_storage`:** criar `data_extraction_rules.xml`, excluindo os dados em `cloud-backup` e `device-transfer`, mais o `fullBackupContent`. Também tratar a falha de leitura da sessão como "deslogado".
   - Sugestão: se um dia existir `.env.example`, adicionar `!.env.example` ao `.gitignore`.
+- Revisão (`code-reviewer`), itens não aceitos agora:
+  - 5: `main()` sem teste de composição. Extrair um `bootstrap()` testável quando o `main` crescer.
+  - 6: atualizar o README e o `env/example.json` para o token v4 na sessão do `TmdbClient`.
+  - O redator e o destino real do `report` em release entram na sessão do `TmdbClient`, porque o `developer.log` não aparece em release.
