@@ -67,7 +67,7 @@ void main() {
       final labels = tester
           .widgetList<NavigationDestination>(find.byType(NavigationDestination))
           .map((destination) => destination.label);
-      expect(labels, ['Descobrir', 'Buscar', 'Minha estante', 'Perfil']);
+      expect(labels, ['Descobrir', 'Buscar', 'Estante', 'Perfil']);
     });
   });
 
@@ -111,7 +111,7 @@ void main() {
     for (final (label, route, index) in [
       ('Descobrir', AppRoutes.discover, 0),
       ('Buscar', AppRoutes.search, 1),
-      ('Minha estante', AppRoutes.shelf, 2),
+      ('Estante', AppRoutes.shelf, 2),
       ('Perfil', AppRoutes.profile, 3),
     ]) {
       testWidgets('deve ir para $route ao tocar em $label', (tester) async {
@@ -130,7 +130,7 @@ void main() {
     ) async {
       await pumpAppRouter(tester);
 
-      await tapDestination(tester, 'Minha estante');
+      await tapDestination(tester, 'Estante');
 
       final bar = tester.widget<NavigationBar>(find.byType(NavigationBar));
       expect(bar.selectedIndex, 2);

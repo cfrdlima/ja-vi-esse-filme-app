@@ -32,7 +32,7 @@ class AppShell extends StatelessWidget {
             NavigationDestination(
               icon: Icon(Icons.video_library_outlined),
               selectedIcon: Icon(Icons.video_library),
-              label: 'Minha estante',
+              label: 'Estante',
             ),
             NavigationDestination(
               icon: Icon(Icons.person_outline),
