@@ -53,6 +53,28 @@ void main() {
     });
   });
 
+  group('rota desconhecida', () {
+    testWidgets('deve mostrar que a página não foi encontrada', (tester) async {
+      final router = await pumpAppRouter(tester);
+
+      router.go('/nao-existe');
+      await tester.pumpAndSettle();
+
+      expect(find.text('Página não encontrada'), findsOneWidget);
+    });
+
+    testWidgets('deve voltar para Descobrir pela ação da tela', (tester) async {
+      final router = await pumpAppRouter(tester);
+      router.go('/nao-existe');
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Ir para Descobrir'));
+      await tester.pumpAndSettle();
+
+      expect(router.state.matchedLocation, AppRoutes.discover);
+    });
+  });
+
   group('pilha por aba', () {
     testWidgets('deve manter o estado da aba ao trocar e voltar', (
       tester,
