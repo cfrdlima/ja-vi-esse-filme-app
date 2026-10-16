@@ -27,7 +27,7 @@ class TmdbClient {
     final base = _config.tmdbBaseUrl;
     final url = base.replace(
       path: '${base.path}/$path',
-      queryParameters: {...query, 'language': 'pt-BR'},
+      queryParameters: {'language': 'pt-BR', ...query},
     );
     final response = await _send(url);
     _throwOnError(response);
