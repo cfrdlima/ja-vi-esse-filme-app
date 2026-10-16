@@ -7,6 +7,7 @@ import 'package:ja_vi_esse_filme/core/theme/app_theme_tokens.dart';
 import 'package:ja_vi_esse_filme/core/theme/app_typography.dart';
 
 const _minTouchTarget = 48.0;
+final _scrim50 = AppColors.scrim.withValues(alpha: 0.5);
 
 RoundedRectangleBorder _shapeOf(ButtonStyle? style) =>
     style!.shape!.resolve({})! as RoundedRectangleBorder;
@@ -102,6 +103,26 @@ void main() {
         ),
         (AppColors.muted, BorderRadius.circular(radii.lg)),
       );
+    });
+
+    test('o diálogo deve ter scrim preto a 50%', () {
+      expect(theme.dialogTheme.barrierColor, _scrim50);
+    });
+
+    test('o bottom sheet deve usar surfaceContainerHigh', () {
+      expect(theme.bottomSheetTheme.backgroundColor, AppColors.muted);
+    });
+
+    test('o bottom sheet deve ter raio lg só nos cantos de cima', () {
+      final shape = theme.bottomSheetTheme.shape! as RoundedRectangleBorder;
+      expect(
+        shape.borderRadius,
+        BorderRadius.vertical(top: Radius.circular(radii.lg)),
+      );
+    });
+
+    test('o bottom sheet modal deve ter scrim preto a 50%', () {
+      expect(theme.bottomSheetTheme.modalBarrierColor, _scrim50);
     });
 
     test('o campo de texto deve ser preenchido com surfaceContainerHigh', () {

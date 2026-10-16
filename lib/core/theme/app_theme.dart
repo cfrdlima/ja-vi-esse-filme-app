@@ -9,10 +9,12 @@ import 'app_typography.dart';
 abstract final class AppTheme {
   static const _minTouchTarget = Size(64, 48);
   static const _focusedBorderWidth = 2.0;
+  static const _scrimOpacity = 0.5;
 
   static ThemeData dark() {
     const scheme = AppColors.darkScheme;
     const radii = AppRadii.standard;
+    final barrier = scheme.scrim.withValues(alpha: _scrimOpacity);
 
     return ThemeData(
       useMaterial3: true,
@@ -44,6 +46,14 @@ abstract final class AppTheme {
       dialogTheme: DialogThemeData(
         backgroundColor: scheme.surfaceContainerHigh,
         shape: _rounded(radii.lg),
+        barrierColor: barrier,
+      ),
+      bottomSheetTheme: BottomSheetThemeData(
+        backgroundColor: scheme.surfaceContainerHigh,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(radii.lg)),
+        ),
+        modalBarrierColor: barrier,
       ),
       inputDecorationTheme: InputDecorationThemeData(
         filled: true,
