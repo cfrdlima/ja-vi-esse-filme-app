@@ -1,6 +1,6 @@
 # Sessão 001 — Fase 0: design system com ui-ux-pro-max e tokens em core/theme
 
-**Data**: 2026-10-16 · **Branch**: `feature/001-design-system-tokens` · **Status**: aberta
+**Data**: 2026-10-16 · **Branch**: `feature/001-design-system-tokens` · **Status**: fechada
 
 ## Objetivo
 Gerar o design system do app com a skill `ui-ux-pro-max` (stack Flutter) em `design-system/ja-vi-esse-filme/MASTER.md`, aprovado pelo usuário. Depois, traduzi-lo em tokens testados em `lib/core/theme/` (Material 3, tema escuro, fontes empacotadas) e aplicar o tema no `MaterialApp`.
@@ -33,7 +33,7 @@ Gerar o design system do app com a skill `ui-ux-pro-max` (stack Flutter) em `des
 - [x] Revisão 6 — RED/GREEN: token `focusRing` na `ThemeExtension`
 - [x] Revisão 7 — RED/GREEN: borda do `OutlinedButton` desabilitado
 - [x] Validar de novo no emulador (Medium Phone API 36, sem exceções no log)
-- [ ] `/fechar-sessao`
+- [x] `/fechar-sessao` (format sem mudanças, `flutter analyze` sem issues, 124 testes passando, gitleaks sem vazamentos)
 
 ## Decisões
 - Paleta da skill ajustada (aprovada): `primary` = dourado `#CA8A04`; índigos só como superfície/secundária; `outline` `#6366F1`; `watched` `#34D399`; `error` `#F87171` (o `#EF4444` dava 4,48 sobre o card).
@@ -41,6 +41,27 @@ Gerar o design system do app com a skill `ui-ux-pro-max` (stack Flutter) em `des
 - [002 — Adotar a skill ui-ux-pro-max como fonte da verdade de design](../decisoes/002-ui-ux-pro-max-fonte-de-design.md)
 
 ## Commits
+- `19c4228` docs: move checklist de prontidão para dev/
+- `68bacd2` docs: abre sessão 001 (design system e tokens)
+- `b1ffc49` docs: adiciona MASTER.md do design system (cinema escuro, Playfair + Inter)
+- `18f73d0` chore: empacota Playfair Display e Inter (OFL) em assets/fonts
+- `6cc304d` add: paleta escura do tema (ColorScheme do MASTER.md)
+- `527590c` test: contraste AA dos pares de cor do tema
+- `378df30` add: escala tipográfica com Playfair Display e Inter
+- `4d27638` add: ThemeExtension com espaçamento, raios e cor de "já visto"
+- `0c4458e` add: AppTheme.dark com Material 3 e componentes do MASTER.md
+- `71261c9` add: aplica AppTheme.dark no MaterialApp
+- `aaeada0` docs: corrige versão do SDK no CLAUDE.md e exige builder em listas
+- `f876902` docs: registra validação do tema no emulador
+- `a781f48` docs: completa papéis M3, tipografia e componentes no MASTER.md
+- `26038e1` fix: define superfícies, outlineVariant e scrim do ColorScheme
+- `5909458` fix: ícone da aba ativa em onPrimary para contraste sobre o dourado
+- `e8c00a5` fix: Inter como família padrão, display em Playfair e letterSpacing do MASTER
+- `ffe81c4` fix: bordas de foco e de erro no campo de texto
+- `74e6136` fix: tema do bottom sheet e scrim de 50% em diálogo e sheet
+- `b4cd184` fix: token focusRing na ThemeExtension
+- `1e3d89b` fix: borda do OutlinedButton desabilitado segue o M3
+- `40fd82b` docs: registra achados da revisão tratados na sessão 001
 
 ## Notas
 - Revisão: escolhi `surfaceContainerHighest` `#2C2C42`, e não um tom mais claro, para que o dourado (4,6:1) e o `outline` (3,0:1) ainda passem sobre ela. O `surfaceBright` usa o mesmo tom.
@@ -48,7 +69,11 @@ Gerar o design system do app com a skill `ui-ux-pro-max` (stack Flutter) em `des
 - Contraste: o RED do ciclo veio dos tokens de "já visto", que ainda não existiam. Os outros pares já tinham sido calculados ao aprovar a paleta, então passaram de primeira; um teste extra garante que o cálculo reprova um par ruim (índigo sobre o fundo).
 - Tipografia, REFACTOR: troquei a subclasse de `TextStyle` por funções. A subclasse muda o `runtimeType`, e isso quebra o `==` do `TextStyle`.
 - Auditoria de prontidão (`dev/checklist-prontidao.md`): PRONTO COM RESSALVAS, sem bloqueantes. O usuário resolve emulador e licenças Android no terminal.
-- **No `/fechar-sessao` desta sessão:**
+- **Pendências:**
+  - Sugestões 8, 9, 11 e 12 da revisão não foram tratadas: teste tautológico das famílias, teste que repete o `ColorScheme`, `app_contrast_test.dart` sem espelho em `lib/` e `AppTheme.dark()` recriado a cada `build`. As sugestões 10 e 13 foram para o `BACKLOG.md`.
+  - Registrar as licenças OFL no `LicenseRegistry` (tela "Sobre", Fase 1).
+  - A tela ainda é o "Hello World": os componentes do tema só foram verificados por testes, não visualmente.
+- **No `/fechar-sessao` desta sessão** (feito):
   - No `PLANO.md`, marcar a criação do projeto como feita e incluir os itens que a auditoria achou fora do plano:
     - Fase 0: manifest (`INTERNET`, `allowBackup`, cleartext explícito), handlers de erro globais, falha 5xx, README, CI com versão do Flutter fixada.
     - Antes da Fase 1: decisão sobre strings de UI (ARB ou constantes) e `intl`; política de privacidade.
