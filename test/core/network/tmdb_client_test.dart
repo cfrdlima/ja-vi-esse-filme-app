@@ -88,10 +88,10 @@ void main() {
       'movie/11?x=1',
       'movie/11#a',
     ]) {
-      test('deve recusar o path inseguro "$path"', () {
+      test('deve recusar o path inseguro "$path"', () async {
         final client = clientRespondingWith('{}', 200);
 
-        expect(() => client.get(path), throwsArgumentError);
+        await expectLater(() => client.get(path), throwsArgumentError);
       });
     }
 
@@ -138,38 +138,44 @@ void main() {
   });
 
   group('status de erro', () {
-    test('deve lançar UnauthorizedFailure no 401', () {
+    test('deve lançar UnauthorizedFailure no 401', () async {
       final client = clientRespondingWith(
         readFixture('tmdb_error_401.json'),
         401,
       );
 
-      expect(client.get('movie/11'), throwsA(isA<UnauthorizedFailure>()));
+      await expectLater(
+        client.get('movie/11'),
+        throwsA(isA<UnauthorizedFailure>()),
+      );
     });
 
-    test('deve lançar NotFoundFailure no 404', () {
+    test('deve lançar NotFoundFailure no 404', () async {
       final client = clientRespondingWith(
         readFixture('tmdb_error_404.json'),
         404,
       );
 
-      expect(client.get('movie/0'), throwsA(isA<NotFoundFailure>()));
+      await expectLater(client.get('movie/0'), throwsA(isA<NotFoundFailure>()));
     });
 
-    test('deve lançar RateLimitFailure no 429', () {
+    test('deve lançar RateLimitFailure no 429', () async {
       final client = clientRespondingWith('', 429);
 
-      expect(client.get('movie/11'), throwsA(isA<RateLimitFailure>()));
+      await expectLater(
+        client.get('movie/11'),
+        throwsA(isA<RateLimitFailure>()),
+      );
     });
 
-    test('deve ler o Retry-After do 429 quando ele vier', () {
+    test('deve ler o Retry-After do 429 quando ele vier', () async {
       final client = clientRespondingWith(
         '',
         429,
         headers: {'retry-after': '3'},
       );
 
-      expect(
+      await expectLater(
         client.get('movie/11'),
         throwsA(
           isA<RateLimitFailure>().having(
@@ -181,10 +187,10 @@ void main() {
       );
     });
 
-    test('deve lançar ServerFailure com o status no 5xx', () {
+    test('deve lançar ServerFailure com o status no 5xx', () async {
       final client = clientRespondingWith('', 503);
 
-      expect(
+      await expectLater(
         client.get('movie/11'),
         throwsA(
           isA<ServerFailure>().having((f) => f.statusCode, 'statusCode', 503),
@@ -192,10 +198,13 @@ void main() {
       );
     });
 
-    test('deve lançar UnexpectedFailure em outro status de erro', () {
+    test('deve lançar UnexpectedFailure em outro status de erro', () async {
       final client = clientRespondingWith('', 422);
 
-      expect(client.get('movie/11'), throwsA(isA<UnexpectedFailure>()));
+      await expectLater(
+        client.get('movie/11'),
+        throwsA(isA<UnexpectedFailure>()),
+      );
     });
   });
 
@@ -207,41 +216,53 @@ void main() {
       );
     }
 
-    test('deve lançar NetworkFailure quando o http lança ClientException', () {
-      final client = clientThrowing(
-        http.ClientException(
-          'Connection closed',
-          Uri.parse('https://api.themoviedb.org/3/movie/11'),
-        ),
-      );
+    test(
+      'deve lançar NetworkFailure quando o http lança ClientException',
+      () async {
+        final client = clientThrowing(
+          http.ClientException(
+            'Connection closed',
+            Uri.parse('https://api.themoviedb.org/3/movie/11'),
+          ),
+        );
 
-      expect(client.get('movie/11'), throwsA(isA<NetworkFailure>()));
-    });
+        await expectLater(
+          client.get('movie/11'),
+          throwsA(isA<NetworkFailure>()),
+        );
+      },
+    );
 
-    test('deve lançar NetworkFailure quando não há conexão', () {
+    test('deve lançar NetworkFailure quando não há conexão', () async {
       final client = clientThrowing(
         const SocketException('Failed host lookup'),
       );
 
-      expect(client.get('movie/11'), throwsA(isA<NetworkFailure>()));
+      await expectLater(client.get('movie/11'), throwsA(isA<NetworkFailure>()));
     });
 
-    test('deve lançar NetworkFailure quando a resposta demora demais', () {
-      final client = TmdbClient(
-        httpClient: MockClient((_) => Completer<http.Response>().future),
-        config: config,
-        timeout: const Duration(milliseconds: 1),
-      );
+    test(
+      'deve lançar NetworkFailure quando a resposta demora demais',
+      () async {
+        final client = TmdbClient(
+          httpClient: MockClient((_) => Completer<http.Response>().future),
+          config: config,
+          timeout: const Duration(milliseconds: 1),
+        );
 
-      expect(client.get('movie/11'), throwsA(isA<NetworkFailure>()));
-    });
+        await expectLater(
+          client.get('movie/11'),
+          throwsA(isA<NetworkFailure>()),
+        );
+      },
+    );
 
-    test('deve lançar NetworkFailure em falha de TLS', () {
+    test('deve lançar NetworkFailure em falha de TLS', () async {
       final client = clientThrowing(
         const HandshakeException('certificado inválido'),
       );
 
-      expect(client.get('movie/11'), throwsA(isA<NetworkFailure>()));
+      await expectLater(client.get('movie/11'), throwsA(isA<NetworkFailure>()));
     });
 
     test('não deve levar a URL da requisição na falha', () async {
@@ -252,30 +273,38 @@ void main() {
         ),
       );
 
-      final failure = await client
-          .get('account')
-          .then<Object?>((_) => null, onError: (Object error) => error);
-
-      expect(failure.toString(), isNot(contains('segredo')));
+      await expectLater(
+        client.get('account'),
+        throwsA(predicate((Object e) => !'$e'.contains('segredo'))),
+      );
     });
   });
 
   group('corpo inválido', () {
-    test('deve lançar UnexpectedFailure quando o corpo não é JSON', () {
+    test('deve lançar UnexpectedFailure quando o corpo não é JSON', () async {
       final client = clientRespondingWith('<html>erro</html>', 200);
 
-      expect(client.get('movie/11'), throwsA(isA<UnexpectedFailure>()));
+      await expectLater(
+        client.get('movie/11'),
+        throwsA(isA<UnexpectedFailure>()),
+      );
     });
 
-    test('deve lançar UnexpectedFailure quando o JSON não é um objeto', () {
-      final client = clientRespondingWith('[1, 2, 3]', 200);
+    test(
+      'deve lançar UnexpectedFailure quando o JSON não é um objeto',
+      () async {
+        final client = clientRespondingWith('[1, 2, 3]', 200);
 
-      expect(client.get('movie/11'), throwsA(isA<UnexpectedFailure>()));
-    });
+        await expectLater(
+          client.get('movie/11'),
+          throwsA(isA<UnexpectedFailure>()),
+        );
+      },
+    );
   });
 
   group('exceção inesperada', () {
-    test('deve lançar UnexpectedFailure com UTF-8 inválido no corpo', () {
+    test('deve lançar UnexpectedFailure com UTF-8 inválido no corpo', () async {
       final client = TmdbClient(
         httpClient: MockClient(
           (_) async => http.Response.bytes(
@@ -287,12 +316,15 @@ void main() {
         config: config,
       );
 
-      expect(client.get('movie/11'), throwsA(isA<UnexpectedFailure>()));
+      await expectLater(
+        client.get('movie/11'),
+        throwsA(isA<UnexpectedFailure>()),
+      );
     });
 
     test(
       'deve lançar UnexpectedFailure quando o envio lança outra Exception',
-      () {
+      () async {
         final client = TmdbClient(
           httpClient: MockClient(
             (_) async => throw const FormatException('header inválido'),
@@ -300,17 +332,23 @@ void main() {
           config: config,
         );
 
-        expect(client.get('movie/11'), throwsA(isA<UnexpectedFailure>()));
+        await expectLater(
+          client.get('movie/11'),
+          throwsA(isA<UnexpectedFailure>()),
+        );
       },
     );
 
-    test('deve deixar erro de programação (Error) escapar sem conversão', () {
-      final client = TmdbClient(
-        httpClient: MockClient((_) async => throw ArgumentError('bug')),
-        config: config,
-      );
+    test(
+      'deve deixar erro de programação (Error) escapar sem conversão',
+      () async {
+        final client = TmdbClient(
+          httpClient: MockClient((_) async => throw ArgumentError('bug')),
+          config: config,
+        );
 
-      expect(client.get('movie/11'), throwsArgumentError);
-    });
+        await expectLater(client.get('movie/11'), throwsArgumentError);
+      },
+    );
   });
 }
