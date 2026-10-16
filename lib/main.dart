@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 
+import 'core/error/error_handlers.dart';
 import 'core/theme/app_theme.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  registerErrorHandlers();
   runApp(const MainApp());
 }
 

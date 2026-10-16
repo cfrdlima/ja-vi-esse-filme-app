@@ -14,3 +14,5 @@ Ideias que surgiram e não estão no plano imediato. Marque **[prioritário]** o
   - mover `app_contrast_test.dart` para um `group('contraste')` em `app_colors_test.dart`, para espelhar `lib/`;
   - expor `AppTheme.dark` como `static final`, para não recriar o `ThemeData` a cada `build`.
 - Empacotar as fontes itálicas (`PlayfairDisplay-Italic[wght]`, `Inter-Italic[opsz,wght]`) se o design passar a usar itálico; hoje sairia itálico sintetizado (revisão da sessão 001, sugestão 13)
+- Extrair um `bootstrap()` testável do `main()` quando a composição crescer (config, injeção), para que remover o `registerErrorHandlers()` quebre algum teste (revisão da sessão 002, sugestão 5)
+- Se um dia existir `.env.example`, adicionar `!.env.example` ao `.gitignore`, porque o `.env*` o ignoraria (auditoria da sessão 002)
