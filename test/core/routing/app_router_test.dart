@@ -4,11 +4,21 @@ import 'package:go_router/go_router.dart';
 import 'package:ja_vi_esse_filme/core/routing/app_router.dart';
 import 'package:ja_vi_esse_filme/core/theme/app_theme.dart';
 
-Future<GoRouter> pumpAppRouter(WidgetTester tester) async {
+Future<GoRouter> pumpAppRouter(
+  WidgetTester tester, {
+  TextScaler textScaler = TextScaler.noScaling,
+}) async {
   final router = createAppRouter();
   addTearDown(router.dispose);
   await tester.pumpWidget(
-    MaterialApp.router(theme: AppTheme.dark(), routerConfig: router),
+    MaterialApp.router(
+      theme: AppTheme.dark(),
+      routerConfig: router,
+      builder: (context, child) => MediaQuery(
+        data: MediaQuery.of(context).copyWith(textScaler: textScaler),
+        child: child!,
+      ),
+    ),
   );
   await tester.pumpAndSettle();
   return router;
@@ -34,6 +44,14 @@ ScaffoldState discoverScaffoldState(WidgetTester tester) => tester.state(
       )
       .first,
 );
+
+Rect _globalRect(RenderBox box) => box.localToGlobal(Offset.zero) & box.size;
+
+bool _contains(Rect outer, Rect inner) =>
+    inner.left >= outer.left &&
+    inner.top >= outer.top &&
+    inner.right <= outer.right &&
+    inner.bottom <= outer.bottom;
 
 void main() {
   group('shell de navegação', () {
@@ -128,5 +146,57 @@ void main() {
         findsOneWidget,
       );
     });
+  });
+
+  group('acessibilidade', () {
+    testWidgets('deve ter alvos de toque de 48dp na barra', (tester) async {
+      final semantics = tester.ensureSemantics();
+      await pumpAppRouter(tester);
+
+      await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
+      semantics.dispose();
+    });
+
+    testWidgets('deve ter rótulo em todo alvo de toque', (tester) async {
+      final semantics = tester.ensureSemantics();
+      await pumpAppRouter(tester);
+
+      await expectLater(tester, meetsGuideline(labeledTapTargetGuideline));
+      semantics.dispose();
+    });
+
+    testWidgets('deve ter contraste AA nos textos', (tester) async {
+      final semantics = tester.ensureSemantics();
+      await pumpAppRouter(tester);
+
+      await expectLater(tester, meetsGuideline(textContrastGuideline));
+      semantics.dispose();
+    });
+
+    // O `NavigationBar` limita os rótulos a 1.3x, mas o texto quebra em
+    // linhas e vaza da barra sem gerar erro de overflow; por isso a checagem
+    // é pela posição de cada rótulo e ícone.
+    for (final width in [320.0, 411.0]) {
+      testWidgets('deve caber na barra com fonte 1.5x em ${width.toInt()}dp', (
+        tester,
+      ) async {
+        tester.view.physicalSize = Size(width, 800);
+        tester.view.devicePixelRatio = 1;
+        addTearDown(tester.view.reset);
+
+        await pumpAppRouter(tester, textScaler: const TextScaler.linear(1.5));
+
+        final bar = tester.getRect(find.byType(NavigationBar));
+        final contents = find.descendant(
+          of: find.byType(NavigationDestination),
+          matching: find.byWidgetPredicate((w) => w is Text || w is Icon),
+        );
+        final outside = contents
+            .evaluate()
+            .map((element) => _globalRect(element.renderObject! as RenderBox))
+            .where((rect) => !_contains(bar, rect));
+        expect(outside, isEmpty);
+      });
+    }
   });
 }
