@@ -13,6 +13,8 @@ abstract final class AppColors {
   static const indigo = Color(0xFF1E1B4B);
   static const indigoBright = Color(0xFF312E81);
   static const outline = Color(0xFF6366F1);
+  static const watched = Color(0xFF34D399);
+  static const onWatched = Color(0xFF0F172A);
   static const error = Color(0xFFF87171);
   static const onError = Color(0xFF000000);
 
