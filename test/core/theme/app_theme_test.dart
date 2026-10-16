@@ -110,5 +110,17 @@ void main() {
     test('a aba ativa deve ter indicador na cor primary', () {
       expect(theme.navigationBarTheme.indicatorColor, AppColors.gold);
     });
+
+    test('o ícone da aba ativa deve usar onPrimary sobre o indicador', () {
+      final icon = theme.navigationBarTheme.iconTheme!.resolve({
+        WidgetState.selected,
+      })!;
+      expect(icon.color, AppColors.onGold);
+    });
+
+    test('o ícone das abas inativas deve usar onSurfaceVariant', () {
+      final icon = theme.navigationBarTheme.iconTheme!.resolve({})!;
+      expect(icon.color, AppColors.mutedForeground);
+    });
   });
 }
