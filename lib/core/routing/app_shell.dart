@@ -14,7 +14,7 @@ class AppShell extends StatelessWidget {
       body: navigationShell,
       bottomNavigationBar: NavigationBar(
         selectedIndex: navigationShell.currentIndex,
-        onDestinationSelected: navigationShell.goBranch,
+        onDestinationSelected: _goToTab,
         destinations: const [
           NavigationDestination(
             icon: Icon(Icons.explore_outlined),
@@ -36,4 +36,10 @@ class AppShell extends StatelessWidget {
       ),
     );
   }
+
+  // Tocar a aba já selecionada volta para a raiz dela, como no Material.
+  void _goToTab(int index) => navigationShell.goBranch(
+    index,
+    initialLocation: index == navigationShell.currentIndex,
+  );
 }
