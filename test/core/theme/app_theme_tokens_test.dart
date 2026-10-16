@@ -16,6 +16,10 @@ void main() {
       );
     });
 
+    test('deve expor o anel de foco do MASTER.md', () {
+      expect(tokens.focusRing, const Color(0xFFFFFFFF));
+    });
+
     test('deve usar a escala padrão de espaçamento e raios', () {
       expect(
         (tokens.spacing, tokens.radii),
@@ -28,9 +32,26 @@ void main() {
     test('deve trocar só a cor de "já visto"', () {
       final copy = tokens.copyWith(watched: Colors.red);
       expect(
-        (copy.watched, copy.onWatched, copy.spacing, copy.radii),
-        (Colors.red, tokens.onWatched, tokens.spacing, tokens.radii),
+        (
+          copy.watched,
+          copy.onWatched,
+          copy.focusRing,
+          copy.spacing,
+          copy.radii,
+        ),
+        (
+          Colors.red,
+          tokens.onWatched,
+          tokens.focusRing,
+          tokens.spacing,
+          tokens.radii,
+        ),
       );
+    });
+
+    test('deve trocar só o anel de foco', () {
+      final copy = tokens.copyWith(focusRing: Colors.red);
+      expect((copy.focusRing, copy.watched), (Colors.red, tokens.watched));
     });
   });
 
@@ -40,6 +61,12 @@ void main() {
     test('deve interpolar a cor de "já visto"', () {
       final mid = tokens.lerp(other, 0.5);
       expect(mid.watched, Color.lerp(tokens.watched, Colors.black, 0.5));
+    });
+
+    test('deve interpolar o anel de foco', () {
+      final dark = tokens.copyWith(focusRing: Colors.black);
+      final mid = tokens.lerp(dark, 0.5);
+      expect(mid.focusRing, Color.lerp(tokens.focusRing, Colors.black, 0.5));
     });
 
     test(

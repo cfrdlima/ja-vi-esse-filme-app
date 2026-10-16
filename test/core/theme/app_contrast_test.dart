@@ -48,6 +48,13 @@ void main() {
   });
 
   surfaces.forEach((surfaceName, surface) {
+    test('o anel de foco sobre $surfaceName deve atingir 3:1', () {
+      expect(
+        contrastRatio(AppColors.focusRing, surface),
+        greaterThanOrEqualTo(_nonTextAA),
+      );
+    });
+
     test('a borda sobre $surfaceName deve atingir 3:1', () {
       expect(
         contrastRatio(AppColors.outline, surface),

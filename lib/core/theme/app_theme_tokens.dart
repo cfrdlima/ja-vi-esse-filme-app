@@ -10,6 +10,7 @@ class AppThemeTokens extends ThemeExtension<AppThemeTokens> {
   const AppThemeTokens({
     required this.watched,
     required this.onWatched,
+    required this.focusRing,
     required this.spacing,
     required this.radii,
   });
@@ -17,6 +18,7 @@ class AppThemeTokens extends ThemeExtension<AppThemeTokens> {
   static const dark = AppThemeTokens(
     watched: AppColors.watched,
     onWatched: AppColors.onWatched,
+    focusRing: AppColors.focusRing,
     spacing: AppSpacing.standard,
     radii: AppRadii.standard,
   );
@@ -24,6 +26,9 @@ class AppThemeTokens extends ThemeExtension<AppThemeTokens> {
   /// Cor do selo "já visto"; sempre acompanhada de ícone e texto.
   final Color watched;
   final Color onWatched;
+
+  /// Anel de 2dp em volta do elemento focado por teclado ou D-pad.
+  final Color focusRing;
   final AppSpacing spacing;
   final AppRadii radii;
 
@@ -31,12 +36,14 @@ class AppThemeTokens extends ThemeExtension<AppThemeTokens> {
   AppThemeTokens copyWith({
     Color? watched,
     Color? onWatched,
+    Color? focusRing,
     AppSpacing? spacing,
     AppRadii? radii,
   }) {
     return AppThemeTokens(
       watched: watched ?? this.watched,
       onWatched: onWatched ?? this.onWatched,
+      focusRing: focusRing ?? this.focusRing,
       spacing: spacing ?? this.spacing,
       radii: radii ?? this.radii,
     );
@@ -52,6 +59,7 @@ class AppThemeTokens extends ThemeExtension<AppThemeTokens> {
     return AppThemeTokens(
       watched: Color.lerp(watched, other.watched, t)!,
       onWatched: Color.lerp(onWatched, other.onWatched, t)!,
+      focusRing: Color.lerp(focusRing, other.focusRing, t)!,
       spacing: t < 0.5 ? spacing : other.spacing,
       radii: t < 0.5 ? radii : other.radii,
     );

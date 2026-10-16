@@ -22,6 +22,7 @@ abstract final class AppColors {
   static const error = Color(0xFFF87171);
   static const onError = Color(0xFF000000);
   static const scrim = Color(0xFF000000);
+  static const focusRing = Color(0xFFFFFFFF);
 
   static const darkScheme = ColorScheme(
     brightness: Brightness.dark,
