@@ -1,0 +1,354 @@
+import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:flutter_test/flutter_test.dart';
+import 'package:http/http.dart' as http;
+import 'package:http/testing.dart';
+import 'package:ja_vi_esse_filme/core/config/app_config.dart';
+import 'package:ja_vi_esse_filme/core/error/failures.dart';
+import 'package:ja_vi_esse_filme/core/network/tmdb_client.dart';
+
+import '../../helpers/fixtures.dart';
+
+void main() {
+  final config = AppConfig(
+    tmdbReadToken: 'token-de-teste',
+    tmdbBaseUrl: Uri.parse('https://api.themoviedb.org/3'),
+  );
+
+  late http.Request captured;
+
+  TmdbClient clientRespondingWith(
+    String body,
+    int status, {
+    Map<String, String> headers = const {},
+  }) {
+    return TmdbClient(
+      httpClient: MockClient((request) async {
+        captured = request;
+        return http.Response(body, status, headers: headers);
+      }),
+      config: config,
+    );
+  }
+
+  group('requisição', () {
+    test('deve montar a URL com base, path, query e language=pt-BR', () async {
+      final client = clientRespondingWith('{}', 200);
+
+      await client.get('search/movie', query: {'query': 'Matrix'});
+
+      expect(
+        captured.url.toString().split('?').first,
+        'https://api.themoviedb.org/3/search/movie',
+      );
+      expect(captured.url.queryParameters, {
+        'query': 'Matrix',
+        'language': 'pt-BR',
+      });
+    });
+
+    test('deve respeitar o language passado na query', () async {
+      final client = clientRespondingWith('{}', 200);
+
+      await client.get('movie/11', query: {'language': 'en-US'});
+
+      expect(captured.url.queryParameters['language'], 'en-US');
+    });
+
+    test('deve ignorar a barra no início do path', () async {
+      final client = clientRespondingWith('{}', 200);
+
+      await client.get('/movie/11');
+
+      expect(captured.url.path, '/3/movie/11');
+    });
+
+    test('deve aceitar base URL terminada em barra', () async {
+      final client = TmdbClient(
+        httpClient: MockClient((request) async {
+          captured = request;
+          return http.Response('{}', 200);
+        }),
+        config: AppConfig(
+          tmdbReadToken: 'token-de-teste',
+          tmdbBaseUrl: Uri.parse('https://api.themoviedb.org/3/'),
+        ),
+      );
+
+      await client.get('movie/11');
+
+      expect(captured.url.path, '/3/movie/11');
+    });
+
+    for (final path in [
+      'movie/../../account',
+      './movie/11',
+      'movie/11?x=1',
+      'movie/11#a',
+    ]) {
+      test('deve recusar o path inseguro "$path"', () async {
+        final client = clientRespondingWith('{}', 200);
+
+        await expectLater(() => client.get(path), throwsArgumentError);
+      });
+    }
+
+    test('deve autenticar com o token de leitura no header Bearer', () async {
+      final client = clientRespondingWith('{}', 200);
+
+      await client.get('authentication');
+
+      expect(captured.headers['Authorization'], 'Bearer token-de-teste');
+    });
+  });
+
+  group('resposta 200', () {
+    test('deve devolver o JSON decodificado', () async {
+      final client = clientRespondingWith(
+        readFixture('tmdb_authentication_ok.json'),
+        200,
+      );
+
+      final json = await client.get('authentication');
+
+      expect(json['status_message'], 'Success.');
+    });
+
+    test(
+      'deve decodificar texto acentuado mesmo sem charset no header',
+      () async {
+        final client = TmdbClient(
+          httpClient: MockClient(
+            (_) async => http.Response.bytes(
+              utf8.encode('{"title": "Cidade de Deus — São Paulo"}'),
+              200,
+              headers: {'content-type': 'application/json'},
+            ),
+          ),
+          config: config,
+        );
+
+        final json = await client.get('movie/598');
+
+        expect(json['title'], 'Cidade de Deus — São Paulo');
+      },
+    );
+  });
+
+  group('status de erro', () {
+    test('deve lançar UnauthorizedFailure no 401', () async {
+      final client = clientRespondingWith(
+        readFixture('tmdb_error_401.json'),
+        401,
+      );
+
+      await expectLater(
+        client.get('movie/11'),
+        throwsA(isA<UnauthorizedFailure>()),
+      );
+    });
+
+    test('deve lançar NotFoundFailure no 404', () async {
+      final client = clientRespondingWith(
+        readFixture('tmdb_error_404.json'),
+        404,
+      );
+
+      await expectLater(client.get('movie/0'), throwsA(isA<NotFoundFailure>()));
+    });
+
+    test('deve lançar RateLimitFailure no 429', () async {
+      final client = clientRespondingWith('', 429);
+
+      await expectLater(
+        client.get('movie/11'),
+        throwsA(isA<RateLimitFailure>()),
+      );
+    });
+
+    test('deve ler o Retry-After do 429 quando ele vier', () async {
+      final client = clientRespondingWith(
+        '',
+        429,
+        headers: {'retry-after': '3'},
+      );
+
+      await expectLater(
+        client.get('movie/11'),
+        throwsA(
+          isA<RateLimitFailure>().having(
+            (f) => f.retryAfter,
+            'retryAfter',
+            const Duration(seconds: 3),
+          ),
+        ),
+      );
+    });
+
+    test('deve lançar ServerFailure com o status no 5xx', () async {
+      final client = clientRespondingWith('', 503);
+
+      await expectLater(
+        client.get('movie/11'),
+        throwsA(
+          isA<ServerFailure>().having((f) => f.statusCode, 'statusCode', 503),
+        ),
+      );
+    });
+
+    test('deve lançar UnexpectedFailure em outro status de erro', () async {
+      final client = clientRespondingWith('', 422);
+
+      await expectLater(
+        client.get('movie/11'),
+        throwsA(isA<UnexpectedFailure>()),
+      );
+    });
+  });
+
+  group('falha de rede', () {
+    TmdbClient clientThrowing(Object error) {
+      return TmdbClient(
+        httpClient: MockClient((_) async => throw error),
+        config: config,
+      );
+    }
+
+    test(
+      'deve lançar NetworkFailure quando o http lança ClientException',
+      () async {
+        final client = clientThrowing(
+          http.ClientException(
+            'Connection closed',
+            Uri.parse('https://api.themoviedb.org/3/movie/11'),
+          ),
+        );
+
+        await expectLater(
+          client.get('movie/11'),
+          throwsA(isA<NetworkFailure>()),
+        );
+      },
+    );
+
+    test('deve lançar NetworkFailure quando não há conexão', () async {
+      final client = clientThrowing(
+        const SocketException('Failed host lookup'),
+      );
+
+      await expectLater(client.get('movie/11'), throwsA(isA<NetworkFailure>()));
+    });
+
+    test(
+      'deve lançar NetworkFailure quando a resposta demora demais',
+      () async {
+        final client = TmdbClient(
+          httpClient: MockClient((_) => Completer<http.Response>().future),
+          config: config,
+          timeout: const Duration(milliseconds: 1),
+        );
+
+        await expectLater(
+          client.get('movie/11'),
+          throwsA(isA<NetworkFailure>()),
+        );
+      },
+    );
+
+    test('deve lançar NetworkFailure em falha de TLS', () async {
+      final client = clientThrowing(
+        const HandshakeException('certificado inválido'),
+      );
+
+      await expectLater(client.get('movie/11'), throwsA(isA<NetworkFailure>()));
+    });
+
+    test('não deve levar a URL da requisição na falha', () async {
+      final client = clientThrowing(
+        http.ClientException(
+          'Connection closed',
+          Uri.parse('https://api.themoviedb.org/3/account?session_id=segredo'),
+        ),
+      );
+
+      await expectLater(
+        client.get('account'),
+        throwsA(predicate((Object e) => !'$e'.contains('segredo'))),
+      );
+    });
+  });
+
+  group('corpo inválido', () {
+    test('deve lançar UnexpectedFailure quando o corpo não é JSON', () async {
+      final client = clientRespondingWith('<html>erro</html>', 200);
+
+      await expectLater(
+        client.get('movie/11'),
+        throwsA(isA<UnexpectedFailure>()),
+      );
+    });
+
+    test(
+      'deve lançar UnexpectedFailure quando o JSON não é um objeto',
+      () async {
+        final client = clientRespondingWith('[1, 2, 3]', 200);
+
+        await expectLater(
+          client.get('movie/11'),
+          throwsA(isA<UnexpectedFailure>()),
+        );
+      },
+    );
+  });
+
+  group('exceção inesperada', () {
+    test('deve lançar UnexpectedFailure com UTF-8 inválido no corpo', () async {
+      final client = TmdbClient(
+        httpClient: MockClient(
+          (_) async => http.Response.bytes(
+            [0xff, 0xfe, 0xfd],
+            200,
+            headers: {'content-type': 'application/json; charset=utf-8'},
+          ),
+        ),
+        config: config,
+      );
+
+      await expectLater(
+        client.get('movie/11'),
+        throwsA(isA<UnexpectedFailure>()),
+      );
+    });
+
+    test(
+      'deve lançar UnexpectedFailure quando o envio lança outra Exception',
+      () async {
+        final client = TmdbClient(
+          httpClient: MockClient(
+            (_) async => throw const FormatException('header inválido'),
+          ),
+          config: config,
+        );
+
+        await expectLater(
+          client.get('movie/11'),
+          throwsA(isA<UnexpectedFailure>()),
+        );
+      },
+    );
+
+    test(
+      'deve deixar erro de programação (Error) escapar sem conversão',
+      () async {
+        final client = TmdbClient(
+          httpClient: MockClient((_) async => throw ArgumentError('bug')),
+          config: config,
+        );
+
+        await expectLater(client.get('movie/11'), throwsArgumentError);
+      },
+    );
+  });
+}

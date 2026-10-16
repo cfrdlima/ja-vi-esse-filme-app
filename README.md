@@ -13,8 +13,8 @@ Flutter 3.44 (Material 3, tema escuro), `http`, `go_router`, `provider`, `cached
 ## Como rodar
 
 1. Instale o Flutter 3.44 e o Android SDK.
-2. Crie uma chave em [themoviedb.org](https://www.themoviedb.org/settings/api).
-3. Copie `env/example.json` para `env/dev.json` e preencha a chave. O arquivo é ignorado pelo git; nunca o commite.
+2. Em [themoviedb.org/settings/api](https://www.themoviedb.org/settings/api), copie o **API Read Access Token** (não a "API Key" v3). O app o envia no header `Authorization: Bearer` (decisão 001).
+3. Copie `env/example.json` para `env/dev.json` e preencha `TMDB_READ_ACCESS_TOKEN`. O arquivo é ignorado pelo git; nunca o commite.
 4. Rode:
 
 ```bash

@@ -1,1 +1,1 @@
-{ "TMDB_API_KEY": "coloque-sua-chave-em-dev.json", "TMDB_BASE_URL": "https://api.themoviedb.org/3" }
+{ "TMDB_READ_ACCESS_TOKEN": "coloque-seu-token-de-leitura-em-dev.json", "TMDB_BASE_URL": "https://api.themoviedb.org/3" }
