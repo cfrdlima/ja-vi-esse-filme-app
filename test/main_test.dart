@@ -7,7 +7,7 @@ void main() {
   testWidgets('o app deve usar o tema escuro do design system', (tester) async {
     await tester.pumpWidget(const MainApp());
 
-    final context = tester.element(find.byType(Scaffold));
+    final context = tester.element(find.byType(Scaffold).first);
     expect(Theme.of(context).extension<AppThemeTokens>(), AppThemeTokens.dark);
   });
 
@@ -19,7 +19,7 @@ void main() {
 
     await tester.pumpWidget(const MainApp());
 
-    final context = tester.element(find.byType(Scaffold));
+    final context = tester.element(find.byType(Scaffold).first);
     expect(Theme.of(context).brightness, Brightness.dark);
   });
 
