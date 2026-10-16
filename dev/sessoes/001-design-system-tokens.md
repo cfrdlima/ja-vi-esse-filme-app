@@ -25,14 +25,14 @@ Gerar o design system do app com a skill `ui-ux-pro-max` (stack Flutter) em `des
 - [x] Incluir no `MASTER.md` o Hero do pôster (grade → detalhes) e o feedback de toque (auditoria ⚠️15)
 - [x] Prever `ListView.builder`/`GridView.builder` na skill `tela-4-estados` (auditoria ⚠️16)
 - [x] `/revisar` (code-reviewer: 0 bloqueantes, 7 importantes, 6 sugestões; tratar 1–7)
-- [ ] Revisão 1 — RED/GREEN: `ColorScheme` com `surfaceContainerLowest/Low/Highest`, `surfaceDim/Bright`, `outlineVariant` e `scrim` do MASTER
-- [ ] Revisão 2 — RED/GREEN: ícone da aba ativa em `onPrimary` sobre o indicador dourado
-- [ ] Revisão 3 — RED/GREEN: `fontFamily` Inter no `ThemeData`, `displayLarge/Medium` em Playfair, `letterSpacing` do MASTER
-- [ ] Revisão 4 — RED/GREEN: borda de foco com 2dp, `errorBorder` e `focusedErrorBorder`
-- [ ] Revisão 5 — RED/GREEN: `bottomSheetTheme` e scrim de 50% em diálogo e sheet
-- [ ] Revisão 6 — RED/GREEN: token `focusRing` na `ThemeExtension`
-- [ ] Revisão 7 — RED/GREEN: borda do `OutlinedButton` desabilitado
-- [ ] Validar de novo no emulador
+- [x] Revisão 1 — RED/GREEN: `ColorScheme` com `surfaceContainerLowest/Low/Highest`, `surfaceDim/Bright`, `outlineVariant` e `scrim` do MASTER
+- [x] Revisão 2 — RED/GREEN: ícone da aba ativa em `onPrimary` sobre o indicador dourado
+- [x] Revisão 3 — RED/GREEN: `fontFamily` Inter no `ThemeData`, `displayLarge/Medium` em Playfair, `letterSpacing` do MASTER
+- [x] Revisão 4 — RED/GREEN: borda de foco com 2dp, `errorBorder` e `focusedErrorBorder`
+- [x] Revisão 5 — RED/GREEN: `bottomSheetTheme` e scrim de 50% em diálogo e sheet
+- [x] Revisão 6 — RED/GREEN: token `focusRing` na `ThemeExtension`
+- [x] Revisão 7 — RED/GREEN: borda do `OutlinedButton` desabilitado
+- [x] Validar de novo no emulador (Medium Phone API 36, sem exceções no log)
 - [ ] `/fechar-sessao`
 
 ## Decisões
@@ -43,6 +43,7 @@ Gerar o design system do app com a skill `ui-ux-pro-max` (stack Flutter) em `des
 ## Commits
 
 ## Notas
+- Revisão: escolhi `surfaceContainerHighest` `#2C2C42`, e não um tom mais claro, para que o dourado (4,6:1) e o `outline` (3,0:1) ainda passem sobre ela. O `surfaceBright` usa o mesmo tom.
 - Fontes: TTF variáveis oficiais do `google/fonts` (Playfair Display `[wght]`, Inter `[opsz,wght]`), com o `OFL.txt` de cada uma em `assets/fonts/`. No Flutter 3.44, o `FontWeight` controla o eixo `wght` sozinho. Falta registrar as licenças no `LicenseRegistry` (tela "Sobre", Fase 1).
 - Contraste: o RED do ciclo veio dos tokens de "já visto", que ainda não existiam. Os outros pares já tinham sido calculados ao aprovar a paleta, então passaram de primeira; um teste extra garante que o cálculo reprova um par ruim (índigo sobre o fundo).
 - Tipografia, REFACTOR: troquei a subclasse de `TextStyle` por funções. A subclasse muda o `runtimeType`, e isso quebra o `==` do `TextStyle`.
