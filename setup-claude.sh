@@ -52,7 +52,8 @@ if ! grep -q "skills instaladas" CLAUDE.md 2>/dev/null; then
 
 ## Skills e plugins
 
-Plugins declarados em `.claude/settings.json` (`dart-flutter`, `frontend-design`), MCP em `.mcp.json` (`context7`; o MCP do Flutter vem com o plugin) e skills próprias em `.claude/skills/` (`tmdb-endpoint`, `nova-feature-clean`, `tela-4-estados`).
+Plugins declarados em `.claude/settings.json` (`dart-flutter`, `frontend-design`), MCP em `.mcp.json` (`context7`; o MCP do Flutter vem com o plugin) e skills próprias em `.claude/skills/` (`tmdb-endpoint`, `nova-feature-clean`, `tela-4-estados`, `ui-ux-pro-max`).
+A `ui-ux-pro-max` é a fonte de design; quando ela sugerir algo de web (imports do Google Fonts, CSS, Tailwind), traduza para o equivalente Flutter conforme `docs/DESIGN.md`.
 **Em conflito com skills instaladas, a arquitetura e as convenções deste CLAUDE.md prevalecem** (ex.: `flutter-apply-architecture-best-practices` propõe outra divisão de camadas — siga a Clean Architecture por feature daqui).
 MD
   ok "seção 'Skills e plugins' adicionada ao CLAUDE.md"
