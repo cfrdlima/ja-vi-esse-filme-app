@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:ja_vi_esse_filme/core/config/app_config.dart';
+import 'package:ja_vi_esse_filme/core/error/failures.dart';
 import 'package:ja_vi_esse_filme/core/network/tmdb_client.dart';
 
 import '../../helpers/fixtures.dart';
@@ -16,11 +17,15 @@ void main() {
 
   late http.Request captured;
 
-  TmdbClient clientRespondingWith(String body, int status) {
+  TmdbClient clientRespondingWith(
+    String body,
+    int status, {
+    Map<String, String> headers = const {},
+  }) {
     return TmdbClient(
       httpClient: MockClient((request) async {
         captured = request;
-        return http.Response(body, status);
+        return http.Response(body, status, headers: headers);
       }),
       config: config,
     );
@@ -86,5 +91,67 @@ void main() {
         expect(json['title'], 'Cidade de Deus — São Paulo');
       },
     );
+  });
+
+  group('status de erro', () {
+    test('deve lançar UnauthorizedFailure no 401', () {
+      final client = clientRespondingWith(
+        readFixture('tmdb_error_401.json'),
+        401,
+      );
+
+      expect(client.get('movie/11'), throwsA(isA<UnauthorizedFailure>()));
+    });
+
+    test('deve lançar NotFoundFailure no 404', () {
+      final client = clientRespondingWith(
+        readFixture('tmdb_error_404.json'),
+        404,
+      );
+
+      expect(client.get('movie/0'), throwsA(isA<NotFoundFailure>()));
+    });
+
+    test('deve lançar RateLimitFailure no 429', () {
+      final client = clientRespondingWith('', 429);
+
+      expect(client.get('movie/11'), throwsA(isA<RateLimitFailure>()));
+    });
+
+    test('deve ler o Retry-After do 429 quando ele vier', () {
+      final client = clientRespondingWith(
+        '',
+        429,
+        headers: {'retry-after': '3'},
+      );
+
+      expect(
+        client.get('movie/11'),
+        throwsA(
+          isA<RateLimitFailure>().having(
+            (f) => f.retryAfter,
+            'retryAfter',
+            const Duration(seconds: 3),
+          ),
+        ),
+      );
+    });
+
+    test('deve lançar ServerFailure com o status no 5xx', () {
+      final client = clientRespondingWith('', 503);
+
+      expect(
+        client.get('movie/11'),
+        throwsA(
+          isA<ServerFailure>().having((f) => f.statusCode, 'statusCode', 503),
+        ),
+      );
+    });
+
+    test('deve lançar UnexpectedFailure em outro status de erro', () {
+      final client = clientRespondingWith('', 422);
+
+      expect(client.get('movie/11'), throwsA(isA<UnexpectedFailure>()));
+    });
   });
 }
