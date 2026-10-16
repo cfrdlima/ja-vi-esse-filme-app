@@ -8,4 +8,9 @@ Ideias que surgiram e não estão no plano imediato. Marque **[prioritário]** o
 - Compartilhar lista por link
 - Séries (TV) além de filmes
 - `==`/`hashCode` em `AppSpacing`, `AppRadii` e `AppThemeTokens`, para que `copyWith`/`lerp` não gerem temas "diferentes" à toa. Cobrir também a troca de espaçamento e raios no `lerp` com `t >= 0.5` (revisão da sessão 001, sugestão 10)
+- Limpeza dos testes de tema (revisão da sessão 001, sugestões 8, 9, 11 e 12):
+  - remover ou reescrever o teste tautológico "famílias do pubspec" em `app_typography_test.dart`, para que leia o `pubspec.yaml`;
+  - trocar `expect(theme.colorScheme, AppColors.darkScheme)` em `app_theme_test.dart`, que repete o código;
+  - mover `app_contrast_test.dart` para um `group('contraste')` em `app_colors_test.dart`, para espelhar `lib/`;
+  - expor `AppTheme.dark` como `static final`, para não recriar o `ThemeData` a cada `build`.
 - Empacotar as fontes itálicas (`PlayfairDisplay-Italic[wght]`, `Inter-Italic[opsz,wght]`) se o design passar a usar itálico; hoje sairia itálico sintetizado (revisão da sessão 001, sugestão 13)

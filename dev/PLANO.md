@@ -20,6 +20,9 @@ O design system "cinema escuro" (dourado sobre índigo, Playfair Display + Inter
 - [ ] `analysis_options.yaml` estrito (`strict-casts`, `strict-inference`, `strict-raw-types`, `avoid_dynamic_calls`, `unawaited_futures`, `avoid_print`…)
 - [ ] Manifest: permissão `INTERNET` no `main`, `android:allowBackup="false"` e `usesCleartextTraffic="false"` explícito (antes do `core/network`)
 - [ ] README do projeto e descrição real no `pubspec.yaml`
+- [ ] `.gitignore`: remover o bloco duplicado e acrescentar `.env*`
+- [ ] `setup-claude.sh` atualizado (citar a skill `ui-ux-pro-max`)
+- [ ] Registrar a justificativa do minSdk 24 (decisão curta ou `CLAUDE.md`)
 - [ ] Handlers globais de erro no `main.dart` (`FlutterError.onError` e `PlatformDispatcher.instance.onError`)
 - [ ] `core/config` lendo `--dart-define-from-file` + `env/example.json`
 - [x] Gerar design system com `ui-ux-pro-max` (stack Flutter) → `design-system/ja-vi-esse-filme/MASTER.md`
