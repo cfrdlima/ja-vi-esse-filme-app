@@ -34,12 +34,12 @@ Confirmar a decisão 001 com essa forma de autenticação.
 - [x] `env/example.json` com `TMDB_READ_ACCESS_TOKEN`, README atualizado e decisão 001 confirmada
 - [x] Tríade: `flutter analyze` limpo, `flutter test` verde (sem UI nesta sessão)
 - [x] `/revisar` com `code-reviewer` e `security-auditor` (a sessão mexe em rede e config)
-- [ ] Revisão A — RED/GREEN: o `language` passado na `query` prevalece sobre o `pt-BR` padrão
-- [ ] Revisão A — RED/GREEN: path montado por `pathSegments` (barra inicial, base com barra final) e recusa de `.`, `..`, `?` e `#`
-- [ ] Revisão A — RED/GREEN: corpo com charset inválido, `ArgumentError` e `FormatException` do client viram falha tipada
-- [ ] Revisão B — RED/GREEN: redator sem diferenciar maiúsculas (`bearer`, `BEARER`, `Session_Id`), com `guest_session_id` e `access_token`, `toString` de `Map`, `%3D`, JSON escapado e valor com aspas escapadas
-- [ ] Revisão C — RED/GREEN: `AppConfig` transforma URL malformada em `ConfigException`; recusa host vazio, userinfo, query, fragment e host fora da allowlist; faz `trim` no token
-- [ ] Revisão D: stack trace passa pelo redator; documentar que `UnexpectedFailure.reason` nunca recebe corpo nem URL; `await expectLater` nos testes do client; renomear o teste do `AppConfig` e comentar a dependência dos defines; usar `{}` em vez da fixture no teste de URL
+- [x] Revisão A — RED/GREEN: o `language` passado na `query` prevalece sobre o `pt-BR` padrão
+- [x] Revisão A — RED/GREEN: path montado por `pathSegments` (barra inicial, base com barra final) e recusa de `.`, `..`, `?` e `#`
+- [x] Revisão A — RED/GREEN: corpo com charset inválido, `ArgumentError` e `FormatException` do client viram falha tipada
+- [x] Revisão B — RED/GREEN: redator sem diferenciar maiúsculas (`bearer`, `BEARER`, `Session_Id`), com `guest_session_id` e `access_token`, `toString` de `Map`, `%3D`, JSON escapado e valor com aspas escapadas
+- [x] Revisão C — RED/GREEN: `AppConfig` transforma URL malformada em `ConfigException`; recusa host vazio, userinfo, query, fragment e host fora da allowlist; faz `trim` no token
+- [x] Revisão D: stack trace passa pelo redator; documentar que `UnexpectedFailure.reason` nunca recebe corpo nem URL; `await expectLater` nos testes do client; renomear o teste do `AppConfig` e comentar a dependência dos defines; usar `{}` em vez da fixture no teste de URL
 
 ## Decisões
 - [001 — Chave do TMDB e sessão do usuário](../decisoes/001-chave-tmdb-e-sessao.md): confirmada como aceita, com o token v4 no header `Authorization: Bearer`
@@ -65,3 +65,10 @@ Confirmar a decisão 001 com essa forma de autenticação.
   - A query da base URL é descartada pelo `replace`; rever junto com o proxy.
   - O `debugPrint` do reporter sai do release (`kDebugMode`) quando o crash reporter entrar (Fase 4).
   - Não haverá `==` nas falhas: a UI vai fazer `switch` por tipo.
+- Tratamento da revisão:
+  - A: o `language` da query prevalece (necessário para o fallback da sinopse) e o path é montado por `pathSegments`. Path com `.`, `..`, `?` ou `#` lança `ArgumentError`, por ser erro do programador. Qualquer `Exception` do envio vira `UnexpectedFailure`, sem a mensagem original; `Error` escapa de propósito. O corpo é decodificado de `bodyBytes`, dentro do mesmo `try` do JSON.
+  - A, teste que passou de primeira: "deixar `Error` escapar", mantido como guarda do contrato.
+  - B: o redator tem quatro regex (campo JSON, JSON escapado, chave=valor/`%3D`/`: ` e Bearer), todas sem diferenciar maiúsculas. Nomes: `(guest_)session_id`, `api_key`, `request_token`, `access_token`. Um nome logo depois de um escape `%XX` também é mascarado.
+  - C: `AppConfig.parse` (token com `trim`, URL malformada vira `ConfigException`) e allowlist de host (`api.themoviedb.org`). Também recusa userinfo, query e fragment.
+  - D: a stack trace passa pelo redator; testes do client com `await expectLater`; doc do `UnexpectedFailure.reason`. A skill `tmdb-endpoint` agora diz que entrada do usuário vai só na query.
+  - Tríade depois da revisão: `dart format` sem mudanças, `flutter analyze` sem issues, `flutter test` com 191 testes passando e `gitleaks` sem vazamentos.
