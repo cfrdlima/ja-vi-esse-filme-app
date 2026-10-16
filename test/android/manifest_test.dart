@@ -7,29 +7,37 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   late String manifest;
+  late String applicationTag;
 
   setUpAll(() {
-    manifest = File(
+    final raw = File(
       'android/app/src/main/AndroidManifest.xml',
     ).readAsStringSync();
+    // Sem comentários, para que um atributo comentado não conte como presente.
+    manifest = raw.replaceAll(RegExp(r'<!--.*?-->', dotAll: true), '');
+    applicationTag = RegExp(r'<application\b[^>]*>').firstMatch(manifest)![0]!;
   });
 
   test('deve pedir a permissão INTERNET no manifest principal', () {
     expect(
       manifest,
-      contains('<uses-permission android:name="android.permission.INTERNET"/>'),
+      matches(
+        RegExp(
+          r'<uses-permission\s+android:name="android\.permission\.INTERNET"\s*/>',
+        ),
+      ),
     );
   });
 
   test('deve desligar o backup automático do app', () {
-    expect(manifest, contains('android:allowBackup="false"'));
+    expect(applicationTag, contains('android:allowBackup="false"'));
   });
 
   test('deve proibir tráfego sem HTTPS', () {
-    expect(manifest, contains('android:usesCleartextTraffic="false"'));
+    expect(applicationTag, contains('android:usesCleartextTraffic="false"'));
   });
 
   test('deve exibir o nome "Já Vi Esse Filme" no launcher', () {
-    expect(manifest, contains('android:label="Já Vi Esse Filme"'));
+    expect(applicationTag, contains('android:label="Já Vi Esse Filme"'));
   });
 }
