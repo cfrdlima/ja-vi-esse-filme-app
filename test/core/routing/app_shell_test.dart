@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ja_vi_esse_filme/core/routing/app_shell.dart';
-import 'package:ja_vi_esse_filme/core/theme/app_theme.dart';
 
 import '../../helpers/back_navigation.dart';
+import '../../helpers/test_app.dart';
 
 /// Router de teste com uma sub-rota em cada aba, que o router real ainda não
 /// tem, para exercitar a pilha de navegação dentro da aba. Usa os mesmos
@@ -31,9 +31,7 @@ List<RouteBase> detail(String tab) => [
 Future<GoRouter> pumpShell(WidgetTester tester) async {
   final router = createTestRouter();
   addTearDown(router.dispose);
-  await tester.pumpWidget(
-    MaterialApp.router(theme: AppTheme.dark(), routerConfig: router),
-  );
+  await tester.pumpWidget(testRouterApp(routerConfig: router));
   await tester.pumpAndSettle();
   return router;
 }

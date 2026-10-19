@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ja_vi_esse_filme/core/theme/app_theme.dart';
 import 'package:ja_vi_esse_filme/core/widgets/placeholder_screen.dart';
 
-Future<void> pumpPlaceholder(WidgetTester tester) => tester.pumpWidget(
-  MaterialApp(
-    theme: AppTheme.dark(),
-    home: const PlaceholderScreen(title: 'Buscar'),
-  ),
-);
+import '../../helpers/test_app.dart';
+
+Future<void> pumpPlaceholder(WidgetTester tester) =>
+    tester.pumpWidget(testApp(home: const PlaceholderScreen(title: 'Buscar')));
 
 void main() {
   testWidgets('deve mostrar o título na app bar', (tester) async {

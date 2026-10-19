@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ja_vi_esse_filme/core/routing/app_router.dart';
-import 'package:ja_vi_esse_filme/core/theme/app_theme.dart';
 
 import '../../helpers/back_navigation.dart';
+import '../../helpers/test_app.dart';
 
 Future<GoRouter> pumpAppRouter(
   WidgetTester tester, {
@@ -13,8 +13,7 @@ Future<GoRouter> pumpAppRouter(
   final router = createAppRouter();
   addTearDown(router.dispose);
   await tester.pumpWidget(
-    MaterialApp.router(
-      theme: AppTheme.dark(),
+    testRouterApp(
       routerConfig: router,
       builder: (context, child) => MediaQuery(
         data: MediaQuery.of(context).copyWith(textScaler: textScaler),

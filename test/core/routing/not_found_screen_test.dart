@@ -1,17 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ja_vi_esse_filme/core/routing/not_found_screen.dart';
-import 'package:ja_vi_esse_filme/core/theme/app_theme.dart';
+
+import '../../helpers/test_app.dart';
 
 Future<void> pumpNotFound(
   WidgetTester tester, {
   required VoidCallback onGoHome,
-}) => tester.pumpWidget(
-  MaterialApp(
-    theme: AppTheme.dark(),
-    home: NotFoundScreen(onGoHome: onGoHome),
-  ),
-);
+}) => tester.pumpWidget(testApp(home: NotFoundScreen(onGoHome: onGoHome)));
 
 void main() {
   testWidgets('deve chamar onGoHome ao tocar em Ir para Descobrir', (
