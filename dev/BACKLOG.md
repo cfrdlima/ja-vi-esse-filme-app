@@ -19,3 +19,5 @@ Ideias que surgiram e não estão no plano imediato. Marque **[prioritário]** o
 - Revisão da sessão 004, sugestões 8 e 9: comentar em `app_shell.dart` que Buscar não tem `selectedIcon` (não existe variante preenchida de `Icons.search`) e mover `AppShell.firstTab` para junto do campo `navigationShell`
 - `firstTabBranch`/`tabBranch` recebem a tela raiz como `Widget`; trocar por builder (`GoRouterState`) quando uma aba precisar de parâmetro da rota (sessão 004)
 - `NavigationRail` no lugar da `NavigationBar` em telas largas (tablet, regra `adaptive-navigation` da `ui-ux-pro-max`) (sessão 004)
+- Dependabot para `github-actions`: o pin por SHA do workflow cobre só o primeiro nível, e o `subosito/flutter-action` chama `actions/cache@v5` por tag (revisão da sessão 005, item 5)
+- `CODEOWNERS` cobrindo `.gitleaks.toml`, `.gitleaksignore` e `.github/`, com a branch protection exigindo revisão do dono, para que um PR não desligue a própria varredura de segredos (revisão da sessão 005, item 6)
