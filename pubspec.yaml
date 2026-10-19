@@ -9,8 +9,11 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
   go_router: ^18.1.0
   http: ^1.6.0
+  intl: ^0.20.2
 
 dev_dependencies:
   flutter_test:
@@ -18,6 +21,7 @@ dev_dependencies:
   flutter_lints: ^6.0.0
 
 flutter:
+  generate: true
   uses-material-design: true
 
   # Fontes variáveis (OFL, google/fonts): o FontWeight controla o eixo wght.

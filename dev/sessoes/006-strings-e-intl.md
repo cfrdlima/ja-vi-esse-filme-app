@@ -1,0 +1,82 @@
+# Sessão 006 — Antes da Fase 1: strings de UI e `intl`
+
+**Data**: 2026-10-19 · **Branch**: `feature/006-strings-e-intl` · **Status**: fechada
+
+## Objetivo
+Decidir onde ficam as strings de UI e como datas e números são formatados em pt-BR, registrando as duas decisões em `dev/decisoes/`. Em seguida, aplicar a escolha ao app atual, que hoje não define locale nenhum, e às strings já existentes: abas, títulos dos placeholders e página não encontrada. Assim a Fase 1 começa no padrão.
+
+## Checklist
+- [x] Conferir na documentação atual (Context7) o `gen-l10n` no Flutter 3.44: `l10n.yaml`, pasta de saída sem o pacote sintético, `format`, e se o `flutter pub get` gera o código (importa para o CI)
+- [x] `/decisao`: strings de UI (ARB + `gen-l10n` ou constantes Dart)
+- [x] `/decisao`: `intl` e `flutter_localizations` como dependências diretas
+- [x] Locale — RED: o app abre com locale `pt_BR`, e os textos do próprio Material saem em português (ex.: o tooltip de voltar é "Voltar")
+- [x] Locale — GREEN: `locale`, `supportedLocales` e `localizationsDelegates` no `MaterialApp.router`
+- [x] Helper de teste: montar widgets com os delegates e o locale do app em um ponto só (`test/helpers/`)
+- [x] Strings — RED: o catálogo pt-BR tem cada texto atual (`lookupAppLocalizations`), e falha porque o `AppLocalizations` ainda não existe
+- [x] Strings — GREEN: ARB com abas, títulos, "Em breve", "Página não encontrada" e "Ir para Descobrir"
+- [x] Strings — REFACTOR: migrar `app_shell`, `app_router`, `placeholder_screen` e `not_found_screen`, com os testes atuais seguindo verdes
+- [x] CI: o código gerado passa no `dart format --set-exit-if-changed` e no `flutter analyze --fatal-infos`; passo novo `git diff --exit-code lib/l10n` depois do `pub get` (a execução no GitHub fica para o PR, no fechamento)
+- [x] Tríade: `flutter analyze` limpo, `flutter test` verde e emulador em pt-BR (tooltips e abas, com fonte grande)
+- [x] `/revisar` com `code-reviewer`; `security-auditor` não se aplica (não toca auth, storage, rede nem `env/`)
+- [x] Revisão 1: título de cada aba na app bar, parametrizado (pega a troca de "Minha estante")
+- [x] Revisão 2: trocar o teste tautológico do catálogo por um teste de contrato do `AppLocale`
+- [x] Revisão 3: comentar por que `supportedLocales` é `[pt_BR]` (código e decisão 004)
+- [x] Revisão 4: passo de CI pega também gerado não rastreado (`git status --porcelain`)
+- [x] Revisão 5 e 8: `Builder` inline no lugar do `_Placeholder` com tear-offs; import solto
+- [x] Revisão 9: justificativa da decisão 005 pelo `intl` fixado no `flutter_localizations`
+
+## Decisões
+- [004 — Strings de UI em ARB com `gen-l10n`](../decisoes/004-strings-de-ui-em-arb.md)
+- [005 — `intl` e `flutter_localizations` como dependências diretas](../decisoes/005-intl-e-flutter-localizations.md)
+
+## Commits
+- `c2f469c` docs: abre sessão 006 e registra as decisões 004 e 005
+- `e86a487` add: app em pt-BR com as traduções do Material
+- `f133a8a` add: catálogo pt-BR das strings de UI com gen-l10n
+- `0070c18` refactor: idioma do app em AppLocale e helper de teste com tema e idioma
+- `9189ae9` refactor: telas e abas leem os textos do catálogo pt-BR
+- `20649a4` chore: CI confere que o código gerado do l10n está em dia
+- `8b014e6` docs: log da sessão 006
+- `4ccf81f` test: título de cada aba na app bar, inclusive Minha estante
+- `2512f29` refactor: placeholder das abas por Builder, sem tear-offs
+- `87f0ac4` test: contrato do AppLocale com o catálogo no lugar do teste que repetia o ARB
+- `e77e6f1` fix: CI pega também gerado do l10n que falte no commit
+- `8e379f6` docs: tratamento da revisão da sessão 006
+
+## Notas
+- `gen-l10n` no Flutter 3.44.5: o Context7 trouxe o guia de migração do pacote sintético. No `flutter gen-l10n --help` local, não existem mais `--synthetic-package` nem `--format`. Num clone no scratchpad, o `flutter pub get` gerou `lib/l10n/app_localizations*.dart` já formatados e com o `analyze` estrito limpo.
+- Locale:
+  - RED: `Localizations.localeOf` não era `pt_BR` e o `backButtonTooltip` veio `'Back'`.
+  - GREEN: `locale`, `supportedLocales` e `localizationsDelegates`, centralizados depois em `AppLocale` (`lib/core/l10n/app_locale.dart`).
+  - O `supportedLocales` é `[pt_BR]` e não `AppLocalizations.supportedLocales` (`[pt]`). Com `[pt]`, o locale resolvido seria `pt` e o teste de `pt_BR` falharia. O delegate do catálogo aceita `pt_BR`, porque só compara o idioma.
+- Strings:
+  - O RED do catálogo é a falta de `package:ja_vi_esse_filme/l10n/app_localizations.dart`.
+  - A migração dos widgets foi REFACTOR: os testes que já conferiam "Em breve", "Ir para Descobrir", rótulos e títulos seguiram verdes.
+  - Não há teste que pegue um texto literal novo num widget. Fica como regra de revisão (decisão 004).
+- O router é montado sem `BuildContext`, então cada aba recebe um `_Placeholder` com um tear-off const (`_shelfTitle` e os outros) que lê o título no `build`. Sai junto com os placeholders na Fase 1.
+- Testes: `test/helpers/test_app.dart` (`testApp` e `testRouterApp`) monta o tema e o idioma do app em um ponto só. Os quatro testes de widget passaram a usar o helper. São 242 testes (eram 232): 2 de locale e 8 do catálogo.
+- Código gerado em dia: num ARB mudado e staged, sem o gerado acompanhar, o `pub get` regenera e o `git diff --exit-code lib/l10n` sai 1. O `actionlint` não apontou nada.
+- Emulador (Medium Phone API 36, sistema em `en-US`):
+  - Abas, títulos e "Em breve" em pt-BR.
+  - A árvore de acessibilidade mostra "Guia 1 de 4" etc., ou seja, o Material saiu em português num aparelho em inglês.
+  - Na aba Estante com fonte 1.3x, nada vaza e o título é "Minha estante".
+- Tríade: `dart format` sem mudanças, `flutter analyze --fatal-infos` sem issues, `flutter test` com 242 testes passando e `gitleaks` sem vazamentos.
+- Revisão (`code-reviewer`): nada bloqueante. Os itens aceitos foram 1, 2, 3, 4, 5, 8 e 9.
+- Tratamento da revisão:
+  - 1: o teste "deve mostrar a tela da aba tocada" virou um teste parametrizado com as quatro abas (rótulo e título da app bar). Ele passou de primeira, como guarda. Com a mutação `_shelfTitle` → `tabShelf`, o caso da Estante falha. O comentário de acessibilidade agora fala em "Guia N de 4", porque o Material está em pt-BR.
+  - 2: saiu `test/l10n/app_localizations_test.dart`, que repetia o ARB. Entrou `test/core/l10n/app_locale_test.dart`, espelhando `lib/`:
+    - o delegate aceita `AppLocale.locale`;
+    - o `lookupAppLocalizations` não lança.
+    - Com a mutação `en_US`, os dois testes falham. Um terceiro teste, de "locale entre os suportados", foi descartado, porque o `supportedLocales` é derivado do `locale` e o teste era tautológico.
+  - 3: um comentário no `AppLocale` e o item Locale da decisão 004 explicam por que se usa `[pt_BR]`, e não `AppLocalizations.supportedLocales` (`[pt]`).
+  - 4: o passo de CI agora usa `git status --porcelain -- lib/l10n`. RED: com o `app_localizations_pt.dart` fora do índice, o `pub get` o recria como untracked. O `git diff --exit-code` antigo saía 0, e o status novo o acusa. O `actionlint` não apontou nada.
+  - 5 e 8: o `_Placeholder` e os quatro tear-offs viraram `_placeholder((l10n) => ...)`, que devolve um `Builder`. O import solto também saiu.
+  - 9: a decisão 005 agora se justifica pelo `flutter_localizations` fixar `intl: 0.20.2` (conferido no `pubspec.yaml` do SDK), e não mais por ele já estar no lock.
+  - São 239 testes (eram 242): saem 8 do catálogo, entram 3 casos novos de título e 2 de contrato.
+  - Tríade depois da revisão: `dart format` sem mudanças, `flutter analyze --fatal-infos` sem issues, `flutter test` com 239 testes passando e `gitleaks` sem vazamentos.
+- Itens da revisão levados ao BACKLOG: 6 (a configuração do `MaterialApp` se repete no `main.dart` e nos helpers de teste) e 7 (chaves de título próprias por tela na Fase 1).
+- Fechamento: `dart format` sem mudanças, `flutter analyze` sem issues, `flutter test` com 239 testes passando e `gitleaks` sem vazamentos. O `/revisar` rodou com o `code-reviewer`; o `security-auditor` não era exigido, porque a sessão não tocou auth, storage, rede nem `env/`. O passo novo do CI roda no PR, antes do merge.
+- **Pendências**:
+  - No BACKLOG: itens 6 e 7 da revisão.
+  - Nenhum teste pega um texto literal novo num widget. Isso fica como regra de revisão (decisão 004).
+  - Os formatadores de data, nota e duração entram na Fase 1 (decisão 005).

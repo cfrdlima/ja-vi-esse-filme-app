@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../l10n/app_localizations.dart';
+
 /// Estrutura das abas principais. A ordem dos destinos segue a ordem dos
 /// branches do `StatefulShellRoute`.
 class AppShell extends StatelessWidget {
@@ -10,6 +12,7 @@ class AppShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     // Quem leva o voltar para a primeira aba é o [_BackToFirstTab]. Este
     // PopScope só avisa o Android na troca de aba, que não mexe na pilha de
     // nenhum navigator e por isso não gera aviso sozinha. Ele não navega de
@@ -22,22 +25,25 @@ class AppShell extends StatelessWidget {
         bottomNavigationBar: NavigationBar(
           selectedIndex: navigationShell.currentIndex,
           onDestinationSelected: _goToTab,
-          destinations: const [
+          destinations: [
             NavigationDestination(
-              icon: Icon(Icons.explore_outlined),
-              selectedIcon: Icon(Icons.explore),
-              label: 'Descobrir',
-            ),
-            NavigationDestination(icon: Icon(Icons.search), label: 'Buscar'),
-            NavigationDestination(
-              icon: Icon(Icons.video_library_outlined),
-              selectedIcon: Icon(Icons.video_library),
-              label: 'Estante',
+              icon: const Icon(Icons.explore_outlined),
+              selectedIcon: const Icon(Icons.explore),
+              label: l10n.tabDiscover,
             ),
             NavigationDestination(
-              icon: Icon(Icons.person_outline),
-              selectedIcon: Icon(Icons.person),
-              label: 'Perfil',
+              icon: const Icon(Icons.search),
+              label: l10n.tabSearch,
+            ),
+            NavigationDestination(
+              icon: const Icon(Icons.video_library_outlined),
+              selectedIcon: const Icon(Icons.video_library),
+              label: l10n.tabShelf,
+            ),
+            NavigationDestination(
+              icon: const Icon(Icons.person_outline),
+              selectedIcon: const Icon(Icons.person),
+              label: l10n.tabProfile,
             ),
           ],
         ),

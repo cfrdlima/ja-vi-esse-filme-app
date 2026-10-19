@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import 'core/error/error_handlers.dart';
+import 'core/l10n/app_locale.dart';
 import 'core/routing/app_router.dart';
 import 'core/theme/app_theme.dart';
 
@@ -31,6 +32,12 @@ class _MainAppState extends State<MainApp> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(theme: AppTheme.dark(), routerConfig: _router);
+    return MaterialApp.router(
+      theme: AppTheme.dark(),
+      locale: AppLocale.locale,
+      supportedLocales: AppLocale.supportedLocales,
+      localizationsDelegates: AppLocale.delegates,
+      routerConfig: _router,
+    );
   }
 }

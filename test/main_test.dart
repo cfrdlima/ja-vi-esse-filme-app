@@ -23,6 +23,20 @@ void main() {
     expect(Theme.of(context).brightness, Brightness.dark);
   });
 
+  testWidgets('o app deve usar o locale pt_BR', (tester) async {
+    await tester.pumpWidget(const MainApp());
+
+    final context = tester.element(find.byType(Scaffold).first);
+    expect(Localizations.localeOf(context), const Locale('pt', 'BR'));
+  });
+
+  testWidgets('os textos do Material devem sair em português', (tester) async {
+    await tester.pumpWidget(const MainApp());
+
+    final context = tester.element(find.byType(Scaffold).first);
+    expect(MaterialLocalizations.of(context).backButtonTooltip, 'Voltar');
+  });
+
   testWidgets('o app deve abrir no shell de navegação', (tester) async {
     await tester.pumpWidget(const MainApp());
     await tester.pumpAndSettle();

@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ja_vi_esse_filme/core/routing/app_router.dart';
-import 'package:ja_vi_esse_filme/core/theme/app_theme.dart';
 
 import '../../helpers/back_navigation.dart';
+import '../../helpers/test_app.dart';
 
 Future<GoRouter> pumpAppRouter(
   WidgetTester tester, {
@@ -13,8 +13,7 @@ Future<GoRouter> pumpAppRouter(
   final router = createAppRouter();
   addTearDown(router.dispose);
   await tester.pumpWidget(
-    MaterialApp.router(
-      theme: AppTheme.dark(),
+    testRouterApp(
       routerConfig: router,
       builder: (context, child) => MediaQuery(
         data: MediaQuery.of(context).copyWith(textScaler: textScaler),
@@ -140,21 +139,31 @@ void main() {
       expect(bar.selectedIndex, 2);
     });
 
-    testWidgets('deve mostrar a tela da aba tocada', (tester) async {
-      await pumpAppRouter(tester);
+    // A Estante é a única aba cujo título difere do rótulo da barra.
+    for (final (label, title) in [
+      ('Descobrir', 'Descobrir'),
+      ('Buscar', 'Buscar'),
+      ('Estante', 'Minha estante'),
+      ('Perfil', 'Perfil'),
+    ]) {
+      testWidgets('deve mostrar $title na app bar ao tocar em $label', (
+        tester,
+      ) async {
+        await pumpAppRouter(tester);
 
-      await tapDestination(tester, 'Perfil');
+        await tapDestination(tester, label);
 
-      expect(
-        find.descendant(of: find.byType(AppBar), matching: find.text('Perfil')),
-        findsOneWidget,
-      );
-    });
+        expect(
+          find.descendant(of: find.byType(AppBar), matching: find.text(title)),
+          findsOneWidget,
+        );
+      });
+    }
   });
 
   group('acessibilidade', () {
     // Os guidelines passam até com rótulo vazio, porque o Material já põe
-    // "Tab N of 4" na semântica; por isso o nome de cada aba é conferido aqui.
+    // "Guia N de 4" na semântica; por isso o nome de cada aba é conferido aqui.
     for (final label in ['Descobrir', 'Buscar', 'Estante', 'Perfil']) {
       testWidgets('deve anunciar a aba $label ao leitor de tela', (
         tester,

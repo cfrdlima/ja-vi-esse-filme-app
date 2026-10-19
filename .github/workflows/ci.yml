@@ -35,6 +35,17 @@ jobs:
       # Falha se o pubspec.lock não acompanhar o pubspec.yaml.
       - run: flutter pub get --enforce-lockfile
 
+      # O pub get regenera o lib/l10n (decisão 004); o versionado tem de bater.
+      # O status, e não o diff, pega também um gerado que falte no commit.
+      - name: Código gerado em dia
+        run: |
+          changes="$(git status --porcelain -- lib/l10n)"
+          if [ -n "$changes" ]; then
+            echo "$changes"
+            git diff -- lib/l10n
+            exit 1
+          fi
+
       - name: Format
         run: dart format --output=none --set-exit-if-changed lib test
 

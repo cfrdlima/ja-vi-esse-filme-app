@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/app_localizations.dart';
+
 /// Tela provisória das abas enquanto as features da Fase 1 não chegam.
 /// Não tem os 4 estados porque não carrega nada.
 class PlaceholderScreen extends StatelessWidget {
@@ -14,7 +16,7 @@ class PlaceholderScreen extends StatelessWidget {
       appBar: AppBar(title: Text(title)),
       body: Center(
         child: Text(
-          'Em breve',
+          AppLocalizations.of(context).comingSoon,
           style: theme.textTheme.bodyLarge?.copyWith(
             color: theme.colorScheme.onSurfaceVariant,
           ),
