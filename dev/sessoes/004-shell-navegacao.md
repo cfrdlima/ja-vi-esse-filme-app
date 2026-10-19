@@ -27,7 +27,12 @@ Montar a navegação do app com `go_router`: um `StatefulShellRoute` com `Naviga
 - [x] REFACTOR: nomes, rotas como constantes, widgets pequenos
 - [x] Voltar — RED/GREEN: o aviso `setFrameworkHandlesBack` ao Android fica `true` fora de Descobrir (predictive back), achado na verificação no emulador
 - [x] Tríade: `flutter analyze` limpo, `flutter test` verde, verificação no emulador (screenshot de cada aba)
-- [ ] `/revisar` com `code-reviewer` (sem auth/rede/storage; `security-auditor` só se entrar deep link)
+- [x] `/revisar` com `code-reviewer` (sem auth/rede/storage; `security-auditor` só se entrar deep link)
+- [ ] Revisão A — RED/GREEN: no router real, o aviso ao Android e o voltar até Descobrir testados em Buscar, Estante e Perfil (itens 2 e 4)
+- [ ] Revisão A — RED/GREEN: aviso certo ao revisitar uma aba já carregada (item 4)
+- [ ] Revisão B — REFACTOR: `PopScope` do shell só com `canPop`, sem o `goBranch` que mascarava wrapper esquecido; mutação confirma que os testes de voltar pegam (item 3)
+- [ ] Revisão C — REFACTOR: o router aplica o `BackToFirstTab` por helpers de branch, e o router de teste usa os mesmos helpers (itens 1 e 7)
+- [ ] Revisão D — RED/GREEN: semântica de cada aba conferida direto; teste parametrizado de troca de aba sem `if` no Arrange (itens 5 e 6)
 
 ## Decisões
 
