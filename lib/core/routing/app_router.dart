@@ -1,4 +1,3 @@
-import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 
 import '../widgets/placeholder_screen.dart';
@@ -17,33 +16,23 @@ GoRouter createAppRouter() => GoRouter(
   errorBuilder: (context, _) =>
       NotFoundScreen(onGoHome: () => context.go(AppRoutes.discover)),
   routes: [
-    StatefulShellRoute.indexedStack(
-      builder: (_, _, navigationShell) =>
-          AppShell(navigationShell: navigationShell),
-      branches: [
-        _branch(
-          AppRoutes.discover,
-          const PlaceholderScreen(title: 'Descobrir'),
-        ),
-        _branch(
-          AppRoutes.search,
-          const BackToFirstTab(child: PlaceholderScreen(title: 'Buscar')),
-        ),
-        _branch(
-          AppRoutes.shelf,
-          const BackToFirstTab(
-            child: PlaceholderScreen(title: 'Minha estante'),
-          ),
-        ),
-        _branch(
-          AppRoutes.profile,
-          const BackToFirstTab(child: PlaceholderScreen(title: 'Perfil')),
-        ),
-      ],
-    ),
+    appShellRoute([
+      firstTabBranch(
+        path: AppRoutes.discover,
+        root: const PlaceholderScreen(title: 'Descobrir'),
+      ),
+      tabBranch(
+        path: AppRoutes.search,
+        root: const PlaceholderScreen(title: 'Buscar'),
+      ),
+      tabBranch(
+        path: AppRoutes.shelf,
+        root: const PlaceholderScreen(title: 'Minha estante'),
+      ),
+      tabBranch(
+        path: AppRoutes.profile,
+        root: const PlaceholderScreen(title: 'Perfil'),
+      ),
+    ]),
   ],
-);
-
-StatefulShellBranch _branch(String path, Widget root) => StatefulShellBranch(
-  routes: [GoRoute(path: path, builder: (_, _) => root)],
 );

@@ -7,35 +7,26 @@ import 'package:ja_vi_esse_filme/core/theme/app_theme.dart';
 import '../../helpers/back_navigation.dart';
 
 /// Router de teste com uma sub-rota em cada aba, que o router real ainda não
-/// tem, para exercitar a pilha de navegação dentro da aba.
+/// tem, para exercitar a pilha de navegação dentro da aba. Usa os mesmos
+/// helpers de branch do router real.
 GoRouter createTestRouter() => GoRouter(
   initialLocation: '/a',
   routes: [
-    StatefulShellRoute.indexedStack(
-      builder: (_, _, navigationShell) =>
-          AppShell(navigationShell: navigationShell),
-      branches: [
-        for (final tab in ['a', 'b', 'c', 'd'])
-          StatefulShellBranch(
-            routes: [
-              GoRoute(
-                path: '/$tab',
-                builder: (_, _) => tab == 'a'
-                    ? Text('raiz $tab')
-                    : BackToFirstTab(child: Text('raiz $tab')),
-                routes: [
-                  GoRoute(
-                    path: 'detalhe',
-                    builder: (_, _) => Text('detalhe $tab'),
-                  ),
-                ],
-              ),
-            ],
-          ),
-      ],
-    ),
+    appShellRoute([
+      firstTabBranch(
+        path: '/a',
+        root: const Text('raiz a'),
+        routes: detail('a'),
+      ),
+      for (final tab in ['b', 'c', 'd'])
+        tabBranch(path: '/$tab', root: Text('raiz $tab'), routes: detail(tab)),
+    ]),
   ],
 );
+
+List<RouteBase> detail(String tab) => [
+  GoRoute(path: 'detalhe', builder: (_, _) => Text('detalhe $tab')),
+];
 
 Future<GoRouter> pumpShell(WidgetTester tester) async {
   final router = createTestRouter();
