@@ -21,3 +21,5 @@ Ideias que surgiram e não estão no plano imediato. Marque **[prioritário]** o
 - `NavigationRail` no lugar da `NavigationBar` em telas largas (tablet, regra `adaptive-navigation` da `ui-ux-pro-max`) (sessão 004)
 - Dependabot para `github-actions`: o pin por SHA do workflow cobre só o primeiro nível, e o `subosito/flutter-action` chama `actions/cache@v5` por tag (revisão da sessão 005, item 5)
 - `CODEOWNERS` cobrindo `.gitleaks.toml`, `.gitleaksignore` e `.github/`, com a branch protection exigindo revisão do dono, para que um PR não desligue a própria varredura de segredos (revisão da sessão 005, item 6)
+- Ponto único da configuração do `MaterialApp` (tema, locale, delegates) para o `main.dart` e para `testApp`/`testRouterApp`, quando surgir um quarto campo comum, como `themeMode` ou `darkTheme` (revisão da sessão 006, item 6)
+- Fase 1: chaves de título próprias por tela (`discoverTitle`, `searchTitle`, `profileTitle`), para que encurtar o rótulo de uma aba não mude o título da tela (revisão da sessão 006, item 7)
