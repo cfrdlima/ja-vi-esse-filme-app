@@ -28,11 +28,11 @@ Montar a navegação do app com `go_router`: um `StatefulShellRoute` com `Naviga
 - [x] Voltar — RED/GREEN: o aviso `setFrameworkHandlesBack` ao Android fica `true` fora de Descobrir (predictive back), achado na verificação no emulador
 - [x] Tríade: `flutter analyze` limpo, `flutter test` verde, verificação no emulador (screenshot de cada aba)
 - [x] `/revisar` com `code-reviewer` (sem auth/rede/storage; `security-auditor` só se entrar deep link)
-- [ ] Revisão A — RED/GREEN: no router real, o aviso ao Android e o voltar até Descobrir testados em Buscar, Estante e Perfil (itens 2 e 4)
-- [ ] Revisão A — RED/GREEN: aviso certo ao revisitar uma aba já carregada (item 4)
-- [ ] Revisão B — REFACTOR: `PopScope` do shell só com `canPop`, sem o `goBranch` que mascarava wrapper esquecido; mutação confirma que os testes de voltar pegam (item 3)
-- [ ] Revisão C — REFACTOR: o router aplica o `BackToFirstTab` por helpers de branch, e o router de teste usa os mesmos helpers (itens 1 e 7)
-- [ ] Revisão D — RED/GREEN: semântica de cada aba conferida direto; teste parametrizado de troca de aba sem `if` no Arrange (itens 5 e 6)
+- [x] Revisão A — RED/GREEN: no router real, o aviso ao Android e o voltar até Descobrir testados em Buscar, Estante e Perfil (itens 2 e 4)
+- [x] Revisão A — RED/GREEN: aviso certo ao revisitar uma aba já carregada (item 4)
+- [x] Revisão B — REFACTOR: `PopScope` do shell só com `canPop`, sem o `goBranch` que mascarava wrapper esquecido; mutação confirma que os testes de voltar pegam (item 3)
+- [x] Revisão C — REFACTOR: o router aplica o `BackToFirstTab` por helpers de branch, e o router de teste usa os mesmos helpers (itens 1 e 7)
+- [x] Revisão D — RED/GREEN: semântica de cada aba conferida direto; teste parametrizado de troca de aba sem `if` no Arrange (itens 5 e 6)
 
 ## Decisões
 
@@ -59,6 +59,12 @@ Montar a navegação do app com `go_router`: um `StatefulShellRoute` com `Naviga
 - `efce19b` test: voltar fora de Descobrir é avisado ao Android com predictive back
 - `ffe397f` fix: voltar fora de Descobrir não fecha o app com predictive back
 - `60f5d5f` refactor: helper de teste para o aviso de voltar ao Android
+- `f4375a8` docs: registra o andamento da sessão 004
+- `1ac3714` docs: achados aceitos da revisão viram tarefas da sessão 004
+- `9eeffcc` test: voltar e aviso ao Android em todas as abas e ao revisitar aba carregada
+- `a4eb7b2` refactor: PopScope do shell só avisa o Android, sem navegar
+- `827afb9` refactor: router aplica o BackToFirstTab por helpers de branch
+- `b2eaac3` test: semântica de cada aba e troca de aba sem if no Arrange
 
 ## Notas
 - `ui-ux-pro-max` (stack Flutter): as regras de navegação (`bottom-nav-limit`, `nav-label-icon`, `back-behavior`, `state-preservation`, `gesture-nav-support`) já estão cobertas pela seção 6 do `MASTER.md`. Não foi preciso override em `pages/`. A sugestão de Riverpod foi ignorada, porque a stack é `provider`.
@@ -80,3 +86,11 @@ Montar a navegação do app com `go_router`: um `StatefulShellRoute` com `Naviga
   - Fonte 1.3x sem vazar.
   - Voltar em Estante e em Perfil leva a Descobrir; em Descobrir, fecha o app.
 - Tríade: `dart format` sem mudanças, `flutter analyze` sem issues, `flutter test` com 222 testes passando e `gitleaks` sem vazamentos.
+- Revisão (`code-reviewer`; o `security-auditor` não rodou porque o diff não toca auth, storage, rede, config, `env/`, manifest nem URLs): nada bloqueante. O mecanismo do voltar foi confirmado por sondagem (abas já carregadas, sub-rota, rota no navigator raiz). Aceitos os itens 1–7; o 8 (`selectedIcon` de Buscar) e o 9 (posição do `firstTab`) ficaram de fora.
+- Tratamento da revisão:
+  - A: no router real, o aviso ao Android e o voltar até Descobrir agora são testados em Buscar, Estante e Perfil. Somado o teste de revisitar uma aba já carregada. Os testes passaram de primeira, como guarda. As mutações confirmam: sem o wrapper em Perfil, o teste do aviso falha; sem o `canPop` do shell, falha o teste de revisitar.
+  - B: o `PopScope` do shell ficou só com `canPop`. O `goBranch` dele mascarava um wrapper esquecido (o teste de voltar seguia verde); depois da mudança, a mutação sem wrapper derruba também o teste de voltar.
+  - C: `appShellRoute`, `firstTabBranch` e `tabBranch` (em `app_shell.dart`) montam as abas. O `tabBranch` aplica o wrapper, que virou `_BackToFirstTab`, privado. O router de teste usa os mesmos helpers.
+  - D: a semântica de cada aba é conferida com `bySemanticsLabel`, e a mutação com rótulo vazio agora é pega. O teste parametrizado de troca de aba leva a rota de partida na tupla.
+  - Emulador depois da revisão: o voltar em Buscar, Estante e Perfil, e ao revisitar Estante, leva a Descobrir; em Descobrir, fecha o app.
+  - Tríade depois da revisão: `dart format` sem mudanças, `flutter analyze` sem issues, `flutter test` com 232 testes passando e `gitleaks` sem vazamentos.
