@@ -1,5 +1,7 @@
 # Já Vi Esse Filme
 
+[![CI](https://github.com/cfrdlima/ja-vi-esse-filme-app/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/cfrdlima/ja-vi-esse-filme-app/actions/workflows/ci.yml)
+
 App Android, em Flutter, para cinéfilos: busque filmes, veja sinopse, elenco e trailers, marque o que **já viu**, guarde favoritos e monte listas próprias. Os dados vêm da [API do TMDB](https://developer.themoviedb.org/).
 
 > Em desenvolvimento. O roadmap está em [`dev/PLANO.md`](dev/PLANO.md).
@@ -29,6 +31,8 @@ flutter analyze   # deve ficar sem issues
 flutter test      # todos os testes
 dart format lib/ test/
 ```
+
+O [CI](.github/workflows/ci.yml) roda em push na `main` e em pull requests, com o Flutter 3.44.5. Ele confere o `dart format`, o `flutter analyze --fatal-infos` e o `flutter test` e roda o `gitleaks` em todo o histórico. Não usa nenhum secret: os testes rodam sem `env/*.json`.
 
 Convenções, TDD e regras de segurança: [`CLAUDE.md`](CLAUDE.md). Design: [`design-system/ja-vi-esse-filme/MASTER.md`](design-system/ja-vi-esse-filme/MASTER.md) e [`docs/DESIGN.md`](docs/DESIGN.md). Decisões: [`dev/decisoes/`](dev/decisoes/).
 
