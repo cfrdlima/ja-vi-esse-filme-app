@@ -17,7 +17,13 @@ Decidir onde ficam as strings de UI e como datas e números são formatados em p
 - [x] Strings — REFACTOR: migrar `app_shell`, `app_router`, `placeholder_screen` e `not_found_screen`, com os testes atuais seguindo verdes
 - [x] CI: o código gerado passa no `dart format --set-exit-if-changed` e no `flutter analyze --fatal-infos`; passo novo `git diff --exit-code lib/l10n` depois do `pub get` (a execução no GitHub fica para o PR, no fechamento)
 - [x] Tríade: `flutter analyze` limpo, `flutter test` verde e emulador em pt-BR (tooltips e abas, com fonte grande)
-- [ ] `/revisar` com `code-reviewer`; `security-auditor` não se aplica (não toca auth, storage, rede nem `env/`)
+- [x] `/revisar` com `code-reviewer`; `security-auditor` não se aplica (não toca auth, storage, rede nem `env/`)
+- [ ] Revisão 1: título de cada aba na app bar, parametrizado (pega a troca de "Minha estante")
+- [ ] Revisão 2: trocar o teste tautológico do catálogo por um teste de contrato do `AppLocale`
+- [ ] Revisão 3: comentar por que `supportedLocales` é `[pt_BR]` (código e decisão 004)
+- [ ] Revisão 4: passo de CI pega também gerado não rastreado (`git status --porcelain`)
+- [ ] Revisão 5 e 8: `Builder` inline no lugar do `_Placeholder` com tear-offs; import solto
+- [ ] Revisão 9: justificativa da decisão 005 pelo `intl` fixado no `flutter_localizations`
 
 ## Decisões
 - [004 — Strings de UI em ARB com `gen-l10n`](../decisoes/004-strings-de-ui-em-arb.md)
