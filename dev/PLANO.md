@@ -3,9 +3,9 @@
 > Fonte da verdade do que construir. Atualizado por `/fechar-sessao`.
 
 ## Última sessão
-**004 — Fase 0: shell de navegação com go_router** (fechada em 2026-10-19) · [log](sessoes/004-shell-navegacao.md)
-Agora há um `StatefulShellRoute` com 4 abas (Descobrir / Buscar / Estante / Perfil), cada uma com a pilha preservada, página não encontrada e `MaterialApp.router`. O voltar do Android fora de Descobrir leva a ela, também com predictive back (bug achado no emulador e corrigido com o `PopScope` dentro do navigator da aba). A aba virou "Estante" para caber com fonte grande. São 232 testes.
-**Próximo passo:** `/sessao 005 — CI no GitHub Actions` (format, analyze, test, gitleaks, Flutter 3.44.5 fixado), que fecha a Fase 0. Depois, as decisões de "Antes da Fase 1".
+**005 — Fase 0: CI no GitHub Actions** (fechada em 2026-10-19) · [log](sessoes/005-ci-github-actions.md)
+O workflow `.github/workflows/ci.yml` roda em push na `main` e em todo PR: `dart format`, `flutter analyze`, `flutter test` (Flutter 3.44.5, lockfile travado) e `gitleaks` em todo o histórico, com as actions fixadas por SHA e sem secrets. A `main` tem um ruleset que exige PR com os dois checks verdes, e o `/fechar-sessao` agora integra pelo PR. A Fase 0 está completa.
+**Próximo passo:** as decisões de "Antes da Fase 1", começando por strings de UI (`flutter_localizations` + ARB ou constantes) e `intl`.
 
 ## Fase 0 — Fundação
 - [x] Criar projeto (`io.github.cfrdlima.ja_vi_esse_filme`), `analysis_options.yaml`, `.gitignore` com `env/*.json` (exceto `example.json`)
@@ -23,7 +23,7 @@ Agora há um `StatefulShellRoute` com 4 abas (Descobrir / Buscar / Estante / Per
 - [x] `core/network`: autenticar com o token v4 em `Authorization: Bearer`, sem `api_key` na query (auditoria da sessão 002)
 - [x] Redator de segredos (`api_key`, `session_id`, `request_token`) aplicado no `report` dos handlers, que em release ainda precisa de um destino real (o `developer.log` não aparece)
 - [x] `go_router` com shell de navegação (Descobrir / Buscar / Estante / Perfil)
-- [ ] CI (GitHub Actions): format, analyze, test, gitleaks, com a versão do Flutter fixada (3.44.5)
+- [x] CI (GitHub Actions): format, analyze, test, gitleaks, com a versão do Flutter fixada (3.44.5)
 - [x] Confirmar decisão 001 (chave TMDB e proxy)
 
 ## Antes da Fase 1

@@ -1,6 +1,6 @@
 # Sessão 005 — Fase 0: CI no GitHub Actions
 
-**Data**: 2026-10-19 · **Branch**: `feature/005-ci-github-actions` · **Status**: aberta
+**Data**: 2026-10-19 · **Branch**: `feature/005-ci-github-actions` · **Status**: fechada
 
 ## Objetivo
 Criar um workflow do GitHub Actions que rode, em push na `main` e em todo pull request, a mesma tríade local: `dart format` sem mudanças, `flutter analyze` sem issues, `flutter test` verde e `gitleaks` sem vazamentos, com o Flutter fixado em 3.44.5. Isso fecha a Fase 0.
@@ -38,6 +38,9 @@ O workflow não é código Dart, então o ciclo TDD vira "provar que o job falha
 - `4ac5e00` test: vermelho temporário para provar o CI
 - `b606370` test: reverte o vermelho temporário do CI
 - `567e303` docs: badge e nota do CI no README
+- `dc17a96` docs: log da sessão 005
+- `306c8d9` fix: CI não cancela na main, trava o lockfile e baixa o gitleaks sem sudo
+- `2104b56` chore: fechar-sessao integra pelo PR depois do CI verde
 
 ## Notas
 - Versões fixadas: `actions/checkout` v7.0.1 (`3d3c42e`), `subosito/flutter-action` v2.23.0 (`1a44944`), `gitleaks` 8.30.1 (SHA-256 `551f6fc8…70eb`). Os dois jobs (`flutter` e `gitleaks`) rodam em paralelo no `ubuntu-24.04`.
@@ -69,3 +72,7 @@ O workflow não é código Dart, então o ciclo TDD vira "provar que o job falha
   - 10: a branch protection na `main` é configuração do GitHub e fica com o usuário.
 - Ruleset `checks` na `main`, criado pelo usuário: alvo na branch padrão, bypass vazio, bloqueio de deleção e de force-push, PR obrigatório com 0 aprovações e checks obrigatórios. Na criação, os checks entraram como um só (`Format, analyze e test e Gitleaks`), o que travaria todo PR. Corrigido pela API (`PUT /rulesets/{id}`) para dois checks, `Format, analyze e test` e `Gitleaks`, presos ao app do GitHub Actions (`integration_id` 15368). O repositório é privado e o ruleset é aplicado (`GET /rules/branches/main` devolve as 4 regras).
 - Como o ruleset recusa push direto na `main`, o passo 9 do `/fechar-sessao` mudou: a integração agora é pelo PR, depois do CI verde (`gh pr merge --merge --delete-branch`), em vez do merge `--no-ff` local.
+- Fechamento: `dart format` sem mudanças, `flutter analyze` sem issues, `flutter test` com 232 testes passando e `gitleaks` sem vazamentos. O `/revisar` rodou com o `code-reviewer` e o `security-auditor`. O CI do PR #1 ficou verde depois de cada push.
+- **Pendências**:
+  - No BACKLOG: Dependabot para `github-actions` e `CODEOWNERS` (itens 5 e 6 da revisão).
+  - Enquanto não houver `CODEOWNERS`, tratar como sensível, na revisão de PR, qualquer mudança em `.gitleaks.toml`, `.gitleaksignore`, `gitleaks:allow` e `.github/`.
