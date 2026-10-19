@@ -1,4 +1,7 @@
+import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
+
+import '../../l10n/app_localizations.dart';
 
 import '../widgets/placeholder_screen.dart';
 import 'app_shell.dart';
@@ -19,20 +22,32 @@ GoRouter createAppRouter() => GoRouter(
     appShellRoute([
       firstTabBranch(
         path: AppRoutes.discover,
-        root: const PlaceholderScreen(title: 'Descobrir'),
+        root: const _Placeholder(_discoverTitle),
       ),
-      tabBranch(
-        path: AppRoutes.search,
-        root: const PlaceholderScreen(title: 'Buscar'),
-      ),
-      tabBranch(
-        path: AppRoutes.shelf,
-        root: const PlaceholderScreen(title: 'Minha estante'),
-      ),
+      tabBranch(path: AppRoutes.search, root: const _Placeholder(_searchTitle)),
+      tabBranch(path: AppRoutes.shelf, root: const _Placeholder(_shelfTitle)),
       tabBranch(
         path: AppRoutes.profile,
-        root: const PlaceholderScreen(title: 'Perfil'),
+        root: const _Placeholder(_profileTitle),
       ),
     ]),
   ],
 );
+
+String _discoverTitle(AppLocalizations l10n) => l10n.tabDiscover;
+String _searchTitle(AppLocalizations l10n) => l10n.tabSearch;
+String _shelfTitle(AppLocalizations l10n) => l10n.shelfTitle;
+String _profileTitle(AppLocalizations l10n) => l10n.tabProfile;
+
+/// O router é montado sem `BuildContext`, então o título só é lido do
+/// catálogo quando a tela é construída. Sai junto com os placeholders na
+/// Fase 1.
+class _Placeholder extends StatelessWidget {
+  const _Placeholder(this.title);
+
+  final String Function(AppLocalizations) title;
+
+  @override
+  Widget build(BuildContext context) =>
+      PlaceholderScreen(title: title(AppLocalizations.of(context)));
+}
