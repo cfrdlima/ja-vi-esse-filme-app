@@ -1,0 +1,19 @@
+{
+  "@@locale": "pt",
+  "tabDiscover": "Descobrir",
+  "@tabDiscover": { "description": "Rótulo da aba Descobrir na barra de navegação e título da tela dela" },
+  "tabSearch": "Buscar",
+  "@tabSearch": { "description": "Rótulo da aba Buscar e título da tela dela" },
+  "tabShelf": "Estante",
+  "@tabShelf": { "description": "Rótulo curto da aba da estante; precisa caber na barra com fonte 1.3x" },
+  "tabProfile": "Perfil",
+  "@tabProfile": { "description": "Rótulo da aba Perfil e título da tela dela" },
+  "shelfTitle": "Minha estante",
+  "@shelfTitle": { "description": "Título da tela da estante" },
+  "comingSoon": "Em breve",
+  "@comingSoon": { "description": "Aviso das telas que ainda não foram construídas" },
+  "notFoundTitle": "Página não encontrada",
+  "@notFoundTitle": { "description": "Título da tela de rota desconhecida" },
+  "notFoundGoHome": "Ir para Descobrir",
+  "@notFoundGoHome": { "description": "Botão da tela de rota desconhecida que leva à aba Descobrir" }
+}
