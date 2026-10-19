@@ -3,9 +3,9 @@
 > Fonte da verdade do que construir. Atualizado por `/fechar-sessao`.
 
 ## Última sessão
-**005 — Fase 0: CI no GitHub Actions** (fechada em 2026-10-19) · [log](sessoes/005-ci-github-actions.md)
-O workflow `.github/workflows/ci.yml` roda em push na `main` e em todo PR: `dart format`, `flutter analyze`, `flutter test` (Flutter 3.44.5, lockfile travado) e `gitleaks` em todo o histórico, com as actions fixadas por SHA e sem secrets. A `main` tem um ruleset que exige PR com os dois checks verdes, e o `/fechar-sessao` agora integra pelo PR. A Fase 0 está completa.
-**Próximo passo:** as decisões de "Antes da Fase 1", começando por strings de UI (`flutter_localizations` + ARB ou constantes) e `intl`.
+**006 — Antes da Fase 1: strings de UI e `intl`** (fechada em 2026-10-19) · [log](sessoes/006-strings-e-intl.md)
+Os textos de UI vêm de `lib/l10n/app_pt.arb`, com o `gen-l10n` e o código gerado versionado, conferido pelo CI. O app fica fixo em `pt_BR`, com o Material em português (decisões 004 e 005). O `intl` e o `flutter_localizations` são dependências diretas, e os testes de widget montam a árvore por `test/helpers/test_app.dart`. São 239 testes.
+**Próximo passo:** a política de privacidade (último item de "Antes da Fase 1"). Depois, a Fase 1, a começar por Descobrir.
 
 ## Fase 0 — Fundação
 - [x] Criar projeto (`io.github.cfrdlima.ja_vi_esse_filme`), `analysis_options.yaml`, `.gitignore` com `env/*.json` (exceto `example.json`)
@@ -27,8 +27,8 @@ O workflow `.github/workflows/ci.yml` roda em push na `main` e em todo PR: `dart
 - [x] Confirmar decisão 001 (chave TMDB e proxy)
 
 ## Antes da Fase 1
-- [ ] Decisão: strings de UI centralizadas (`flutter_localizations` + ARB) ou em constantes
-- [ ] Decisão: `intl` para datas e números em pt-BR (dependência nova)
+- [x] Decisão: strings de UI centralizadas (`flutter_localizations` + ARB) ou em constantes
+- [x] Decisão: `intl` para datas e números em pt-BR (dependência nova)
 - [ ] Política de privacidade (o que o app coleta, LGPD), para a tela "Sobre"
 
 ## Fase 1 — Explorar (sem login)

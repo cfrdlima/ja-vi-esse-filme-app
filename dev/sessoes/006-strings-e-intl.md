@@ -1,6 +1,6 @@
 # Sessão 006 — Antes da Fase 1: strings de UI e `intl`
 
-**Data**: 2026-10-19 · **Branch**: `feature/006-strings-e-intl` · **Status**: aberta
+**Data**: 2026-10-19 · **Branch**: `feature/006-strings-e-intl` · **Status**: fechada
 
 ## Objetivo
 Decidir onde ficam as strings de UI e como datas e números são formatados em pt-BR, registrando as duas decisões em `dev/decisoes/`. Em seguida, aplicar a escolha ao app atual, que hoje não define locale nenhum, e às strings já existentes: abas, títulos dos placeholders e página não encontrada. Assim a Fase 1 começa no padrão.
@@ -41,6 +41,7 @@ Decidir onde ficam as strings de UI e como datas e números são formatados em p
 - `2512f29` refactor: placeholder das abas por Builder, sem tear-offs
 - `87f0ac4` test: contrato do AppLocale com o catálogo no lugar do teste que repetia o ARB
 - `e77e6f1` fix: CI pega também gerado do l10n que falte no commit
+- `8e379f6` docs: tratamento da revisão da sessão 006
 
 ## Notas
 - `gen-l10n` no Flutter 3.44.5: o Context7 trouxe o guia de migração do pacote sintético. No `flutter gen-l10n --help` local, não existem mais `--synthetic-package` nem `--format`. Num clone no scratchpad, o `flutter pub get` gerou `lib/l10n/app_localizations*.dart` já formatados e com o `analyze` estrito limpo.
@@ -74,3 +75,8 @@ Decidir onde ficam as strings de UI e como datas e números são formatados em p
   - São 239 testes (eram 242): saem 8 do catálogo, entram 3 casos novos de título e 2 de contrato.
   - Tríade depois da revisão: `dart format` sem mudanças, `flutter analyze --fatal-infos` sem issues, `flutter test` com 239 testes passando e `gitleaks` sem vazamentos.
 - Itens da revisão levados ao BACKLOG: 6 (a configuração do `MaterialApp` se repete no `main.dart` e nos helpers de teste) e 7 (chaves de título próprias por tela na Fase 1).
+- Fechamento: `dart format` sem mudanças, `flutter analyze` sem issues, `flutter test` com 239 testes passando e `gitleaks` sem vazamentos. O `/revisar` rodou com o `code-reviewer`; o `security-auditor` não era exigido, porque a sessão não tocou auth, storage, rede nem `env/`. O passo novo do CI roda no PR, antes do merge.
+- **Pendências**:
+  - No BACKLOG: itens 6 e 7 da revisão.
+  - Nenhum teste pega um texto literal novo num widget. Isso fica como regra de revisão (decisão 004).
+  - Os formatadores de data, nota e duração entram na Fase 1 (decisão 005).
