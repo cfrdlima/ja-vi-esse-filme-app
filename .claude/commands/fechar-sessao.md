@@ -15,4 +15,8 @@ Feche a sessão aberta.
 6. Em `dev/PLANO.md`: marque `[x]` os itens concluídos e reescreva a seção "Última sessão" (número, título, resumo de 2 linhas, próximo passo sugerido).
 7. Ideias que surgiram e não entram no plano vão para `dev/BACKLOG.md`.
 8. Commit `docs: fecha sessão NNN`.
-9. **Pergunte antes** de integrar: merge `--no-ff` da branch em `main` e apagar a branch local. Não faça push sem eu pedir.
+9. **Pergunte antes** de integrar. A `main` tem um ruleset que recusa push direto: a integração é sempre por PR, depois do CI verde.
+   - `git push` da branch; abra o PR para `main` (`gh pr create`) se ainda não houver, ou tire do draft (`gh pr ready`).
+   - Espere os checks `Format, analyze e test` e `Gitleaks` (`gh pr checks --watch`). **Se algum falhar, NÃO integre**: mostre o erro e pare.
+   - `gh pr merge --merge --delete-branch` (commit de merge, como o antigo `--no-ff`; apaga a branch remota e a local).
+   - `git switch main && git pull --ff-only`.
