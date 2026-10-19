@@ -5,7 +5,7 @@
 ## Contexto
 O `CLAUDE.md` exige aprovação para qualquer dependência fora da stack. A decisão 004 adota ARB com `gen-l10n`, e o código gerado importa `package:intl`. A Fase 1 também vai formatar datas de lançamento ("19 de out. de 2026"), notas ("7,8") e durações em pt-BR.
 
-Os dois pacotes já estavam no `pubspec.lock` como dependências transitivas, trazidas pelo `material_ui`/`cupertino_ui` do `go_router`: `flutter_localizations` (SDK) e `intl` 0.20.2.
+O `flutter_localizations` vem do SDK e fixa a versão exata do `intl` (0.20.2 no Flutter 3.44.5). Por isso, declarar as duas não baixa nada novo e não abre escolha de versão.
 
 ## Opções consideradas
 1. **Declarar as duas como dependências diretas**: é o que o `gen-l10n` pede. O `DateFormat` e o `NumberFormat` formatam em pt-BR sem código próprio. Nada novo é baixado.

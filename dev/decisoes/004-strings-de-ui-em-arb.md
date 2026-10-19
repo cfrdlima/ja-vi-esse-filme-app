@@ -16,6 +16,7 @@ Opção 2.
 - **Catálogo:** `lib/l10n/app_pt.arb` é o template. As chaves ficam em inglês e em camelCase (ex.: `tabDiscover`), e cada uma tem `@chave.description`.
 - **Geração:** o `l10n.yaml` aponta `arb-dir: lib/l10n` e usa `nullable-getter: false`, para que `AppLocalizations.of(context)` não devolva nulo. O código é gerado em `lib/l10n/`. O pacote sintético `package:flutter_gen` não existe mais no Flutter 3.44.
 - **Locale:** fixo em `pt_BR` no `MaterialApp`, independente do idioma do aparelho. O Material e o Cupertino também saem em português.
+  - O ARB é `"@@locale": "pt"`, mas o `supportedLocales` do app é `[pt_BR]`, e não o `AppLocalizations.supportedLocales` (`[pt]`). Com `[pt]`, a resolução devolveria `pt`, e o `Localizations.localeOf` e o `intl` perderiam a região. O delegate do catálogo compara só o idioma, por isso aceita `pt_BR`.
 - **Código gerado versionado.** O `flutter pub get` regenera os arquivos, e o CI confere com `git diff --exit-code` que o versionado bate com o gerado.
 
 ## Consequências
