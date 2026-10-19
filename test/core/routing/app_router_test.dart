@@ -110,20 +110,22 @@ void main() {
   });
 
   group('troca de aba', () {
-    for (final (label, route, index) in [
-      ('Descobrir', AppRoutes.discover, 0),
-      ('Buscar', AppRoutes.search, 1),
-      ('Estante', AppRoutes.shelf, 2),
-      ('Perfil', AppRoutes.profile, 3),
+    for (final (label, from, to) in [
+      ('Descobrir', AppRoutes.profile, AppRoutes.discover),
+      ('Buscar', AppRoutes.discover, AppRoutes.search),
+      ('Estante', AppRoutes.discover, AppRoutes.shelf),
+      ('Perfil', AppRoutes.discover, AppRoutes.profile),
     ]) {
-      testWidgets('deve ir para $route ao tocar em $label', (tester) async {
+      testWidgets('deve ir de $from para $to ao tocar em $label', (
+        tester,
+      ) async {
         final router = await pumpAppRouter(tester);
-        if (index == 0) router.go(AppRoutes.profile);
+        router.go(from);
         await tester.pumpAndSettle();
 
         await tapDestination(tester, label);
 
-        expect(router.state.matchedLocation, route);
+        expect(router.state.matchedLocation, to);
       });
     }
 
@@ -151,6 +153,20 @@ void main() {
   });
 
   group('acessibilidade', () {
+    // Os guidelines passam até com rótulo vazio, porque o Material já põe
+    // "Tab N of 4" na semântica; por isso o nome de cada aba é conferido aqui.
+    for (final label in ['Descobrir', 'Buscar', 'Estante', 'Perfil']) {
+      testWidgets('deve anunciar a aba $label ao leitor de tela', (
+        tester,
+      ) async {
+        final semantics = tester.ensureSemantics();
+        await pumpAppRouter(tester);
+
+        expect(find.bySemanticsLabel(RegExp('^$label\n')), findsOneWidget);
+        semantics.dispose();
+      });
+    }
+
     testWidgets('deve ter alvos de toque de 48dp na barra', (tester) async {
       final semantics = tester.ensureSemantics();
       await pumpAppRouter(tester);
