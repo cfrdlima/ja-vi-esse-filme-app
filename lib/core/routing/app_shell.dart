@@ -11,13 +11,12 @@ class AppShell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Quem leva o voltar para a primeira aba é o [BackToFirstTab]. Este
-    // PopScope existe para avisar o Android na troca de aba, que não mexe na
-    // pilha de nenhum navigator e por isso não gera aviso sozinha.
+    // PopScope só avisa o Android na troca de aba, que não mexe na pilha de
+    // nenhum navigator e por isso não gera aviso sozinha. Ele não navega de
+    // propósito: um BackToFirstTab esquecido vira um voltar sem efeito, que os
+    // testes pegam, em vez de ser mascarado aqui.
     return PopScope(
       canPop: navigationShell.currentIndex == firstTab,
-      onPopInvokedWithResult: (didPop, _) {
-        if (!didPop) navigationShell.goBranch(firstTab);
-      },
       child: Scaffold(
         body: navigationShell,
         bottomNavigationBar: NavigationBar(
