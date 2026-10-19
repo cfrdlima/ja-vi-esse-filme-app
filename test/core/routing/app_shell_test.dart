@@ -159,6 +159,20 @@ void main() {
     );
 
     testWidgets(
+      'deve avisar que trata o voltar ao revisitar uma aba carregada',
+      (tester) async {
+        final frameworkHandlesBack = recordFrameworkHandlesBack(tester);
+        await pumpShell(tester);
+        await tapDestination(tester, 2);
+        await tapDestination(tester, 0);
+
+        await tapDestination(tester, 2);
+
+        expect(frameworkHandlesBack(), isTrue);
+      },
+    );
+
+    testWidgets(
       'deve avisar que trata o voltar ao desempilhar até a raiz de outra aba',
       (tester) async {
         final frameworkHandlesBack = recordFrameworkHandlesBack(tester);

@@ -203,17 +203,29 @@ void main() {
   });
 
   group('botão voltar', () {
-    // Com predictive back, o Android fecha o app sem chamar o Flutter se o
-    // último aviso disser que o app não trata o voltar.
-    testWidgets('deve avisar o Android que trata o voltar fora de Descobrir', (
-      tester,
-    ) async {
-      final frameworkHandlesBack = recordFrameworkHandlesBack(tester);
-      await pumpAppRouter(tester);
+    for (final label in ['Buscar', 'Estante', 'Perfil']) {
+      // Com predictive back, o Android fecha o app sem chamar o Flutter se o
+      // último aviso disser que o app não trata o voltar.
+      testWidgets('deve avisar o Android que trata o voltar em $label', (
+        tester,
+      ) async {
+        final frameworkHandlesBack = recordFrameworkHandlesBack(tester);
+        await pumpAppRouter(tester);
 
-      await tapDestination(tester, 'Estante');
+        await tapDestination(tester, label);
 
-      expect(frameworkHandlesBack(), isTrue);
-    });
+        expect(frameworkHandlesBack(), isTrue);
+      });
+
+      testWidgets('deve levar a Descobrir ao voltar em $label', (tester) async {
+        final router = await pumpAppRouter(tester);
+        await tapDestination(tester, label);
+
+        await router.routerDelegate.popRoute();
+        await tester.pumpAndSettle();
+
+        expect(router.state.matchedLocation, AppRoutes.discover);
+      });
+    }
   });
 }
