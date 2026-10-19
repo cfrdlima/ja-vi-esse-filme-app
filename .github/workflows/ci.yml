@@ -35,6 +35,10 @@ jobs:
       # Falha se o pubspec.lock não acompanhar o pubspec.yaml.
       - run: flutter pub get --enforce-lockfile
 
+      # O pub get regenera o lib/l10n (decisão 004); o versionado tem de bater.
+      - name: Código gerado em dia
+        run: git diff --exit-code lib/l10n
+
       - name: Format
         run: dart format --output=none --set-exit-if-changed lib test
 
