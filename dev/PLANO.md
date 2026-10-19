@@ -3,9 +3,9 @@
 > Fonte da verdade do que construir. Atualizado por `/fechar-sessao`.
 
 ## Última sessão
-**003 — Fase 0: core/config e core/network** (fechada em 2026-10-16) · [log](sessoes/003-core-config-network.md)
-O `AppConfig` lê os defines e só aceita HTTPS para `api.themoviedb.org`. O `TmdbClient` usa o token v4 no header `Authorization: Bearer` e transforma todo erro em falha tipada sem URL. O reporter de erros mascara segredos com `redactSecrets`. A decisão 001 foi aceita. São 191 testes.
-**Próximo passo:** `/sessao 004 — shell de navegação com go_router` (Descobrir / Buscar / Minha estante / Perfil), consultando a `ui-ux-pro-max` e com verificação no emulador. A alternativa é começar pela CI, mais curta.
+**004 — Fase 0: shell de navegação com go_router** (fechada em 2026-10-19) · [log](sessoes/004-shell-navegacao.md)
+Agora há um `StatefulShellRoute` com 4 abas (Descobrir / Buscar / Estante / Perfil), cada uma com a pilha preservada, página não encontrada e `MaterialApp.router`. O voltar do Android fora de Descobrir leva a ela, também com predictive back (bug achado no emulador e corrigido com o `PopScope` dentro do navigator da aba). A aba virou "Estante" para caber com fonte grande. São 232 testes.
+**Próximo passo:** `/sessao 005 — CI no GitHub Actions` (format, analyze, test, gitleaks, Flutter 3.44.5 fixado), que fecha a Fase 0. Depois, as decisões de "Antes da Fase 1".
 
 ## Fase 0 — Fundação
 - [x] Criar projeto (`io.github.cfrdlima.ja_vi_esse_filme`), `analysis_options.yaml`, `.gitignore` com `env/*.json` (exceto `example.json`)
@@ -22,7 +22,7 @@ O `AppConfig` lê os defines e só aceita HTTPS para `api.themoviedb.org`. O `Tm
 - [x] `core/network`: cliente TMDB com falhas tipadas (rede, 401, 404, 429, 5xx) — TDD com `MockClient`
 - [x] `core/network`: autenticar com o token v4 em `Authorization: Bearer`, sem `api_key` na query (auditoria da sessão 002)
 - [x] Redator de segredos (`api_key`, `session_id`, `request_token`) aplicado no `report` dos handlers, que em release ainda precisa de um destino real (o `developer.log` não aparece)
-- [ ] `go_router` com shell de navegação (Descobrir / Buscar / Minha estante / Perfil)
+- [x] `go_router` com shell de navegação (Descobrir / Buscar / Estante / Perfil)
 - [ ] CI (GitHub Actions): format, analyze, test, gitleaks, com a versão do Flutter fixada (3.44.5)
 - [x] Confirmar decisão 001 (chave TMDB e proxy)
 

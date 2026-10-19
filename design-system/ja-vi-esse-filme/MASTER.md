@@ -113,7 +113,8 @@ Regras:
 
 ## 6. Padrão de navegação e telas
 
-- **Abas inferiores (`NavigationBar`)**, 4 destinos: Descobrir · Buscar · Minha estante · Perfil. Aba ativa com indicador `primary` e ícone `onPrimary`.
+- **Abas inferiores (`NavigationBar`)**, 4 destinos: Descobrir · Buscar · Estante · Perfil. Aba ativa com indicador `primary` e ícone `onPrimary`.
+- **Rótulo da aba em uma linha só**, curto o bastante para caber com fonte 1.3x (o limite que o `NavigationBar` aplica) numa tela de 320dp. Por isso a aba é "Estante", e o título da tela continua "Minha estante".
 - **Descobrir / Minha estante:** grade de pôsteres 2:3 com `GridView.builder`, espaçamento `sm`, padding `md`.
 - **Detalhes:** backdrop no topo com **gradiente/scrim** até `surface` (contraste AA do título sobre a imagem); ações fixas (já vi / favorito / lista); trailers abrem fora do app.
 - **Toda tela tem 4 estados:** carregando (skeleton), vazio, erro (com "Tentar de novo") e sucesso.
