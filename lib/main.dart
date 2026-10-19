@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:go_router/go_router.dart';
 
 import 'core/error/error_handlers.dart';
@@ -31,6 +32,13 @@ class _MainAppState extends State<MainApp> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(theme: AppTheme.dark(), routerConfig: _router);
+    return MaterialApp.router(
+      theme: AppTheme.dark(),
+      // Fixo em pt-BR, qualquer que seja o idioma do aparelho (decisão 004).
+      locale: const Locale('pt', 'BR'),
+      supportedLocales: const [Locale('pt', 'BR')],
+      localizationsDelegates: GlobalMaterialLocalizations.delegates,
+      routerConfig: _router,
+    );
   }
 }
