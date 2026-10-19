@@ -1,6 +1,6 @@
 # Sessão 004 — Fase 0: shell de navegação com go_router
 
-**Data**: 2026-10-16 · **Branch**: `feature/004-shell-navegacao` · **Status**: aberta
+**Data**: 2026-10-16 · **Branch**: `feature/004-shell-navegacao` · **Status**: fechada
 
 ## Objetivo
 Montar a navegação do app com `go_router`: um `StatefulShellRoute` com `NavigationBar` de 4 abas (Descobrir · Buscar · Estante · Perfil), cada aba com sua pilha preservada, e `MaterialApp.router` no `main.dart`. As abas mostram um placeholder até as telas reais chegarem na Fase 1.
@@ -35,6 +35,7 @@ Montar a navegação do app com `go_router`: um `StatefulShellRoute` com `Naviga
 - [x] Revisão D — RED/GREEN: semântica de cada aba conferida direto; teste parametrizado de troca de aba sem `if` no Arrange (itens 5 e 6)
 
 ## Decisões
+- Nenhuma decisão formal em `dev/decisoes/`. A troca do rótulo para "Estante" foi decidida pelo usuário e registrada no `MASTER.md` (seção 6), que é a fonte da verdade de design (decisão 002).
 
 ## Commits
 - `d3e70b2` docs: abre sessão 004
@@ -65,6 +66,7 @@ Montar a navegação do app com `go_router`: um `StatefulShellRoute` com `Naviga
 - `a4eb7b2` refactor: PopScope do shell só avisa o Android, sem navegar
 - `827afb9` refactor: router aplica o BackToFirstTab por helpers de branch
 - `b2eaac3` test: semântica de cada aba e troca de aba sem if no Arrange
+- `76c57b5` docs: log da sessão 004 com o tratamento da revisão
 
 ## Notas
 - `ui-ux-pro-max` (stack Flutter): as regras de navegação (`bottom-nav-limit`, `nav-label-icon`, `back-behavior`, `state-preservation`, `gesture-nav-support`) já estão cobertas pela seção 6 do `MASTER.md`. Não foi preciso override em `pages/`. A sugestão de Riverpod foi ignorada, porque a stack é `provider`.
@@ -94,3 +96,8 @@ Montar a navegação do app com `go_router`: um `StatefulShellRoute` com `Naviga
   - D: a semântica de cada aba é conferida com `bySemanticsLabel`, e a mutação com rótulo vazio agora é pega. O teste parametrizado de troca de aba leva a rota de partida na tupla.
   - Emulador depois da revisão: o voltar em Buscar, Estante e Perfil, e ao revisitar Estante, leva a Descobrir; em Descobrir, fecha o app.
   - Tríade depois da revisão: `dart format` sem mudanças, `flutter analyze` sem issues, `flutter test` com 232 testes passando e `gitleaks` sem vazamentos.
+- Fechamento: `dart format` sem mudanças, `flutter analyze` sem issues, `flutter test` com 232 testes passando e `gitleaks` sem vazamentos. O `/revisar` rodou com o `code-reviewer`; o `security-auditor` não era exigido, porque a sessão não tocou auth, storage, rede nem `env/`.
+- **Pendências** (levadas ao BACKLOG):
+  - Itens 8 e 9 da revisão: comentar a falta de `selectedIcon` em Buscar e mover o `firstTab` para junto do campo.
+  - Os helpers recebem a tela raiz como `Widget` pronto. Quando uma feature precisar de parâmetro da rota (`GoRouterState`), trocar por um builder.
+  - `NavigationRail` em telas largas (regra `adaptive-navigation` da `ui-ux-pro-max`).

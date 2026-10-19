@@ -16,3 +16,6 @@ Ideias que surgiram e não estão no plano imediato. Marque **[prioritário]** o
 - Empacotar as fontes itálicas (`PlayfairDisplay-Italic[wght]`, `Inter-Italic[opsz,wght]`) se o design passar a usar itálico; hoje sairia itálico sintetizado (revisão da sessão 001, sugestão 13)
 - Extrair um `bootstrap()` testável do `main()` quando a composição crescer (config, injeção), para que remover o `registerErrorHandlers()` quebre algum teste (revisão da sessão 002, sugestão 5)
 - Se um dia existir `.env.example`, adicionar `!.env.example` ao `.gitignore`, porque o `.env*` o ignoraria (auditoria da sessão 002)
+- Revisão da sessão 004, sugestões 8 e 9: comentar em `app_shell.dart` que Buscar não tem `selectedIcon` (não existe variante preenchida de `Icons.search`) e mover `AppShell.firstTab` para junto do campo `navigationShell`
+- `firstTabBranch`/`tabBranch` recebem a tela raiz como `Widget`; trocar por builder (`GoRouterState`) quando uma aba precisar de parâmetro da rota (sessão 004)
+- `NavigationRail` no lugar da `NavigationBar` em telas largas (tablet, regra `adaptive-navigation` da `ui-ux-pro-max`) (sessão 004)
