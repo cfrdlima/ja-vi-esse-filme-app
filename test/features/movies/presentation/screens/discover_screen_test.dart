@@ -11,6 +11,7 @@ import 'package:ja_vi_esse_filme/features/movies/presentation/screens/discover_s
 import 'package:ja_vi_esse_filme/features/movies/presentation/state/category_movies_notifier.dart';
 import 'package:ja_vi_esse_filme/features/movies/presentation/state/discover_notifier.dart';
 import 'package:ja_vi_esse_filme/features/movies/presentation/widgets/movie_poster.dart';
+import 'package:ja_vi_esse_filme/features/movies/presentation/widgets/poster_hero.dart';
 import 'package:ja_vi_esse_filme/features/movies/presentation/widgets/poster_skeleton.dart';
 import 'package:ja_vi_esse_filme/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
@@ -381,6 +382,21 @@ void main() {
       await loadFirstPage(tester);
 
       expect(find.byType(MoviePoster), findsNWidgets(2));
+    });
+
+    testWidgets('deve pôr cada pôster num Hero com a tag do filme', (
+      tester,
+    ) async {
+      await pumpScreen(tester);
+      await loadFirstPage(tester);
+
+      final heroes = tester.widgetList<PosterHero>(
+        find.ancestor(
+          of: find.byType(MoviePoster),
+          matching: find.byType(PosterHero),
+        ),
+      );
+      expect(heroes.map((hero) => hero.movieId), [100, 101]);
     });
 
     testWidgets('deve mostrar o progresso da próxima página no rodapé', (

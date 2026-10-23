@@ -11,6 +11,7 @@ import '../../domain/entities/movie.dart';
 import '../state/paged_movies_notifier.dart';
 import '../state/paged_movies_state.dart';
 import 'movie_poster.dart';
+import 'poster_hero.dart';
 import 'poster_skeleton.dart';
 import 'skeleton_pulse.dart';
 
@@ -247,10 +248,13 @@ class _MovieGridState extends State<_MovieGrid> {
           sliver: SliverGrid.builder(
             gridDelegate: _gridDelegate(tokens),
             itemCount: movies.length,
-            itemBuilder: (_, index) => MoviePoster(
+            itemBuilder: (_, index) => PosterHero(
               key: ValueKey(movies[index].id),
-              movie: movies[index],
-              onTap: () => widget.onMovieTap(movies[index]),
+              movieId: movies[index].id,
+              child: MoviePoster(
+                movie: movies[index],
+                onTap: () => widget.onMovieTap(movies[index]),
+              ),
             ),
           ),
         ),
