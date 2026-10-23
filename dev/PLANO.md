@@ -3,9 +3,9 @@
 > Fonte da verdade do que construir. Atualizado por `/fechar-sessao`.
 
 ## Última sessão
-**012 — Fase 1: Hero do pôster** (fechada em 2026-10-23) · [log](sessoes/012-hero-poster.md)
-O pôster voa da grade (Descobrir e Buscar) até os detalhes e volta, já com a imagem, porque a grade passa o filme pela rota e o skeleton mostra o pôster real. Sem voo no movimento reduzido. O emulador revelou que nenhuma rota animava (o go_router 18.1.0 não reconhece o `MaterialApp` e monta `NoTransitionPage`), corrigido nos detalhes com `MaterialPage`, além de um voo esticado com o teclado aberto, corrigido no shell. São 604 testes.
-**Próximo passo:** a sessão 013, com os trailers (YouTube externo com host validado, o que exige aprovar o `url_launcher`) ou a tela "Sobre".
+**013 — Fase 1: Trailers** (fechada em 2026-10-23) · [log](sessoes/013-trailers.md)
+Os detalhes mostram até 5 trailers do YouTube, na ordem oficial, Brasil, Portugal e outros idiomas, e o toque abre o app do YouTube por uma URL montada e validada pelo app (`url_launcher`, decisão 009). O emulador revelou que o filtro `pt` não trazia os vídeos do Brasil, e por isso o pedido usa `pt-BR,pt,en`. São 676 testes.
+**Próximo passo:** a sessão 014, com a tela "Sobre", que reaproveita a `ExternalLinkPolicy` para o link da política (decisão 006). Antes dela, criar o repositório público de suporte e publicar a política.
 
 ## Fase 0 — Fundação
 - [x] Criar projeto (`io.github.cfrdlima.ja_vi_esse_filme`), `analysis_options.yaml`, `.gitignore` com `env/*.json` (exceto `example.json`)
@@ -38,7 +38,7 @@ O pôster voa da grade (Descobrir e Buscar) até os detalhes e volta, já com a 
 - [x] Busca com debounce e estados vazio/erro, com `include_adult=false` (público 13+, política de privacidade) (sessão 010)
 - [x] Detalhes do filme: sinopse, gêneros, duração, nota, elenco (sessão 011)
 - [x] Hero do pôster entre a grade e os detalhes, com tag única por navigator de aba (sessão 012)
-- [ ] Trailers (abrir YouTube externo com host validado)
+- [x] Trailers (abrir YouTube externo com host validado) (sessão 013)
 - [ ] Tela "Sobre" com atribuição ao TMDB, política de privacidade e licenças das fontes (`LicenseRegistry`). Antes dela, criar o repositório público de suporte e publicar a política seguindo o procedimento da decisão 006. O link vai só para o Pages e exige aprovar o `url_launcher`
 
 ## Fase 2 — Conta TMDB

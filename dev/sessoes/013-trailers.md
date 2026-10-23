@@ -1,6 +1,6 @@
 # Sessão 013 — Fase 1: Trailers
 
-**Data**: 2026-10-23 · **Branch**: `feature/013-trailers` · **Status**: aberta
+**Data**: 2026-10-23 · **Branch**: `feature/013-trailers` · **Status**: fechada
 
 ## Objetivo
 Os detalhes do filme passam a mostrar os trailers que o TMDB tem, e tocar num deles abre o YouTube fora do app (`url_launcher` em modo externo). A URL é montada pelo app a partir da `key` do vídeo e passa por uma validação de host antes de abrir. Sem trailer, a seção some.
@@ -38,6 +38,20 @@ Os detalhes do filme passam a mostrar os trailers que o TMDB tem, e tocar num de
 - [009 — `url_launcher` e links externos](../decisoes/009-url-launcher-e-links-externos.md)
 
 ## Commits
+- (este commit) docs: fecha sessão 013
+- 9097f00 docs: filtro pt-BR no log da sessão 013 e no BACKLOG
+- 9399aff fix: pede os vídeos em pt-BR, que o filtro pt sozinho não traz
+- 88c3374 docs: revisão da sessão 013 no log e itens no BACKLOG
+- 8f252dc fix: trailers do Brasil antes dos de Portugal
+- 8a2a1cc test: regressão da política de link com ponto no fim, homógrafo e arroba disfarçada
+- 0342837 fix: qualquer erro do url_launcher vira LinkNotOpened
+- 49c176d refactor: um só callback para o toque do tile e do leitor de tela
+- b6b523d fix: leitor de tela não repete o tipo no trailer sem nome
+- 9978ecd test: toque do leitor de tela abre o trailer
+- 3287882 fix: trailer com key repetida aparece uma vez só, o mais relevante
+- b28d247 test: ordem estável com 40 trailers e corte depois da ordenação
+- 89ac381 docs: ajusta itens do checklist da sessão 013
+- 0787548 docs: andamento da sessão 013 no log
 - be5611f add: main injeta o abridor de links do url_launcher
 - 97045f7 add: seção de trailers nos detalhes, depois do elenco
 - 721037a add: lista de trailers que abre o YouTube e avisa quando não abre
@@ -85,3 +99,11 @@ Os detalhes do filme passam a mostrar os trailers que o TMDB tem, e tocar num de
   - `gitleaks` sem vazamentos.
 - **Tratamento da revisão:** I1 a I4, S2, S3, S4, S8 e A2 estão feitos, cada um com um teste, e as mutações de I2, I3, I1 e I4 reprovam os testes. S1, S9, A1 e A3 foram para o BACKLOG. A tríade depois do tratamento: `flutter analyze` sem issues, 676 testes passando e `gitleaks` sem vazamentos.
 - **S8 conferido no aparelho, e com um achado:** a hipótese do log (trailers do Brasil marcados como não oficiais) estava errada. Com um `debugPrint` temporário de nome, idioma, país e `official` (já removido), vi que a resposta com `include_video_language=pt,en` não trazia nenhum vídeo `pt-BR`: o `pt` sozinho só casa com o `pt-PT`. Com `pt-BR,pt,en`, chegam os 4 trailers da Sony Pictures Brasil, todos oficiais. No emulador, a seção mostra os 4 do Brasil e depois o de Portugal. O filtro passou para `pt-BR,pt,en` (3 dos 5 idiomas que o TMDB aceita), com teste.
+- **Tríade no fechamento:**
+  - `dart format` sem mudanças (118 arquivos);
+  - `flutter analyze` sem issues;
+  - `flutter test` com 676 testes passando;
+  - `gitleaks` sem vazamentos.
+- **Pendências:**
+  - conferir no aparelho um filme sem trailer e um aparelho sem app que abra o link (os dois estão cobertos por testes);
+  - S1, S5, S6, S7, S9, A1 e A3 da revisão estão no BACKLOG.

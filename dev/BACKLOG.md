@@ -47,3 +47,7 @@ Ideias que surgiram e não estão no plano imediato. Marque **[prioritário]** o
 - Vão grande entre a fileira do elenco e o título "Trailers" nos detalhes, que parece vir da altura reservada no `CastMemberCard`; conferir no emulador e no widget test (sessão 013)
 - `ExternalLinkPolicy` aceita qualquer caminho no host permitido (`www.youtube.com/redirect?q=…`). Antes de passar por ela uma URL vinda de fora (o `homepage` do TMDB, por exemplo), restringir o caminho por host ou montar a URL a partir de um molde (auditoria da sessão 013, A1)
 - Checklist de release: o `androidx.core`, que vem com o `url_launcher`, declara a permissão interna `DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION` (`signature`). O usuário não a vê, mas a ficha do Play Console pode listá-la (auditoria da sessão 013, A3)
+- Revisão da sessão 013, S5, S6 e S7:
+  - dois toques rápidos num trailer abrem o YouTube duas vezes; travar o tile enquanto o `open` está em andamento (com checagem de `mounted`);
+  - `MovieDetails._byRelevance` usa soma de pesos e tem `'pt'`/`'BR'` fixos no domínio. Comparar critério a critério e receber o idioma e o país preferidos quando houver um segundo locale;
+  - `TmdbJson.nonEmpty` não faz `trim`, então um nome de trailer só com espaços vira título em branco no lugar do tipo.
