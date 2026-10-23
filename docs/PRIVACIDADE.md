@@ -1,6 +1,6 @@
 # Política de Privacidade — Já Vi Esse Filme
 
-**Versão:** 0.2 (rascunho) · **Vigência:** a definir na publicação (data explícita, ver decisão 006)
+**Versão:** 0.3 (rascunho) · **Vigência:** a definir na publicação (data explícita, ver decisão 006)
 
 <!--
 Fonte da verdade da política (decisão 006). Toda sessão que mudar o que o app
@@ -25,6 +25,7 @@ O app usa a API do **The Movie Database (TMDB)**, mas não é endossado, certifi
 - O app **não tem servidor próprio**. O seu aparelho busca os dados de filmes direto no TMDB.
 - O app **não usa** analytics, anúncios, localização, câmera, microfone nem contatos.
 - O app **não vende** dados e só os compartilha com o TMDB, que fornece o conteúdo.
+- Sem login, o app guarda no aparelho só um cache temporário dos pôsteres (seção 3.1).
 
 <!-- A REVISAR (Fase 4, decisão 001): se entrar um proxy próprio entre o app e o TMDB, ele passa a receber IP, buscas e, nas rotas de conta, o identificador de sessão. Rever as seções 2, 3, 6 e 9. -->
 
@@ -39,7 +40,7 @@ Para buscar e abrir filmes, o aparelho se conecta diretamente aos servidores do 
 
 As requisições se identificam com uma credencial do próprio app, e não com uma credencial sua. O app não guarda o seu histórico de busca.
 
-<!-- A REVISAR (Fase 1): com o cache de imagens (cached_network_image), os pôsteres dos filmes abertos ficam gravados temporariamente no aparelho. Descrever o prazo e como apagar (seção 7) na sessão que trouxer o pacote. -->
+Para a navegação ser mais rápida e gastar menos dados, o app guarda temporariamente no aparelho os **pôsteres que aparecem na tela** e um índice com o endereço de cada imagem. Esse cache fica só no aparelho e não vai para ninguém. Cada imagem sai depois de 30 dias sem uso, e o cache guarda no máximo 200 imagens. O Android também pode apagá-lo quando precisar de espaço. Para apagar o cache na hora, veja a seção 8.
 
 ### 3.2 Uso com login na conta TMDB
 
@@ -85,6 +86,7 @@ O TMDB processa dados em servidores de vários países, inclusive nos Estados Un
 ## 7. Por quanto tempo os dados ficam guardados
 
 - **No aparelho:** o identificador de sessão fica guardado até você sair da conta no app. Ao sair, o app apaga o identificador e pede ao TMDB que encerre a sessão. Desinstalar o app apaga a cópia local, mas **não** encerra a sessão no TMDB. Por isso, saia da conta antes de desinstalar.
+- **Cache de imagens:** cada pôster sai depois de 30 dias sem uso, com no máximo 200 imagens guardadas (seção 3.1).
 - **No TMDB:** pelo prazo definido na política de privacidade do TMDB.
 - O app não faz backup dos seus dados na nuvem do Android.
 
@@ -102,7 +104,7 @@ Pela LGPD (art. 18), você pode pedir:
 
 Você também pode se opor a um tratamento baseado em legítimo interesse.
 
-- **Dados no aparelho:** saia da conta no app. Para apagar todos os dados locais, use "Limpar armazenamento" nas configurações do Android ou desinstale o app.
+- **Dados no aparelho:** saia da conta no app. Para apagar todos os dados locais, use "Limpar armazenamento" nas configurações do Android ou desinstale o app. "Limpar cache" apaga as imagens guardadas, e o índice delas só sai com "Limpar armazenamento".
 - **Dados na sua conta TMDB** (favoritos, watchlist, listas e perfil): o TMDB é o controlador. Exerça seus direitos direto com ele, nas configurações da conta no site ou pelo contato da política do TMDB.
 - **Pedidos sobre este app:** use o e-mail da seção 10. A resposta sai em até 15 dias (art. 19, II).
 
