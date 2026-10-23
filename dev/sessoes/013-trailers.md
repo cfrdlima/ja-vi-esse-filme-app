@@ -23,16 +23,16 @@ Os detalhes do filme passam a mostrar os trailers que o TMDB tem, e tocar num de
 - [x] Manifest: avaliar o `<queries>` de `VIEW` `https` (ficou de fora, decisão 009) e conferir se a seção de permissões do `docs/PRIVACIDADE.md` muda (não muda)
 - [x] Tríade: `flutter analyze` limpo, `flutter test` verde e emulador (filme com e sem trailer, abrir o YouTube, voltar ao app, fonte grande)
 - [x] `/revisar`: `code-reviewer` e `security-auditor` (a sessão abre URL externa e adiciona dependência)
-- [ ] I1: `MovieDetails` tira trailers com `key` repetida antes do corte, mantendo o mais relevante — RED / GREEN
-- [ ] I2: teste de estabilidade da ordem com mais de 32 trailers equivalentes (o `sort` do Dart já é estável abaixo disso) — RED
-- [ ] I3: teste do corte com o único oficial na 7ª posição, saindo em primeiro
-- [ ] I4: o toque do leitor de tela (`SemanticsAction.tap`) abre o trailer — RED / GREEN
-- [ ] S2: trailer sem nome lido como "Teaser. Abre no YouTube", sem repetir o tipo — RED / GREEN
-- [ ] S3: um só `open` local para o `onTap` do `ListTile` e do `Semantics` — REFACTOR
-- [ ] S4: qualquer erro do `launchUrl` vira `LinkNotOpened(noApp)`, não só `PlatformException` — RED / GREEN
-- [ ] S8: entre os vídeos em português, os do Brasil (`iso_3166_1 == BR`) vêm antes — RED / GREEN
-- [ ] A2: casos de regressão na política: ponto no fim do host, homógrafo cirílico, `www.youtube.com%2F@evil.com`, `evil.com\@www.youtube.com`
-- [ ] BACKLOG: S1, S9, A1, A3
+- [x] I1: `MovieDetails` tira trailers com `key` repetida antes do corte, mantendo o mais relevante — RED / GREEN
+- [x] I2: teste de estabilidade da ordem com mais de 32 trailers equivalentes (o `sort` do Dart já é estável abaixo disso) — RED
+- [x] I3: teste do corte com o único oficial na 7ª posição, saindo em primeiro
+- [x] I4: o toque do leitor de tela (`SemanticsAction.tap`) abre o trailer — RED / GREEN
+- [x] S2: trailer sem nome lido como "Teaser. Abre no YouTube", sem repetir o tipo — RED / GREEN
+- [x] S3: um só `open` local para o `onTap` do `ListTile` e do `Semantics` — REFACTOR
+- [x] S4: qualquer erro do `launchUrl` vira `LinkNotOpened(noApp)`, não só `PlatformException` — RED / GREEN
+- [x] S8: entre os vídeos em português, os do Brasil (`iso_3166_1 == BR`) vêm antes — RED / GREEN
+- [x] A2: casos de regressão na política: ponto no fim do host, homógrafo cirílico, `www.youtube.com%2F@evil.com`, `evil.com\@www.youtube.com`
+- [x] BACKLOG: S1, S9, A1, A3
 
 ## Decisões
 - [009 — `url_launcher` e links externos](../decisoes/009-url-launcher-e-links-externos.md)
@@ -83,3 +83,5 @@ Os detalhes do filme passam a mostrar os trailers que o TMDB tem, e tocar num de
   - `flutter analyze` sem issues;
   - `flutter test` com 662 testes passando (eram 604);
   - `gitleaks` sem vazamentos.
+- **Tratamento da revisão:** I1 a I4, S2, S3, S4, S8 e A2 estão feitos, cada um com um teste, e as mutações de I2, I3, I1 e I4 reprovam os testes. S1, S9, A1 e A3 foram para o BACKLOG. A tríade depois do tratamento: `flutter analyze` sem issues, 676 testes passando e `gitleaks` sem vazamentos.
+- **S8 ainda não conferido no aparelho:** no emulador, "Devoradores de Estrelas" continua com os trailers de Portugal no topo, mas o site do TMDB lista 4 trailers da Sony Pictures Brasil. A hipótese é que esses 4 estejam marcados como `official: false`. Como "oficial" pesa mais que o idioma, os 2 de Portugal e os 3 oficiais em inglês ocupam as 5 vagas. **Pendente:** confirmar os campos do TMDB (com um `debugPrint` temporário de nome, idioma, país e `official`) e decidir se o idioma e o país devem pesar mais que o "oficial".
