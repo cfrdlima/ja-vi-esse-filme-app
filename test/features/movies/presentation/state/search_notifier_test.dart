@@ -174,7 +174,12 @@ void main() {
         repository.complete(moviePage(page: 1)); // resposta de "matrix"
         async.flushMicrotasks();
 
-        expect(resultsOf(notifier).state, isA<PagedMoviesLoading>());
+        // A tela continua no termo novo, ainda esperando a resposta dele.
+        final shown = resultsOf(notifier);
+        expect(
+          (shown.query, shown.state is PagedMoviesLoading),
+          (SearchQuery('matriz'), true),
+        );
       });
     });
 
