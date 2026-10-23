@@ -21,13 +21,13 @@ Tocar num pôster da Descobrir ou da Buscar abre os detalhes do filme numa rota 
 - [x] Strings novas no ARB (títulos de seção, duração, nota, "não encontrado", elenco, sem sinopse)
 - [x] Tríade: `flutter analyze` limpo, `flutter test` verde e emulador (abrir pelas duas abas, voltar, filme sem pôster/sinopse, fonte grande)
 - [x] `/revisar`: `code-reviewer` + `security-auditor` (a sessão toca rede e rota com parâmetro)
-- [ ] I1: provider dos detalhes com `key` pelo id, para ir de `filme/1` a `filme/2` trocar o filme (o `pageKey` do go_router é o caminho-padrão) — RED / GREEN
-- [ ] I2: testes de fonte 1.5x dos detalhes numa tela de fato de 320dp (`tester.view`) — RED / GREEN
-- [ ] S1: id da rota só em base 10 (`0x1F` vai para "não encontrado") — RED / GREEN
-- [ ] S2: teste do notifier descartado registra um ouvinte e confere que ele não é chamado
-- [ ] S3: teste de dados ausentes procura o texto exato de data e duração
-- [ ] S4: título do filme no cabeçalho marcado como cabeçalho para o leitor de tela — RED / GREEN
-- [ ] S5: skeleton dos detalhes com a mesma largura máxima do conteúdo (640dp) — RED / GREEN
+- [x] I1: provider dos detalhes com `key` pelo id, para ir de `filme/1` a `filme/2` trocar o filme (o `pageKey` do go_router é o caminho-padrão) — RED / GREEN
+- [x] I2: testes de fonte 1.5x dos detalhes numa tela de fato de 320dp (`tester.view`) — RED / GREEN
+- [x] S1: id da rota só em base 10 (`0x1F` vai para "não encontrado") — RED / GREEN
+- [x] S2: teste do notifier descartado registra um ouvinte e confere que ele não é chamado
+- [x] S3: teste de dados ausentes procura o texto exato de data e duração
+- [x] S4: título do filme no cabeçalho marcado como cabeçalho para o leitor de tela: descartado, porque a AppBar já marca o título como cabeçalho (ver Notas)
+- [x] S5: skeleton dos detalhes com a mesma largura máxima do conteúdo (640dp) — RED / GREEN
 
 ## Decisões
 - [008 — Sinopse original via `append_to_response=translations`](../decisoes/008-sinopse-original-via-translations.md)
@@ -61,3 +61,16 @@ Tocar num pôster da Descobrir ou da Buscar abre os detalhes do filme numa rota 
   - Nenhuma exceção nem overflow no log do `flutter run`.
   - **Observação:** o personagem vem do TMDB sem tradução ("Himself", "Herself"). É dado do TMDB, e não do app.
 - Tríade antes do `/revisar`: `dart format` sem mudanças (106 arquivos), `flutter analyze` sem issues, `flutter test` com 573 testes passando (eram 473) e `gitleaks` sem vazamentos.
+- Revisão (`code-reviewer` e `security-auditor`): nada bloqueante.
+  - O `security-auditor` aprovou fechar a sessão. A rota não é alcançável por deep link (o manifesto só tem MAIN/LAUNCHER), as imagens passam pelo host fixo e o texto de terceiros só vai para `Text`.
+  - O `code-reviewer` pediu dois itens importantes e sete sugestões.
+  - O usuário seguiu a recomendação: I1, I2, S1, S2, S3, S4 e S5 nesta sessão. S6, S7 e o alerta de controle bidirecional do auditor foram para o BACKLOG.
+- Tratamento:
+  - **I1:** confirmado no código do go_router 18.1.0 (`match.dart`): a `pageKey` é o caminho-padrão (`/descobrir/filme/:id`), e ir de `filme/1` a `filme/2` mantinha o notifier do filme 1. O provider ganhou `key` pelo id, com teste de router.
+  - **I2:** os testes de fonte grande rodavam a 800dp, porque o `MaterialApp` tira o tamanho da view, e não do `MediaQuery` de fora. Passaram a usar o `tester.view` em 320dp, e entrou um caso com fonte 2x. Mutação: um pôster de 400dp reprova os quatro testes.
+  - **S1:** a rota aceita só dígitos em base 10. O `int.tryParse` sozinho aceitava `0x1F`, `+7` e `" 7"`, os três com teste.
+  - **S2:** o `ChangeNotifier` já tira os ouvintes no `dispose`, então um ouvinte registrado não provaria nada. Os testes passaram a conferir o que a guarda evita: lançar e mudar o estado. Os dois reprovam sem a guarda.
+  - **S3:** o filme sem dados confere a lista exata de textos do conteúdo. Mutação: um "—" no lugar da duração reprova o teste.
+  - **S4:** descartado depois do RED. A AppBar do Material já põe `header: true` no título (`app_bar.dart`, linha 1079) e o usa como nome da rota. Marcar também o título do conteúdo o tornaria cabeçalho duas vezes. O código e o teste foram desfeitos antes do commit.
+  - **S5:** o skeleton usa a mesma largura máxima do conteúdo. No tablet (1200dp), o pôster do skeleton estava em 16 e o do conteúdo em 280; o teste confere que os dois ficam no mesmo lugar.
+- Tríade depois do tratamento: `dart format` sem mudanças (106 arquivos), `flutter analyze` sem issues, `flutter test` com 581 testes passando e `gitleaks` sem vazamentos.
