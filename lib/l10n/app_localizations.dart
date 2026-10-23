@@ -175,7 +175,7 @@ abstract class AppLocalizations {
   /// Categoria da Descobrir: filmes com as maiores notas no TMDB
   ///
   /// In pt, this message translates to:
-  /// **'Melhor avaliados'**
+  /// **'Mais bem avaliados'**
   String get categoryTopRated;
 
   /// Rodapé da grade quando a próxima página falha; os filmes já carregados continuam

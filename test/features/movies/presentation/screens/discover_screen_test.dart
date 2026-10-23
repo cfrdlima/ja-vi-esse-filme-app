@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ja_vi_esse_filme/core/error/failures.dart';
 import 'package:ja_vi_esse_filme/core/l10n/app_locale.dart';
@@ -158,6 +160,33 @@ void main() {
         ),
       );
       expect(scrollable.position.pixels, greaterThan(0));
+    });
+
+    // Mede com a Inter de verdade: a fonte padrão dos testes (Ahem) desenha
+    // cada letra como um quadrado e alargaria os chips.
+    testWidgets('deve caber numa linha num celular de 412dp', (tester) async {
+      await tester.runAsync(
+        () =>
+            (FontLoader('Inter')..addFont(
+                  Future.value(
+                    ByteData.sublistView(
+                      File('assets/fonts/Inter-Variable.ttf').readAsBytesSync(),
+                    ),
+                  ),
+                ))
+                .load(),
+      );
+      tester.view
+        ..physicalSize = const Size(412, 915)
+        ..devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      await pumpScreen(tester);
+
+      final rows = tester
+          .widgetList<ChoiceChip>(find.byType(ChoiceChip))
+          .map((chip) => tester.getTopLeft(find.byWidget(chip)).dy)
+          .toSet();
+      expect(rows, hasLength(1));
     });
 
     testWidgets('não deve vazar com fonte 1.5x numa tela estreita', (

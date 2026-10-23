@@ -48,7 +48,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get categoryNowPlaying => 'Em cartaz';
 
   @override
-  String get categoryTopRated => 'Melhor avaliados';
+  String get categoryTopRated => 'Mais bem avaliados';
 
   @override
   String get discoverLoadMoreFailed => 'Não foi possível carregar mais filmes.';

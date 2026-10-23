@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ja_vi_esse_filme/core/theme/app_colors.dart';
 import 'package:ja_vi_esse_filme/core/theme/app_radii.dart';
+import 'package:ja_vi_esse_filme/core/theme/app_spacing.dart';
 import 'package:ja_vi_esse_filme/core/theme/app_theme.dart';
 import 'package:ja_vi_esse_filme/core/theme/app_theme_tokens.dart';
 import 'package:ja_vi_esse_filme/core/theme/app_typography.dart';
@@ -88,6 +89,17 @@ void main() {
           WidgetState.disabled,
         })!.color,
         AppColors.foreground.withValues(alpha: 0.12),
+      );
+    });
+
+    test('o chip não deve mostrar o check de selecionado', () {
+      expect(theme.chipTheme.showCheckmark, isFalse);
+    });
+
+    test('o chip deve ter respiro xs dos lados do rótulo', () {
+      expect(
+        theme.chipTheme.labelPadding,
+        EdgeInsets.symmetric(horizontal: AppSpacing.standard.xs),
       );
     });
 
