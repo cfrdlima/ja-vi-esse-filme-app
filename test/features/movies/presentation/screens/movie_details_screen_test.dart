@@ -449,6 +449,18 @@ void main() {
       expect(find.byType(MoviePoster), findsOneWidget);
     });
 
+    testWidgets('não deve ler o pôster duas vezes durante o voo', (
+      tester,
+    ) async {
+      final semantics = tester.ensureSemantics();
+      await pumpGrid(tester);
+
+      await tapAndFlyHalfway(tester);
+
+      expect(find.bySemanticsLabel(preview.title), findsOneWidget);
+      semantics.dispose();
+    });
+
     testWidgets('deve voar de volta à grade ao voltar', (tester) async {
       await pumpGrid(tester);
       // O pulso do skeleton não para: o filme chega antes do `pumpAndSettle`.
