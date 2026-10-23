@@ -531,6 +531,30 @@ void main() {
       );
     });
 
+    testWidgets('deve manter a proporção do pôster quando o teclado fecha no '
+        'meio do voo', (tester) async {
+      await pumpAppRouter(tester, movies: movies);
+      await tapDestination(tester, 'Buscar');
+      await tester.enterText(find.byType(TextField), 'filme');
+      await tester.pump(SearchNotifier.debounce);
+      await tester.pumpAndSettle();
+      tester.view.viewInsets = const FakeViewPadding(bottom: 300);
+      addTearDown(tester.view.resetViewInsets);
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byType(MoviePoster).first);
+      await tester.pump();
+      tester.view.viewInsets = FakeViewPadding.zero;
+      await tester.pump(const Duration(milliseconds: 100));
+
+      final size = tester.getSize(
+        find.byWidgetPredicate(
+          (widget) => widget is MoviePoster && widget.movie.id == 1,
+        ),
+      );
+      expect(size.width / size.height, closeTo(2 / 3, 0.01));
+    });
+
     testWidgets('deve ignorar um filme de outro id no extra', (tester) async {
       final router = await pumpAppRouter(tester, movies: movies);
 

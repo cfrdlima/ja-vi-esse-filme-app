@@ -21,6 +21,10 @@ class AppShell extends StatelessWidget {
     return PopScope(
       canPop: navigationShell.currentIndex == firstTab,
       child: Scaffold(
+        // Cada tela tem o seu Scaffold e desvia do teclado sozinha. Se o shell
+        // também encolhesse, o navigator da aba mudaria de tamanho quando o
+        // teclado fecha no meio do voo do Hero, e o pôster sairia esticado.
+        resizeToAvoidBottomInset: false,
         body: navigationShell,
         bottomNavigationBar: NavigationBar(
           selectedIndex: navigationShell.currentIndex,
