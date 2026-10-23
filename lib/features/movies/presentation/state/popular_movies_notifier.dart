@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 
 import '../../../../core/error/failures.dart';
 import '../../domain/entities/movie.dart';
+import '../../domain/entities/movie_category.dart';
 import '../../domain/entities/movie_page.dart';
 import '../../domain/repositories/movie_repository.dart';
 import 'popular_movies_state.dart';
@@ -96,7 +97,7 @@ class PopularMoviesNotifier extends ChangeNotifier {
   /// continua subindo de propósito.
   Future<MoviePage> _fetch(int page) async {
     try {
-      return await _repository.popular(page: page);
+      return await _repository.byCategory(MovieCategory.popular, page: page);
     } on Failure {
       rethrow;
     } on Exception {

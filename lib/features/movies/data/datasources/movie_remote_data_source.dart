@@ -1,5 +1,6 @@
 import '../../../../core/error/failures.dart';
 import '../../../../core/network/tmdb_client.dart';
+import '../../domain/entities/movie_category.dart';
 import '../../domain/entities/movie_page.dart';
 import '../models/movie_model.dart';
 
@@ -10,10 +11,29 @@ class MovieRemoteDataSource {
 
   final TmdbClient _client;
 
-  Future<MoviePage> popular({required int page}) async {
-    final json = await _client.get('movie/popular', query: {'page': '$page'});
+  // "Em cartaz" depende do país: sem a região, o TMDB devolve os lançamentos
+  // de outros mercados.
+  static const _region = 'BR';
+
+  Future<MoviePage> byCategory(
+    MovieCategory category, {
+    required int page,
+  }) async {
+    final json = await _client.get(
+      _pathOf(category),
+      query: {
+        'page': '$page',
+        if (category == MovieCategory.nowPlaying) 'region': _region,
+      },
+    );
     return _parsePage(json);
   }
+
+  String _pathOf(MovieCategory category) => switch (category) {
+    MovieCategory.popular => 'movie/popular',
+    MovieCategory.nowPlaying => 'movie/now_playing',
+    MovieCategory.topRated => 'movie/top_rated',
+  };
 
   MoviePage _parsePage(Map<String, Object?> json) {
     final page = json['page'];

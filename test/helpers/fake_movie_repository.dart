@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:ja_vi_esse_filme/features/movies/domain/entities/movie.dart';
+import 'package:ja_vi_esse_filme/features/movies/domain/entities/movie_category.dart';
 import 'package:ja_vi_esse_filme/features/movies/domain/entities/movie_page.dart';
 import 'package:ja_vi_esse_filme/features/movies/domain/repositories/movie_repository.dart';
 
@@ -11,7 +12,7 @@ class FakeMovieRepository implements MovieRepository {
   final List<Completer<MoviePage>> _pending = [];
 
   @override
-  Future<MoviePage> popular({required int page}) {
+  Future<MoviePage> byCategory(MovieCategory category, {required int page}) {
     requestedPages.add(page);
     final completer = Completer<MoviePage>();
     _pending.add(completer);

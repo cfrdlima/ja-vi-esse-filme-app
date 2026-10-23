@@ -5,6 +5,7 @@ import 'package:ja_vi_esse_filme/core/config/app_config.dart';
 import 'package:ja_vi_esse_filme/core/network/tmdb_client.dart';
 import 'package:ja_vi_esse_filme/features/movies/data/datasources/movie_remote_data_source.dart';
 import 'package:ja_vi_esse_filme/features/movies/data/repositories/tmdb_movie_repository.dart';
+import 'package:ja_vi_esse_filme/features/movies/domain/entities/movie_category.dart';
 import 'package:ja_vi_esse_filme/features/movies/domain/repositories/movie_repository.dart';
 
 void main() {
@@ -26,12 +27,12 @@ void main() {
 
   setUp(() => requests = 0);
 
-  test('deve devolver a página pedida de populares', () async {
+  test('deve devolver a página pedida da categoria', () async {
     final repository = repositoryWith(
       '{"page":2,"total_pages":5,"results":[{"id":1,"title":"A"}]}',
     );
 
-    final page = await repository.popular(page: 2);
+    final page = await repository.byCategory(MovieCategory.popular, page: 2);
 
     expect((page.page, page.hasMore), (2, true));
   });
@@ -40,7 +41,7 @@ void main() {
     final repository = repositoryWith('{}');
 
     await expectLater(
-      () => repository.popular(page: 0),
+      () => repository.byCategory(MovieCategory.topRated, page: 0),
       throwsA(isA<RangeError>()),
     );
     expect(requests, 0);

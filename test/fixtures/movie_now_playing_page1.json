@@ -1,0 +1,43 @@
+{
+  "dates": {
+    "maximum": "2026-10-28",
+    "minimum": "2026-09-10"
+  },
+  "page": 1,
+  "results": [
+    {
+      "adult": false,
+      "backdrop_path": "/fundo-agente-secreto.jpg",
+      "genre_ids": [18, 53],
+      "id": 1220564,
+      "original_language": "pt",
+      "original_title": "O Agente Secreto",
+      "overview": "Recife, 1977. Um professor foge de um passado misterioso.",
+      "popularity": 310.2,
+      "poster_path": "/poster-agente-secreto.jpg",
+      "release_date": "2026-11-06",
+      "title": "O Agente Secreto",
+      "video": false,
+      "vote_average": 7.9,
+      "vote_count": 412
+    },
+    {
+      "adult": false,
+      "backdrop_path": null,
+      "genre_ids": [35],
+      "id": 1311031,
+      "original_language": "en",
+      "original_title": "Small Comedy",
+      "overview": "",
+      "popularity": 45.7,
+      "poster_path": null,
+      "release_date": "2026-10-02",
+      "title": "Uma Pequena Comédia",
+      "video": false,
+      "vote_average": 6,
+      "vote_count": 18
+    }
+  ],
+  "total_pages": 12,
+  "total_results": 231
+}
