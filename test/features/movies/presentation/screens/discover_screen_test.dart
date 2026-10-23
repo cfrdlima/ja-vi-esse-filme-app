@@ -181,6 +181,32 @@ void main() {
       expect(repository.requestedPages, [1, 1]);
     });
 
+    testWidgets('deve esperar o retryAfter do 429 antes de tentar de novo', (
+      tester,
+    ) async {
+      await pumpScreen(tester);
+      await failFirstPage(
+        tester,
+        const RateLimitFailure(retryAfter: Duration(seconds: 5)),
+      );
+
+      expect(find.text(l10n.retryIn(5)), findsOneWidget);
+    });
+
+    testWidgets('deve liberar o tentar de novo quando a espera acaba', (
+      tester,
+    ) async {
+      await pumpScreen(tester);
+      await failFirstPage(
+        tester,
+        const RateLimitFailure(retryAfter: Duration(seconds: 5)),
+      );
+
+      await tester.pump(const Duration(seconds: 5));
+
+      expect(find.text(l10n.retry), findsOneWidget);
+    });
+
     testWidgets('não deve vazar com fonte 1.5x', (tester) async {
       await tester.pumpWidget(
         MediaQuery(
@@ -235,6 +261,17 @@ void main() {
 
       expect(find.text(l10n.discoverLoadMoreFailed), findsNothing);
       expect(repository.requestedPages, [1, 2, 2]);
+    });
+
+    testWidgets('deve esperar o retryAfter do 429 no rodapé', (tester) async {
+      await pumpScreen(tester);
+      await loadFirstPage(tester);
+      final failed = notifier.loadMore();
+      repository.fail(const RateLimitFailure(retryAfter: Duration(seconds: 4)));
+      await failed;
+      await tester.pump();
+
+      expect(find.text(l10n.retryIn(4)), findsOneWidget);
     });
 
     testWidgets('deve pedir a próxima página ao rolar perto do fim', (

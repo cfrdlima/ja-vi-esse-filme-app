@@ -8,6 +8,7 @@ import '../../../../core/l10n/failure_message.dart';
 import '../../../../core/theme/app_motion.dart';
 import '../../../../core/theme/app_sizes.dart';
 import '../../../../core/theme/app_theme_tokens.dart';
+import '../../../../core/widgets/retry_button.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../state/paged_movies_notifier.dart';
 import '../state/paged_movies_state.dart';
@@ -147,15 +148,25 @@ class _ErrorView extends StatelessWidget {
   Widget build(BuildContext context) => _MessageView(
     message: failureMessage(AppLocalizations.of(context), failure),
     onRetry: onRetry,
+    retryWait: retryWaitOf(failure),
+    // Cada falha recomeça a contagem, mesmo com a mesma espera.
+    retryKey: ObjectKey(failure),
   );
 }
 
 /// Mensagem centralizada com "Tentar de novo", usada no vazio e no erro.
 class _MessageView extends StatelessWidget {
-  const _MessageView({required this.message, required this.onRetry});
+  const _MessageView({
+    required this.message,
+    required this.onRetry,
+    this.retryWait = Duration.zero,
+    this.retryKey,
+  });
 
   final String message;
   final VoidCallback onRetry;
+  final Duration retryWait;
+  final Key? retryKey;
 
   @override
   Widget build(BuildContext context) {
@@ -176,9 +187,10 @@ class _MessageView extends StatelessWidget {
               ),
             ),
             SizedBox(height: spacing.md),
-            FilledButton(
+            RetryButton.filled(
+              key: retryKey,
               onPressed: onRetry,
-              child: Text(AppLocalizations.of(context).retry),
+              wait: retryWait,
             ),
           ],
         ),
@@ -287,7 +299,7 @@ class _NextPageFooter extends StatelessWidget {
       child: switch (status) {
         NextPageIdle() => const SizedBox.shrink(),
         NextPageLoading() => const Center(child: CircularProgressIndicator()),
-        NextPageFailed() => Column(
+        NextPageFailed(:final failure) => Column(
           children: [
             Text(
               l10n.discoverLoadMoreFailed,
@@ -296,7 +308,11 @@ class _NextPageFooter extends StatelessWidget {
                 color: theme.colorScheme.onSurfaceVariant,
               ),
             ),
-            TextButton(onPressed: onRetry, child: Text(l10n.retry)),
+            RetryButton.text(
+              key: ObjectKey(failure),
+              onPressed: onRetry,
+              wait: retryWaitOf(failure),
+            ),
           ],
         ),
       },
