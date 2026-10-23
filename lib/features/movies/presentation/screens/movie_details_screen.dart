@@ -5,6 +5,7 @@ import '../../../../core/error/retry_wait.dart';
 import '../../../../core/l10n/failure_message.dart';
 import '../../../../core/widgets/retry_button.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../../domain/entities/movie.dart';
 import '../state/movie_details_notifier.dart';
 import '../state/movie_details_state.dart';
 import '../widgets/movie_details_content.dart';
@@ -13,7 +14,9 @@ import '../widgets/paged_movies_view.dart';
 
 /// Detalhes de um filme, numa rota dentro da aba que o abriu.
 class MovieDetailsScreen extends StatelessWidget {
-  const MovieDetailsScreen({super.key});
+  const MovieDetailsScreen({this.preview, super.key});
+
+  final Movie? preview;
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +38,7 @@ class MovieDetailsScreen extends StatelessWidget {
         ),
       ),
       body: switch (state) {
-        MovieDetailsLoading() => const MovieDetailsSkeleton(),
+        MovieDetailsLoading() => MovieDetailsSkeleton(poster: preview),
         // Repetir daria o mesmo resultado: a saída é o voltar da barra.
         MovieDetailsNotFound() => MoviesMessage(message: l10n.movieNotFound),
         MovieDetailsError(:final failure) => MoviesMessage(

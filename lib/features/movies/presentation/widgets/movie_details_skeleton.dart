@@ -3,13 +3,20 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_sizes.dart';
 import '../../../../core/theme/app_theme_tokens.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../../domain/entities/movie.dart';
+import 'movie_poster.dart';
+import 'poster_hero.dart';
 import 'poster_skeleton.dart';
 import 'skeleton_pulse.dart';
 
 /// Carregando dos detalhes: o pôster, as linhas do cabeçalho e um bloco de
-/// parágrafo, no lugar em que o conteúdo vai aparecer.
+/// parágrafo, no lugar em que o conteúdo vai aparecer. Com o [poster] vindo
+/// da grade, o pôster de verdade fica no lugar do bloco, para o `Hero` ter
+/// onde pousar antes de o filme chegar.
 class MovieDetailsSkeleton extends StatelessWidget {
-  const MovieDetailsSkeleton({super.key});
+  const MovieDetailsSkeleton({this.poster, super.key});
+
+  final Movie? poster;
 
   static const _headerLines = [1.0, 0.6, 0.4];
   static const _paragraphLines = [1.0, 1.0, 1.0, 0.7];
@@ -41,7 +48,13 @@ class MovieDetailsSkeleton extends StatelessWidget {
                       children: [
                         SizedBox(
                           width: AppSizes.detailsPosterWidth,
-                          child: PosterSkeleton(opacity: opacity),
+                          child: switch (poster) {
+                            final poster? => PosterHero(
+                              movieId: poster.id,
+                              child: MoviePoster(movie: poster),
+                            ),
+                            null => PosterSkeleton(opacity: opacity),
+                          },
                         ),
                         SizedBox(width: spacing.md),
                         Expanded(

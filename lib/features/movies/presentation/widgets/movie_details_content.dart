@@ -8,6 +8,7 @@ import '../../domain/entities/movie_details.dart';
 import '../formatting/movie_format.dart';
 import 'cast_member_card.dart';
 import 'movie_poster.dart';
+import 'poster_hero.dart';
 
 /// Sucesso dos detalhes: cabeçalho, gêneros, sinopse e elenco (override
 /// `detalhes.md`). O que o TMDB não mandou some, sem traço.
@@ -74,11 +75,14 @@ class _Header extends StatelessWidget {
             label: l10n.moviePosterOf(title),
             image: true,
             excludeSemantics: true,
-            child: MoviePoster(
-              movie: Movie(
-                id: details.id,
-                title: title,
-                posterPath: details.posterPath,
+            child: PosterHero(
+              movieId: details.id,
+              child: MoviePoster(
+                movie: Movie(
+                  id: details.id,
+                  title: title,
+                  posterPath: details.posterPath,
+                ),
               ),
             ),
           ),
