@@ -101,5 +101,25 @@
   "@releaseDate": {
     "description": "Data de lançamento no formato curto do idioma (dd/MM/aaaa no pt-BR)",
     "placeholders": { "date": { "type": "DateTime", "format": "yMd" } }
+  },
+  "movieDetailsLoading": "Carregando o filme",
+  "@movieDetailsLoading": { "description": "Anúncio do leitor de tela enquanto os detalhes do filme carregam" },
+  "movieNotFound": "Filme não encontrado.",
+  "@movieNotFound": { "description": "Detalhes de um filme que o TMDB não tem (404) ou endereço com id inválido" },
+  "movieOverviewTitle": "Sinopse",
+  "@movieOverviewTitle": { "description": "Título da seção de sinopse nos detalhes" },
+  "movieNoOverview": "Sinopse não disponível.",
+  "@movieNoOverview": { "description": "Quando o filme não tem sinopse em pt-BR nem no idioma original" },
+  "movieCastTitle": "Elenco",
+  "@movieCastTitle": { "description": "Título da seção de elenco nos detalhes" },
+  "moviePosterOf": "Pôster de {title}",
+  "@moviePosterOf": {
+    "description": "Rótulo de acessibilidade do pôster no cabeçalho dos detalhes",
+    "placeholders": { "title": { "type": "String" } }
+  },
+  "castMemberSemantics": "{name}, {character}",
+  "@castMemberSemantics": {
+    "description": "O leitor de tela lê a pessoa do elenco e o personagem num nó só",
+    "placeholders": { "name": { "type": "String" }, "character": { "type": "String" } }
   }
 }

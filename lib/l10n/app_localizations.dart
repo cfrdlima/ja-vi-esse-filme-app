@@ -297,6 +297,48 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'{date}'**
   String releaseDate(DateTime date);
+
+  /// Anúncio do leitor de tela enquanto os detalhes do filme carregam
+  ///
+  /// In pt, this message translates to:
+  /// **'Carregando o filme'**
+  String get movieDetailsLoading;
+
+  /// Detalhes de um filme que o TMDB não tem (404) ou endereço com id inválido
+  ///
+  /// In pt, this message translates to:
+  /// **'Filme não encontrado.'**
+  String get movieNotFound;
+
+  /// Título da seção de sinopse nos detalhes
+  ///
+  /// In pt, this message translates to:
+  /// **'Sinopse'**
+  String get movieOverviewTitle;
+
+  /// Quando o filme não tem sinopse em pt-BR nem no idioma original
+  ///
+  /// In pt, this message translates to:
+  /// **'Sinopse não disponível.'**
+  String get movieNoOverview;
+
+  /// Título da seção de elenco nos detalhes
+  ///
+  /// In pt, this message translates to:
+  /// **'Elenco'**
+  String get movieCastTitle;
+
+  /// Rótulo de acessibilidade do pôster no cabeçalho dos detalhes
+  ///
+  /// In pt, this message translates to:
+  /// **'Pôster de {title}'**
+  String moviePosterOf(String title);
+
+  /// O leitor de tela lê a pessoa do elenco e o personagem num nó só
+  ///
+  /// In pt, this message translates to:
+  /// **'{name}, {character}'**
+  String castMemberSemantics(String name, String character);
 }
 
 class _AppLocalizationsDelegate

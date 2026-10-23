@@ -153,4 +153,29 @@ class AppLocalizationsPt extends AppLocalizations {
 
     return '$dateString';
   }
+
+  @override
+  String get movieDetailsLoading => 'Carregando o filme';
+
+  @override
+  String get movieNotFound => 'Filme não encontrado.';
+
+  @override
+  String get movieOverviewTitle => 'Sinopse';
+
+  @override
+  String get movieNoOverview => 'Sinopse não disponível.';
+
+  @override
+  String get movieCastTitle => 'Elenco';
+
+  @override
+  String moviePosterOf(String title) {
+    return 'Pôster de $title';
+  }
+
+  @override
+  String castMemberSemantics(String name, String character) {
+    return '$name, $character';
+  }
 }

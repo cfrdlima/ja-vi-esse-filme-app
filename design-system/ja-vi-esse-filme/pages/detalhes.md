@@ -29,7 +29,7 @@
 - `Wrap` de rótulos não interativos (`Chip` sem ação), espaçamento `sm`, que quebram linha com fonte grande. Sem gêneros, a seção some.
 
 ## Sinopse
-- Título de seção "Sinopse" em `titleMedium` e o texto em `bodyLarge` com entrelinha 1,5, sem limite de linhas (o texto é o conteúdo principal; cortar e pedir "ler mais" esconderia sem ganho).
+- Título de seção "Sinopse" em `titleMedium`, marcado como cabeçalho para o leitor de tela, e o texto em `bodyLarge` com entrelinha 1,5, sem limite de linhas (o texto é o conteúdo principal; cortar e pedir "ler mais" esconderia sem ganho).
 - Sinopse pt-BR vazia usa a do idioma original (decisão 008). Sem nenhuma, mostra "Sinopse não disponível." em `onSurfaceVariant`.
 
 ## Elenco
@@ -40,7 +40,7 @@
 
 ## Estados
 - **Carregando:** skeleton com o bloco do pôster, três linhas de texto do cabeçalho e um bloco de parágrafo, no pulso da Descobrir (parado com "reduzir movimento"). `Semantics` de "carregando". O título da `AppBar` fica vazio até o filme chegar.
-- **Não encontrado (404 ou id inválido na rota):** ícone de filme grande, "Filme não encontrado." e nenhuma ação além do voltar da `AppBar`. Repetir daria o mesmo resultado.
+- **Não encontrado (404 ou id inválido na rota):** a mensagem centralizada da grade (`MoviesMessage`), "Filme não encontrado.", e nenhuma ação além do voltar da `AppBar`. Repetir daria o mesmo resultado.
 - **Erro:** mensagem por tipo de falha e o `RetryButton` com a espera do 429, como na grade.
 - **Sucesso:** conteúdo acima.
 - A mensagem do não encontrado e do erro é região viva (`liveRegion`), como na grade.
