@@ -20,7 +20,10 @@ Tocar num pôster da grade (Descobrir ou Buscar) leva o pôster voando até o lu
 - [x] Rota de detalhes como `MaterialPage` explícita: o go_router não reconhecia o `MaterialApp` e montava páginas sem transição — RED / GREEN
 - [x] Shell sem `resizeToAvoidBottomInset`, e a aba recebe só a parte do teclado acima da barra — RED / GREEN
 - [x] Pôster decodificado no tamanho do arquivo, para o voo usar a imagem do cache — RED / GREEN
-- [ ] `/revisar`: `code-reviewer` e `security-auditor` (a sessão mexe na rota com parâmetro, no `extra`)
+- [x] `/revisar`: `code-reviewer` e `security-auditor` (a sessão mexe na rota com parâmetro, no `extra`)
+- [ ] C3: preview sem `posterPath` mostra o placeholder no skeleton, dentro do `PosterHero` e sem `PosterSkeleton` — RED / GREEN
+- [ ] C4: teste de voo do router com a faixa de tamanhos independente da ordem (`min`/`max`)
+- [ ] C6: renomear `poster` para `preview` no `MovieDetailsSkeleton`, o mesmo nome da tela e da rota — REFACTOR
 
 ## Decisões
 
@@ -62,3 +65,7 @@ Tocar num pôster da grade (Descobrir ou Buscar) leva o pôster voando até o lu
 - **Não conferido no aparelho:**
   - **filme sem pôster:** o placeholder voa como qualquer outro filho de `Hero`, e os testes de `PosterHero` e do skeleton cobrem o caso;
   - **fonte grande:** o pôster do cabeçalho tem largura fixa de 120dp e não muda com a fonte.
+- **Revisão (`code-reviewer` e `security-auditor`):** nada bloqueante nem importante, e os dois aprovaram fechar a sessão.
+  - O `code-reviewer` confirmou com mutações que três testes novos pegam regressão de fato: o shell que encolhe com o teclado, o conteúdo sem `posterKey` e o `memCacheWidth` de volta.
+  - O auditor concluiu que o `extra` não abre nenhum vetor: não há deep link de VIEW, não há restauração nem `extraCodec`, o `posterPath` já foi validado pelo `TmdbJson.imagePath` e o host é fixo. A política de privacidade não muda.
+  - O usuário escolheu tratar C3, C4 e C6 nesta sessão; C1, C2, C5, C7 e A1 foram para o BACKLOG.

@@ -37,3 +37,9 @@ Ideias que surgiram e não estão no plano imediato. Marque **[prioritário]** o
 - `MoviePoster` com um rótulo de acessibilidade opcional, para o cabeçalho dos detalhes não montar um `Movie` só para reaproveitar o pôster nem cobrir o `Semantics` dele com outro (revisão da sessão 011, S7)
 - Caracteres de controle bidirecional (ex.: U+202E) em nome, personagem ou sinopse vindos do TMDB, que é editado pela comunidade: hoje só embaralham a exibição, mas pedem tratamento quando um dado do TMDB virar link ou ação (auditoria da sessão 011)
 - Rever o `pageBuilder` explícito da rota de detalhes a cada upgrade do go_router. A 18.1.0 procura o `MaterialApp` do pacote `material_ui`, e não acha o do `flutter/material.dart`. Por isso as rotas sem `pageBuilder` saem como `NoTransitionPage`, sem transição. Hoje só os detalhes empilham; uma rota empilhada nova também precisa de `MaterialPage` até o pacote reconhecer o app (sessão 012)
+- Premissas do shell e do Hero (revisão da sessão 012, C1, C2 e C7):
+  - `_KeyboardAboveNavigationBar` (`app_shell.dart`) supõe que o corpo do shell começa no topo da tela. Se o shell ganhar `appBar` ou banner, medir pelo `RenderBox` do corpo;
+  - o shell não desvia do teclado, então toda aba precisa de `Scaffold` próprio. Registrar em `docs/DESIGN.md` antes da Estante e do Perfil;
+  - a tag do `PosterHero` só é única pela dedup da grade, por haver uma grade por vez e um navigator por aba. A Estante, que repete o filme em várias seções, vai precisar de prefixo na tag ou de `HeroMode(enabled: false)`.
+- Teste de comportamento para o pôster voar já desenhado (imagem no cache), no lugar do teste que só confere `memCacheWidth == null` (revisão da sessão 012, C5)
+- Se entrar `restorationScopeId` ou `extraCodec` no router, o `Movie` reidratado do `extra` precisa passar de novo pela validação do `posterPath` (`TmdbImageUrl.isValidPath`), além do guarda por id (auditoria da sessão 012)
