@@ -20,7 +20,18 @@ Levar em cartaz (`/movie/now_playing` com `region=BR`) e melhor avaliados (`/mov
 - [x] Strings novas no ARB (categorias e `retryIn`); `discoverLoading` e `discoverEmpty` sem "populares"
 - [x] Composição: o router monta o `DiscoverNotifier` e escolhe Populares (`select`), que dispara o primeiro carregamento
 - [x] Tríade: `flutter analyze` limpo, `flutter test` verde e emulador (troca de categoria, rolagem guardada e fonte grande)
-- [ ] `/revisar`: `code-reviewer` + `security-auditor` (a sessão toca rede)
+- [x] `/revisar`: `code-reviewer` + `security-auditor` (a sessão toca rede)
+- [ ] R1: `DiscoverNotifier` cria e carrega a lista só no `select`, chamado pelo construtor; `current` sem efeito colateral e sem `_started` — RED / GREEN / REFACTOR
+- [ ] R2: teste "deve mostrar os filmes da categoria tocada" confere os pôsteres da categoria — RED / GREEN
+- [ ] R3: chips sem check (`chipTheme` em `core/theme/`) cabendo numa linha a 412dp, com nova validação no emulador — RED / GREEN
+- [ ] S2: tirar o `ObjectKey(failure)` redundante e corrigir o comentário do `RetryButton`
+- [ ] S3: teste de que reconstruir o pai com a mesma espera não reinicia a contagem
+- [ ] S4: teste do timer pendente deixa explícito que a checagem é do `flutter_test`
+- [ ] S5: teste do `DiscoverNotifier` confere a categoria da lista atual
+- [ ] S6: `PagedMoviesNotifier.category` exposto; a tela deriva a categoria dele, e `PageStorageKey` com prefixo `discover-`
+- [ ] S7: `retryWaitOf` vai para `core/error/`
+- [ ] S8: "Mais bem avaliados" e rótulo de leitor de tela com "segundos" no botão em espera
+- [ ] S9: linha em branco antes de `group('em cartaz')`
 
 ## Decisões
 - Nenhuma nova. Valeram a 001 (todo acesso pelo `TmdbClient`), a 002 (`ui-ux-pro-max`) e a 004 (ARB). Sem dependência nova.
