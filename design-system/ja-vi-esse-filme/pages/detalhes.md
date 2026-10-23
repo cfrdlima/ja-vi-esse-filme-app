@@ -34,7 +34,7 @@
 
 ## Elenco
 - Título de seção "Elenco" e uma fileira horizontal com até **15** pessoas, na ordem do TMDB (`order`).
-- Cada pessoa: foto 2:3 com **96dp** de largura (`w185`, raio `md`, placeholder de pessoa sem `profile_path`), o nome em `bodyMedium` e o personagem em `bodySmall` `onSurfaceVariant`, cada um com até 2 linhas e reticências. O leitor de tela lê "<nome>, <personagem>" num nó só, e a foto é decorativa dentro dele.
+- Cada pessoa: foto 2:3 com **96dp** de largura na fonte padrão, crescendo na mesma escala da fonte do sistema para o nome não quebrar no meio da palavra (`w185`, raio `md`, placeholder de pessoa sem `profile_path`), o nome em `bodyMedium` e o personagem em `bodySmall` `onSurfaceVariant`, cada um com até 2 linhas e reticências. O leitor de tela lê "<nome>, <personagem>" num nó só, e a foto é decorativa dentro dele.
 - A fileira é uma `Row` dentro de um `SingleChildScrollView` horizontal, e não um `ListView.builder`: são no máximo 15 itens, e assim a altura acompanha a fonte grande sem altura fixa. A última pessoa visível fica cortada na borda, o que mostra que a fileira rola.
 - Sem elenco, a seção some.
 

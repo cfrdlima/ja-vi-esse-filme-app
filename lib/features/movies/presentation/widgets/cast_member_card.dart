@@ -20,6 +20,11 @@ class CastMemberCard extends StatelessWidget {
     final theme = Theme.of(context);
     final tokens = theme.extension<AppThemeTokens>()!;
     final character = member.character;
+    // Cresce com a fonte: com a largura fixa, o nome quebrava no meio da
+    // palavra na fonte grande.
+    final width = MediaQuery.textScalerOf(
+      context,
+    ).scale(AppSizes.castPhotoWidth);
     return Semantics(
       label: character.isEmpty
           ? member.name
@@ -28,7 +33,7 @@ class CastMemberCard extends StatelessWidget {
             ).castMemberSemantics(member.name, character),
       excludeSemantics: true,
       child: SizedBox(
-        width: AppSizes.castPhotoWidth,
+        width: width,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -36,7 +41,7 @@ class CastMemberCard extends StatelessWidget {
               aspectRatio: 2 / 3,
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(tokens.radii.md),
-                child: _CastPhoto(path: member.profilePath),
+                child: _CastPhoto(path: member.profilePath, width: width),
               ),
             ),
             SizedBox(height: tokens.spacing.xs),
@@ -63,9 +68,10 @@ class CastMemberCard extends StatelessWidget {
 }
 
 class _CastPhoto extends StatelessWidget {
-  const _CastPhoto({required this.path});
+  const _CastPhoto({required this.path, required this.width});
 
   final String? path;
+  final double width;
 
   @override
   Widget build(BuildContext context) {
@@ -76,7 +82,7 @@ class _CastPhoto extends StatelessWidget {
     return CachedNetworkImage(
       imageUrl: TmdbImageUrl.profile(path).toString(),
       fit: BoxFit.cover,
-      memCacheWidth: (AppSizes.castPhotoWidth * pixelRatio).round(),
+      memCacheWidth: (width * pixelRatio).round(),
       fadeInDuration: reduceMotion ? Duration.zero : AppMotion.medium,
       fadeOutDuration: reduceMotion ? Duration.zero : AppMotion.short,
       placeholder: (_, _) => const _PhotoPlaceholder(),
