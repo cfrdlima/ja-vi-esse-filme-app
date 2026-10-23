@@ -63,6 +63,16 @@ void main() {
     expect(movie.posterPath, isNull);
   });
 
+  test('deve tratar caminho de pôster malformado como sem pôster', () {
+    final movie = MovieModel.fromJson(const {
+      'id': 1,
+      'title': 'X',
+      'poster_path': 'https://outro.host/x.jpg',
+    }).toEntity();
+
+    expect(movie.posterPath, isNull);
+  });
+
   test('deve recusar filme sem id', () {
     expect(
       () => MovieModel.fromJson(const {'title': 'Sem id'}),

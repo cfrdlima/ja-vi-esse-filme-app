@@ -1,3 +1,4 @@
+import '../../../../core/network/tmdb_image_url.dart';
 import '../../domain/entities/movie.dart';
 
 /// Item de lista de filmes do TMDB (`results[]`). O parse é defensivo: o
@@ -20,7 +21,7 @@ final class MovieModel {
       id: id,
       title:
           _nonEmpty(json['title']) ?? _nonEmpty(json['original_title']) ?? '',
-      posterPath: _nonEmpty(json['poster_path']),
+      posterPath: _posterPath(json['poster_path']),
       releaseDate: _parseDate(json['release_date']),
       voteAverage: switch (json['vote_average']) {
         final num value => value.toDouble(),
@@ -45,6 +46,13 @@ final class MovieModel {
 
   static String? _nonEmpty(Object? value) =>
       value is String && value.isNotEmpty ? value : null;
+
+  // Caminho fora do formato do TMDB vira "sem pôster", e não exceção na
+  // hora de montar a URL.
+  static String? _posterPath(Object? value) => switch (_nonEmpty(value)) {
+    final path? when TmdbImageUrl.isValidPath(path) => path,
+    _ => null,
+  };
 
   // `DateTime.tryParse` aceita "2023-13-45" e rola para outra data; só vale
   // a data que volta igual ao texto.
