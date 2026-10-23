@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:ja_vi_esse_filme/core/l10n/app_locale.dart';
 import 'package:ja_vi_esse_filme/core/routing/app_router.dart';
 import 'package:ja_vi_esse_filme/core/routing/app_routes.dart';
+import 'package:ja_vi_esse_filme/core/theme/app_sizes.dart';
 import 'package:ja_vi_esse_filme/features/movies/domain/entities/movie.dart';
 import 'package:ja_vi_esse_filme/features/movies/presentation/screens/discover_screen.dart';
 import 'package:ja_vi_esse_filme/features/movies/presentation/screens/movie_details_screen.dart';
@@ -491,6 +492,43 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(previewOf(tester), isNull);
+    });
+
+    testWidgets('deve animar a entrada dos detalhes', (tester) async {
+      await pumpAppRouter(tester, movies: movies);
+
+      await tester.tap(find.byType(MoviePoster).first);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 16));
+
+      final route = ModalRoute.of(
+        tester.element(find.byType(MovieDetailsScreen)),
+      )!;
+      expect(route.animation!.value, lessThan(1));
+    });
+
+    testWidgets('deve voar com o pôster da grade até os detalhes', (
+      tester,
+    ) async {
+      await pumpAppRouter(tester, movies: movies);
+      final grid = tester.getSize(find.byType(MoviePoster).first).width;
+
+      await tester.tap(find.byType(MoviePoster).first);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+
+      // A grade continua visível embaixo durante a transição: só o pôster do
+      // filme tocado interessa, e o da grade fica escondido pelo Hero.
+      expect(
+        tester
+            .getSize(
+              find.byWidgetPredicate(
+                (widget) => widget is MoviePoster && widget.movie.id == 1,
+              ),
+            )
+            .width,
+        inExclusiveRange(AppSizes.detailsPosterWidth, grid),
+      );
     });
 
     testWidgets('deve ignorar um filme de outro id no extra', (tester) async {

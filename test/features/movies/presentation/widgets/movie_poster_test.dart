@@ -102,7 +102,9 @@ void main() {
     );
   });
 
-  testWidgets('deve decodificar a imagem no tamanho do arquivo', (tester) async {
+  testWidgets('deve decodificar a imagem no tamanho do arquivo', (
+    tester,
+  ) async {
     await pumpPoster(tester, withPoster);
 
     // Grade, detalhes e o Hero em voo têm larguras diferentes. Com uma
