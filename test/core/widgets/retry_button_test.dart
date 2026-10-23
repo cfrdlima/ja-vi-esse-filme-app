@@ -107,15 +107,23 @@ void main() {
       expect(find.text('Tentar de novo em 10 s'), findsOneWidget);
     });
 
-    testWidgets('não deve deixar timer pendente ao sair da tela', (
+    testWidgets('deve reconstruir com a mesma espera sem recomeçar', (
       tester,
     ) async {
+      await pumpButton(tester, wait: const Duration(seconds: 3));
+      await tester.pump(const Duration(seconds: 1));
+
+      await pumpButton(tester, wait: const Duration(seconds: 3));
+
+      expect(find.text('Tentar de novo em 2 s'), findsOneWidget);
+    });
+
+    // Sem expect próprio: quem verifica é o flutter_test, que reprova o teste
+    // se sobrar um timer pendente no fim.
+    testWidgets('deve cancelar o timer ao sair da tela', (tester) async {
       await pumpButton(tester, wait: const Duration(seconds: 30));
 
       await tester.pumpWidget(const SizedBox.shrink());
-
-      // O flutter_test acusa timer pendente no fim do teste.
-      expect(find.byType(RetryButton), findsNothing);
     });
 
     testWidgets('não deve vazar com fonte grande', (tester) async {

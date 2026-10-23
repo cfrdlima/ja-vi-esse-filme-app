@@ -92,6 +92,7 @@ void main() {
       );
     });
   });
+
   group('em cartaz', () {
     test('deve pedir movie/now_playing', () async {
       final dataSource = dataSourceRespondingWith(
