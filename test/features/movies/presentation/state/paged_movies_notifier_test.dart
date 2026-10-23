@@ -30,6 +30,10 @@ void main() {
     await future;
   }
 
+  test('deve expor a categoria da lista', () {
+    expect(notifier.category, MovieCategory.topRated);
+  });
+
   test('deve pedir a categoria recebida', () async {
     await loadFirstPage();
 

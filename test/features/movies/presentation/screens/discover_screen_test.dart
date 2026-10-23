@@ -20,22 +20,33 @@ void main() {
   final l10n = lookupAppLocalizations(AppLocale.locale);
   late FakeMovieRepository repository;
   late DiscoverNotifier discover;
-  // A lista de populares, que os testes carregam à mão.
+  // A lista de populares, que abre carregando.
   late PagedMoviesNotifier notifier;
+  final created = <DiscoverNotifier>[];
 
-  setUp(() {
-    repository = FakeMovieRepository();
-    discover = DiscoverNotifier(repository: repository);
-    notifier = discover.current;
+  setUp(() => repository = FakeMovieRepository());
+
+  tearDown(() {
+    for (final notifier in created) {
+      notifier.dispose();
+    }
+    created.clear();
   });
 
-  tearDown(() => discover.dispose());
+  // Criado dentro do testWidgets, e não no setUp: o primeiro pedido nasce na
+  // zona do teste, e o pump entrega a resposta do fake.
+  DiscoverNotifier createDiscover() {
+    discover = DiscoverNotifier(repository: repository);
+    notifier = discover.current;
+    created.add(discover);
+    return discover;
+  }
 
   Future<void> pumpScreen(WidgetTester tester) async {
     await tester.pumpWidget(
       testApp(
         home: ChangeNotifierProvider.value(
-          value: discover,
+          value: createDiscover(),
           child: const DiscoverScreen(),
         ),
       ),
@@ -47,9 +58,6 @@ void main() {
     int count = 2,
     int totalPages = 3,
   }) async {
-    // Pelo seletor, como no app: o DiscoverNotifier fica sabendo que a
-    // categoria já começou.
-    discover.select(MovieCategory.popular);
     repository.complete(
       moviePage(page: 1, count: count, totalPages: totalPages),
     );
@@ -92,7 +100,7 @@ void main() {
       await tester.tap(find.text(l10n.categoryNowPlaying));
       await tester.pump();
 
-      expect(repository.requestedCategories, [MovieCategory.nowPlaying]);
+      expect(repository.requestedCategories.last, MovieCategory.nowPlaying);
     });
 
     testWidgets('deve marcar a categoria tocada', (tester) async {
@@ -106,12 +114,14 @@ void main() {
 
     testWidgets('deve mostrar os filmes da categoria tocada', (tester) async {
       await pumpScreen(tester);
-      await loadFirstPage(tester);
+      await loadFirstPage(tester, totalPages: 1);
 
       await tester.tap(find.text(l10n.categoryTopRated));
       await tester.pump();
+      repository.complete(moviePage(page: 1, count: 3));
+      await tester.pump();
 
-      expect(find.byType(MoviePoster), findsNothing);
+      expect(find.byType(MoviePoster), findsNWidgets(3));
     });
 
     testWidgets('deve voltar aos filmes já carregados da categoria', (
@@ -165,7 +175,7 @@ void main() {
           ),
           child: testApp(
             home: ChangeNotifierProvider.value(
-              value: discover,
+              value: createDiscover(),
               child: const DiscoverScreen(),
             ),
           ),
@@ -180,7 +190,6 @@ void main() {
     testWidgets('deve mostrar o skeleton da grade, sem spinner', (
       tester,
     ) async {
-      unawaited(notifier.load());
       await pumpScreen(tester);
 
       expect(find.byType(PosterSkeleton), findsWidgets);
@@ -188,13 +197,12 @@ void main() {
     });
 
     testWidgets('deve parar o pulso com o reduzir movimento', (tester) async {
-      unawaited(notifier.load());
       await tester.pumpWidget(
         MediaQuery(
           data: const MediaQueryData(disableAnimations: true),
           child: testApp(
             home: ChangeNotifierProvider.value(
-              value: discover,
+              value: createDiscover(),
               child: const DiscoverScreen(),
             ),
           ),
@@ -208,7 +216,6 @@ void main() {
       tester,
     ) async {
       final semantics = tester.ensureSemantics();
-      unawaited(notifier.load());
       await pumpScreen(tester);
 
       expect(find.bySemanticsLabel(l10n.discoverLoading), findsOneWidget);
@@ -226,7 +233,7 @@ void main() {
           child: SizedBox(
             width: 20,
             child: ChangeNotifierProvider.value(
-              value: discover,
+              value: createDiscover(),
               child: const DiscoverScreen(),
             ),
           ),
@@ -235,7 +242,6 @@ void main() {
     );
 
     testWidgets('não deve quebrar o skeleton sem largura', (tester) async {
-      unawaited(notifier.load());
       await pumpNarrow(tester);
 
       expect(tester.takeException(), isNull);
@@ -272,9 +278,7 @@ void main() {
 
   group('erro', () {
     Future<void> failFirstPage(WidgetTester tester, Failure failure) async {
-      final future = notifier.load();
       repository.fail(failure);
-      await future;
       await tester.pump();
     }
 
@@ -329,7 +333,7 @@ void main() {
           data: const MediaQueryData(textScaler: TextScaler.linear(1.5)),
           child: testApp(
             home: ChangeNotifierProvider.value(
-              value: discover,
+              value: createDiscover(),
               child: const DiscoverScreen(),
             ),
           ),
@@ -421,7 +425,7 @@ void main() {
           data: const MediaQueryData(textScaler: TextScaler.linear(1.5)),
           child: testApp(
             home: ChangeNotifierProvider.value(
-              value: discover,
+              value: createDiscover(),
               child: const DiscoverScreen(),
             ),
           ),

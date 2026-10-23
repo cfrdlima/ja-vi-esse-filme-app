@@ -2,7 +2,6 @@ import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
-import '../../features/movies/domain/entities/movie_category.dart';
 import '../../features/movies/domain/repositories/movie_repository.dart';
 import '../../features/movies/presentation/screens/discover_screen.dart';
 import '../../features/movies/presentation/state/discover_notifier.dart';
@@ -32,9 +31,7 @@ GoRouter createAppRouter({required MovieRepository movieRepository}) =>
             // O shell mantém a aba viva, então a lista e a rolagem sobrevivem à
             // troca de aba.
             root: ChangeNotifierProvider(
-              create: (_) =>
-                  DiscoverNotifier(repository: movieRepository)
-                    ..select(MovieCategory.popular),
+              create: (_) => DiscoverNotifier(repository: movieRepository),
               child: const DiscoverScreen(),
             ),
           ),

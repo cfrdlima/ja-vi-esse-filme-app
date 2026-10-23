@@ -19,24 +19,20 @@ void main() {
     expect(discover.category, MovieCategory.popular);
   });
 
-  test('não deve pedir nada antes de escolher uma categoria', () {
-    discover.current;
-
-    expect(repository.requestedCategories, isEmpty);
+  test('deve carregar populares ao ser criado', () {
+    expect(repository.requestedCategories, [MovieCategory.popular]);
   });
 
   test('deve carregar a categoria escolhida', () {
     discover.select(MovieCategory.nowPlaying);
 
-    expect(repository.requestedCategories, [MovieCategory.nowPlaying]);
+    expect(repository.requestedCategories.last, MovieCategory.nowPlaying);
   });
 
   test('deve mostrar a lista da categoria escolhida', () {
-    final popular = discover.current;
-
     discover.select(MovieCategory.topRated);
 
-    expect(discover.current, isNot(same(popular)));
+    expect(discover.current.category, MovieCategory.topRated);
   });
 
   test('não deve recarregar uma categoria já aberta', () {
@@ -82,8 +78,7 @@ void main() {
   });
 
   test('deve descartar as listas ao ser descartado', () {
-    final own = DiscoverNotifier(repository: repository)
-      ..select(MovieCategory.popular);
+    final own = DiscoverNotifier(repository: repository);
     final list = own.current;
 
     own.dispose();

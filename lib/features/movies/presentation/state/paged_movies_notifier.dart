@@ -9,10 +9,10 @@ import 'paged_movies_state.dart';
 
 /// Uma lista paginada de filmes de uma [MovieCategory].
 class PagedMoviesNotifier extends ChangeNotifier {
-  PagedMoviesNotifier({required this._repository, required this._category});
+  PagedMoviesNotifier({required this._repository, required this.category});
 
   final MovieRepository _repository;
-  final MovieCategory _category;
+  final MovieCategory category;
 
   PagedMoviesState _state = const PagedMoviesLoading();
   PagedMoviesState get state => _state;
@@ -94,7 +94,7 @@ class PagedMoviesNotifier extends ChangeNotifier {
   /// continua subindo de propósito.
   Future<MoviePage> _fetch(int page) async {
     try {
-      return await _repository.byCategory(_category, page: page);
+      return await _repository.byCategory(category, page: page);
     } on Failure {
       rethrow;
     } on Exception {

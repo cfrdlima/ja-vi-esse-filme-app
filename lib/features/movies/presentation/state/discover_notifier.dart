@@ -10,28 +10,40 @@ import 'paged_movies_notifier.dart';
 /// listas ficam vivas: voltar a uma categoria mostra os filmes e a página já
 /// carregados, sem pedir de novo ao TMDB.
 class DiscoverNotifier extends ChangeNotifier {
-  DiscoverNotifier({required this._repository});
+  /// Já começa carregando a [initial]: a aba nunca mostra uma lista que
+  /// ninguém pediu.
+  DiscoverNotifier({
+    required this._repository,
+    MovieCategory initial = MovieCategory.popular,
+  }) : _category = initial {
+    _open(initial);
+  }
 
   final MovieRepository _repository;
   final _lists = <MovieCategory, PagedMoviesNotifier>{};
-  final _started = <MovieCategory>{};
 
-  MovieCategory _category = MovieCategory.popular;
+  MovieCategory _category;
   MovieCategory get category => _category;
 
-  /// Lista da categoria escolhida. Só [select] dispara o carregamento.
-  PagedMoviesNotifier get current => _lists.putIfAbsent(
-    _category,
-    () => PagedMoviesNotifier(repository: _repository, category: _category),
-  );
+  PagedMoviesNotifier get current => _lists[_category]!;
 
   /// Mostra a [category] e carrega a lista dela na primeira vez.
   void select(MovieCategory category) {
-    final changed = category != _category;
+    if (category == _category) return;
     _category = category;
-    // O notifier da lista guarda o resultado, inclusive a falha, no estado.
-    if (_started.add(category)) unawaited(current.load());
-    if (changed) notifyListeners();
+    _open(category);
+    notifyListeners();
+  }
+
+  void _open(MovieCategory category) {
+    if (_lists.containsKey(category)) return;
+    final list = PagedMoviesNotifier(
+      repository: _repository,
+      category: category,
+    );
+    _lists[category] = list;
+    // A lista guarda o resultado, inclusive a falha, no estado.
+    unawaited(list.load());
   }
 
   @override
