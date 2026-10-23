@@ -10,13 +10,13 @@ import 'poster_skeleton.dart';
 import 'skeleton_pulse.dart';
 
 /// Carregando dos detalhes: o pôster, as linhas do cabeçalho e um bloco de
-/// parágrafo, no lugar em que o conteúdo vai aparecer. Com o [poster] vindo
+/// parágrafo, no lugar em que o conteúdo vai aparecer. Com o [preview] vindo
 /// da grade, o pôster de verdade fica no lugar do bloco, para o `Hero` ter
 /// onde pousar antes de o filme chegar.
 class MovieDetailsSkeleton extends StatelessWidget {
-  const MovieDetailsSkeleton({this.poster, this.posterKey, super.key});
+  const MovieDetailsSkeleton({this.preview, this.posterKey, super.key});
 
-  final Movie? poster;
+  final Movie? preview;
 
   /// Chave do pôster, a mesma do conteúdo. Se o filme chega no meio do voo,
   /// o Hero de destino muda de pai sem sair da árvore; sem isso, o voo perde
@@ -53,11 +53,11 @@ class MovieDetailsSkeleton extends StatelessWidget {
                       children: [
                         SizedBox(
                           width: AppSizes.detailsPosterWidth,
-                          child: switch (poster) {
-                            final poster? => PosterHero(
+                          child: switch (preview) {
+                            final preview? => PosterHero(
                               key: posterKey,
-                              movieId: poster.id,
-                              child: MoviePoster(movie: poster),
+                              movieId: preview.id,
+                              child: MoviePoster(movie: preview),
                             ),
                             null => PosterSkeleton(opacity: opacity),
                           },

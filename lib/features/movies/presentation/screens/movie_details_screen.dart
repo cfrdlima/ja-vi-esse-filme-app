@@ -48,7 +48,7 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
       ),
       body: switch (state) {
         MovieDetailsLoading() => MovieDetailsSkeleton(
-          poster: widget.preview,
+          preview: widget.preview,
           posterKey: _posterKey,
         ),
         // Repetir daria o mesmo resultado: a saída é o voltar da barra.
