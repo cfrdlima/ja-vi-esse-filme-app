@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ja_vi_esse_filme/features/movies/domain/entities/cast_member.dart';
 import 'package:ja_vi_esse_filme/features/movies/domain/entities/movie_details.dart';
+import 'package:ja_vi_esse_filme/features/movies/domain/entities/trailer.dart';
 
 void main() {
   List<CastMember> castOf(int count) => [
@@ -51,5 +52,100 @@ void main() {
     );
 
     expect(() => details.genres.add('Ação'), throwsUnsupportedError);
+  });
+
+  group('trailers', () {
+    var nextKey = 0;
+
+    Trailer trailer({
+      TrailerKind kind = TrailerKind.trailer,
+      bool official = true,
+      String language = 'pt',
+    }) => Trailer(
+      key: 'video${nextKey++}'.padRight(11, 'x'),
+      name: 'Vídeo',
+      kind: kind,
+      official: official,
+      language: language,
+    );
+
+    MovieDetails detailsWithTrailers(List<Trailer> trailers) =>
+        MovieDetails(id: 1, title: 'Filme', overview: '', trailers: trailers);
+
+    test('deve pôr os oficiais antes dos outros', () {
+      final unofficial = trailer(official: false);
+      final official = trailer();
+
+      final details = detailsWithTrailers([unofficial, official]);
+
+      expect(details.trailers, [official, unofficial]);
+    });
+
+    test('deve pôr os em português antes dos em outro idioma', () {
+      final english = trailer(language: 'en');
+      final portuguese = trailer();
+
+      final details = detailsWithTrailers([english, portuguese]);
+
+      expect(details.trailers, [portuguese, english]);
+    });
+
+    test('deve pôr o trailer antes do teaser', () {
+      final teaser = trailer(kind: TrailerKind.teaser);
+      final fullTrailer = trailer();
+
+      final details = detailsWithTrailers([teaser, fullTrailer]);
+
+      expect(details.trailers, [fullTrailer, teaser]);
+    });
+
+    test('deve dar ao oficial prioridade sobre o idioma', () {
+      final unofficialPortuguese = trailer(official: false);
+      final officialEnglish = trailer(language: 'en');
+
+      final details = detailsWithTrailers([
+        unofficialPortuguese,
+        officialEnglish,
+      ]);
+
+      expect(details.trailers, [officialEnglish, unofficialPortuguese]);
+    });
+
+    test('deve dar ao idioma prioridade sobre o tipo', () {
+      final englishTrailer = trailer(language: 'en');
+      final portugueseTeaser = trailer(kind: TrailerKind.teaser);
+
+      final details = detailsWithTrailers([englishTrailer, portugueseTeaser]);
+
+      expect(details.trailers, [portugueseTeaser, englishTrailer]);
+    });
+
+    test('deve manter a ordem recebida entre vídeos equivalentes', () {
+      final trailers = [for (var i = 0; i < 4; i++) trailer()];
+
+      final details = detailsWithTrailers(trailers);
+
+      expect(details.trailers, trailers);
+    });
+
+    test('deve cortar os trailers em 5', () {
+      final trailers = [for (var i = 0; i < 8; i++) trailer()];
+
+      final details = detailsWithTrailers(trailers);
+
+      expect(details.trailers, trailers.take(MovieDetails.maxTrailers));
+    });
+
+    test('não deve deixar os trailers serem alterados depois de criado', () {
+      final details = detailsWithTrailers([trailer()]);
+
+      expect(() => details.trailers.add(trailer()), throwsUnsupportedError);
+    });
+
+    test('deve começar sem trailers', () {
+      final details = MovieDetails(id: 1, title: 'Filme', overview: '');
+
+      expect(details.trailers, isEmpty);
+    });
   });
 }
