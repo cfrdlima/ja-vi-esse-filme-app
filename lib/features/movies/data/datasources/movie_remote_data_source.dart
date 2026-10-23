@@ -1,0 +1,45 @@
+import '../../../../core/error/failures.dart';
+import '../../../../core/network/tmdb_client.dart';
+import '../../domain/entities/movie_page.dart';
+import '../models/movie_model.dart';
+
+/// Listas de filmes do TMDB. O [TmdbClient] já converte status e erros de
+/// rede em falhas tipadas; aqui só o JSON vira entidade.
+class MovieRemoteDataSource {
+  MovieRemoteDataSource({required this._client});
+
+  final TmdbClient _client;
+
+  Future<MoviePage> popular({required int page}) async {
+    final json = await _client.get('movie/popular', query: {'page': '$page'});
+    return _parsePage(json);
+  }
+
+  MoviePage _parsePage(Map<String, Object?> json) {
+    final page = json['page'];
+    final totalPages = json['total_pages'];
+    if (page is! int || totalPages is! int) {
+      throw const UnexpectedFailure('página de filmes sem page/total_pages');
+    }
+    final results = json['results'];
+    return MoviePage(
+      movies: [
+        if (results is List<Object?>)
+          for (final item in results)
+            if (_tryParse(item) case final model?) model.toEntity(),
+      ],
+      page: page,
+      totalPages: totalPages,
+    );
+  }
+
+  // Um item quebrado não derruba a página inteira: ele só some da lista.
+  MovieModel? _tryParse(Object? item) {
+    if (item is! Map<String, Object?>) return null;
+    try {
+      return MovieModel.fromJson(item);
+    } on FormatException {
+      return null;
+    }
+  }
+}
