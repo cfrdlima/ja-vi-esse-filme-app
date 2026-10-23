@@ -39,6 +39,7 @@ class DiscoverScreen extends StatelessWidget {
               listenable: list,
               builder: (_, _) => _PagedMoviesView(
                 key: ValueKey(discover.category),
+                category: discover.category,
                 notifier: list,
               ),
             ),
@@ -91,8 +92,13 @@ class _CategorySelector extends StatelessWidget {
 
 /// Os 4 estados de uma lista paginada.
 class _PagedMoviesView extends StatelessWidget {
-  const _PagedMoviesView({required this.notifier, super.key});
+  const _PagedMoviesView({
+    required this.category,
+    required this.notifier,
+    super.key,
+  });
 
+  final MovieCategory category;
   final PagedMoviesNotifier notifier;
 
   @override
@@ -108,6 +114,7 @@ class _PagedMoviesView extends StatelessWidget {
     ),
     final PagedMoviesLoaded state => _GridWidthGuard(
       child: _MovieGrid(
+        category: category,
         state: state,
         onLoadMore: notifier.loadMore,
         onRetryNextPage: notifier.retryNextPage,
@@ -271,11 +278,13 @@ class _MessageView extends StatelessWidget {
 
 class _MovieGrid extends StatefulWidget {
   const _MovieGrid({
+    required this.category,
     required this.state,
     required this.onLoadMore,
     required this.onRetryNextPage,
   });
 
+  final MovieCategory category;
   final PagedMoviesLoaded state;
   final VoidCallback onLoadMore;
   final VoidCallback onRetryNextPage;
@@ -329,6 +338,9 @@ class _MovieGridState extends State<_MovieGrid> {
     final tokens = Theme.of(context).extension<AppThemeTokens>()!;
     final movies = widget.state.movies;
     return CustomScrollView(
+      // A rolagem de cada categoria fica no PageStorage da rota, e voltar a
+      // uma categoria volta ao mesmo ponto.
+      key: PageStorageKey(widget.category),
       controller: _controller,
       slivers: [
         SliverPadding(

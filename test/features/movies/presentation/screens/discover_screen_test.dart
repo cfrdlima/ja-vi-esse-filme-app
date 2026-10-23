@@ -128,6 +128,28 @@ void main() {
       expect(find.byType(MoviePoster), findsNWidgets(2));
     });
 
+    testWidgets('deve voltar à rolagem em que a categoria estava', (
+      tester,
+    ) async {
+      await pumpScreen(tester);
+      await loadFirstPage(tester, count: 40, totalPages: 1);
+      await tester.drag(find.byType(CustomScrollView), const Offset(0, -500));
+      await tester.pump();
+      await tester.tap(find.text(l10n.categoryTopRated));
+      await tester.pump();
+
+      await tester.tap(find.text(l10n.categoryPopular));
+      await tester.pump();
+
+      final scrollable = tester.state<ScrollableState>(
+        find.descendant(
+          of: find.byType(CustomScrollView),
+          matching: find.byType(Scrollable),
+        ),
+      );
+      expect(scrollable.position.pixels, greaterThan(0));
+    });
+
     testWidgets('não deve vazar com fonte 1.5x numa tela estreita', (
       tester,
     ) async {
