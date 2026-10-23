@@ -264,7 +264,7 @@ class _MovieGridState extends State<_MovieGrid> {
         final key? => PageStorageKey(key),
         null => null,
       },
-      // Na Buscar, arrastar a grade tira o teclado da frente dos pôsteres.
+      // Arrastar a grade tira o teclado da frente dos pôsteres.
       keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       controller: _controller,
       slivers: [
