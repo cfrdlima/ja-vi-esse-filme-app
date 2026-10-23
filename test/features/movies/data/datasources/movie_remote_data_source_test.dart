@@ -232,6 +232,16 @@ void main() {
       expect(captured.url.queryParameters['query'], 'Amélie & cia');
     });
 
+    test('o termo não deve trocar o include_adult', () async {
+      final dataSource = dataSourceRespondingWith(
+        readFixture('search_movie_empty.json'),
+      );
+
+      await dataSource.search(SearchQuery('x&include_adult=true'), page: 1);
+
+      expect(captured.url.queryParametersAll['include_adult'], ['false']);
+    });
+
     test('deve devolver os filmes, inclusive o sem pôster', () async {
       final dataSource = dataSourceRespondingWith(
         readFixture('search_movie_page1.json'),
