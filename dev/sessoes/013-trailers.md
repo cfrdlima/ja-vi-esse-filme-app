@@ -56,7 +56,7 @@ Os detalhes do filme passam a mostrar os trailers que o TMDB tem, e tocar num de
   - a referência oficial de `/movie/{id}/videos` lista só o `language` como parâmetro;
   - o `include_video_language` foi anunciado pela equipe do TMDB no fórum ("All of the `/videos` endpoints now support a `include_video_language` param", 2021-07-29, inclusive com `append_to_response=videos`);
   - segundo o fórum, com ele o `language` deixa de filtrar os vídeos, a lista aceita até 5 idiomas e o valor `null` não aparece documentado para vídeos;
-  - ficou `include_video_language=pt,en`, em código ISO 639-1. No emulador, o filme testado trouxe vídeos nos dois idiomas.
+  - ficou `include_video_language=pt-BR,pt,en`. Na primeira versão era `pt,en`, que não trazia os vídeos do Brasil (ver o tratamento do S8 abaixo).
 - **Dependência:** `url_launcher` 6.3.3 (publicado em 2026-10-02). O `url_launcher_android` 6.3.33 pede minSdk 24, o mesmo do app (decisão 003). O manifest do plugin só declara uma `WebViewActivity` com `exported="false"`, que o app não usa. Não há permissão nova, então a política de privacidade não muda: a seção de links externos já cita o trailer do YouTube.
 - **Sem `<queries>`:** o app não chama o `canLaunchUrl`, e o `false` ou a `PlatformException` do `launchUrl` viram `LinkNotOpened` (decisão 009).
 - **Design:** consultei a `ui-ux-pro-max`:
@@ -84,4 +84,4 @@ Os detalhes do filme passam a mostrar os trailers que o TMDB tem, e tocar num de
   - `flutter test` com 662 testes passando (eram 604);
   - `gitleaks` sem vazamentos.
 - **Tratamento da revisão:** I1 a I4, S2, S3, S4, S8 e A2 estão feitos, cada um com um teste, e as mutações de I2, I3, I1 e I4 reprovam os testes. S1, S9, A1 e A3 foram para o BACKLOG. A tríade depois do tratamento: `flutter analyze` sem issues, 676 testes passando e `gitleaks` sem vazamentos.
-- **S8 ainda não conferido no aparelho:** no emulador, "Devoradores de Estrelas" continua com os trailers de Portugal no topo, mas o site do TMDB lista 4 trailers da Sony Pictures Brasil. A hipótese é que esses 4 estejam marcados como `official: false`. Como "oficial" pesa mais que o idioma, os 2 de Portugal e os 3 oficiais em inglês ocupam as 5 vagas. **Pendente:** confirmar os campos do TMDB (com um `debugPrint` temporário de nome, idioma, país e `official`) e decidir se o idioma e o país devem pesar mais que o "oficial".
+- **S8 conferido no aparelho, e com um achado:** a hipótese do log (trailers do Brasil marcados como não oficiais) estava errada. Com um `debugPrint` temporário de nome, idioma, país e `official` (já removido), vi que a resposta com `include_video_language=pt,en` não trazia nenhum vídeo `pt-BR`: o `pt` sozinho só casa com o `pt-PT`. Com `pt-BR,pt,en`, chegam os 4 trailers da Sony Pictures Brasil, todos oficiais. No emulador, a seção mostra os 4 do Brasil e depois o de Portugal. O filtro passou para `pt-BR,pt,en` (3 dos 5 idiomas que o TMDB aceita), com teste.
