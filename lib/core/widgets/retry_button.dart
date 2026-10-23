@@ -3,20 +3,12 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../../l10n/app_localizations.dart';
-import '../error/failures.dart';
-
-/// Quanto esperar antes de deixar tentar de novo: o `retryAfter` de um 429, ou
-/// nada.
-Duration retryWaitOf(Failure failure) => switch (failure) {
-  RateLimitFailure(:final retryAfter?) => retryAfter,
-  _ => Duration.zero,
-};
 
 enum _RetryButtonVariant { filled, text }
 
 /// "Tentar de novo" que, com uma [wait], fica desabilitado e mostra os
-/// segundos que faltam. Uma espera nova (outro valor) recomeça a contagem;
-/// para recomeçar com o mesmo valor, troque a `key`.
+/// segundos que faltam. A contagem começa quando o botão aparece; reconstruir
+/// com a mesma espera não a recomeça, e uma espera diferente, sim.
 class RetryButton extends StatefulWidget {
   const RetryButton.filled({
     required this.onPressed,

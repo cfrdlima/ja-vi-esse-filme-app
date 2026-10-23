@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../core/error/failures.dart';
+import '../../../../core/error/retry_wait.dart';
 import '../../../../core/l10n/failure_message.dart';
 import '../../../../core/theme/app_motion.dart';
 import '../../../../core/theme/app_sizes.dart';
@@ -220,8 +221,6 @@ class _ErrorView extends StatelessWidget {
     message: failureMessage(AppLocalizations.of(context), failure),
     onRetry: onRetry,
     retryWait: retryWaitOf(failure),
-    // Cada falha recomeça a contagem, mesmo com a mesma espera.
-    retryKey: ObjectKey(failure),
   );
 }
 
@@ -231,13 +230,11 @@ class _MessageView extends StatelessWidget {
     required this.message,
     required this.onRetry,
     this.retryWait = Duration.zero,
-    this.retryKey,
   });
 
   final String message;
   final VoidCallback onRetry;
   final Duration retryWait;
-  final Key? retryKey;
 
   @override
   Widget build(BuildContext context) {
@@ -258,11 +255,7 @@ class _MessageView extends StatelessWidget {
               ),
             ),
             SizedBox(height: spacing.md),
-            RetryButton.filled(
-              key: retryKey,
-              onPressed: onRetry,
-              wait: retryWait,
-            ),
+            RetryButton.filled(onPressed: onRetry, wait: retryWait),
           ],
         ),
       ),
@@ -384,11 +377,7 @@ class _NextPageFooter extends StatelessWidget {
                 color: theme.colorScheme.onSurfaceVariant,
               ),
             ),
-            RetryButton.text(
-              key: ObjectKey(failure),
-              onPressed: onRetry,
-              wait: retryWaitOf(failure),
-            ),
+            RetryButton.text(onPressed: onRetry, wait: retryWaitOf(failure)),
           ],
         ),
       },
