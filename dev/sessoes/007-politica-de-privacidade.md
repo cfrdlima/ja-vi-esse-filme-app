@@ -1,6 +1,6 @@
 # Sessão 007 — Antes da Fase 1: política de privacidade
 
-**Data**: 2026-10-23 · **Branch**: `feature/007-politica-de-privacidade` · **Status**: aberta
+**Data**: 2026-10-23 · **Branch**: `feature/007-politica-de-privacidade` · **Status**: fechada
 
 ## Objetivo
 Levantar os dados que o app trata hoje e vai tratar nas Fases 2 a 4, decidir onde a política de privacidade fica e como a tela "Sobre" vai mostrá-la. Depois, escrever a política em PT-BR seguindo a LGPD, com contato pelas Issues do GitHub.
@@ -14,12 +14,15 @@ Levantar os dados que o app trata hoje e vai tratar nas Fases 2 a 4, decidir ond
 - [x] Tríade: `flutter analyze` e `flutter test` seguem como estavam (a sessão não tem código novo, então o TDD não se aplica)
 - [x] `/revisar`: `code-reviewer` no texto e, se a política descrever o armazenamento da sessão, o `security-auditor` para conferir que ela bate com a decisão 001
 - [x] Revisão R1–R12 e S1–S6 (texto): canal privado por e-mail, controlador identificado, marcador do proxy, links externos, logout e desinstalação, afirmações absolutas, cache de imagens, base legal e art. 33/18/19, retenção do id/nome, procedimento do repositório público, destino do link da "Sobre", faixa etária 13+
-- [ ] S7 e pendências de Fase levadas ao PLANO no `/fechar-sessao`
+- [x] S7 e pendências de Fase levadas ao PLANO no `/fechar-sessao`
 
 ## Decisões
 - [006 — Política de privacidade: fonte no repositório, publicação em repositório público separado](../decisoes/006-politica-de-privacidade-publica.md)
 
 ## Commits
+- `bfa491f` docs: abre sessão 007 e registra a decisão 006
+- `3e02d13` docs: política de privacidade (rascunho 0.1)
+- `7e7622d` docs: tratamento da revisão da sessão 007 (política 0.2)
 
 ## Notas
 - Inventário de dados (código em 2026-10-23):
@@ -87,3 +90,10 @@ Levantar os dados que o app trata hoje e vai tratar nas Fases 2 a 4, decidir ond
   - Fase 1: na tela "Sobre", criar o repositório de suporte, publicar a política e declarar o cache de imagens; `include_adult=false` nas buscas (público 13+);
   - Fase 2: `data_extraction_rules`, logout que apaga o storage mesmo se o `DELETE` falhar, login no navegador externo ou em Custom Tabs (nunca em WebView) com origem do deep link validada, e decidir a retenção do id e do nome;
   - Fase 4: conferir as permissões do manifest mesclado com plugins novos e comparar a política publicada com o `docs/PRIVACIDADE.md`.
+- Fechamento:
+  - `dart format` sem mudanças, `flutter analyze` sem issues, `flutter test` com 239 testes passando e `gitleaks` sem vazamentos;
+  - `/revisar` rodou com o `code-reviewer` e o `security-auditor`.
+  - As pendências de Fase foram para o PLANO, e o limite de cache de 6 meses do TMDB foi para o item "modo offline" do BACKLOG.
+- **Pendências:**
+  - A política fica em rascunho até os 7 marcadores `A REVISAR` serem resolvidos, cada um na sua fase.
+  - O texto não teve revisão jurídica.
