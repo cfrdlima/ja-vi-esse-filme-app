@@ -1,6 +1,6 @@
 # Sessão 011 — Fase 1: detalhes do filme
 
-**Data**: 2026-10-23 · **Branch**: `feature/011-detalhes-filme` · **Status**: aberta
+**Data**: 2026-10-23 · **Branch**: `feature/011-detalhes-filme` · **Status**: fechada
 
 ## Objetivo
 Tocar num pôster da Descobrir ou da Buscar abre os detalhes do filme numa rota dentro da própria aba (`/descobrir/filme/:id` e `/buscar/filme/:id`). A tela mostra sinopse (com o texto original quando a de pt-BR vier vazia), gêneros, duração, nota, data e até 15 pessoas do elenco, e tem os 4 estados. O pedido é um só: `/movie/{id}` com o elenco anexado.
@@ -33,6 +33,33 @@ Tocar num pôster da Descobrir ou da Buscar abre os detalhes do filme numa rota 
 - [008 — Sinopse original via `append_to_response=translations`](../decisoes/008-sinopse-original-via-translations.md)
 
 ## Commits
+- 456a45b docs: tratamento da revisão da sessão 011
+- 29fe173 fix: skeleton dos detalhes com a largura máxima do conteúdo no tablet
+- 0dbe9e8 test: dados ausentes conferidos pela lista exata de textos dos detalhes
+- bdcd304 test: resposta depois do descarte termina sem erro e não muda o estado
+- fac53d6 fix: id da rota de detalhes só em dígitos de base 10
+- 49a7f95 test: fonte grande dos detalhes numa tela de fato de 320dp, e também em 2x
+- 0de4b9c fix: trocar só o id da rota de detalhes troca o filme mostrado
+- 72bec9d docs: itens da revisão da sessão 011 no log
+- 9b82b44 docs: log da sessão 011
+- 178244e fix: card do elenco segue a escala não linear da fonte do Android
+- 4a8cc14 fix: card do elenco cresce com a fonte e o nome não quebra no meio da palavra
+- d9a1ce0 add: tocar num pôster da grade abre os detalhes na aba atual
+- 474796d add: pôster tocável, com semântica de botão
+- dcc7ea9 add: detalhes do filme como sub-rota das abas Descobrir e Buscar
+- 7892ba8 add: tela de detalhes do filme com os 4 estados, gêneros, sinopse e elenco
+- 5bc58ab refactor: pulso do skeleton sai da grade para SkeletonPulse
+- 7f0d991 add: URL da foto de perfil do TMDB em w185
+- 58d484c add: MovieDetailsNotifier com carregando, erro, sucesso e não encontrado
+- e3dafc1 add: duração, nota e data do filme formatadas em pt-BR
+- dae3dd4 add: detalhes do filme no repositório, recusando id menor que 1
+- 0b865bd add: detalhes do filme no datasource, com elenco e traduções anexados
+- 78fb6e8 add: model dos detalhes do filme com elenco pela order e sinopse do idioma original
+- 0571f5b refactor: leituras defensivas do JSON do TMDB saem do MovieModel para TmdbJson
+- 408d622 add: MovieDetails e CastMember com o elenco limitado a 15 no domínio
+- 082f8e3 docs: contrato e design da tela de detalhes (decisão 008)
+- e2cf5dd docs: rota de detalhes como sub-rota da aba no checklist da sessão 011
+- 5b8db6c docs: abre sessão 011
 
 ## Notas
 - Contrato (Context7): `/movie/{id}` aceita `append_to_response` com até 20 itens. Com `language=pt-BR`, o `overview` vem vazio quando o filme não tem tradução, e a sinopse original só vem nas traduções. Daí a decisão 008: `append_to_response=credits,translations`.
@@ -74,3 +101,6 @@ Tocar num pôster da Descobrir ou da Buscar abre os detalhes do filme numa rota 
   - **S4:** descartado depois do RED. A AppBar do Material já põe `header: true` no título (`app_bar.dart`, linha 1079) e o usa como nome da rota. Marcar também o título do conteúdo o tornaria cabeçalho duas vezes. O código e o teste foram desfeitos antes do commit.
   - **S5:** o skeleton usa a mesma largura máxima do conteúdo. No tablet (1200dp), o pôster do skeleton estava em 16 e o do conteúdo em 280; o teste confere que os dois ficam no mesmo lugar.
 - Tríade depois do tratamento: `dart format` sem mudanças (106 arquivos), `flutter analyze` sem issues, `flutter test` com 581 testes passando e `gitleaks` sem vazamentos.
+- Pendências:
+  - não conferi no aparelho a sinopse no idioma original nem o "não encontrado" (ver a nota do emulador); os dois estão cobertos por testes;
+  - o `Hero` do pôster (item da Fase 1) continua aberto. Nesta sessão ele foi avaliado e deixado de fora, porque as páginas do TMDB repetem filmes e duas tags iguais quebram a transição. Ele pede tags únicas por aba e por posição, ou uma transição sem `Hero`.

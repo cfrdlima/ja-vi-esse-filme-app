@@ -3,9 +3,9 @@
 > Fonte da verdade do que construir. Atualizado por `/fechar-sessao`.
 
 ## Última sessão
-**010 — Fase 1: busca de filmes** (fechada em 2026-10-23) · [log](sessoes/010-busca.md)
-A aba Buscar busca no `/search/movie` com `include_adult=false`, debounce de 400 ms e termo de 2 a 100 code points validado no domínio, com paginação infinita e os estados inicial, carregando, vazio, erro e "longo demais" anunciados ao leitor de tela. Trocar o termo não fura a espera do 429, e o app não guarda histórico (o teclado também é pedido a não aprender). São 473 testes.
-**Próximo passo:** a sessão 011, com os detalhes do filme (sinopse, gêneros, duração, nota e elenco).
+**011 — Fase 1: detalhes do filme** (fechada em 2026-10-23) · [log](sessoes/011-detalhes-filme.md)
+Tocar num pôster da Descobrir ou da Buscar abre os detalhes na própria aba (`filme/:id`, id só em dígitos), com sinopse (a do idioma original quando a pt-BR vem vazia, decisão 008), gêneros, data, duração, nota e até 15 pessoas do elenco, nos 4 estados e num pedido só. O voltar devolve a grade na mesma rolagem, e o card do elenco cresce com a fonte não linear do Android. São 581 testes.
+**Próximo passo:** a sessão 012, com os trailers (YouTube externo com host validado, o que exige aprovar o `url_launcher`) ou o `Hero` do pôster com tags únicas.
 
 ## Fase 0 — Fundação
 - [x] Criar projeto (`io.github.cfrdlima.ja_vi_esse_filme`), `analysis_options.yaml`, `.gitignore` com `env/*.json` (exceto `example.json`)
@@ -36,8 +36,8 @@ A aba Buscar busca no `/search/movie` com `include_adult=false`, debounce de 400
 - [x] Descobrir: em cartaz (`region=BR`) e melhor avaliados, com seletor na tela, generalizando o notifier (`PagedMoviesNotifier`) e usando o `retryAfter` do 429 no botão "Tentar de novo" (sessão 009)
 - [x] Declarar em `docs/PRIVACIDADE.md` o cache de imagens (`cached_network_image`): prazo e como apagar
 - [x] Busca com debounce e estados vazio/erro, com `include_adult=false` (público 13+, política de privacidade) (sessão 010)
-- [ ] Detalhes do filme: sinopse, gêneros, duração, nota, elenco
-- [ ] Hero do pôster entre a grade/lista e os detalhes
+- [x] Detalhes do filme: sinopse, gêneros, duração, nota, elenco (sessão 011)
+- [ ] Hero do pôster entre a grade/lista e os detalhes. Na sessão 011 ficou de fora, porque o TMDB repete filmes entre as páginas e duas tags de `Hero` iguais quebram a transição: pede tags únicas por aba e posição
 - [ ] Trailers (abrir YouTube externo com host validado)
 - [ ] Tela "Sobre" com atribuição ao TMDB, política de privacidade e licenças das fontes (`LicenseRegistry`). Antes dela, criar o repositório público de suporte e publicar a política seguindo o procedimento da decisão 006. O link vai só para o Pages e exige aprovar o `url_launcher`
 
