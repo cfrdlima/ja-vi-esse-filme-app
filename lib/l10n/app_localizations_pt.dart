@@ -62,6 +62,17 @@ class AppLocalizationsPt extends AppLocalizations {
   }
 
   @override
+  String retryInSemantics(int seconds) {
+    String _temp0 = intl.Intl.pluralLogic(
+      seconds,
+      locale: localeName,
+      other: 'Tentar de novo em $seconds segundos',
+      one: 'Tentar de novo em 1 segundo',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get failureNetwork => 'Sem conexão com a internet. Confira sua rede.';
 
   @override

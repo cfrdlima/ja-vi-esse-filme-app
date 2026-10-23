@@ -37,6 +37,11 @@
     "description": "Botão desabilitado enquanto corre a espera pedida pelo TMDB depois de um limite de requisições (429)",
     "placeholders": { "seconds": { "type": "int" } }
   },
+  "retryInSemantics": "{seconds, plural, =1{Tentar de novo em 1 segundo} other{Tentar de novo em {seconds} segundos}}",
+  "@retryInSemantics": {
+    "description": "O mesmo que retryIn, para o leitor de tela, que leria o \"s\" como letra",
+    "placeholders": { "seconds": { "type": "int" } }
+  },
   "failureNetwork": "Sem conexão com a internet. Confira sua rede.",
   "@failureNetwork": { "description": "Erro de rede, DNS, TLS ou tempo esgotado" },
   "failureRateLimit": "Muitos pedidos em pouco tempo. Espere um pouco.",

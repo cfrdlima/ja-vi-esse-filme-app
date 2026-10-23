@@ -77,7 +77,12 @@ class _RetryButtonState extends State<RetryButton> {
     final l10n = AppLocalizations.of(context);
     final waiting = _secondsLeft > 0;
     final onPressed = waiting ? null : widget.onPressed;
-    final label = Text(waiting ? l10n.retryIn(_secondsLeft) : l10n.retry);
+    final label = waiting
+        ? Text(
+            l10n.retryIn(_secondsLeft),
+            semanticsLabel: l10n.retryInSemantics(_secondsLeft),
+          )
+        : Text(l10n.retry);
     return switch (widget._variant) {
       _RetryButtonVariant.filled => FilledButton(
         onPressed: onPressed,

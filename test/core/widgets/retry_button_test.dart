@@ -56,6 +56,30 @@ void main() {
       expect(find.text('Tentar de novo em 3 s'), findsOneWidget);
     });
 
+    testWidgets('deve anunciar os segundos por extenso ao leitor de tela', (
+      tester,
+    ) async {
+      final semantics = tester.ensureSemantics();
+      await pumpButton(tester, wait: const Duration(seconds: 3));
+
+      expect(
+        find.bySemanticsLabel('Tentar de novo em 3 segundos'),
+        findsOneWidget,
+      );
+      semantics.dispose();
+    });
+
+    testWidgets('deve anunciar 1 segundo no singular', (tester) async {
+      final semantics = tester.ensureSemantics();
+      await pumpButton(tester, wait: const Duration(seconds: 1));
+
+      expect(
+        find.bySemanticsLabel('Tentar de novo em 1 segundo'),
+        findsOneWidget,
+      );
+      semantics.dispose();
+    });
+
     testWidgets('deve arredondar a fração de segundo para cima', (
       tester,
     ) async {

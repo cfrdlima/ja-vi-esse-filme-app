@@ -196,6 +196,12 @@ abstract class AppLocalizations {
   /// **'Tentar de novo em {seconds} s'**
   String retryIn(int seconds);
 
+  /// O mesmo que retryIn, para o leitor de tela, que leria o "s" como letra
+  ///
+  /// In pt, this message translates to:
+  /// **'{seconds, plural, =1{Tentar de novo em 1 segundo} other{Tentar de novo em {seconds} segundos}}'**
+  String retryInSemantics(int seconds);
+
   /// Erro de rede, DNS, TLS ou tempo esgotado
   ///
   /// In pt, this message translates to:
