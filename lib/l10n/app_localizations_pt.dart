@@ -106,4 +106,51 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get movieUntitled => 'Filme sem título';
+
+  @override
+  String runtimeHoursMinutes(int hours, int minutes) {
+    return '$hours h $minutes min';
+  }
+
+  @override
+  String runtimeHours(int hours) {
+    return '$hours h';
+  }
+
+  @override
+  String runtimeMinutes(int minutes) {
+    return '$minutes min';
+  }
+
+  @override
+  String rating(double value) {
+    final intl.NumberFormat valueNumberFormat =
+        intl.NumberFormat.decimalPatternDigits(
+          locale: localeName,
+          decimalDigits: 1,
+        );
+    final String valueString = valueNumberFormat.format(value);
+
+    return '$valueString';
+  }
+
+  @override
+  String ratingSemantics(double value) {
+    final intl.NumberFormat valueNumberFormat =
+        intl.NumberFormat.decimalPatternDigits(
+          locale: localeName,
+          decimalDigits: 1,
+        );
+    final String valueString = valueNumberFormat.format(value);
+
+    return 'Nota $valueString de 10';
+  }
+
+  @override
+  String releaseDate(DateTime date) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat.yMd(localeName);
+    final String dateString = dateDateFormat.format(date);
+
+    return '$dateString';
+  }
 }

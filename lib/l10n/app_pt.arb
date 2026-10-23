@@ -67,5 +67,39 @@
   "failureGeneric": "Algo deu errado ao falar com o TMDB.",
   "@failureGeneric": { "description": "Qualquer outra falha (401, 404, 5xx, resposta inesperada)" },
   "movieUntitled": "Filme sem título",
-  "@movieUntitled": { "description": "Rótulo de acessibilidade do pôster quando o TMDB não manda título nenhum" }
+  "@movieUntitled": { "description": "Rótulo de acessibilidade do pôster quando o TMDB não manda título nenhum" },
+  "runtimeHoursMinutes": "{hours} h {minutes} min",
+  "@runtimeHoursMinutes": {
+    "description": "Duração do filme com horas e minutos, nos detalhes",
+    "placeholders": { "hours": { "type": "int" }, "minutes": { "type": "int" } }
+  },
+  "runtimeHours": "{hours} h",
+  "@runtimeHours": {
+    "description": "Duração do filme em horas exatas, nos detalhes",
+    "placeholders": { "hours": { "type": "int" } }
+  },
+  "runtimeMinutes": "{minutes} min",
+  "@runtimeMinutes": {
+    "description": "Duração do filme abaixo de uma hora, nos detalhes",
+    "placeholders": { "minutes": { "type": "int" } }
+  },
+  "rating": "{value}",
+  "@rating": {
+    "description": "Nota do TMDB (0 a 10) com uma casa decimal, ao lado da estrela nos detalhes",
+    "placeholders": {
+      "value": { "type": "double", "format": "decimalPatternDigits", "optionalParameters": { "decimalDigits": 1 } }
+    }
+  },
+  "ratingSemantics": "Nota {value} de 10",
+  "@ratingSemantics": {
+    "description": "A nota para o leitor de tela, com a escala",
+    "placeholders": {
+      "value": { "type": "double", "format": "decimalPatternDigits", "optionalParameters": { "decimalDigits": 1 } }
+    }
+  },
+  "releaseDate": "{date}",
+  "@releaseDate": {
+    "description": "Data de lançamento no formato curto do idioma (dd/MM/aaaa no pt-BR)",
+    "placeholders": { "date": { "type": "DateTime", "format": "yMd" } }
+  }
 }

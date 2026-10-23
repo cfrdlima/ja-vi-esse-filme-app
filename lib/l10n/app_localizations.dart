@@ -261,6 +261,42 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Filme sem título'**
   String get movieUntitled;
+
+  /// Duração do filme com horas e minutos, nos detalhes
+  ///
+  /// In pt, this message translates to:
+  /// **'{hours} h {minutes} min'**
+  String runtimeHoursMinutes(int hours, int minutes);
+
+  /// Duração do filme em horas exatas, nos detalhes
+  ///
+  /// In pt, this message translates to:
+  /// **'{hours} h'**
+  String runtimeHours(int hours);
+
+  /// Duração do filme abaixo de uma hora, nos detalhes
+  ///
+  /// In pt, this message translates to:
+  /// **'{minutes} min'**
+  String runtimeMinutes(int minutes);
+
+  /// Nota do TMDB (0 a 10) com uma casa decimal, ao lado da estrela nos detalhes
+  ///
+  /// In pt, this message translates to:
+  /// **'{value}'**
+  String rating(double value);
+
+  /// A nota para o leitor de tela, com a escala
+  ///
+  /// In pt, this message translates to:
+  /// **'Nota {value} de 10'**
+  String ratingSemantics(double value);
+
+  /// Data de lançamento no formato curto do idioma (dd/MM/aaaa no pt-BR)
+  ///
+  /// In pt, this message translates to:
+  /// **'{date}'**
+  String releaseDate(DateTime date);
 }
 
 class _AppLocalizationsDelegate
