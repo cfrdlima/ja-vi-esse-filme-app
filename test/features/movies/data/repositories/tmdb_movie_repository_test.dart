@@ -6,6 +6,7 @@ import 'package:ja_vi_esse_filme/core/network/tmdb_client.dart';
 import 'package:ja_vi_esse_filme/features/movies/data/datasources/movie_remote_data_source.dart';
 import 'package:ja_vi_esse_filme/features/movies/data/repositories/tmdb_movie_repository.dart';
 import 'package:ja_vi_esse_filme/features/movies/domain/entities/movie_category.dart';
+import 'package:ja_vi_esse_filme/features/movies/domain/entities/search_query.dart';
 import 'package:ja_vi_esse_filme/features/movies/domain/repositories/movie_repository.dart';
 
 void main() {
@@ -45,5 +46,27 @@ void main() {
       throwsA(isA<RangeError>()),
     );
     expect(requests, 0);
+  });
+
+  group('busca', () {
+    test('deve devolver a página pedida da busca', () async {
+      final repository = repositoryWith(
+        '{"page":2,"total_pages":2,"results":[{"id":1,"title":"A"}]}',
+      );
+
+      final page = await repository.search(SearchQuery('matrix'), page: 2);
+
+      expect((page.page, page.hasMore), (2, false));
+    });
+
+    test('deve recusar página menor que 1 sem chamar o TMDB', () async {
+      final repository = repositoryWith('{}');
+
+      await expectLater(
+        () => repository.search(SearchQuery('matrix'), page: 0),
+        throwsA(isA<RangeError>()),
+      );
+      expect(requests, 0);
+    });
   });
 }

@@ -15,7 +15,7 @@
 - A ação do teclado é "buscar" (`TextInputAction.search`). Ela fecha o teclado e busca na hora, sem esperar o debounce.
 - Quando há texto, aparece à direita um botão de limpar (`IconButton`, alvo ≥ 48dp, tooltip e rótulo de leitor de tela "Limpar busca"). Ele apaga o termo, volta ao estado inicial e mantém o foco no campo.
 - Arrastar a grade fecha o teclado (`keyboardDismissBehavior: onDrag`).
-- A aba guarda o termo e os resultados ao trocar de aba (shell vivo), mas o app não guarda histórico de busca no aparelho (política de privacidade, seção 2).
+- A aba guarda o termo e os resultados ao trocar de aba (shell vivo), mas o app não guarda histórico de busca no aparelho (política de privacidade, seção 3).
 
 ## Debounce e validação
 - O pedido sai **400 ms** depois da última tecla. Cada tecla nova reinicia a contagem.

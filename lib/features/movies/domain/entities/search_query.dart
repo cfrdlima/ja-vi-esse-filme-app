@@ -31,7 +31,7 @@ final class SearchQuery {
   int get hashCode => text.hashCode;
 
   // Sem o termo: o que a pessoa busca não vai para log nem relatório de erro
-  // (política de privacidade, seção 2).
+  // (política de privacidade, seção 3).
   @override
   String toString() => 'SearchQuery(${text.runes.length} caracteres)';
 }
