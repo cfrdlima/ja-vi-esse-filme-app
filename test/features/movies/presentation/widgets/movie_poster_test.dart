@@ -102,11 +102,13 @@ void main() {
     );
   });
 
-  testWidgets('deve decodificar a imagem na largura da célula', (tester) async {
+  testWidgets('deve decodificar a imagem no tamanho do arquivo', (tester) async {
     await pumpPoster(tester, withPoster);
 
-    // 120dp de célula × devicePixelRatio 3.
-    expect(image(tester).memCacheWidth, 360);
+    // Grade, detalhes e o Hero em voo têm larguras diferentes. Com uma
+    // largura de decodificação por tamanho, cada um teria a sua entrada no
+    // cache, e o voo mostraria o placeholder.
+    expect(image(tester).memCacheWidth, isNull);
   });
 
   group('tocável', () {

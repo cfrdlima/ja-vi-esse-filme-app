@@ -64,20 +64,16 @@ class _PosterImage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final reduceMotion = MediaQuery.disableAnimationsOf(context);
-    final pixelRatio = MediaQuery.devicePixelRatioOf(context);
-    // Decodifica na largura da célula, e não no tamanho do arquivo (w342).
-    return LayoutBuilder(
-      builder: (_, constraints) => CachedNetworkImage(
-        imageUrl: TmdbImageUrl.poster(path).toString(),
-        fit: BoxFit.cover,
-        memCacheWidth: constraints.hasBoundedWidth
-            ? (constraints.maxWidth * pixelRatio).round()
-            : null,
-        fadeInDuration: reduceMotion ? Duration.zero : AppMotion.medium,
-        fadeOutDuration: reduceMotion ? Duration.zero : AppMotion.short,
-        placeholder: (_, _) => const _PosterPlaceholder(),
-        errorWidget: (_, _, _) => const _PosterPlaceholder(),
-      ),
+    // Decodifica no tamanho do arquivo (w342), sem `memCacheWidth`: a grade,
+    // os detalhes e o Hero em voo dividem a mesma imagem no cache, e o pôster
+    // voa já desenhado, sem passar pelo placeholder.
+    return CachedNetworkImage(
+      imageUrl: TmdbImageUrl.poster(path).toString(),
+      fit: BoxFit.cover,
+      fadeInDuration: reduceMotion ? Duration.zero : AppMotion.medium,
+      fadeOutDuration: reduceMotion ? Duration.zero : AppMotion.short,
+      placeholder: (_, _) => const _PosterPlaceholder(),
+      errorWidget: (_, _, _) => const _PosterPlaceholder(),
     );
   }
 }
