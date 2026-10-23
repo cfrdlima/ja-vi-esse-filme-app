@@ -64,7 +64,7 @@ void main() {
       expect(router.state.matchedLocation, AppRoutes.discover);
     });
 
-    testWidgets('a aba Descobrir deve carregar os filmes populares', (
+    testWidgets('a aba Descobrir deve carregar a primeira categoria', (
       tester,
     ) async {
       await pumpAppRouter(tester);
@@ -73,7 +73,7 @@ void main() {
       expect(
         find.descendant(
           of: find.byType(DiscoverScreen),
-          matching: find.text('Nenhum filme popular por aqui agora.'),
+          matching: find.text('Nenhum filme por aqui agora.'),
         ),
         findsOneWidget,
       );

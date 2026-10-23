@@ -36,10 +36,19 @@ class AppLocalizationsPt extends AppLocalizations {
   String get discoverTitle => 'Descobrir';
 
   @override
-  String get discoverLoading => 'Carregando filmes populares';
+  String get discoverLoading => 'Carregando filmes';
 
   @override
-  String get discoverEmpty => 'Nenhum filme popular por aqui agora.';
+  String get discoverEmpty => 'Nenhum filme por aqui agora.';
+
+  @override
+  String get categoryPopular => 'Populares';
+
+  @override
+  String get categoryNowPlaying => 'Em cartaz';
+
+  @override
+  String get categoryTopRated => 'Melhor avaliados';
 
   @override
   String get discoverLoadMoreFailed => 'Não foi possível carregar mais filmes.';

@@ -6,6 +6,7 @@ import 'package:ja_vi_esse_filme/core/error/failures.dart';
 import 'package:ja_vi_esse_filme/core/l10n/app_locale.dart';
 import 'package:ja_vi_esse_filme/features/movies/domain/entities/movie_category.dart';
 import 'package:ja_vi_esse_filme/features/movies/presentation/screens/discover_screen.dart';
+import 'package:ja_vi_esse_filme/features/movies/presentation/state/discover_notifier.dart';
 import 'package:ja_vi_esse_filme/features/movies/presentation/state/paged_movies_notifier.dart';
 import 'package:ja_vi_esse_filme/features/movies/presentation/widgets/movie_poster.dart';
 import 'package:ja_vi_esse_filme/features/movies/presentation/widgets/poster_skeleton.dart';
@@ -18,23 +19,23 @@ import '../../../../helpers/test_app.dart';
 void main() {
   final l10n = lookupAppLocalizations(AppLocale.locale);
   late FakeMovieRepository repository;
+  late DiscoverNotifier discover;
+  // A lista de populares, que os testes carregam à mão.
   late PagedMoviesNotifier notifier;
 
   setUp(() {
     repository = FakeMovieRepository();
-    notifier = PagedMoviesNotifier(
-      repository: repository,
-      category: MovieCategory.popular,
-    );
+    discover = DiscoverNotifier(repository: repository);
+    notifier = discover.current;
   });
 
-  tearDown(() => notifier.dispose());
+  tearDown(() => discover.dispose());
 
   Future<void> pumpScreen(WidgetTester tester) async {
     await tester.pumpWidget(
       testApp(
         home: ChangeNotifierProvider.value(
-          value: notifier,
+          value: discover,
           child: const DiscoverScreen(),
         ),
       ),
@@ -46,11 +47,12 @@ void main() {
     int count = 2,
     int totalPages = 3,
   }) async {
-    final future = notifier.load();
+    // Pelo seletor, como no app: o DiscoverNotifier fica sabendo que a
+    // categoria já começou.
+    discover.select(MovieCategory.popular);
     repository.complete(
       moviePage(page: 1, count: count, totalPages: totalPages),
     );
-    await future;
     await tester.pump();
   }
 
@@ -58,6 +60,98 @@ void main() {
     await pumpScreen(tester);
 
     expect(find.text(l10n.discoverTitle), findsOneWidget);
+  });
+
+  group('seletor de categoria', () {
+    bool isSelected(WidgetTester tester, String label) => tester
+        .widget<ChoiceChip>(find.widgetWithText(ChoiceChip, label))
+        .selected;
+
+    testWidgets('deve oferecer as três categorias', (tester) async {
+      await pumpScreen(tester);
+
+      final labels = tester
+          .widgetList<ChoiceChip>(find.byType(ChoiceChip))
+          .map((chip) => (chip.label as Text).data);
+      expect(labels, [
+        l10n.categoryPopular,
+        l10n.categoryNowPlaying,
+        l10n.categoryTopRated,
+      ]);
+    });
+
+    testWidgets('deve marcar populares ao abrir', (tester) async {
+      await pumpScreen(tester);
+
+      expect(isSelected(tester, l10n.categoryPopular), isTrue);
+    });
+
+    testWidgets('deve carregar a categoria tocada', (tester) async {
+      await pumpScreen(tester);
+
+      await tester.tap(find.text(l10n.categoryNowPlaying));
+      await tester.pump();
+
+      expect(repository.requestedCategories, [MovieCategory.nowPlaying]);
+    });
+
+    testWidgets('deve marcar a categoria tocada', (tester) async {
+      await pumpScreen(tester);
+
+      await tester.tap(find.text(l10n.categoryTopRated));
+      await tester.pump();
+
+      expect(isSelected(tester, l10n.categoryTopRated), isTrue);
+    });
+
+    testWidgets('deve mostrar os filmes da categoria tocada', (tester) async {
+      await pumpScreen(tester);
+      await loadFirstPage(tester);
+
+      await tester.tap(find.text(l10n.categoryTopRated));
+      await tester.pump();
+
+      expect(find.byType(MoviePoster), findsNothing);
+    });
+
+    testWidgets('deve voltar aos filmes já carregados da categoria', (
+      tester,
+    ) async {
+      await pumpScreen(tester);
+      await loadFirstPage(tester);
+      await tester.tap(find.text(l10n.categoryTopRated));
+      await tester.pump();
+
+      await tester.tap(find.text(l10n.categoryPopular));
+      await tester.pump();
+
+      expect(find.byType(MoviePoster), findsNWidgets(2));
+    });
+
+    testWidgets('não deve vazar com fonte 1.5x numa tela estreita', (
+      tester,
+    ) async {
+      tester.view
+        ..physicalSize = const Size(320, 640)
+        ..devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(
+        MediaQuery(
+          data: const MediaQueryData(
+            size: Size(320, 640),
+            textScaler: TextScaler.linear(1.5),
+          ),
+          child: testApp(
+            home: ChangeNotifierProvider.value(
+              value: discover,
+              child: const DiscoverScreen(),
+            ),
+          ),
+        ),
+      );
+
+      expect(tester.takeException(), isNull);
+    });
   });
 
   group('carregando', () {
@@ -78,7 +172,7 @@ void main() {
           data: const MediaQueryData(disableAnimations: true),
           child: testApp(
             home: ChangeNotifierProvider.value(
-              value: notifier,
+              value: discover,
               child: const DiscoverScreen(),
             ),
           ),
@@ -110,7 +204,7 @@ void main() {
           child: SizedBox(
             width: 20,
             child: ChangeNotifierProvider.value(
-              value: notifier,
+              value: discover,
               child: const DiscoverScreen(),
             ),
           ),
@@ -213,7 +307,7 @@ void main() {
           data: const MediaQueryData(textScaler: TextScaler.linear(1.5)),
           child: testApp(
             home: ChangeNotifierProvider.value(
-              value: notifier,
+              value: discover,
               child: const DiscoverScreen(),
             ),
           ),
@@ -305,7 +399,7 @@ void main() {
           data: const MediaQueryData(textScaler: TextScaler.linear(1.5)),
           child: testApp(
             home: ChangeNotifierProvider.value(
-              value: notifier,
+              value: discover,
               child: const DiscoverScreen(),
             ),
           ),

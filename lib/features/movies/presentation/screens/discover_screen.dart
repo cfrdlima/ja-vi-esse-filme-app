@@ -10,40 +10,110 @@ import '../../../../core/theme/app_sizes.dart';
 import '../../../../core/theme/app_theme_tokens.dart';
 import '../../../../core/widgets/retry_button.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../../domain/entities/movie_category.dart';
+import '../state/discover_notifier.dart';
 import '../state/paged_movies_notifier.dart';
 import '../state/paged_movies_state.dart';
 import '../widgets/movie_poster.dart';
 import '../widgets/poster_skeleton.dart';
 
-/// Aba Descobrir: grade de filmes populares com paginação infinita.
+/// Aba Descobrir: seletor de categoria e a grade da categoria escolhida, com
+/// paginação infinita.
 class DiscoverScreen extends StatelessWidget {
   const DiscoverScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final notifier = context.watch<PagedMoviesNotifier>();
+    final discover = context.watch<DiscoverNotifier>();
+    final list = discover.current;
     return Scaffold(
       appBar: AppBar(title: Text(AppLocalizations.of(context).discoverTitle)),
-      body: switch (notifier.state) {
-        PagedMoviesLoading() => const _GridWidthGuard(child: _LoadingView()),
-        PagedMoviesEmpty() => _MessageView(
-          message: AppLocalizations.of(context).discoverEmpty,
-          onRetry: notifier.load,
-        ),
-        PagedMoviesError(:final failure) => _ErrorView(
-          failure: failure,
-          onRetry: notifier.load,
-        ),
-        final PagedMoviesLoaded state => _GridWidthGuard(
-          child: _MovieGrid(
-            state: state,
-            onLoadMore: notifier.loadMore,
-            onRetryNextPage: notifier.retryNextPage,
+      body: Column(
+        children: [
+          _CategorySelector(
+            selected: discover.category,
+            onSelected: discover.select,
           ),
-        ),
-      },
+          Expanded(
+            child: ListenableBuilder(
+              listenable: list,
+              builder: (_, _) => _PagedMoviesView(
+                key: ValueKey(discover.category),
+                notifier: list,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
+}
+
+/// Chips que quebram linha com fonte grande, em vez de cortar o rótulo
+/// (`ui-ux-pro-max`, "Chip Collection Reflow").
+class _CategorySelector extends StatelessWidget {
+  const _CategorySelector({required this.selected, required this.onSelected});
+
+  final MovieCategory selected;
+  final ValueChanged<MovieCategory> onSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    final spacing = Theme.of(context).extension<AppThemeTokens>()!.spacing;
+    final l10n = AppLocalizations.of(context);
+    return Padding(
+      padding: EdgeInsets.fromLTRB(spacing.md, spacing.sm, spacing.md, 0),
+      child: Align(
+        alignment: AlignmentDirectional.centerStart,
+        child: Wrap(
+          spacing: spacing.sm,
+          runSpacing: spacing.sm,
+          children: [
+            for (final category in MovieCategory.values)
+              ChoiceChip(
+                label: Text(_labelOf(l10n, category)),
+                selected: category == selected,
+                onSelected: (_) => onSelected(category),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _labelOf(AppLocalizations l10n, MovieCategory category) =>
+      switch (category) {
+        MovieCategory.popular => l10n.categoryPopular,
+        MovieCategory.nowPlaying => l10n.categoryNowPlaying,
+        MovieCategory.topRated => l10n.categoryTopRated,
+      };
+}
+
+/// Os 4 estados de uma lista paginada.
+class _PagedMoviesView extends StatelessWidget {
+  const _PagedMoviesView({required this.notifier, super.key});
+
+  final PagedMoviesNotifier notifier;
+
+  @override
+  Widget build(BuildContext context) => switch (notifier.state) {
+    PagedMoviesLoading() => const _GridWidthGuard(child: _LoadingView()),
+    PagedMoviesEmpty() => _MessageView(
+      message: AppLocalizations.of(context).discoverEmpty,
+      onRetry: notifier.load,
+    ),
+    PagedMoviesError(:final failure) => _ErrorView(
+      failure: failure,
+      onRetry: notifier.load,
+    ),
+    final PagedMoviesLoaded state => _GridWidthGuard(
+      child: _MovieGrid(
+        state: state,
+        onLoadMore: notifier.loadMore,
+        onRetryNextPage: notifier.retryNextPage,
+      ),
+    ),
+  };
 }
 
 /// Padding e delegate comuns à grade real e ao skeleton, para o layout não

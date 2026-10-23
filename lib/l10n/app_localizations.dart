@@ -148,17 +148,35 @@ abstract class AppLocalizations {
   /// **'Descobrir'**
   String get discoverTitle;
 
-  /// Anúncio do leitor de tela enquanto a grade de populares carrega
+  /// Anúncio do leitor de tela enquanto a grade da categoria escolhida carrega
   ///
   /// In pt, this message translates to:
-  /// **'Carregando filmes populares'**
+  /// **'Carregando filmes'**
   String get discoverLoading;
 
-  /// Estado vazio da lista de populares, que vem do TMDB e não do usuário
+  /// Estado vazio da categoria escolhida, que vem do TMDB e não do usuário
   ///
   /// In pt, this message translates to:
-  /// **'Nenhum filme popular por aqui agora.'**
+  /// **'Nenhum filme por aqui agora.'**
   String get discoverEmpty;
+
+  /// Categoria da Descobrir: filmes populares no TMDB
+  ///
+  /// In pt, this message translates to:
+  /// **'Populares'**
+  String get categoryPopular;
+
+  /// Categoria da Descobrir: filmes nos cinemas do Brasil agora
+  ///
+  /// In pt, this message translates to:
+  /// **'Em cartaz'**
+  String get categoryNowPlaying;
+
+  /// Categoria da Descobrir: filmes com as maiores notas no TMDB
+  ///
+  /// In pt, this message translates to:
+  /// **'Melhor avaliados'**
+  String get categoryTopRated;
 
   /// Rodapé da grade quando a próxima página falha; os filmes já carregados continuam
   ///
