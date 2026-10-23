@@ -1,3 +1,4 @@
+import 'package:ja_vi_esse_filme/features/movies/domain/entities/movie_category.dart';
 import 'package:ja_vi_esse_filme/features/movies/domain/entities/movie_page.dart';
 import 'package:ja_vi_esse_filme/features/movies/domain/repositories/movie_repository.dart';
 
@@ -6,6 +7,8 @@ import 'package:ja_vi_esse_filme/features/movies/domain/repositories/movie_repos
 /// animando no `pumpAndSettle`.
 class StubMovieRepository implements MovieRepository {
   @override
-  Future<MoviePage> popular({required int page}) async =>
-      const MoviePage(movies: [], page: 1, totalPages: 0);
+  Future<MoviePage> byCategory(
+    MovieCategory category, {
+    required int page,
+  }) async => const MoviePage(movies: [], page: 1, totalPages: 0);
 }

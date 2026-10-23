@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'app_colors.dart';
 import 'app_radii.dart';
+import 'app_spacing.dart';
 import 'app_theme_tokens.dart';
 import 'app_typography.dart';
 
@@ -47,6 +48,13 @@ abstract final class AppTheme {
                 ),
               ),
             ),
+      ),
+      // O selecionado já se distingue pelo preenchimento e pela semântica
+      // `selected`. Sem o check e com respiro `xs` no rótulo, os três chips
+      // da Descobrir cabem numa linha num celular de 412dp.
+      chipTheme: ChipThemeData(
+        showCheckmark: false,
+        labelPadding: EdgeInsets.symmetric(horizontal: AppSpacing.standard.xs),
       ),
       cardTheme: CardThemeData(
         color: scheme.surfaceContainer,

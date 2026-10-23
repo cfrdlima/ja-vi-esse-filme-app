@@ -148,17 +148,35 @@ abstract class AppLocalizations {
   /// **'Descobrir'**
   String get discoverTitle;
 
-  /// Anúncio do leitor de tela enquanto a grade de populares carrega
+  /// Anúncio do leitor de tela enquanto a grade da categoria escolhida carrega
   ///
   /// In pt, this message translates to:
-  /// **'Carregando filmes populares'**
+  /// **'Carregando filmes'**
   String get discoverLoading;
 
-  /// Estado vazio da lista de populares, que vem do TMDB e não do usuário
+  /// Estado vazio da categoria escolhida, que vem do TMDB e não do usuário
   ///
   /// In pt, this message translates to:
-  /// **'Nenhum filme popular por aqui agora.'**
+  /// **'Nenhum filme por aqui agora.'**
   String get discoverEmpty;
+
+  /// Categoria da Descobrir: filmes populares no TMDB
+  ///
+  /// In pt, this message translates to:
+  /// **'Populares'**
+  String get categoryPopular;
+
+  /// Categoria da Descobrir: filmes nos cinemas do Brasil agora
+  ///
+  /// In pt, this message translates to:
+  /// **'Em cartaz'**
+  String get categoryNowPlaying;
+
+  /// Categoria da Descobrir: filmes com as maiores notas no TMDB
+  ///
+  /// In pt, this message translates to:
+  /// **'Mais bem avaliados'**
+  String get categoryTopRated;
 
   /// Rodapé da grade quando a próxima página falha; os filmes já carregados continuam
   ///
@@ -171,6 +189,18 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Tentar de novo'**
   String get retry;
+
+  /// Botão desabilitado enquanto corre a espera pedida pelo TMDB depois de um limite de requisições (429)
+  ///
+  /// In pt, this message translates to:
+  /// **'Tentar de novo em {seconds} s'**
+  String retryIn(int seconds);
+
+  /// O mesmo que retryIn, para o leitor de tela, que leria o "s" como letra
+  ///
+  /// In pt, this message translates to:
+  /// **'{seconds, plural, =1{Tentar de novo em 1 segundo} other{Tentar de novo em {seconds} segundos}}'**
+  String retryInSemantics(int seconds);
 
   /// Erro de rede, DNS, TLS ou tempo esgotado
   ///

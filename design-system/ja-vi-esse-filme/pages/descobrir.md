@@ -6,6 +6,18 @@
 > - feedback de carregamento estável (skeleton, sem piscar) e status acessível de ocupado;
 > - respeitar o "reduzir movimento".
 > A busca por paginação infinita não trouxe regra específica. As regras de paginação abaixo são o padrão geral (fallback), e não resultado do banco.
+>
+> Consulta na sessão 009 (seletor de categoria e espera do 429):
+> - `ux` "Chip Collection Reflow": chips quebram linha quando falta espaço ou a fonte cresce, sem cortar o rótulo;
+> - `ux` "Disabled States": o estado desabilitado precisa ser visualmente distinto do habilitado;
+> - a stack Flutter não trouxe nada para seletor nem contagem regressiva (duas buscas sem resultado), então a contagem abaixo é padrão geral (fallback).
+
+## Seletor de categoria
+- Acima da grade: `ChoiceChip` de seleção única (Populares, Em cartaz, Mais bem avaliados) dentro de um `Wrap`, com espaçamento `sm` e padding `md` nas laterais. Com fonte grande, os chips descem para a linha seguinte.
+- Sem o ícone de check (`chipTheme`): o selecionado se distingue pelo preenchimento e pela semântica `selected`. O rótulo tem respiro `xs` dos lados, e assim os três chips cabem numa linha num celular de 412dp com a fonte padrão.
+- Escolha única e sempre uma selecionada; começa em Populares.
+- Cada categoria carrega na primeira vez que é aberta e depois fica viva: voltar a ela mostra os filmes e a rolagem em que estava, sem pedir de novo ao TMDB.
+- Em cartaz usa `region=BR`.
 
 ## Grade
 - Grade preguiçosa (`SliverGrid` com builder, num `CustomScrollView` para o rodapé caber na mesma rolagem), usando `SliverGridDelegateWithMaxCrossAxisExtent` com **largura máxima de célula de 180dp**. Assim o número de colunas acompanha a largura (3 colunas num celular de 400dp e mais no tablet), sem largura fixa.
@@ -26,3 +38,8 @@
   - erro: texto curto e "Tentar de novo" no próprio rodapé, sem perder os filmes já carregados;
   - última página: nada.
 - Nunca dispara dois pedidos da mesma página.
+
+## Espera do limite de requisições (429, fallback)
+- Quando o TMDB manda `Retry-After`, o "Tentar de novo" (da tela e do rodapé) fica desabilitado e mostra "Tentar de novo em N s", contando de segundo em segundo, e volta ao texto normal quando a espera acaba.
+- A espera tem teto de 60 s, para um valor enorme no header não travar o botão. Sem o header, o botão fica habilitado desde o início.
+- A contagem não é região viva do leitor de tela, para não anunciar a cada segundo. O leitor lê o rótulo atual ao focar o botão, por extenso ("em 12 segundos"), porque o "s" seria lido como letra.

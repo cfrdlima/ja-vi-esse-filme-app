@@ -2,17 +2,20 @@ import 'package:flutter/foundation.dart';
 
 import '../../../../core/error/failures.dart';
 import '../../domain/entities/movie.dart';
+import '../../domain/entities/movie_category.dart';
 import '../../domain/entities/movie_page.dart';
 import '../../domain/repositories/movie_repository.dart';
-import 'popular_movies_state.dart';
+import 'paged_movies_state.dart';
 
-class PopularMoviesNotifier extends ChangeNotifier {
-  PopularMoviesNotifier({required this._repository});
+/// Uma lista paginada de filmes de uma [MovieCategory].
+class PagedMoviesNotifier extends ChangeNotifier {
+  PagedMoviesNotifier({required this._repository, required this.category});
 
   final MovieRepository _repository;
+  final MovieCategory category;
 
-  PopularMoviesState _state = const PopularMoviesLoading();
-  PopularMoviesState get state => _state;
+  PagedMoviesState _state = const PagedMoviesLoading();
+  PagedMoviesState get state => _state;
 
   bool _loadingFirstPage = false;
   bool _disposed = false;
@@ -26,22 +29,18 @@ class PopularMoviesNotifier extends ChangeNotifier {
     if (_loadingFirstPage) return;
     _loadingFirstPage = true;
     final generation = ++_generation;
-    _emit(const PopularMoviesLoading());
+    _emit(const PagedMoviesLoading());
     try {
       final page = await _fetch(1);
       if (generation != _generation) return;
       final movies = _withoutRepeated(const [], page.movies);
       _emit(
         movies.isEmpty
-            ? const PopularMoviesEmpty()
-            : PopularMoviesLoaded(
-                movies: movies,
-                page: 1,
-                hasMore: page.hasMore,
-              ),
+            ? const PagedMoviesEmpty()
+            : PagedMoviesLoaded(movies: movies, page: 1, hasMore: page.hasMore),
       );
     } on Failure catch (failure) {
-      if (generation == _generation) _emit(PopularMoviesError(failure));
+      if (generation == _generation) _emit(PagedMoviesError(failure));
     } finally {
       _loadingFirstPage = false;
     }
@@ -52,9 +51,9 @@ class PopularMoviesNotifier extends ChangeNotifier {
   /// de novo, para a rolagem não martelar o TMDB (ex.: num 429).
   Future<void> loadMore() async {
     final current = _state;
-    if (current is PopularMoviesLoaded &&
+    if (current is PagedMoviesLoaded &&
         current.hasMore &&
-        current.nextPage == NextPageStatus.idle) {
+        current.nextPage is NextPageIdle) {
       await _fetchNextPage(current);
     }
   }
@@ -62,21 +61,20 @@ class PopularMoviesNotifier extends ChangeNotifier {
   /// "Tentar de novo" do rodapé, depois de a próxima página falhar.
   Future<void> retryNextPage() async {
     final current = _state;
-    if (current is PopularMoviesLoaded &&
-        current.nextPage == NextPageStatus.failed) {
+    if (current is PagedMoviesLoaded && current.nextPage is NextPageFailed) {
       await _fetchNextPage(current);
     }
   }
 
-  Future<void> _fetchNextPage(PopularMoviesLoaded current) async {
+  Future<void> _fetchNextPage(PagedMoviesLoaded current) async {
     final generation = _generation;
     final nextPage = current.page + 1;
-    _emit(current.withNextPage(NextPageStatus.loading));
+    _emit(current.withNextPage(const NextPageLoading()));
     try {
       final page = await _fetch(nextPage);
       if (generation != _generation) return;
       _emit(
-        PopularMoviesLoaded(
+        PagedMoviesLoaded(
           movies: _withoutRepeated(current.movies, page.movies),
           // A página pedida, e não a que a resposta diz, para o avanço não
           // depender do eco do servidor.
@@ -84,9 +82,9 @@ class PopularMoviesNotifier extends ChangeNotifier {
           hasMore: page.hasMore,
         ),
       );
-    } on Failure {
+    } on Failure catch (failure) {
       if (generation == _generation) {
-        _emit(current.withNextPage(NextPageStatus.failed));
+        _emit(current.withNextPage(NextPageFailed(failure)));
       }
     }
   }
@@ -96,7 +94,7 @@ class PopularMoviesNotifier extends ChangeNotifier {
   /// continua subindo de propósito.
   Future<MoviePage> _fetch(int page) async {
     try {
-      return await _repository.popular(page: page);
+      return await _repository.byCategory(category, page: page);
     } on Failure {
       rethrow;
     } on Exception {
@@ -104,14 +102,15 @@ class PopularMoviesNotifier extends ChangeNotifier {
     }
   }
 
-  // A ordem por popularidade muda entre pedidos, e o TMDB pode repetir um
-  // filme, até na mesma página; repetido quebraria as chaves da grade.
+  // A ordem das listas (popularidade, nota) muda entre pedidos, e o TMDB
+  // pode repetir um filme, até na mesma página; repetido quebraria as chaves
+  // da grade.
   List<Movie> _withoutRepeated(List<Movie> current, List<Movie> incoming) {
     final known = {for (final movie in current) movie.id};
     return [...current, ...incoming.where((movie) => known.add(movie.id))];
   }
 
-  void _emit(PopularMoviesState state) {
+  void _emit(PagedMoviesState state) {
     if (_disposed) return;
     _state = state;
     notifyListeners();

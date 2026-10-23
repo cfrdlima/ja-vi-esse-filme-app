@@ -28,3 +28,5 @@ Ideias que surgiram e não estão no plano imediato. Marque **[prioritário]** o
 - "Puxar para atualizar" na Descobrir. O notifier já descarta a resposta atrasada da página seguinte (contador de geração), conforme a revisão da sessão 008
 - Limite de 500 páginas nas listas do TMDB, citado pela comunidade mas sem documentação oficial encontrada na sessão 008. Hoje uma página recusada vira erro no rodapé
 - Uma fábrica injetada no lugar do router montando o `PopularMoviesNotifier` (`createAppRouter`), quando houver mais de uma feature com estado próprio (revisão da sessão 008, S10)
+- Contagem do "Tentar de novo" medida a partir do momento da falha (`retryAt` no estado), e não da montagem do botão: voltar a uma categoria em 429 hoje recomeça a espera inteira (revisão da sessão 009, S1)
+- Piso de alguns segundos para 429 sem `Retry-After`, ou com o header em formato de data HTTP (RFC 9110), que hoje vira `null` e libera o botão na hora (auditoria da sessão 009)

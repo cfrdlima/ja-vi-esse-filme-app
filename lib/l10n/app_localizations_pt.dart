@@ -36,16 +36,41 @@ class AppLocalizationsPt extends AppLocalizations {
   String get discoverTitle => 'Descobrir';
 
   @override
-  String get discoverLoading => 'Carregando filmes populares';
+  String get discoverLoading => 'Carregando filmes';
 
   @override
-  String get discoverEmpty => 'Nenhum filme popular por aqui agora.';
+  String get discoverEmpty => 'Nenhum filme por aqui agora.';
+
+  @override
+  String get categoryPopular => 'Populares';
+
+  @override
+  String get categoryNowPlaying => 'Em cartaz';
+
+  @override
+  String get categoryTopRated => 'Mais bem avaliados';
 
   @override
   String get discoverLoadMoreFailed => 'Não foi possível carregar mais filmes.';
 
   @override
   String get retry => 'Tentar de novo';
+
+  @override
+  String retryIn(int seconds) {
+    return 'Tentar de novo em $seconds s';
+  }
+
+  @override
+  String retryInSemantics(int seconds) {
+    String _temp0 = intl.Intl.pluralLogic(
+      seconds,
+      locale: localeName,
+      other: 'Tentar de novo em $seconds segundos',
+      one: 'Tentar de novo em 1 segundo',
+    );
+    return '$_temp0';
+  }
 
   @override
   String get failureNetwork => 'Sem conexão com a internet. Confira sua rede.';

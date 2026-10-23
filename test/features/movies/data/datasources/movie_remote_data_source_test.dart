@@ -5,6 +5,7 @@ import 'package:ja_vi_esse_filme/core/config/app_config.dart';
 import 'package:ja_vi_esse_filme/core/error/failures.dart';
 import 'package:ja_vi_esse_filme/core/network/tmdb_client.dart';
 import 'package:ja_vi_esse_filme/features/movies/data/datasources/movie_remote_data_source.dart';
+import 'package:ja_vi_esse_filme/features/movies/domain/entities/movie_category.dart';
 
 import '../../../../helpers/fixtures.dart';
 
@@ -39,7 +40,7 @@ void main() {
         readFixture('movie_popular_page1.json'),
       );
 
-      await dataSource.popular(page: 2);
+      await dataSource.byCategory(MovieCategory.popular, page: 2);
 
       expect(captured.url.path, '/3/movie/popular');
       expect(captured.url.queryParameters['page'], '2');
@@ -50,7 +51,7 @@ void main() {
         readFixture('movie_popular_page1.json'),
       );
 
-      final page = await dataSource.popular(page: 1);
+      final page = await dataSource.byCategory(MovieCategory.popular, page: 1);
 
       expect((page.page, page.totalPages, page.movies.length), (1, 48213, 3));
     });
@@ -60,7 +61,7 @@ void main() {
         '{"page":1,"total_pages":1,"results":[{"title":"Sem id"},{"id":7,"title":"Com id"}]}',
       );
 
-      final page = await dataSource.popular(page: 1);
+      final page = await dataSource.byCategory(MovieCategory.popular, page: 1);
 
       expect(page.movies.map((m) => m.id), [7]);
     });
@@ -68,7 +69,7 @@ void main() {
     test('deve tratar results ausente como página vazia', () async {
       final dataSource = dataSourceRespondingWith('{"page":1,"total_pages":0}');
 
-      final page = await dataSource.popular(page: 1);
+      final page = await dataSource.byCategory(MovieCategory.popular, page: 1);
 
       expect(page.movies, isEmpty);
     });
@@ -77,7 +78,7 @@ void main() {
       final dataSource = dataSourceRespondingWith('{"results":[]}');
 
       await expectLater(
-        () => dataSource.popular(page: 1),
+        () => dataSource.byCategory(MovieCategory.popular, page: 1),
         throwsA(isA<UnexpectedFailure>()),
       );
     });
@@ -86,9 +87,95 @@ void main() {
       final dataSource = dataSourceRespondingWith('{}', 429);
 
       await expectLater(
-        () => dataSource.popular(page: 1),
+        () => dataSource.byCategory(MovieCategory.popular, page: 1),
         throwsA(isA<RateLimitFailure>()),
       );
     });
+  });
+
+  group('em cartaz', () {
+    test('deve pedir movie/now_playing', () async {
+      final dataSource = dataSourceRespondingWith(
+        readFixture('movie_now_playing_page1.json'),
+      );
+
+      await dataSource.byCategory(MovieCategory.nowPlaying, page: 1);
+
+      expect(captured.url.path, '/3/movie/now_playing');
+    });
+
+    test('deve pedir com a região do Brasil', () async {
+      final dataSource = dataSourceRespondingWith(
+        readFixture('movie_now_playing_page1.json'),
+      );
+
+      await dataSource.byCategory(MovieCategory.nowPlaying, page: 1);
+
+      expect(captured.url.queryParameters['region'], 'BR');
+    });
+
+    test('deve pedir a página na query', () async {
+      final dataSource = dataSourceRespondingWith(
+        readFixture('movie_now_playing_page1.json'),
+      );
+
+      await dataSource.byCategory(MovieCategory.nowPlaying, page: 3);
+
+      expect(captured.url.queryParameters['page'], '3');
+    });
+
+    test('deve ignorar o campo dates e devolver os filmes', () async {
+      final dataSource = dataSourceRespondingWith(
+        readFixture('movie_now_playing_page1.json'),
+      );
+
+      final page = await dataSource.byCategory(
+        MovieCategory.nowPlaying,
+        page: 1,
+      );
+
+      expect(page.movies.map((m) => m.id), [1220564, 1311031]);
+    });
+  });
+
+  group('melhor avaliados', () {
+    test('deve pedir movie/top_rated', () async {
+      final dataSource = dataSourceRespondingWith(
+        readFixture('movie_top_rated_page1.json'),
+      );
+
+      await dataSource.byCategory(MovieCategory.topRated, page: 1);
+
+      expect(captured.url.path, '/3/movie/top_rated');
+    });
+
+    test('deve devolver os filmes da página', () async {
+      final dataSource = dataSourceRespondingWith(
+        readFixture('movie_top_rated_page1.json'),
+      );
+
+      final page = await dataSource.byCategory(MovieCategory.topRated, page: 1);
+
+      expect(page.movies.map((m) => m.title), [
+        'O Poderoso Chefão',
+        'Cidade de Deus',
+      ]);
+    });
+  });
+
+  test('só o em cartaz deve mandar a região', () async {
+    final dataSource = dataSourceRespondingWith(
+      readFixture('movie_top_rated_page1.json'),
+    );
+
+    await dataSource.byCategory(MovieCategory.topRated, page: 1);
+    final topRatedQuery = captured.url.queryParameters;
+    await dataSource.byCategory(MovieCategory.popular, page: 1);
+    final popularQuery = captured.url.queryParameters;
+
+    expect([
+      topRatedQuery,
+      popularQuery,
+    ], everyElement(isNot(contains('region'))));
   });
 }
