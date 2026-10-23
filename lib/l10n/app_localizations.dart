@@ -148,11 +148,11 @@ abstract class AppLocalizations {
   /// **'Descobrir'**
   String get discoverTitle;
 
-  /// Anúncio do leitor de tela enquanto a grade da categoria escolhida carrega
+  /// Anúncio do leitor de tela enquanto uma grade de filmes (Descobrir, Buscar) carrega
   ///
   /// In pt, this message translates to:
   /// **'Carregando filmes'**
-  String get discoverLoading;
+  String get moviesLoading;
 
   /// Estado vazio da categoria escolhida, que vem do TMDB e não do usuário
   ///
@@ -182,7 +182,7 @@ abstract class AppLocalizations {
   ///
   /// In pt, this message translates to:
   /// **'Não foi possível carregar mais filmes.'**
-  String get discoverLoadMoreFailed;
+  String get moviesLoadMoreFailed;
 
   /// Botão que repete a última ação que falhou
   ///

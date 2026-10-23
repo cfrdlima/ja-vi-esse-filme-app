@@ -247,7 +247,7 @@ void main() {
       final semantics = tester.ensureSemantics();
       await pumpScreen(tester);
 
-      expect(find.bySemanticsLabel(l10n.discoverLoading), findsOneWidget);
+      expect(find.bySemanticsLabel(l10n.moviesLoading), findsOneWidget);
       semantics.dispose();
     });
   });
@@ -408,7 +408,7 @@ void main() {
       await tester.tap(find.text(l10n.retry));
       await tester.pump();
 
-      expect(find.text(l10n.discoverLoadMoreFailed), findsNothing);
+      expect(find.text(l10n.moviesLoadMoreFailed), findsNothing);
       expect(repository.requestedPages, [1, 2, 2]);
     });
 
@@ -467,7 +467,7 @@ void main() {
       await tester.pump();
 
       expect(tester.takeException(), isNull);
-      expect(find.text(l10n.discoverLoadMoreFailed), findsOneWidget);
+      expect(find.text(l10n.moviesLoadMoreFailed), findsOneWidget);
     });
 
     testWidgets('não deve pedir a próxima página sem rolar', (tester) async {

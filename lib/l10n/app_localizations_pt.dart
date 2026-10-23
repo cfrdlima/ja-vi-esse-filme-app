@@ -36,7 +36,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get discoverTitle => 'Descobrir';
 
   @override
-  String get discoverLoading => 'Carregando filmes';
+  String get moviesLoading => 'Carregando filmes';
 
   @override
   String get discoverEmpty => 'Nenhum filme por aqui agora.';
@@ -51,7 +51,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get categoryTopRated => 'Mais bem avaliados';
 
   @override
-  String get discoverLoadMoreFailed => 'Não foi possível carregar mais filmes.';
+  String get moviesLoadMoreFailed => 'Não foi possível carregar mais filmes.';
 
   @override
   String get retry => 'Tentar de novo';
