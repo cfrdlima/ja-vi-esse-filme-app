@@ -199,5 +199,10 @@ class AppLocalizationsPt extends AppLocalizations {
   }
 
   @override
+  String trailerUnnamedSemantics(String kind) {
+    return '$kind. Abre no YouTube';
+  }
+
+  @override
   String get trailerOpenFailed => 'Não foi possível abrir o trailer.';
 }

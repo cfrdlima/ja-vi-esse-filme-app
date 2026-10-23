@@ -61,6 +61,19 @@ void main() {
     expect(find.text(l10n.trailerKindTeaser), findsOneWidget);
   });
 
+  testWidgets('deve ler o trailer sem nome sem repetir o tipo', (
+    tester,
+  ) async {
+    final semantics = tester.ensureSemantics();
+    await tester.pumpWidget(list(FakeLinkOpener()));
+
+    expect(
+      tester.getSemantics(find.byKey(ValueKey(unnamedTeaser.key))).label,
+      l10n.trailerUnnamedSemantics(l10n.trailerKindTeaser),
+    );
+    semantics.dispose();
+  });
+
   testWidgets('deve abrir o trailer tocado no YouTube', (tester) async {
     final opener = FakeLinkOpener();
     await tester.pumpWidget(list(opener));

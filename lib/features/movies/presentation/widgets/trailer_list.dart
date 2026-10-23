@@ -34,12 +34,15 @@ class _TrailerTile extends StatelessWidget {
       TrailerKind.trailer => l10n.trailerKindTrailer,
       TrailerKind.teaser => l10n.trailerKindTeaser,
     };
-    final name = trailer.name.isEmpty ? kind : trailer.name;
+    final unnamed = trailer.name.isEmpty;
+    final name = unnamed ? kind : trailer.name;
     // Um nó só, de link e não de botão: o rótulo já diz que o trailer sai do
     // app. Por isso o toque fica também no `Semantics`.
     return Semantics(
       link: true,
-      label: l10n.trailerSemantics(name, kind),
+      label: unnamed
+          ? l10n.trailerUnnamedSemantics(kind)
+          : l10n.trailerSemantics(name, kind),
       excludeSemantics: true,
       onTap: () => _open(context),
       child: ListTile(

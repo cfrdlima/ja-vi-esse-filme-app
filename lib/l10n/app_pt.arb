@@ -138,6 +138,11 @@
     "description": "O leitor de tela lê o trailer como link que sai do app",
     "placeholders": { "name": { "type": "String" }, "kind": { "type": "String" } }
   },
+  "trailerUnnamedSemantics": "{kind}. Abre no YouTube",
+  "@trailerUnnamedSemantics": {
+    "description": "Leitor de tela no trailer sem nome: o tipo já faz as vezes do nome",
+    "placeholders": { "kind": { "type": "String" } }
+  },
   "trailerOpenFailed": "Não foi possível abrir o trailer.",
   "@trailerOpenFailed": { "description": "Aviso quando nenhum app do aparelho abre o trailer" }
 }

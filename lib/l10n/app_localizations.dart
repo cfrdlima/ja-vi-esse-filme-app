@@ -370,6 +370,12 @@ abstract class AppLocalizations {
   /// **'{name}, {kind}. Abre no YouTube'**
   String trailerSemantics(String name, String kind);
 
+  /// Leitor de tela no trailer sem nome: o tipo já faz as vezes do nome
+  ///
+  /// In pt, this message translates to:
+  /// **'{kind}. Abre no YouTube'**
+  String trailerUnnamedSemantics(String kind);
+
   /// Aviso quando nenhum app do aparelho abre o trailer
   ///
   /// In pt, this message translates to:
