@@ -120,12 +120,14 @@ void main() {
       expect(details.trailers, [portugueseTeaser, englishTrailer]);
     });
 
+    // Abaixo de 32 itens o `sort` do Dart já sai estável, e o teste não
+    // pegaria a falta do desempate pelo índice.
     test('deve manter a ordem recebida entre vídeos equivalentes', () {
-      final trailers = [for (var i = 0; i < 4; i++) trailer()];
+      final trailers = [for (var i = 0; i < 40; i++) trailer()];
 
       final details = detailsWithTrailers(trailers);
 
-      expect(details.trailers, trailers);
+      expect(details.trailers, trailers.take(MovieDetails.maxTrailers));
     });
 
     test('deve cortar os trailers em 5', () {
@@ -133,7 +135,18 @@ void main() {
 
       final details = detailsWithTrailers(trailers);
 
-      expect(details.trailers, trailers.take(MovieDetails.maxTrailers));
+      expect(details.trailers, hasLength(MovieDetails.maxTrailers));
+    });
+
+    test('deve ordenar antes de cortar', () {
+      final trailers = [
+        for (var i = 0; i < 6; i++) trailer(official: false),
+        trailer(),
+      ];
+
+      final details = detailsWithTrailers(trailers);
+
+      expect(details.trailers.first, trailers.last);
     });
 
     test('não deve deixar os trailers serem alterados depois de criado', () {

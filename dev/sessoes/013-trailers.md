@@ -22,7 +22,17 @@ Os detalhes do filme passam a mostrar os trailers que o TMDB tem, e tocar num de
 - [x] Strings novas em ARB (decisão 004)
 - [x] Manifest: avaliar o `<queries>` de `VIEW` `https` (ficou de fora, decisão 009) e conferir se a seção de permissões do `docs/PRIVACIDADE.md` muda (não muda)
 - [x] Tríade: `flutter analyze` limpo, `flutter test` verde e emulador (filme com e sem trailer, abrir o YouTube, voltar ao app, fonte grande)
-- [ ] `/revisar`: `code-reviewer` e `security-auditor` (a sessão abre URL externa e adiciona dependência)
+- [x] `/revisar`: `code-reviewer` e `security-auditor` (a sessão abre URL externa e adiciona dependência)
+- [ ] I1: `MovieDetails` tira trailers com `key` repetida antes do corte, mantendo o mais relevante — RED / GREEN
+- [ ] I2: teste de estabilidade da ordem com mais de 32 trailers equivalentes (o `sort` do Dart já é estável abaixo disso) — RED
+- [ ] I3: teste do corte com o único oficial na 7ª posição, saindo em primeiro
+- [ ] I4: o toque do leitor de tela (`SemanticsAction.tap`) abre o trailer — RED / GREEN
+- [ ] S2: trailer sem nome lido como "Teaser. Abre no YouTube", sem repetir o tipo — RED / GREEN
+- [ ] S3: um só `open` local para o `onTap` do `ListTile` e do `Semantics` — REFACTOR
+- [ ] S4: qualquer erro do `launchUrl` vira `LinkNotOpened(noApp)`, não só `PlatformException` — RED / GREEN
+- [ ] S8: entre os vídeos em português, os do Brasil (`iso_3166_1 == BR`) vêm antes — RED / GREEN
+- [ ] A2: casos de regressão na política: ponto no fim do host, homógrafo cirílico, `www.youtube.com%2F@evil.com`, `evil.com\@www.youtube.com`
+- [ ] BACKLOG: S1, S9, A1, A3
 
 ## Decisões
 - [009 — `url_launcher` e links externos](../decisoes/009-url-launcher-e-links-externos.md)
