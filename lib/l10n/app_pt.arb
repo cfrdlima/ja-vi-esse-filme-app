@@ -26,6 +26,11 @@
   "@discoverLoadMoreFailed": { "description": "Rodapé da grade quando a próxima página falha; os filmes já carregados continuam" },
   "retry": "Tentar de novo",
   "@retry": { "description": "Botão que repete a última ação que falhou" },
+  "retryIn": "Tentar de novo em {seconds} s",
+  "@retryIn": {
+    "description": "Botão desabilitado enquanto corre a espera pedida pelo TMDB depois de um limite de requisições (429)",
+    "placeholders": { "seconds": { "type": "int" } }
+  },
   "failureNetwork": "Sem conexão com a internet. Confira sua rede.",
   "@failureNetwork": { "description": "Erro de rede, DNS, TLS ou tempo esgotado" },
   "failureRateLimit": "Muitos pedidos em pouco tempo. Espere um pouco.",

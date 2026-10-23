@@ -172,6 +172,12 @@ abstract class AppLocalizations {
   /// **'Tentar de novo'**
   String get retry;
 
+  /// Botão desabilitado enquanto corre a espera pedida pelo TMDB depois de um limite de requisições (429)
+  ///
+  /// In pt, this message translates to:
+  /// **'Tentar de novo em {seconds} s'**
+  String retryIn(int seconds);
+
   /// Erro de rede, DNS, TLS ou tempo esgotado
   ///
   /// In pt, this message translates to:

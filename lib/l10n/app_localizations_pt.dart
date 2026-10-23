@@ -48,6 +48,11 @@ class AppLocalizationsPt extends AppLocalizations {
   String get retry => 'Tentar de novo';
 
   @override
+  String retryIn(int seconds) {
+    return 'Tentar de novo em $seconds s';
+  }
+
+  @override
   String get failureNetwork => 'Sem conexão com a internet. Confira sua rede.';
 
   @override
