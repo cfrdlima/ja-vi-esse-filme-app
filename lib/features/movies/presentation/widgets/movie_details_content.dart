@@ -9,9 +9,10 @@ import '../formatting/movie_format.dart';
 import 'cast_member_card.dart';
 import 'movie_poster.dart';
 import 'poster_hero.dart';
+import 'trailer_list.dart';
 
-/// Sucesso dos detalhes: cabeçalho, gêneros, sinopse e elenco (override
-/// `detalhes.md`). O que o TMDB não mandou some, sem traço.
+/// Sucesso dos detalhes: cabeçalho, gêneros, sinopse, elenco e trailers
+/// (override `detalhes.md`). O que o TMDB não mandou some, sem traço.
 class MovieDetailsContent extends StatelessWidget {
   const MovieDetailsContent({required this.details, this.posterKey, super.key});
 
@@ -47,6 +48,12 @@ class MovieDetailsContent extends StatelessWidget {
                 _SectionTitle(text: l10n.movieCastTitle),
                 SizedBox(height: spacing.sm),
                 _CastRow(details: details),
+              ],
+              if (details.trailers.isNotEmpty) ...[
+                SizedBox(height: spacing.lg),
+                _SectionTitle(text: l10n.movieTrailersTitle),
+                SizedBox(height: spacing.sm),
+                TrailerList(trailers: details.trailers),
               ],
             ],
           ),
