@@ -10,6 +10,7 @@ import 'package:ja_vi_esse_filme/features/movies/domain/entities/movie_details.d
 import 'package:ja_vi_esse_filme/features/movies/presentation/screens/movie_details_screen.dart';
 import 'package:ja_vi_esse_filme/features/movies/presentation/state/movie_details_notifier.dart';
 import 'package:ja_vi_esse_filme/features/movies/presentation/widgets/cast_member_card.dart';
+import 'package:ja_vi_esse_filme/features/movies/presentation/widgets/movie_details_content.dart';
 import 'package:ja_vi_esse_filme/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
@@ -274,20 +275,28 @@ void main() {
       expect(find.text(l10n.movieCastTitle), findsNothing);
     });
 
-    testWidgets('não deve mostrar gêneros, data, duração nem nota', (
-      tester,
-    ) async {
+    // A lista exata de textos pega também um traço ou "desconhecido" no
+    // lugar do que falta, e não depende do formato da data ou da duração.
+    testWidgets('deve mostrar só o título e a sinopse ausente', (tester) async {
       await pumpWith(tester, bare);
 
       expect(
-        [
-          find.byType(Chip),
-          find.byIcon(Icons.star),
-          find.textContaining('min'),
-          find.textContaining('/'),
-        ].map((finder) => finder.evaluate().length),
-        [0, 0, 0, 0],
+        tester
+            .widgetList<Text>(
+              find.descendant(
+                of: find.byType(MovieDetailsContent),
+                matching: find.byType(Text),
+              ),
+            )
+            .map((text) => text.data),
+        ['Filme Sem Nada', l10n.movieOverviewTitle, l10n.movieNoOverview],
       );
+    });
+
+    testWidgets('não deve mostrar a estrela da nota', (tester) async {
+      await pumpWith(tester, bare);
+
+      expect(find.byIcon(Icons.star), findsNothing);
     });
 
     testWidgets('deve ler só o nome de quem vem sem personagem', (
