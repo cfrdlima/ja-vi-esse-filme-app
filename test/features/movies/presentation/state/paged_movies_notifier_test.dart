@@ -336,4 +336,51 @@ void main() {
       category: MovieCategory.topRated,
     );
   });
+
+  group('descartado', () {
+    // O tearDown descarta o notifier, e descartar duas vezes é erro.
+    void disposeAndReplace() {
+      final disposed = notifier;
+      notifier = CategoryMoviesNotifier(
+        repository: FakeMovieRepository(),
+        category: MovieCategory.topRated,
+      );
+      disposed.dispose();
+    }
+
+    test('não deve pedir a primeira página', () {
+      final disposed = notifier;
+      disposeAndReplace();
+
+      // Sem await: se o pedido saísse, ficaria pendente no fake.
+      unawaited(disposed.load());
+
+      expect(repository.requestedPages, isEmpty);
+    });
+
+    test('não deve pedir a próxima página', () async {
+      await loadFirstPage();
+      final disposed = notifier;
+      disposeAndReplace();
+
+      // Sem await: se o pedido saísse, ficaria pendente no fake.
+      unawaited(disposed.loadMore());
+
+      expect(repository.requestedPages, [1]);
+    });
+
+    test('não deve repetir a próxima página que falhou', () async {
+      await loadFirstPage();
+      final future = notifier.loadMore();
+      repository.fail(const NetworkFailure());
+      await future;
+      final disposed = notifier;
+      disposeAndReplace();
+
+      // Sem await: se o pedido saísse, ficaria pendente no fake.
+      unawaited(disposed.retryNextPage());
+
+      expect(repository.requestedPages, [1, 2]);
+    });
+  });
 }

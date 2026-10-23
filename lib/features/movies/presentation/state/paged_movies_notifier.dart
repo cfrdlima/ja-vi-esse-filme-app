@@ -20,7 +20,9 @@ abstract class PagedMoviesNotifier extends ChangeNotifier {
 
   /// Carrega a primeira página. Serve também para "tentar de novo".
   Future<void> load() async {
-    if (_loadingFirstPage) return;
+    // Uma lista descartada (termo trocado na Buscar) não pede mais nada, nem
+    // pela rolagem da grade que ainda está saindo da tela.
+    if (_disposed || _loadingFirstPage) return;
     _loadingFirstPage = true;
     final generation = ++_generation;
     _emit(const PagedMoviesLoading());
@@ -61,6 +63,7 @@ abstract class PagedMoviesNotifier extends ChangeNotifier {
   }
 
   Future<void> _fetchNextPage(PagedMoviesLoaded current) async {
+    if (_disposed) return;
     final generation = _generation;
     final nextPage = current.page + 1;
     _emit(current.withNextPage(const NextPageLoading()));
