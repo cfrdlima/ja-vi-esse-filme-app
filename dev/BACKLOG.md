@@ -30,3 +30,6 @@ Ideias que surgiram e não estão no plano imediato. Marque **[prioritário]** o
 - Uma fábrica injetada no lugar do router montando o `PopularMoviesNotifier` (`createAppRouter`), quando houver mais de uma feature com estado próprio (revisão da sessão 008, S10)
 - Contagem do "Tentar de novo" medida a partir do momento da falha (`retryAt` no estado), e não da montagem do botão: voltar a uma categoria em 429 hoje recomeça a espera inteira (revisão da sessão 009, S1)
 - Piso de alguns segundos para 429 sem `Retry-After`, ou com o header em formato de data HTTP (RFC 9110), que hoje vira `null` e libera o botão na hora (auditoria da sessão 009)
+- Buscar: `context.read` nos callbacks e `context.select` só no corpo da `SearchScreen`, para a tela inteira não reconstruir a cada troca de estado (revisão da sessão 010, S3)
+- Validação do termo de busca sem exceção a cada tecla: um resultado sealed no domínio (válido/inválido com motivo), mantendo a factory que lança (revisão da sessão 010, S4)
+- Segunda barreira para conteúdo adulto: descartar no parse os itens com `adult == true`, caso o TMDB ignore o `include_adult=false` (auditoria da sessão 010)

@@ -21,7 +21,16 @@ Trocar o placeholder da aba Buscar por uma busca de filmes (`/search/movie` com 
 - [x] Composição: o router monta o `SearchNotifier` na aba Buscar e sai o placeholder dela
 - [x] Política: conferir que a seção 3 (termos de busca vão ao TMDB, sem histórico no app) continua verdadeira
 - [x] Tríade: `flutter analyze` limpo, `flutter test` verde e emulador (digitação, vazio, paginação e fonte grande)
-- [ ] `/revisar`: `code-reviewer` + `security-auditor` (a sessão toca rede e entrada do usuário)
+- [x] `/revisar`: `code-reviewer` + `security-auditor` (a sessão toca rede e entrada do usuário)
+- [ ] S2: teste da resposta atrasada confere que o estado continua no termo novo
+- [ ] S1: lista descartada não faz pedido (`load` e próxima página) — RED / GREEN
+- [ ] I1: trocar o termo não fura a espera do 429; o `SearchNotifier` adia o próximo pedido até o fim do `retryAfter` (teto de 60 s) — RED / GREEN / REFACTOR
+- [ ] I2: vazio e "longo demais" da Buscar anunciados ao leitor de tela (`liveRegion`) — RED / GREEN
+- [ ] S5: campo limita por code points (`TextInputFormatter`), e o "longo demais" fica de defesa — RED / GREEN
+- [ ] S6: comentário do `onDrag` genérico no `PagedMoviesView`
+- [ ] S7: override `buscar.md` sem a contradição sobre a rolagem do campo
+- [ ] S8: `enableIMEPersonalizedLearning: false` no campo de busca — RED / GREEN
+- [ ] S9: teste de injeção pelo termo (`x&include_adult=true` não muda o `include_adult`)
 
 ## Decisões
 - [007](../decisoes/007-fake-async-nos-testes.md): `fake_async` em `dev_dependencies`, para testar o debounce sem relógio real.
