@@ -3,9 +3,9 @@
 > Fonte da verdade do que construir. Atualizado por `/fechar-sessao`.
 
 ## Última sessão
-**006 — Antes da Fase 1: strings de UI e `intl`** (fechada em 2026-10-19) · [log](sessoes/006-strings-e-intl.md)
-Os textos de UI vêm de `lib/l10n/app_pt.arb`, com o `gen-l10n` e o código gerado versionado, conferido pelo CI. O app fica fixo em `pt_BR`, com o Material em português (decisões 004 e 005). O `intl` e o `flutter_localizations` são dependências diretas, e os testes de widget montam a árvore por `test/helpers/test_app.dart`. São 239 testes.
-**Próximo passo:** a política de privacidade (último item de "Antes da Fase 1"). Depois, a Fase 1, a começar por Descobrir.
+**007 — Antes da Fase 1: política de privacidade** (fechada em 2026-10-23) · [log](sessoes/007-politica-de-privacidade.md)
+A política (LGPD) está em rascunho 0.2 em `docs/PRIVACIDADE.md`: controlador identificado, legítimo interesse no uso sem login, execução de contrato no login TMDB, contato por e-mail privado e por Issues, e público a partir de 13 anos. Ela vai ser publicada num repositório público separado, com GitHub Pages (decisão 006). Os 7 marcadores `A REVISAR` são resolvidos nas fases em que cada ponto entra.
+**Próximo passo:** a Fase 1, a começar por Descobrir.
 
 ## Fase 0 — Fundação
 - [x] Criar projeto (`io.github.cfrdlima.ja_vi_esse_filme`), `analysis_options.yaml`, `.gitignore` com `env/*.json` (exceto `example.json`)
@@ -29,32 +29,34 @@ Os textos de UI vêm de `lib/l10n/app_pt.arb`, com o `gen-l10n` e o código gera
 ## Antes da Fase 1
 - [x] Decisão: strings de UI centralizadas (`flutter_localizations` + ARB) ou em constantes
 - [x] Decisão: `intl` para datas e números em pt-BR (dependência nova)
-- [ ] Política de privacidade (o que o app coleta, LGPD), para a tela "Sobre"
+- [x] Política de privacidade (o que o app coleta, LGPD), para a tela "Sobre"
 
 ## Fase 1 — Explorar (sem login)
 - [ ] Descobrir: populares, em cartaz, melhor avaliados (paginação infinita)
-- [ ] Busca com debounce e estados vazio/erro
+- [ ] Declarar em `docs/PRIVACIDADE.md` o cache de imagens (`cached_network_image`): prazo e como apagar
+- [ ] Busca com debounce e estados vazio/erro, com `include_adult=false` (público 13+, política de privacidade)
 - [ ] Detalhes do filme: sinopse, gêneros, duração, nota, elenco
 - [ ] Hero do pôster entre a grade/lista e os detalhes
 - [ ] Trailers (abrir YouTube externo com host validado)
-- [ ] Tela "Sobre" com atribuição ao TMDB, política de privacidade e licenças das fontes (`LicenseRegistry`)
+- [ ] Tela "Sobre" com atribuição ao TMDB, política de privacidade e licenças das fontes (`LicenseRegistry`). Antes dela, criar o repositório público de suporte e publicar a política seguindo o procedimento da decisão 006. O link vai só para o Pages e exige aprovar o `url_launcher`
 
 ## Fase 2 — Conta TMDB
 - [ ] `TmdbClient` com POST/DELETE e tratamento do 204 com corpo vazio (pré-requisito do login)
-- [ ] Login via sessão TMDB (request_token → navegador → session_id no secure storage), validando a origem do retorno do deep link
-- [ ] Logout invalidando a sessão
+- [ ] Login via sessão TMDB (request_token → navegador → session_id no secure storage), validando a origem do retorno do deep link. A aprovação abre no navegador externo ou em Custom Tabs, nunca em WebView. Decidir se o account id e o nome de usuário ficam no aparelho e atualizar a política
+- [ ] Logout invalidando a sessão, e apagando o storage local mesmo se o `DELETE` falhar (sem rede, 429). Descrever esse comportamento na política
 - [ ] `data_extraction_rules.xml` (+ `fullBackupContent`) junto com o `flutter_secure_storage`, e a falha de leitura da sessão tratada como "deslogado"
 - [ ] Favoritos (`/account/{id}/favorite`)
 - [ ] Watchlist ("quero ver")
 
 ## Fase 3 — "Já vi esse filme"
-- [ ] Marcar como **já visto** (definir armazenamento — ver decisão a criar)
+- [ ] Marcar como **já visto** (definir armazenamento — ver decisão a criar), e atualizar a seção 3.3 da política
 - [ ] Nota pessoal / data em que assistiu
 - [ ] Listas personalizadas (criar, renomear, adicionar/remover filme)
 
 ## Fase 4 — Polimento e release
 - [ ] Acessibilidade e fonte grande
 - [ ] Ícone, splash, nome do app
-- [ ] Crash reporting (Crashlytics ou Sentry — exige decisão de dependência); ao entrar, tirar o `debugPrint` do reporter do release (`kDebugMode`)
-- [ ] Rever a decisão 001 (proxy) antes da loja: host do proxy em `AppConfig.allowedHosts`, e atenção ao `replace(queryParameters:)`, que descarta a query da base URL
+- [ ] Crash reporting (Crashlytics ou Sentry — exige decisão de dependência); ao entrar, tirar o `debugPrint` do reporter do release (`kDebugMode`) e atualizar a política
+- [ ] Política de privacidade: nenhum marcador `A REVISAR`, vigência com data explícita, cópia publicada igual ao `docs/PRIVACIDADE.md` e permissões do manifest mesclado iguais às da política
+- [ ] Rever a decisão 001 (proxy) antes da loja (se entrar, atualizar a política): host do proxy em `AppConfig.allowedHosts`, e atenção ao `replace(queryParameters:)`, que descarta a query da base URL
 - [ ] Build release ofuscado e assinado: pôr `--obfuscate --split-debug-info=build/symbols` no comando do `CLAUDE.md` e trocar a assinatura de debug

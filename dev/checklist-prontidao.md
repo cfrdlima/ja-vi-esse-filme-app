@@ -84,7 +84,7 @@ Leia antes de começar: `CLAUDE.md`, `dev/PLANO.md`, `dev/decisoes/`, `docs/DESI
 - [ ] **Release**: há plano para `--obfuscate --split-debug-info` e assinatura com keystore fora do git. Marque 📅 Fase 4 se ainda não existe.
 - [ ] **Dependências**: `dart pub outdated` sem pacotes descontinuados. Todas as dependências são de publishers verificados ou muito usadas no pub.dev. Relate qualquer exceção.
 - [ ] **Deep link do login TMDB** (Fase 2): o plano prevê validar a origem do retorno.
-- [ ] **Privacidade/LGPD**: o app não coleta dado pessoal além do necessário. Há previsão de uma tela "Sobre" com política e atribuição ao TMDB.
+- [ ] **Privacidade/LGPD**: o app não coleta dado pessoal além do necessário. Há previsão de uma tela "Sobre" com política e atribuição ao TMDB. A política fica em `docs/PRIVACIDADE.md` (decisão 006). Confira se ela descreve o que o código trata hoje se não sobrou nenhum marcador "A REVISAR" antes do release e se as permissões do manifest mesclado (com os plugins) batem com a seção "Segurança" dela.
 
 ## 8. Android e build
 - [ ] `applicationId` em `android/app/build.gradle(.kts)` é definitivo (ex.: `io.github.cfrdlima.ja_vi_esse_filme`), não `com.example`.

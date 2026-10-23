@@ -2,7 +2,7 @@
 
 Ideias que surgiram e não estão no plano imediato. Marque **[prioritário]** o que deve entrar na próxima fase.
 
-- Modo offline para a estante (cache local)
+- Modo offline para a estante (cache local). Os termos da API do TMDB limitam o cache a 6 meses (conferido na sessão 007), e a política de privacidade precisa declarar o cache
 - Onde assistir (`/movie/{id}/watch/providers`, região BR)
 - Estatísticas: filmes vistos por mês / gênero
 - Compartilhar lista por link
