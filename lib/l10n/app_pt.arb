@@ -31,5 +31,7 @@
   "failureRateLimit": "Muitos pedidos em pouco tempo. Espere um pouco.",
   "@failureRateLimit": { "description": "Erro 429 do TMDB" },
   "failureGeneric": "Algo deu errado ao falar com o TMDB.",
-  "@failureGeneric": { "description": "Qualquer outra falha (401, 404, 5xx, resposta inesperada)" }
+  "@failureGeneric": { "description": "Qualquer outra falha (401, 404, 5xx, resposta inesperada)" },
+  "movieUntitled": "Filme sem título",
+  "@movieUntitled": { "description": "Rótulo de acessibilidade do pôster quando o TMDB não manda título nenhum" }
 }

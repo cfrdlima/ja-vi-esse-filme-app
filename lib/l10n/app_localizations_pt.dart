@@ -56,4 +56,7 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get failureGeneric => 'Algo deu errado ao falar com o TMDB.';
+
+  @override
+  String get movieUntitled => 'Filme sem título';
 }

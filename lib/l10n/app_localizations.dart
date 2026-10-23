@@ -189,6 +189,12 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Algo deu errado ao falar com o TMDB.'**
   String get failureGeneric;
+
+  /// Rótulo de acessibilidade do pôster quando o TMDB não manda título nenhum
+  ///
+  /// In pt, this message translates to:
+  /// **'Filme sem título'**
+  String get movieUntitled;
 }
 
 class _AppLocalizationsDelegate
