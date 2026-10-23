@@ -22,15 +22,15 @@ Trocar o placeholder da aba Buscar por uma busca de filmes (`/search/movie` com 
 - [x] Política: conferir que a seção 3 (termos de busca vão ao TMDB, sem histórico no app) continua verdadeira
 - [x] Tríade: `flutter analyze` limpo, `flutter test` verde e emulador (digitação, vazio, paginação e fonte grande)
 - [x] `/revisar`: `code-reviewer` + `security-auditor` (a sessão toca rede e entrada do usuário)
-- [ ] S2: teste da resposta atrasada confere que o estado continua no termo novo
-- [ ] S1: lista descartada não faz pedido (`load` e próxima página) — RED / GREEN
-- [ ] I1: trocar o termo não fura a espera do 429; o `SearchNotifier` adia o próximo pedido até o fim do `retryAfter` (teto de 60 s) — RED / GREEN / REFACTOR
-- [ ] I2: vazio e "longo demais" da Buscar anunciados ao leitor de tela (`liveRegion`) — RED / GREEN
-- [ ] S5: campo limita por code points (`TextInputFormatter`), e o "longo demais" fica de defesa — RED / GREEN
-- [ ] S6: comentário do `onDrag` genérico no `PagedMoviesView`
-- [ ] S7: override `buscar.md` sem a contradição sobre a rolagem do campo
-- [ ] S8: `enableIMEPersonalizedLearning: false` no campo de busca — RED / GREEN
-- [ ] S9: teste de injeção pelo termo (`x&include_adult=true` não muda o `include_adult`)
+- [x] S2: teste da resposta atrasada confere que o estado continua no termo novo
+- [x] S1: lista descartada não faz pedido (`load` e próxima página) — RED / GREEN
+- [x] I1: trocar o termo não fura a espera do 429; o `SearchNotifier` adia o próximo pedido até o fim do `retryAfter` (teto de 60 s) — RED / GREEN / REFACTOR
+- [x] I2: vazio e "longo demais" da Buscar anunciados ao leitor de tela (`liveRegion`) — RED / GREEN
+- [x] S5: campo limita por code points (`TextInputFormatter`), e o "longo demais" fica de defesa — RED / GREEN
+- [x] S6: comentário do `onDrag` genérico no `PagedMoviesView`
+- [x] S7: override `buscar.md` sem a contradição sobre a rolagem do campo
+- [x] S8: `enableIMEPersonalizedLearning: false` no campo de busca — RED / GREEN
+- [x] S9: teste de injeção pelo termo (`x&include_adult=true` não muda o `include_adult`)
 
 ## Decisões
 - [007](../decisoes/007-fake-async-nos-testes.md): `fake_async` em `dev_dependencies`, para testar o debounce sem relógio real.
@@ -46,6 +46,16 @@ Trocar o placeholder da aba Buscar por uma busca de filmes (`/search/movie` com 
 - `7bf812f` refactor: estados da grade paginada saem da Descobrir para PagedMoviesView
 - `b8fa9dc` add: tela Buscar com campo, debounce e os estados inicial, vazio, erro e longo demais
 - `1b22341` add: aba Buscar monta o SearchNotifier no lugar do placeholder
+- `9d4e50c` docs: log da sessão 010
+- `65aafc3` docs: itens da revisão da sessão 010 no log e no backlog
+- `95f220c` test: resposta atrasada confere que a busca continua no termo novo
+- `9dae5db` fix: lista descartada não faz pedido ao TMDB
+- `67b8042` refactor: teto da espera do 429 vai para core/error como maxRetryWait
+- `c171b00` fix: trocar o termo da busca não fura a espera do 429
+- `f31181c` fix: vazio, erro e longo demais anunciados ao leitor de tela
+- `a8aa062` fix: campo da busca limita em code points e pede ao teclado que não aprenda o termo
+- `fba3f61` test: termo com &include_adult=true não troca o filtro de adultos
+- `84ac228` docs: override da Buscar com a espera do 429, o limite em code points e o anúncio
 
 ## Notas
 - Contrato (developer.themoviedb.org, via Context7): `GET /3/search/movie` com `query` (obrigatório), `include_adult` (padrão `false`), `language`, `page`, `primary_release_year`, `region` e `year`. A resposta tem a mesma forma das listas (`page`, `results`, `total_pages`, `total_results`), então o parse é o mesmo `_parsePage`. O app manda `query`, `page` e `include_adult=false` explícito (seção 11 da política, 13+); `language=pt-BR` já vem do `TmdbClient`.
@@ -72,3 +82,29 @@ Trocar o placeholder da aba Buscar por uma busca de filmes (`/search/movie` com 
   - Nenhuma exceção no log do `flutter run`.
   - **Observação visual:** com o campo sem foco e com texto, o rótulo flutuante fica meio para fora do fundo preenchido. É o `inputDecorationTheme` atual; fica para a revisão.
 - Tríade antes do `/revisar`: `dart format` sem mudanças (86 arquivos), `flutter analyze` sem issues, `flutter test` com 453 testes passando (eram 371) e `gitleaks` sem vazamentos.
+- Revisão (`code-reviewer` e `security-auditor`): nada bloqueante. O `security-auditor` aprovou fechar a sessão e deixou três sugestões. O `code-reviewer` pediu dois itens importantes (I1 e I2) e sete sugestões. O usuário seguiu a recomendação: I1, I2 e S1, S2, S5–S9 nesta sessão; S3, S4 e a segunda barreira para adultos foram para o BACKLOG.
+- Tratamento:
+  - **S2:** o teste da resposta atrasada confere o termo e o estado da lista mostrada, e não só o estado.
+  - **S1:** `load` e a próxima página saem cedo num notifier descartado. O primeiro RED estourou por timeout, porque o `await` esperava um pedido que ficava pendente no fake. Os testes passaram a disparar a chamada sem `await`.
+  - **I1:**
+    - o `SearchNotifier` escuta a lista mostrada. Ao ver um 429 com `retryAfter`, na primeira página ou na seguinte, ele abre uma janela de espera com teto de 60 s;
+    - durante a janela, um termo novo fica pendente e a tela continua no erro com a contagem. O último termo digitado é pedido quando a janela acaba;
+    - qualquer tecla, limpar ou o `dispose` descartam o termo pendente;
+    - o teto virou `maxRetryWait`, em `core/error/retry_wait.dart`, e o `RetryButton.maxWait` aponta para ele;
+    - **TDD:** o descarte do pendente a cada tecla entrou no GREEN sem teste próprio. Os dois testes vieram depois, e uma mutação (tirar a linha) reprova os dois.
+    - **Caso de borda aceito:** limpar e digitar um termo novo durante a janela deixa a tela no estado inicial até a espera acabar.
+  - **I2:**
+    - a mensagem do `MoviesMessage` é região viva (`Semantics(liveRegion: true)`), o que vale para o vazio e o erro das duas telas e para o "longo demais";
+    - os testes usam `isSemantics`, porque o `containsSemantics` está obsoleto no Flutter 3.44;
+    - uma mutação (`liveRegion: false`) reprova os três testes.
+  - **S5:**
+    - o campo corta em 100 code points com um `TextInputFormatter`, no lugar do `maxLength`;
+    - o "longo demais" ficou como defesa, e os testes dele mandam o termo direto ao notifier.
+  - **S8:** `enableIMEPersonalizedLearning: false`. Sugestão e correção do teclado continuam ligadas. No emulador, o Gboard mostra o ícone de modo anônimo no campo.
+  - **S9:** teste de guarda com o termo `x&include_adult=true`, que usa `queryParametersAll` e passa de primeira.
+  - **S6/S7:** comentário do `onDrag` genérico; o override deixa de dizer que o campo fica na rolagem, e passa a descrever a espera do 429, o limite em code points e o anúncio.
+- Emulador depois da revisão:
+  - **Campo:** digitar, apagar e redigitar funcionam com o formatter, e o vazio aparece com o termo.
+  - **Correção automática:** o Gboard trocou "poderoso" por "ponderosa" ao digitar pelo `adb`. É o `autocorrect` padrão, mantido como o auditor recomendou; fica como observação.
+  - Nenhuma exceção no log.
+- Tríade depois da revisão: `dart format` sem mudanças (86 arquivos), `flutter analyze` sem issues, `flutter test` com 473 testes passando e `gitleaks` sem vazamentos.
