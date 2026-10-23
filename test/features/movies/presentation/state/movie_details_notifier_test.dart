@@ -144,13 +144,28 @@ void main() {
     expect(repository.requestedDetails, [7]);
   });
 
-  test('não deve avisar ouvintes depois de descartado', () async {
-    final notifier = MovieDetailsNotifier(repository: repository, movieId: 7);
-    final future = notifier.load();
-    notifier.dispose();
+  group('resposta depois do descarte', () {
+    // O `ChangeNotifier` já tira os ouvintes no `dispose`; o que a guarda
+    // evita é o `notifyListeners` de um notifier descartado, que lança.
+    test('deve terminar sem erro', () async {
+      final notifier = MovieDetailsNotifier(repository: repository, movieId: 7);
+      final future = notifier.load();
+      notifier.dispose();
 
-    repository.completeDetails(details);
+      repository.completeDetails(details);
 
-    await expectLater(future, completes);
+      await expectLater(future, completes);
+    });
+
+    test('não deve mudar o estado', () async {
+      final notifier = MovieDetailsNotifier(repository: repository, movieId: 7);
+      final future = notifier.load();
+      notifier.dispose();
+
+      repository.completeDetails(details);
+      await future;
+
+      expect(notifier.state, isA<MovieDetailsLoading>());
+    });
   });
 }
