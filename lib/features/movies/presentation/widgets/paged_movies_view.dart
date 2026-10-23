@@ -20,15 +20,16 @@ import 'poster_skeleton.dart';
 class PagedMoviesView extends StatelessWidget {
   const PagedMoviesView({
     required this.notifier,
-    required this.scrollKey,
     required this.empty,
+    this.scrollKey,
     super.key,
   });
 
   final PagedMoviesNotifier notifier;
 
-  /// Chave do `PageStorage` em que a rolagem da grade fica guardada.
-  final String scrollKey;
+  /// Chave do `PageStorage` em que a rolagem da grade fica guardada. Sem ela,
+  /// a rolagem só vive enquanto a grade estiver montada.
+  final String? scrollKey;
 
   final Widget empty;
 
@@ -199,7 +200,7 @@ class _MovieGrid extends StatefulWidget {
     required this.onRetryNextPage,
   });
 
-  final String scrollKey;
+  final String? scrollKey;
   final PagedMoviesLoaded state;
   final VoidCallback onLoadMore;
   final VoidCallback onRetryNextPage;
@@ -253,7 +254,12 @@ class _MovieGridState extends State<_MovieGrid> {
     final tokens = Theme.of(context).extension<AppThemeTokens>()!;
     final movies = widget.state.movies;
     return CustomScrollView(
-      key: PageStorageKey(widget.scrollKey),
+      key: switch (widget.scrollKey) {
+        final key? => PageStorageKey(key),
+        null => null,
+      },
+      // Na Buscar, arrastar a grade tira o teclado da frente dos pôsteres.
+      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       controller: _controller,
       slivers: [
         SliverPadding(

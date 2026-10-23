@@ -22,6 +22,24 @@
   "@moviesLoading": { "description": "Anúncio do leitor de tela enquanto uma grade de filmes (Descobrir, Buscar) carrega" },
   "discoverEmpty": "Nenhum filme por aqui agora.",
   "@discoverEmpty": { "description": "Estado vazio da categoria escolhida, que vem do TMDB e não do usuário" },
+  "searchTitle": "Buscar",
+  "@searchTitle": { "description": "Título da tela Buscar; separado de tabSearch para que encurtar o rótulo da aba não mude o título" },
+  "searchFieldLabel": "Título do filme",
+  "@searchFieldLabel": { "description": "Rótulo visível do campo de busca" },
+  "searchClear": "Limpar busca",
+  "@searchClear": { "description": "Tooltip e rótulo do leitor de tela do botão que apaga o termo digitado" },
+  "searchIdle": "Busque pelo título, em português ou no original.",
+  "@searchIdle": { "description": "Estado inicial da Buscar, sem termo ou com termo curto demais" },
+  "searchEmpty": "Nenhum filme encontrado para “{query}”. Confira a grafia ou tente o título original.",
+  "@searchEmpty": {
+    "description": "Estado vazio da Buscar, com o termo digitado e uma sugestão",
+    "placeholders": { "query": { "type": "String" } }
+  },
+  "searchTooLong": "Use até {max} caracteres na busca.",
+  "@searchTooLong": {
+    "description": "Aviso quando o termo passa do tamanho máximo e não é buscado",
+    "placeholders": { "max": { "type": "int" } }
+  },
   "categoryPopular": "Populares",
   "@categoryPopular": { "description": "Categoria da Descobrir: filmes populares no TMDB" },
   "categoryNowPlaying": "Em cartaz",

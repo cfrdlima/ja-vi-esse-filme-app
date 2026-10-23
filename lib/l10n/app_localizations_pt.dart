@@ -42,6 +42,28 @@ class AppLocalizationsPt extends AppLocalizations {
   String get discoverEmpty => 'Nenhum filme por aqui agora.';
 
   @override
+  String get searchTitle => 'Buscar';
+
+  @override
+  String get searchFieldLabel => 'Título do filme';
+
+  @override
+  String get searchClear => 'Limpar busca';
+
+  @override
+  String get searchIdle => 'Busque pelo título, em português ou no original.';
+
+  @override
+  String searchEmpty(String query) {
+    return 'Nenhum filme encontrado para “$query”. Confira a grafia ou tente o título original.';
+  }
+
+  @override
+  String searchTooLong(int max) {
+    return 'Use até $max caracteres na busca.';
+  }
+
+  @override
   String get categoryPopular => 'Populares';
 
   @override
