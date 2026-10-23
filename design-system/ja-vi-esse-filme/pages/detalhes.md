@@ -41,7 +41,7 @@
 ## Trailers
 > Consulta à `ui-ux-pro-max` (stack Flutter) na sessão 013: `ux` "Auto-Play Video" (tocar para assistir, nunca tocar sozinho), `touch-target-size` (≥ 48dp) e `press-feedback` (ripple), `icons` "arrow-square-out" (indicador de link externo: decorativo ao lado de texto visível, e o controle tem nome acessível) e stack Flutter "Use keys for stateful items". A busca por link externo na stack Flutter não trouxe resultado; o resto desta seção é padrão geral (fallback).
 
-- Título de seção "Trailers" (cabeçalho para o leitor de tela) e uma lista vertical com até **5** vídeos, depois do elenco. A ordem vem do domínio: oficiais primeiro, pt-BR antes dos outros idiomas e trailer antes de teaser.
+- Título de seção "Trailers" (cabeçalho para o leitor de tela) e uma lista vertical com até **5** vídeos, depois do elenco. A ordem vem do domínio: oficiais primeiro, depois português antes dos outros idiomas, depois Brasil antes de Portugal, e por último trailer antes de teaser. Vídeos com a mesma `key` aparecem uma vez só.
 - Cada vídeo é um `ListTile` com o ícone de play à esquerda, o nome em `bodyLarge` com até 2 linhas e reticências, o tipo e o site em `bodySmall` `onSurfaceVariant` ("Trailer · YouTube") e o ícone de link externo (`open_in_new`) à direita. O item tem `ValueKey` da `key` do vídeo e o ripple do Material, e a altura mínima é de 48dp, crescendo com a fonte.
 - Os ícones são decorativos. O leitor de tela lê o item como link: "<nome>, <tipo>. Abre no YouTube".
 - **Sem miniatura:** a imagem viria do `img.youtube.com`, um host a mais para validar e declarar na política. Fica para depois, se fizer falta.

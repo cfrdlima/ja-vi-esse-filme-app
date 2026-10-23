@@ -120,6 +120,7 @@ final class MovieDetailsModel {
         kind: kind,
         official: json['official'] == true,
         language: TmdbJson.nonEmpty(json['iso_639_1']) ?? '',
+        country: TmdbJson.nonEmpty(json['iso_3166_1']) ?? '',
       );
     } on FormatException {
       return null;

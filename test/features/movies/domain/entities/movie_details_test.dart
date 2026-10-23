@@ -61,12 +61,14 @@ void main() {
       TrailerKind kind = TrailerKind.trailer,
       bool official = true,
       String language = 'pt',
+      String country = 'BR',
     }) => Trailer(
       key: 'video${nextKey++}'.padRight(11, 'x'),
       name: 'Vídeo',
       kind: kind,
       official: official,
       language: language,
+      country: country,
     );
 
     MovieDetails detailsWithTrailers(List<Trailer> trailers) =>
@@ -88,6 +90,36 @@ void main() {
       final details = detailsWithTrailers([english, portuguese]);
 
       expect(details.trailers, [portuguese, english]);
+    });
+
+    test('deve pôr os do Brasil antes dos de Portugal', () {
+      final portugal = trailer(country: 'PT');
+      final brazil = trailer();
+
+      final details = detailsWithTrailers([portugal, brazil]);
+
+      expect(details.trailers, [brazil, portugal]);
+    });
+
+    test('deve dar ao idioma prioridade sobre o país', () {
+      final englishFromBrazil = trailer(language: 'en');
+      final portugueseFromPortugal = trailer(country: 'PT');
+
+      final details = detailsWithTrailers([
+        englishFromBrazil,
+        portugueseFromPortugal,
+      ]);
+
+      expect(details.trailers, [portugueseFromPortugal, englishFromBrazil]);
+    });
+
+    test('deve dar ao país prioridade sobre o tipo', () {
+      final portugalTrailer = trailer(country: 'PT');
+      final brazilTeaser = trailer(kind: TrailerKind.teaser);
+
+      final details = detailsWithTrailers([portugalTrailer, brazilTeaser]);
+
+      expect(details.trailers, [brazilTeaser, portugalTrailer]);
     });
 
     test('deve pôr o trailer antes do teaser', () {

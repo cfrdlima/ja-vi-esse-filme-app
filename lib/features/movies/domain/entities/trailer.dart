@@ -11,6 +11,7 @@ final class Trailer {
     required this.kind,
     required this.official,
     required this.language,
+    this.country = '',
   }) {
     if (!_youtubeKey.hasMatch(key)) {
       throw FormatException('key fora do formato do YouTube', key);
@@ -26,6 +27,10 @@ final class Trailer {
 
   /// Código ISO 639-1 do idioma do vídeo, ou vazio quando o TMDB não informa.
   final String language;
+
+  /// Código ISO 3166-1 do país do vídeo, ou vazio quando o TMDB não informa.
+  /// Separa a dublagem do Brasil da de Portugal, que dividem o idioma `pt`.
+  final String country;
 
   /// A URL sai de um molde fixo, e não do TMDB (decisão 009).
   Uri get youtubeUrl => Uri.https('www.youtube.com', '/watch', {'v': key});

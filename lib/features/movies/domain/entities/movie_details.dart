@@ -27,6 +27,7 @@ final class MovieDetails {
   static const maxTrailers = 5;
 
   static const _preferredLanguage = 'pt';
+  static const _preferredCountry = 'BR';
 
   final int id;
   final String title;
@@ -42,7 +43,8 @@ final class MovieDetails {
   final List<String> genres;
   final List<CastMember> cast;
 
-  /// Oficiais primeiro, depois os em português, depois trailer antes de teaser.
+  /// Oficiais primeiro, depois os em português, depois os do Brasil, depois
+  /// trailer antes de teaser.
   final List<Trailer> trailers;
 
   // O TMDB pode cadastrar o mesmo vídeo em dois idiomas. Depois da ordem,
@@ -56,8 +58,9 @@ final class MovieDetails {
   static Iterable<Trailer> _byRelevance(List<Trailer> trailers) {
     // Pesos em potência de 2: cada critério vale mais que os seguintes juntos.
     int rank(Trailer trailer) =>
-        (trailer.official ? 0 : 4) +
-        (trailer.language == _preferredLanguage ? 0 : 2) +
+        (trailer.official ? 0 : 8) +
+        (trailer.language == _preferredLanguage ? 0 : 4) +
+        (trailer.country == _preferredCountry ? 0 : 2) +
         (trailer.kind == TrailerKind.trailer ? 0 : 1);
     final entries = [...trailers.indexed]
       ..sort(

@@ -85,6 +85,14 @@ void main() {
       );
     });
 
+    test('deve converter o país de cada trailer', () {
+      expect(details.trailers.map((trailer) => trailer.country), [
+        'BR',
+        'US',
+        '',
+      ]);
+    });
+
     test('deve converter o teaser', () {
       expect(details.trailers[1].kind, TrailerKind.teaser);
     });
