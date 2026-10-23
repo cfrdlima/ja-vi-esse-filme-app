@@ -71,6 +71,27 @@ void main() {
     expect(opener.opened, [dubbed.youtubeUrl]);
   });
 
+  testWidgets('deve abrir o trailer pelo toque do leitor de tela', (
+    tester,
+  ) async {
+    final semantics = tester.ensureSemantics();
+    final opener = FakeLinkOpener();
+    await tester.pumpWidget(list(opener));
+
+    tester.semantics.tap(
+      find.semantics.byLabel(
+        l10n.trailerSemantics(
+          'Trailer oficial dublado',
+          l10n.trailerKindTrailer,
+        ),
+      ),
+    );
+    await tester.pump();
+
+    expect(opener.opened, [dubbed.youtubeUrl]);
+    semantics.dispose();
+  });
+
   testWidgets('deve avisar quando nenhum app abre o trailer', (tester) async {
     final opener = FakeLinkOpener(
       failure: const LinkNotOpened(LinkNotOpenedReason.noApp),
