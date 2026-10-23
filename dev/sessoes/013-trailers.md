@@ -15,12 +15,12 @@ Os detalhes do filme passam a mostrar os trailers que o TMDB tem, e tocar num de
 - [x] Entidade `Trailer` no domain e `MovieDetails.trailers`, na ordem: oficial e pt-BR primeiro, trailer antes de teaser, com teto — RED / GREEN / REFACTOR
 - [x] `core`: validador de link externo com lista própria de hosts (não o `AppConfig.allowedHosts`): `https`, host por igualdade, sem `userInfo`, e URL montada pelo app a partir da `key` — RED / GREEN
 - [x] `core`: abridor de link externo sobre o `url_launcher` (`LaunchMode.externalApplication`), atrás de uma interface injetada no `main.dart`, com falha tipada quando não abre — RED / GREEN
-- [x] Seção "Trailers" nos detalhes: lista com nome e tipo, alvo ≥ 48dp, `Semantics` de link ("Abrir trailer <nome> no YouTube") — RED / GREEN
+- [x] Seção "Trailers" nos detalhes: lista com nome e tipo, alvo ≥ 48dp, `Semantics` de link ("<nome>, <tipo>. Abre no YouTube") — RED / GREEN
 - [x] Tocar num trailer chama o abridor com a URL validada — RED / GREEN
 - [x] Falha ao abrir (sem app nem navegador) mostra aviso ao usuário, sem exceção — RED / GREEN
 - [x] Sem trailers, a seção some — RED / GREEN
 - [x] Strings novas em ARB (decisão 004)
-- [x] Manifest: `<queries>` de `VIEW` `https`, e conferir se a seção de permissões do `docs/PRIVACIDADE.md` muda
+- [x] Manifest: avaliar o `<queries>` de `VIEW` `https` (ficou de fora, decisão 009) e conferir se a seção de permissões do `docs/PRIVACIDADE.md` muda (não muda)
 - [x] Tríade: `flutter analyze` limpo, `flutter test` verde e emulador (filme com e sem trailer, abrir o YouTube, voltar ao app, fonte grande)
 - [ ] `/revisar`: `code-reviewer` e `security-auditor` (a sessão abre URL externa e adiciona dependência)
 
