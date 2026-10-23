@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -25,7 +27,7 @@ class AppShell extends StatelessWidget {
         // também encolhesse, o navigator da aba mudaria de tamanho quando o
         // teclado fecha no meio do voo do Hero, e o pôster sairia esticado.
         resizeToAvoidBottomInset: false,
-        body: navigationShell,
+        body: _KeyboardAboveNavigationBar(child: navigationShell),
         bottomNavigationBar: NavigationBar(
           selectedIndex: navigationShell.currentIndex,
           onDestinationSelected: _goToTab,
@@ -123,4 +125,29 @@ class _BackToFirstTab extends StatelessWidget {
       child: child,
     );
   }
+}
+
+/// O corpo do shell termina em cima da barra das abas, e o teclado sobe do
+/// pé da tela. A aba recebe só a parte do teclado que cobre o corpo; com o
+/// teclado inteiro, a tela desviaria também da altura da barra e deixaria um
+/// vão em cima do teclado.
+class _KeyboardAboveNavigationBar extends StatelessWidget {
+  const _KeyboardAboveNavigationBar({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => LayoutBuilder(
+    builder: (context, constraints) {
+      final media = MediaQuery.of(context);
+      final belowBody = media.size.height - constraints.maxHeight;
+      final keyboard = math.max(0.0, media.viewInsets.bottom - belowBody);
+      return MediaQuery(
+        data: media.copyWith(
+          viewInsets: media.viewInsets.copyWith(bottom: keyboard),
+        ),
+        child: child,
+      );
+    },
+  );
 }
