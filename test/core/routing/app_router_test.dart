@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
@@ -527,7 +529,12 @@ void main() {
               ),
             )
             .width,
-        inExclusiveRange(AppSizes.detailsPosterWidth, grid),
+        // A célula pode ser mais larga ou mais estreita que o cabeçalho,
+        // conforme a tela do teste: o voo fica entre os dois.
+        inExclusiveRange(
+          math.min(grid, AppSizes.detailsPosterWidth),
+          math.max(grid, AppSizes.detailsPosterWidth),
+        ),
       );
     });
 
