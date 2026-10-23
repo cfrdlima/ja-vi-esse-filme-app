@@ -1,11 +1,15 @@
+import 'dart:async';
+
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../features/movies/domain/repositories/movie_repository.dart';
 import '../../features/movies/presentation/screens/discover_screen.dart';
+import '../../features/movies/presentation/screens/movie_details_screen.dart';
 import '../../features/movies/presentation/screens/search_screen.dart';
 import '../../features/movies/presentation/state/discover_notifier.dart';
+import '../../features/movies/presentation/state/movie_details_notifier.dart';
 import '../../features/movies/presentation/state/search_notifier.dart';
 import '../../l10n/app_localizations.dart';
 import '../widgets/placeholder_screen.dart';
@@ -17,6 +21,10 @@ abstract final class AppRoutes {
   static const search = '/buscar';
   static const shelf = '/estante';
   static const profile = '/perfil';
+
+  /// Detalhes do filme [id] dentro da aba [tabPath] ([discover] ou [search]),
+  /// com a barra das abas visível e o voltar devolvendo a grade.
+  static String movieDetails(String tabPath, int id) => '$tabPath/filme/$id';
 }
 
 /// As dependências chegam já montadas pelo `main.dart` (ou por fakes nos
@@ -36,6 +44,7 @@ GoRouter createAppRouter({required MovieRepository movieRepository}) =>
               create: (_) => DiscoverNotifier(repository: movieRepository),
               child: const DiscoverScreen(),
             ),
+            routes: [_movieDetailsRoute(movieRepository)],
           ),
           tabBranch(
             path: AppRoutes.search,
@@ -43,6 +52,7 @@ GoRouter createAppRouter({required MovieRepository movieRepository}) =>
               create: (_) => SearchNotifier(repository: movieRepository),
               child: const SearchScreen(),
             ),
+            routes: [_movieDetailsRoute(movieRepository)],
           ),
           tabBranch(
             path: AppRoutes.shelf,
@@ -55,6 +65,25 @@ GoRouter createAppRouter({required MovieRepository movieRepository}) =>
         ]),
       ],
     );
+
+/// Sub-rota de uma aba: empilha os detalhes sobre a grade, que fica viva por
+/// baixo com a rolagem.
+GoRoute _movieDetailsRoute(MovieRepository movieRepository) => GoRoute(
+  path: 'filme/:id',
+  builder: (_, state) => ChangeNotifierProvider(
+    create: (_) {
+      final notifier = MovieDetailsNotifier(
+        repository: movieRepository,
+        // O id vem da URL e pode ser qualquer texto; o que não é número vai
+        // para o "não encontrado" (o notifier trata também o id < 1).
+        movieId: int.tryParse(state.pathParameters['id']!),
+      );
+      unawaited(notifier.load());
+      return notifier;
+    },
+    child: const MovieDetailsScreen(),
+  ),
+);
 
 /// O router é montado sem `BuildContext`, então o título só é lido do
 /// catálogo quando a tela é construída. Sai junto com os placeholders na
