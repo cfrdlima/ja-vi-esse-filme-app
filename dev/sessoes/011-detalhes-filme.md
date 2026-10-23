@@ -6,8 +6,8 @@
 Tocar num pôster da Descobrir ou da Buscar abre os detalhes do filme numa rota dentro da própria aba (`/descobrir/filme/:id` e `/buscar/filme/:id`). A tela mostra sinopse (com o texto original quando a de pt-BR vier vazia), gêneros, duração, nota, data e até 15 pessoas do elenco, e tem os 4 estados. O pedido é um só: `/movie/{id}` com o elenco anexado.
 
 ## Checklist
-- [ ] Contrato: conferir `/movie/{id}` e `append_to_response` (`credits`, e o que trazer para a sinopse original) na documentação oficial (Context7/web): campos nulos, `runtime`, `genres`, `cast` (`order`, `character`, `profile_path`)
-- [ ] Design: consultar a `ui-ux-pro-max` (stack Flutter) para tela de detalhe, elenco horizontal e textos longos; criar o override `pages/detalhes.md`
+- [x] Contrato: conferir `/movie/{id}` e `append_to_response` (`credits`, e o que trazer para a sinopse original) na documentação oficial (Context7/web): campos nulos, `runtime`, `genres`, `cast` (`order`, `character`, `profile_path`)
+- [x] Design: consultar a `ui-ux-pro-max` (stack Flutter) para tela de detalhe, elenco horizontal e textos longos; criar o override `pages/detalhes.md`
 - [ ] Domínio: `MovieDetails` e `CastMember`, com o teto de 15 pessoas no domínio — RED / GREEN / REFACTOR
 - [ ] Domínio: `MovieRepository.details(id)`, recusando id < 1 sem chamar o TMDB — RED / GREEN
 - [ ] Fixtures `movie_details_*.json` (completo, com campos nulos/vazios e com sinopse pt-BR vazia)
@@ -23,6 +23,7 @@ Tocar num pôster da Descobrir ou da Buscar abre os detalhes do filme numa rota 
 - [ ] `/revisar`: `code-reviewer` + `security-auditor` (a sessão toca rede e rota com parâmetro)
 
 ## Decisões
+- [008 — Sinopse original via `append_to_response=translations`](../decisoes/008-sinopse-original-via-translations.md)
 
 ## Commits
 
