@@ -369,7 +369,16 @@ void main() {
       expect(find.text('Filme 42'), findsWidgets);
     });
 
-    for (final id in ['abc', '0', '-1', '7.5', '99999999999999999999']) {
+    for (final id in [
+      'abc',
+      '0',
+      '-1',
+      '7.5',
+      '99999999999999999999',
+      '0x1F',
+      '+7',
+      ' 7',
+    ]) {
       testWidgets('deve mostrar não encontrado com o id $id', (tester) async {
         await openDetails(tester, '${AppRoutes.discover}/filme/$id');
 

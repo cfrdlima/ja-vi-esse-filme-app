@@ -67,9 +67,7 @@ GoRoute _movieDetailsRoute(MovieRepository movieRepository) => GoRoute(
     create: (_) {
       final notifier = MovieDetailsNotifier(
         repository: movieRepository,
-        // O id vem da URL e pode ser qualquer texto; o que não é número vai
-        // para o "não encontrado" (o notifier trata também o id < 1).
-        movieId: int.tryParse(state.pathParameters['id']!),
+        movieId: _movieIdOf(state.pathParameters['id']!),
       );
       unawaited(notifier.load());
       return notifier;
@@ -77,6 +75,14 @@ GoRoute _movieDetailsRoute(MovieRepository movieRepository) => GoRoute(
     child: const MovieDetailsScreen(),
   ),
 );
+
+/// O id vem da URL e pode ser qualquer texto. Só dígitos em base 10 viram
+/// id: o `int.tryParse` sozinho aceitaria `0x1F`, `+7` e espaços. O resto
+/// vira `null`, e o notifier mostra o "não encontrado" (também para id < 1).
+int? _movieIdOf(String raw) =>
+    _digitsOnly.hasMatch(raw) ? int.tryParse(raw, radix: 10) : null;
+
+final _digitsOnly = RegExp(r'^\d+$');
 
 /// O router é montado sem `BuildContext`, então o título só é lido do
 /// catálogo quando a tela é construída. Sai junto com os placeholders na
