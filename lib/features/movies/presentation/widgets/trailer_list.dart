@@ -36,6 +36,7 @@ class _TrailerTile extends StatelessWidget {
     };
     final unnamed = trailer.name.isEmpty;
     final name = unnamed ? kind : trailer.name;
+    void open() => _open(context);
     // Um nó só, de link e não de botão: o rótulo já diz que o trailer sai do
     // app. Por isso o toque fica também no `Semantics`.
     return Semantics(
@@ -44,7 +45,7 @@ class _TrailerTile extends StatelessWidget {
           ? l10n.trailerUnnamedSemantics(kind)
           : l10n.trailerSemantics(name, kind),
       excludeSemantics: true,
-      onTap: () => _open(context),
+      onTap: open,
       child: ListTile(
         contentPadding: EdgeInsets.zero,
         leading: const Icon(Icons.play_circle_outline),
@@ -61,7 +62,7 @@ class _TrailerTile extends StatelessWidget {
           ),
         ),
         trailing: const Icon(Icons.open_in_new),
-        onTap: () => _open(context),
+        onTap: open,
       ),
     );
   }
