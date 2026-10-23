@@ -1,4 +1,3 @@
-import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'external_link_opener.dart';
@@ -26,9 +25,11 @@ final class UrlLauncherLinkOpener implements ExternalLinkOpener {
       throw const LinkNotOpened(LinkNotOpenedReason.blocked);
     }
     final bool opened;
+    // O contrato promete só `LinkNotOpened`. Além da `PlatformException`, o
+    // plugin lança `ArgumentError` e afins, que não podem escapar do toque.
     try {
       opened = await _launch(url, mode: LaunchMode.externalApplication);
-    } on PlatformException {
+    } on Object {
       throw const LinkNotOpened(LinkNotOpenedReason.noApp);
     }
     if (!opened) throw const LinkNotOpened(LinkNotOpenedReason.noApp);

@@ -82,4 +82,21 @@ void main() {
       ),
     );
   });
+
+  test('deve converter qualquer outro erro do plugin em falha tipada', () {
+    final opener = openerWhoseLaunch(
+      () async => throw ArgumentError('modo não suportado'),
+    );
+
+    expect(
+      opener.open(trailerUrl),
+      throwsA(
+        isA<LinkNotOpened>().having(
+          (failure) => failure.reason,
+          'reason',
+          LinkNotOpenedReason.noApp,
+        ),
+      ),
+    );
+  });
 }
