@@ -9,4 +9,8 @@ abstract final class AppMotion {
   /// Meio ciclo do pulso do skeleton (override `descobrir.md`: 1200 ms ida e
   /// volta).
   static const skeletonPulse = Duration(milliseconds: 600);
+  static const skeletonCurve = Curves.easeInOut;
+
+  /// Opacidade no fundo do pulso (a outra ponta é 1).
+  static const skeletonMinOpacity = 0.5;
 }

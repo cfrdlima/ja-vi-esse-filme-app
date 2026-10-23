@@ -11,8 +11,8 @@ import 'package:ja_vi_esse_filme/features/movies/presentation/widgets/poster_ske
 import 'package:ja_vi_esse_filme/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
-import '../../../../helpers/test_app.dart';
 import '../../../../helpers/fake_movie_repository.dart';
+import '../../../../helpers/test_app.dart';
 
 void main() {
   final l10n = lookupAppLocalizations(AppLocale.locale);
@@ -67,6 +67,23 @@ void main() {
       expect(find.byType(CircularProgressIndicator), findsNothing);
     });
 
+    testWidgets('deve parar o pulso com o reduzir movimento', (tester) async {
+      unawaited(notifier.load());
+      await tester.pumpWidget(
+        MediaQuery(
+          data: const MediaQueryData(disableAnimations: true),
+          child: testApp(
+            home: ChangeNotifierProvider.value(
+              value: notifier,
+              child: const DiscoverScreen(),
+            ),
+          ),
+        ),
+      );
+
+      expect(tester.hasRunningAnimations, isFalse);
+    });
+
     testWidgets('deve anunciar o carregamento ao leitor de tela', (
       tester,
     ) async {
@@ -113,14 +130,22 @@ void main() {
   });
 
   group('vazio', () {
-    testWidgets('deve explicar e oferecer tentar de novo', (tester) async {
+    testWidgets('deve explicar que não há filmes', (tester) async {
+      await pumpScreen(tester);
+      await loadFirstPage(tester, count: 0, totalPages: 0);
+
+      expect(find.text(l10n.discoverEmpty), findsOneWidget);
+    });
+
+    testWidgets('deve carregar de novo ao tocar em tentar de novo', (
+      tester,
+    ) async {
       await pumpScreen(tester);
       await loadFirstPage(tester, count: 0, totalPages: 0);
 
       await tester.tap(find.text(l10n.retry));
       await tester.pump();
 
-      expect(find.text(l10n.discoverEmpty), findsNothing);
       expect(repository.requestedPages, [1, 1]);
     });
   });
@@ -218,6 +243,41 @@ void main() {
       await tester.pump();
 
       expect(repository.requestedPages, [1, 2]);
+    });
+
+    testWidgets(
+      'deve pedir a próxima página quando a primeira não enche a tela',
+      (tester) async {
+        await pumpScreen(tester);
+        await loadFirstPage(tester, count: 2);
+        await tester.pump();
+
+        expect(repository.requestedPages, [1, 2]);
+      },
+    );
+
+    testWidgets('não deve vazar o rodapé de falha com fonte 1.5x', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        MediaQuery(
+          data: const MediaQueryData(textScaler: TextScaler.linear(1.5)),
+          child: testApp(
+            home: ChangeNotifierProvider.value(
+              value: notifier,
+              child: const DiscoverScreen(),
+            ),
+          ),
+        ),
+      );
+      await loadFirstPage(tester);
+      await tester.pump();
+      repository.fail(const NetworkFailure());
+      await tester.pump();
+      await tester.pump();
+
+      expect(tester.takeException(), isNull);
+      expect(find.text(l10n.discoverLoadMoreFailed), findsOneWidget);
     });
 
     testWidgets('não deve pedir a próxima página sem rolar', (tester) async {

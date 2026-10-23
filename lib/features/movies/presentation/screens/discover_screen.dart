@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../core/error/failures.dart';
 import '../../../../core/l10n/failure_message.dart';
+import '../../../../core/theme/app_motion.dart';
 import '../../../../core/theme/app_sizes.dart';
 import '../../../../core/theme/app_theme_tokens.dart';
 import '../../../../l10n/app_localizations.dart';
@@ -31,14 +34,22 @@ class DiscoverScreen extends StatelessWidget {
           onRetry: notifier.load,
         ),
         final PopularMoviesLoaded state => _GridWidthGuard(
-          child: _MovieGrid(state: state, onLoadMore: notifier.loadMore),
+          child: _MovieGrid(
+            state: state,
+            onLoadMore: notifier.loadMore,
+            onRetryNextPage: notifier.retryNextPage,
+          ),
         ),
       },
     );
   }
 }
 
-/// Delegate comum à grade real e ao skeleton, para o layout não pular.
+/// Padding e delegate comuns à grade real e ao skeleton, para o layout não
+/// pular entre os estados.
+EdgeInsets _gridPadding(AppThemeTokens tokens) =>
+    EdgeInsets.all(tokens.spacing.md);
+
 SliverGridDelegate _gridDelegate(AppThemeTokens tokens) =>
     SliverGridDelegateWithMaxCrossAxisExtent(
       maxCrossAxisExtent: AppSizes.posterGridMaxExtent,
@@ -57,19 +68,55 @@ class _GridWidthGuard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final spacing = Theme.of(context).extension<AppThemeTokens>()!.spacing;
+    final tokens = Theme.of(context).extension<AppThemeTokens>()!;
+    final horizontalPadding = _gridPadding(tokens).horizontal;
     return LayoutBuilder(
-      builder: (_, constraints) => constraints.maxWidth > spacing.md * 2
+      builder: (_, constraints) => constraints.maxWidth > horizontalPadding
           ? child
           : const SizedBox.shrink(),
     );
   }
 }
 
-class _LoadingView extends StatelessWidget {
+/// Grade de skeleton. Um controller só faz todas as células pulsarem; com o
+/// "reduzir movimento" ligado, elas ficam paradas.
+class _LoadingView extends StatefulWidget {
   const _LoadingView();
 
+  @override
+  State<_LoadingView> createState() => _LoadingViewState();
+}
+
+class _LoadingViewState extends State<_LoadingView>
+    with SingleTickerProviderStateMixin {
   static const _cellCount = 12;
+
+  late final _controller = AnimationController(
+    vsync: this,
+    duration: AppMotion.skeletonPulse,
+  );
+  late final _opacity =
+      Tween<double>(begin: 1, end: AppMotion.skeletonMinOpacity).animate(
+        CurvedAnimation(parent: _controller, curve: AppMotion.skeletonCurve),
+      );
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (MediaQuery.disableAnimationsOf(context)) {
+      _controller
+        ..stop()
+        ..value = 0;
+    } else if (!_controller.isAnimating) {
+      unawaited(_controller.repeat(reverse: true));
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -80,10 +127,10 @@ class _LoadingView extends StatelessWidget {
       child: ExcludeSemantics(
         child: GridView.builder(
           physics: const NeverScrollableScrollPhysics(),
-          padding: EdgeInsets.all(tokens.spacing.md),
+          padding: _gridPadding(tokens),
           gridDelegate: _gridDelegate(tokens),
           itemCount: _cellCount,
-          itemBuilder: (_, _) => const PosterSkeleton(),
+          itemBuilder: (_, _) => PosterSkeleton(opacity: _opacity),
         ),
       ),
     );
@@ -141,10 +188,15 @@ class _MessageView extends StatelessWidget {
 }
 
 class _MovieGrid extends StatefulWidget {
-  const _MovieGrid({required this.state, required this.onLoadMore});
+  const _MovieGrid({
+    required this.state,
+    required this.onLoadMore,
+    required this.onRetryNextPage,
+  });
 
   final PopularMoviesLoaded state;
   final VoidCallback onLoadMore;
+  final VoidCallback onRetryNextPage;
 
   @override
   State<_MovieGrid> createState() => _MovieGridState();
@@ -152,44 +204,69 @@ class _MovieGrid extends StatefulWidget {
 
 class _MovieGridState extends State<_MovieGrid> {
   // Pede a próxima página quando faltam cerca de 2 telas para o fim
-  // (override `descobrir.md`). O notifier ignora pedidos repetidos.
+  // (override `descobrir.md`). O notifier ignora pedidos repetidos e, depois
+  // de uma falha, espera o "Tentar de novo".
   static const _screensAhead = 2;
 
-  bool _onScroll(ScrollNotification notification) {
-    final metrics = notification.metrics;
-    if (metrics.extentAfter < metrics.viewportDimension * _screensAhead) {
+  final _controller = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    _controller.addListener(_loadMoreIfNearEnd);
+    _checkAfterLayout();
+  }
+
+  @override
+  void didUpdateWidget(_MovieGrid oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _checkAfterLayout();
+  }
+
+  // Sem rolagem não há evento: se a página não encheu a tela (tablet,
+  // página só com repetidos), a conferência depois do layout pede a próxima.
+  void _checkAfterLayout() =>
+      WidgetsBinding.instance.addPostFrameCallback((_) => _loadMoreIfNearEnd());
+
+  void _loadMoreIfNearEnd() {
+    if (!mounted || !_controller.hasClients) return;
+    final position = _controller.position;
+    if (position.extentAfter < position.viewportDimension * _screensAhead) {
       widget.onLoadMore();
     }
-    return false;
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final tokens = Theme.of(context).extension<AppThemeTokens>()!;
     final movies = widget.state.movies;
-    return NotificationListener<ScrollUpdateNotification>(
-      onNotification: _onScroll,
-      child: CustomScrollView(
-        slivers: [
-          SliverPadding(
-            padding: EdgeInsets.all(tokens.spacing.md),
-            sliver: SliverGrid.builder(
-              gridDelegate: _gridDelegate(tokens),
-              itemCount: movies.length,
-              itemBuilder: (_, index) => MoviePoster(
-                key: ValueKey(movies[index].id),
-                movie: movies[index],
-              ),
+    return CustomScrollView(
+      controller: _controller,
+      slivers: [
+        SliverPadding(
+          padding: _gridPadding(tokens),
+          sliver: SliverGrid.builder(
+            gridDelegate: _gridDelegate(tokens),
+            itemCount: movies.length,
+            itemBuilder: (_, index) => MoviePoster(
+              key: ValueKey(movies[index].id),
+              movie: movies[index],
             ),
           ),
-          SliverToBoxAdapter(
-            child: _NextPageFooter(
-              status: widget.state.nextPage,
-              onRetry: widget.onLoadMore,
-            ),
+        ),
+        SliverToBoxAdapter(
+          child: _NextPageFooter(
+            status: widget.state.nextPage,
+            onRetry: widget.onRetryNextPage,
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
