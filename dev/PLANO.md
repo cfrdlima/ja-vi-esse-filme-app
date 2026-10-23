@@ -3,9 +3,9 @@
 > Fonte da verdade do que construir. Atualizado por `/fechar-sessao`.
 
 ## Última sessão
-**008 — Fase 1: Descobrir, filmes populares** (fechada em 2026-10-23) · [log](sessoes/008-descobrir-populares.md)
-A aba Descobrir agora mostra os populares do TMDB. É a primeira feature em Clean Architecture (`features/movies`), com paginação infinita protegida contra corridas, os 4 estados, um pôster 2:3 com URL de imagem validada e as dependências montadas no `main.dart`. A política de privacidade (0.3) declara o cache de imagens. São 319 testes.
-**Próximo passo:** a sessão 009, com em cartaz (`region=BR`) e melhor avaliados na Descobrir, generalizando o notifier para `PagedMoviesNotifier` e usando o `retryAfter` do 429 no botão.
+**009 — Fase 1: Descobrir, em cartaz e melhor avaliados** (fechada em 2026-10-23) · [log](sessoes/009-descobrir-categorias.md)
+A Descobrir ganhou o seletor de categoria (Populares, Em cartaz com `region=BR` e Mais bem avaliados), com uma lista viva por categoria (`DiscoverNotifier` + `PagedMoviesNotifier`) que guarda filmes e rolagem. O "Tentar de novo" respeita o `retryAfter` do 429 com contagem (teto de 60 s), no erro e no rodapé. São 371 testes.
+**Próximo passo:** a sessão 010, com a busca (debounce, estados vazio/erro e `include_adult=false`).
 
 ## Fase 0 — Fundação
 - [x] Criar projeto (`io.github.cfrdlima.ja_vi_esse_filme`), `analysis_options.yaml`, `.gitignore` com `env/*.json` (exceto `example.json`)
@@ -33,7 +33,7 @@ A aba Descobrir agora mostra os populares do TMDB. É a primeira feature em Clea
 
 ## Fase 1 — Explorar (sem login)
 - [x] Descobrir: populares com paginação infinita (sessão 008)
-- [ ] Descobrir: em cartaz (`region=BR`) e melhor avaliados, com seletor na tela, generalizando o notifier (`PagedMoviesNotifier`) e usando o `retryAfter` do 429 no botão "Tentar de novo"
+- [x] Descobrir: em cartaz (`region=BR`) e melhor avaliados, com seletor na tela, generalizando o notifier (`PagedMoviesNotifier`) e usando o `retryAfter` do 429 no botão "Tentar de novo" (sessão 009)
 - [x] Declarar em `docs/PRIVACIDADE.md` o cache de imagens (`cached_network_image`): prazo e como apagar
 - [ ] Busca com debounce e estados vazio/erro, com `include_adult=false` (público 13+, política de privacidade)
 - [ ] Detalhes do filme: sinopse, gêneros, duração, nota, elenco

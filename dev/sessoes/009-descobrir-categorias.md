@@ -1,6 +1,6 @@
 # Sessão 009 — Fase 1: Descobrir, em cartaz e melhor avaliados
 
-**Data**: 2026-10-23 · **Branch**: `feature/009-descobrir-categorias` · **Status**: aberta
+**Data**: 2026-10-23 · **Branch**: `feature/009-descobrir-categorias` · **Status**: fechada
 
 ## Objetivo
 Levar em cartaz (`/movie/now_playing` com `region=BR`) e melhor avaliados (`/movie/top_rated`) para a aba Descobrir, com um seletor de categoria na tela. O `PopularMoviesNotifier` vira um `PagedMoviesNotifier` genérico por categoria (S4 da revisão 008), e o "Tentar de novo" respeita o `retryAfter` do 429 (S11).
@@ -34,7 +34,7 @@ Levar em cartaz (`/movie/now_playing` com `region=BR`) e melhor avaliados (`/mov
 - [x] S9: linha em branco antes de `group('em cartaz')`
 
 ## Decisões
-- Nenhuma nova. Valeram a 001 (todo acesso pelo `TmdbClient`), a 002 (`ui-ux-pro-max`) e a 004 (ARB). Sem dependência nova.
+- Nenhuma nova. Valeram a [001](../decisoes/001-chave-tmdb-e-sessao.md) (todo acesso pelo `TmdbClient`), a [002](../decisoes/002-ui-ux-pro-max-fonte-de-design.md) (`ui-ux-pro-max`) e a [004](../decisoes/004-strings-de-ui-em-arb.md) (ARB). Sem dependência nova.
 
 ## Commits
 - `29c71b3` docs: abre sessão 009
@@ -57,6 +57,7 @@ Levar em cartaz (`/movie/now_playing` com `region=BR`) e melhor avaliados (`/mov
 - `2622a98` fix: chips da Descobrir sem check e com respiro xs, cabendo numa linha, e Mais bem avaliados
 - `e3a22ee` fix: botão em espera anuncia os segundos por extenso ao leitor de tela
 - `d75009a` docs: override da Descobrir com chips sem check e rótulo por extenso
+- `6f94ef1` docs: tratamento da revisão da sessão 009
 
 ## Notas
 - Contrato (developer.themoviedb.org, via Context7):
@@ -93,4 +94,9 @@ Levar em cartaz (`/movie/now_playing` com `region=BR`) e melhor avaliados (`/mov
   - **S8:** "Mais bem avaliados" e `retryInSemantics` (plural "1 segundo" / "N segundos") como `semanticsLabel` do texto em espera.
   - **S9:** linha em branco entre os grupos.
 - Tríade depois da revisão: `dart format` sem mudanças (74 arquivos), `flutter analyze` sem issues, `flutter test` com 371 testes passando e `gitleaks` sem vazamentos.
+- Fechamento: `dart format` sem mudanças (74 arquivos), `flutter analyze` sem issues, `flutter test` com 371 testes passando e `gitleaks` sem vazamentos. O `/revisar` rodou com o `code-reviewer` e o `security-auditor`.
+- **Pendências:**
+  - **BACKLOG:** contagem do "Tentar de novo" medida a partir da falha (S1) e piso de espera para 429 sem `Retry-After` (S10).
+  - **Próxima sessão:** busca com debounce e `include_adult=false` (Fase 1).
+  - **Política:** continua em rascunho, com 6 marcadores `A REVISAR`; esta sessão não pediu mudança nela.
 
