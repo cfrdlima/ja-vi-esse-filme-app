@@ -1,11 +1,8 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 
 import '../../../../core/error/failures.dart';
 import '../../../../core/error/retry_wait.dart';
 import '../../../../core/l10n/failure_message.dart';
-import '../../../../core/theme/app_motion.dart';
 import '../../../../core/theme/app_sizes.dart';
 import '../../../../core/theme/app_theme_tokens.dart';
 import '../../../../core/widgets/retry_button.dart';
@@ -14,6 +11,7 @@ import '../state/paged_movies_notifier.dart';
 import '../state/paged_movies_state.dart';
 import 'movie_poster.dart';
 import 'poster_skeleton.dart';
+import 'skeleton_pulse.dart';
 
 /// Os 4 estados de uma lista paginada de filmes, com paginação infinita. O
 /// vazio muda de tela para tela e vem em [empty].
@@ -85,45 +83,11 @@ class _GridWidthGuard extends StatelessWidget {
   }
 }
 
-/// Grade de skeleton. Um controller só faz todas as células pulsarem; com o
-/// "reduzir movimento" ligado, elas ficam paradas.
-class _LoadingView extends StatefulWidget {
+/// Grade de skeleton, com todas as células no mesmo pulso.
+class _LoadingView extends StatelessWidget {
   const _LoadingView();
 
-  @override
-  State<_LoadingView> createState() => _LoadingViewState();
-}
-
-class _LoadingViewState extends State<_LoadingView>
-    with SingleTickerProviderStateMixin {
   static const _cellCount = 12;
-
-  late final _controller = AnimationController(
-    vsync: this,
-    duration: AppMotion.skeletonPulse,
-  );
-  late final _opacity =
-      Tween<double>(begin: 1, end: AppMotion.skeletonMinOpacity).animate(
-        CurvedAnimation(parent: _controller, curve: AppMotion.skeletonCurve),
-      );
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (MediaQuery.disableAnimationsOf(context)) {
-      _controller
-        ..stop()
-        ..value = 0;
-    } else if (!_controller.isAnimating) {
-      unawaited(_controller.repeat(reverse: true));
-    }
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -132,12 +96,14 @@ class _LoadingViewState extends State<_LoadingView>
       label: AppLocalizations.of(context).moviesLoading,
       liveRegion: true,
       child: ExcludeSemantics(
-        child: GridView.builder(
-          physics: const NeverScrollableScrollPhysics(),
-          padding: _gridPadding(tokens),
-          gridDelegate: _gridDelegate(tokens),
-          itemCount: _cellCount,
-          itemBuilder: (_, _) => PosterSkeleton(opacity: _opacity),
+        child: SkeletonPulse(
+          builder: (_, opacity) => GridView.builder(
+            physics: const NeverScrollableScrollPhysics(),
+            padding: _gridPadding(tokens),
+            gridDelegate: _gridDelegate(tokens),
+            itemCount: _cellCount,
+            itemBuilder: (_, _) => PosterSkeleton(opacity: opacity),
+          ),
         ),
       ),
     );
