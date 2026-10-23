@@ -1,0 +1,318 @@
+{
+  "adult": false,
+  "backdrop_path": "/fundo-duna.jpg",
+  "belongs_to_collection": null,
+  "budget": 190000000,
+  "genres": [
+    {
+      "id": 878,
+      "name": "Ficção científica"
+    },
+    {
+      "id": 12,
+      "name": "Aventura"
+    }
+  ],
+  "homepage": "https://www.dunemovie.com",
+  "id": 693134,
+  "imdb_id": "tt15239678",
+  "origin_country": [
+    "US"
+  ],
+  "original_language": "en",
+  "original_title": "Dune: Part Two",
+  "overview": "Paul Atreides se une a Chani e aos Fremen enquanto busca vingança.",
+  "popularity": 812.4,
+  "poster_path": "/poster-duna.jpg",
+  "release_date": "2024-02-27",
+  "revenue": 714000000,
+  "runtime": 166,
+  "status": "Released",
+  "tagline": "Longa vida aos lutadores.",
+  "title": "Duna: Parte Dois",
+  "video": false,
+  "vote_average": 8.14,
+  "vote_count": 6200,
+  "credits": {
+    "cast": [
+      {
+        "adult": false,
+        "gender": 2,
+        "id": 1003,
+        "known_for_department": "Acting",
+        "name": "Ator 3",
+        "original_name": "Ator 3",
+        "popularity": 10.0,
+        "profile_path": "/perfil-3.jpg",
+        "cast_id": 3,
+        "character": "Personagem 3",
+        "credit_id": "credito3",
+        "order": 3
+      },
+      {
+        "adult": false,
+        "gender": 2,
+        "id": 1001,
+        "known_for_department": "Acting",
+        "name": "Ator 1",
+        "original_name": "Ator 1",
+        "popularity": 10.0,
+        "profile_path": "/perfil-1.jpg",
+        "cast_id": 1,
+        "character": "Personagem 1",
+        "credit_id": "credito1",
+        "order": 1
+      },
+      {
+        "adult": false,
+        "gender": 2,
+        "id": 1002,
+        "known_for_department": "Acting",
+        "name": "Ator 2",
+        "original_name": "Ator 2",
+        "popularity": 10.0,
+        "profile_path": "/perfil-2.jpg",
+        "cast_id": 2,
+        "character": "Personagem 2",
+        "credit_id": "credito2",
+        "order": 2
+      },
+      {
+        "adult": false,
+        "gender": 2,
+        "id": 1000,
+        "known_for_department": "Acting",
+        "name": "Ator 0",
+        "original_name": "Ator 0",
+        "popularity": 10.0,
+        "profile_path": "/perfil-0.jpg",
+        "cast_id": 0,
+        "character": "Personagem 0",
+        "credit_id": "credito0",
+        "order": 0
+      },
+      {
+        "adult": false,
+        "gender": 2,
+        "id": 1004,
+        "known_for_department": "Acting",
+        "name": "Ator 4",
+        "original_name": "Ator 4",
+        "popularity": 10.0,
+        "profile_path": "/perfil-4.jpg",
+        "cast_id": 4,
+        "character": "Personagem 4",
+        "credit_id": "credito4",
+        "order": 4
+      },
+      {
+        "adult": false,
+        "gender": 2,
+        "id": 1005,
+        "known_for_department": "Acting",
+        "name": "Ator 5",
+        "original_name": "Ator 5",
+        "popularity": 10.0,
+        "profile_path": "/perfil-5.jpg",
+        "cast_id": 5,
+        "character": "Personagem 5",
+        "credit_id": "credito5",
+        "order": 5
+      },
+      {
+        "adult": false,
+        "gender": 2,
+        "id": 1006,
+        "known_for_department": "Acting",
+        "name": "Ator 6",
+        "original_name": "Ator 6",
+        "popularity": 10.0,
+        "profile_path": "/perfil-6.jpg",
+        "cast_id": 6,
+        "character": "Personagem 6",
+        "credit_id": "credito6",
+        "order": 6
+      },
+      {
+        "adult": false,
+        "gender": 2,
+        "id": 1007,
+        "known_for_department": "Acting",
+        "name": "Ator 7",
+        "original_name": "Ator 7",
+        "popularity": 10.0,
+        "profile_path": "/perfil-7.jpg",
+        "cast_id": 7,
+        "character": "Personagem 7",
+        "credit_id": "credito7",
+        "order": 7
+      },
+      {
+        "adult": false,
+        "gender": 2,
+        "id": 1008,
+        "known_for_department": "Acting",
+        "name": "Ator 8",
+        "original_name": "Ator 8",
+        "popularity": 10.0,
+        "profile_path": "/perfil-8.jpg",
+        "cast_id": 8,
+        "character": "Personagem 8",
+        "credit_id": "credito8",
+        "order": 8
+      },
+      {
+        "adult": false,
+        "gender": 2,
+        "id": 1009,
+        "known_for_department": "Acting",
+        "name": "Ator 9",
+        "original_name": "Ator 9",
+        "popularity": 10.0,
+        "profile_path": "/perfil-9.jpg",
+        "cast_id": 9,
+        "character": "Personagem 9",
+        "credit_id": "credito9",
+        "order": 9
+      },
+      {
+        "adult": false,
+        "gender": 2,
+        "id": 1010,
+        "known_for_department": "Acting",
+        "name": "Ator 10",
+        "original_name": "Ator 10",
+        "popularity": 10.0,
+        "profile_path": "/perfil-10.jpg",
+        "cast_id": 10,
+        "character": "Personagem 10",
+        "credit_id": "credito10",
+        "order": 10
+      },
+      {
+        "adult": false,
+        "gender": 2,
+        "id": 1011,
+        "known_for_department": "Acting",
+        "name": "Ator 11",
+        "original_name": "Ator 11",
+        "popularity": 10.0,
+        "profile_path": "/perfil-11.jpg",
+        "cast_id": 11,
+        "character": "Personagem 11",
+        "credit_id": "credito11",
+        "order": 11
+      },
+      {
+        "adult": false,
+        "gender": 2,
+        "id": 1012,
+        "known_for_department": "Acting",
+        "name": "Ator 12",
+        "original_name": "Ator 12",
+        "popularity": 10.0,
+        "profile_path": "/perfil-12.jpg",
+        "cast_id": 12,
+        "character": "Personagem 12",
+        "credit_id": "credito12",
+        "order": 12
+      },
+      {
+        "adult": false,
+        "gender": 2,
+        "id": 1013,
+        "known_for_department": "Acting",
+        "name": "Ator 13",
+        "original_name": "Ator 13",
+        "popularity": 10.0,
+        "profile_path": "/perfil-13.jpg",
+        "cast_id": 13,
+        "character": "Personagem 13",
+        "credit_id": "credito13",
+        "order": 13
+      },
+      {
+        "adult": false,
+        "gender": 2,
+        "id": 1014,
+        "known_for_department": "Acting",
+        "name": "Ator 14",
+        "original_name": "Ator 14",
+        "popularity": 10.0,
+        "profile_path": "/perfil-14.jpg",
+        "cast_id": 14,
+        "character": "Personagem 14",
+        "credit_id": "credito14",
+        "order": 14
+      },
+      {
+        "adult": false,
+        "gender": 2,
+        "id": 1015,
+        "known_for_department": "Acting",
+        "name": "Ator 15",
+        "original_name": "Ator 15",
+        "popularity": 10.0,
+        "profile_path": "/perfil-15.jpg",
+        "cast_id": 15,
+        "character": "Personagem 15",
+        "credit_id": "credito15",
+        "order": 15
+      },
+      {
+        "adult": false,
+        "gender": 2,
+        "id": 1016,
+        "known_for_department": "Acting",
+        "name": "Ator 16",
+        "original_name": "Ator 16",
+        "popularity": 10.0,
+        "profile_path": null,
+        "cast_id": 16,
+        "character": "Personagem 16",
+        "credit_id": "credito16",
+        "order": 16
+      }
+    ],
+    "crew": [
+      {
+        "id": 137427,
+        "name": "Denis Villeneuve",
+        "job": "Director",
+        "department": "Directing",
+        "credit_id": "dir1",
+        "profile_path": "/denis.jpg"
+      }
+    ]
+  },
+  "translations": {
+    "translations": [
+      {
+        "iso_3166_1": "US",
+        "iso_639_1": "en",
+        "name": "English",
+        "english_name": "English",
+        "data": {
+          "homepage": "",
+          "overview": "Paul Atreides unites with Chani and the Fremen.",
+          "runtime": 166,
+          "tagline": "",
+          "title": "Dune: Part Two"
+        }
+      },
+      {
+        "iso_3166_1": "BR",
+        "iso_639_1": "pt",
+        "name": "Português",
+        "english_name": "Portuguese",
+        "data": {
+          "homepage": "",
+          "overview": "Paul Atreides se une a Chani e aos Fremen enquanto busca vingança.",
+          "runtime": 166,
+          "tagline": "",
+          "title": "Duna: Parte Dois"
+        }
+      }
+    ]
+  }
+}
