@@ -149,6 +149,24 @@ void main() {
       expect(heroOfPoster(tester).movieId, 7);
     });
 
+    testWidgets(
+      'deve pôr o placeholder no Hero quando o filme não tem pôster',
+      (tester) async {
+        await tester.pumpWidget(
+          screen(preview: const Movie(id: 7, title: 'Sem pôster')),
+        );
+
+        expect(
+          (
+            heroOfPoster(tester).movieId,
+            find.byIcon(Icons.movie_outlined).evaluate().length,
+            find.byType(PosterSkeleton).evaluate().length,
+          ),
+          (7, 1, 0),
+        );
+      },
+    );
+
     testWidgets('não deve criar o Hero sem o filme da grade', (tester) async {
       await tester.pumpWidget(screen());
 
