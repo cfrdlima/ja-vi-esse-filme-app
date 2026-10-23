@@ -4,6 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import '../../features/movies/domain/entities/movie.dart';
 import '../../features/movies/domain/repositories/movie_repository.dart';
 import '../../features/movies/presentation/screens/discover_screen.dart';
 import '../../features/movies/presentation/screens/movie_details_screen.dart';
@@ -72,7 +73,14 @@ GoRoute _movieDetailsRoute(MovieRepository movieRepository) => GoRoute(
       unawaited(notifier.load());
       return notifier;
     },
-    child: const MovieDetailsScreen(),
+    // O filme tocado na grade vem no `extra`, para o pôster já estar no
+    // lugar quando o Hero voa. A URL direta chega sem ele.
+    child: MovieDetailsScreen(
+      preview: switch (state.extra) {
+        final Movie movie => movie,
+        _ => null,
+      },
+    ),
   ),
 );
 

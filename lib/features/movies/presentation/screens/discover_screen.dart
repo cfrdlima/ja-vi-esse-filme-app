@@ -38,6 +38,7 @@ class DiscoverScreen extends StatelessWidget {
                 scrollKey: 'discover-${list.category.name}',
                 onMovieTap: (movie) => context.go(
                   AppRoutes.movieDetails(AppRoutes.discover, movie.id),
+                  extra: movie,
                 ),
                 empty: MoviesMessage(
                   message: AppLocalizations.of(context).discoverEmpty,

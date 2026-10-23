@@ -452,6 +452,47 @@ void main() {
       );
     });
 
+    Movie? previewOf(WidgetTester tester) => tester
+        .widget<MovieDetailsScreen>(find.byType(MovieDetailsScreen))
+        .preview;
+
+    testWidgets('deve levar o filme tocado na Descobrir aos detalhes', (
+      tester,
+    ) async {
+      await pumpAppRouter(tester, movies: movies);
+
+      await tester.tap(find.byType(MoviePoster).at(1));
+      await tester.pumpAndSettle();
+
+      expect(previewOf(tester), movies[1]);
+    });
+
+    testWidgets('deve levar o filme tocado na Buscar aos detalhes', (
+      tester,
+    ) async {
+      await pumpAppRouter(tester, movies: movies);
+      await tapDestination(tester, 'Buscar');
+      await tester.enterText(find.byType(TextField), 'filme');
+      await tester.pump(SearchNotifier.debounce);
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byType(MoviePoster).first);
+      await tester.pumpAndSettle();
+
+      expect(previewOf(tester), movies[0]);
+    });
+
+    testWidgets('deve vir sem filme da grade quando a URL abre os detalhes', (
+      tester,
+    ) async {
+      final router = await pumpAppRouter(tester, movies: movies);
+
+      router.go(AppRoutes.movieDetails(AppRoutes.discover, 2));
+      await tester.pumpAndSettle();
+
+      expect(previewOf(tester), isNull);
+    });
+
     testWidgets('deve voltar à grade na mesma rolagem', (tester) async {
       final router = await pumpAppRouter(tester, movies: movies);
       await tester.drag(find.byType(CustomScrollView), const Offset(0, -300));
