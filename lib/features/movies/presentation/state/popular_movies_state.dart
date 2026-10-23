@@ -35,6 +35,14 @@ final class PopularMoviesLoaded extends PopularMoviesState {
   final int page;
   final bool hasMore;
   final NextPageStatus nextPage;
+
+  PopularMoviesLoaded withNextPage(NextPageStatus status) =>
+      PopularMoviesLoaded(
+        movies: movies,
+        page: page,
+        hasMore: hasMore,
+        nextPage: status,
+      );
 }
 
 /// Situação do pedido da próxima página, mostrada no rodapé da grade.

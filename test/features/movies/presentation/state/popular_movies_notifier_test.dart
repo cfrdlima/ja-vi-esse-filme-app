@@ -1,9 +1,13 @@
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ja_vi_esse_filme/core/error/failures.dart';
+import 'package:ja_vi_esse_filme/features/movies/domain/entities/movie.dart';
+import 'package:ja_vi_esse_filme/features/movies/domain/entities/movie_page.dart';
 import 'package:ja_vi_esse_filme/features/movies/presentation/state/popular_movies_notifier.dart';
 import 'package:ja_vi_esse_filme/features/movies/presentation/state/popular_movies_state.dart';
 
-import '../../fakes/fake_movie_repository.dart';
+import '../../../../helpers/fake_movie_repository.dart';
 
 void main() {
   late FakeMovieRepository repository;
@@ -79,6 +83,44 @@ void main() {
     });
   });
 
+  group('primeira página, casos de borda', () {
+    test('deve ignorar filme repetido dentro da primeira página', () async {
+      final future = notifier.load();
+      repository.complete(
+        const MoviePage(
+          movies: [
+            Movie(id: 1, title: 'A'),
+            Movie(id: 1, title: 'A'),
+          ],
+          page: 1,
+          totalPages: 1,
+        ),
+      );
+      await future;
+
+      final state = notifier.state as PopularMoviesLoaded;
+      expect(state.movies.map((m) => m.id), [1]);
+    });
+
+    test(
+      'deve virar erro inesperado quando o repositório lança outra exceção',
+      () async {
+        final future = notifier.load();
+        repository.fail(Exception('inesperada'));
+        await future;
+
+        expect(
+          notifier.state,
+          isA<PopularMoviesError>().having(
+            (s) => s.failure,
+            'failure',
+            isA<UnexpectedFailure>(),
+          ),
+        );
+      },
+    );
+  });
+
   group('próxima página', () {
     test('deve acrescentar os filmes da próxima página', () async {
       await loadFirstPage();
@@ -138,17 +180,39 @@ void main() {
       expect((state.movies.length, state.nextPage), (2, NextPageStatus.failed));
     });
 
-    test('deve pedir a mesma página de novo depois da falha', () async {
+    test('não deve pedir de novo pela rolagem depois da falha', () async {
       await loadFirstPage();
       final failed = notifier.loadMore();
-      repository.fail(const NetworkFailure());
+      repository.fail(const RateLimitFailure());
       await failed;
 
-      final retry = notifier.loadMore();
-      repository.complete(moviePage(page: 2));
-      await retry;
+      await notifier.loadMore();
 
-      expect(repository.requestedPages, [1, 2, 2]);
+      expect(repository.requestedPages, [1, 2]);
+    });
+
+    test(
+      'deve pedir a mesma página ao tentar de novo depois da falha',
+      () async {
+        await loadFirstPage();
+        final failed = notifier.loadMore();
+        repository.fail(const NetworkFailure());
+        await failed;
+
+        final retry = notifier.retryNextPage();
+        repository.complete(moviePage(page: 2));
+        await retry;
+
+        expect(repository.requestedPages, [1, 2, 2]);
+      },
+    );
+
+    test('não deve tentar de novo a próxima página sem falha', () async {
+      await loadFirstPage();
+
+      await notifier.retryNextPage();
+
+      expect(repository.requestedPages, [1]);
     });
 
     test('deve parar de ter mais páginas na última', () async {
@@ -166,12 +230,65 @@ void main() {
       await loadFirstPage();
 
       final future = notifier.loadMore();
-      repository.complete(moviePage(page: 1));
+      repository.complete(
+        const MoviePage(
+          movies: [
+            Movie(id: 101, title: 'Repetido'),
+            Movie(id: 200, title: 'Novo'),
+          ],
+          page: 2,
+          totalPages: 3,
+        ),
+      );
       await future;
 
       final state = notifier.state as PopularMoviesLoaded;
-      expect(state.movies.map((m) => m.id), [100, 101]);
+      expect(state.movies.map((m) => m.id), [100, 101, 200]);
     });
+
+    test(
+      'deve avançar pela página pedida, e não pela que a resposta diz',
+      () async {
+        await loadFirstPage();
+        final second = notifier.loadMore();
+        repository.complete(moviePage(page: 1));
+        await second;
+
+        unawaited(notifier.loadMore());
+
+        expect(repository.requestedPages, [1, 2, 3]);
+      },
+    );
+
+    test(
+      'deve descartar a próxima página que chega depois de recarregar',
+      () async {
+        await loadFirstPage();
+        final stale = notifier.loadMore();
+        final reload = notifier.load();
+
+        repository.complete(moviePage(page: 2));
+        await stale;
+
+        expect(notifier.state, isA<PopularMoviesLoading>());
+        repository.complete(moviePage(page: 1, count: 1));
+        await reload;
+      },
+    );
+
+    test(
+      'deve marcar falha na próxima página com exceção inesperada',
+      () async {
+        await loadFirstPage();
+
+        final future = notifier.loadMore();
+        repository.fail(Exception('inesperada'));
+        await future;
+
+        final state = notifier.state as PopularMoviesLoaded;
+        expect(state.nextPage, NextPageStatus.failed);
+      },
+    );
   });
 
   test('não deve notificar depois de descartado', () async {

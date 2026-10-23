@@ -17,71 +17,99 @@ class PopularMoviesNotifier extends ChangeNotifier {
   bool _loadingFirstPage = false;
   bool _disposed = false;
 
+  /// Muda a cada [load]; uma resposta de [loadMore] de uma geração anterior
+  /// chega atrasada e é descartada, para não sobrescrever a lista nova.
+  int _generation = 0;
+
   /// Carrega a primeira página. Serve também para "tentar de novo".
   Future<void> load() async {
     if (_loadingFirstPage) return;
     _loadingFirstPage = true;
+    final generation = ++_generation;
     _emit(const PopularMoviesLoading());
     try {
-      final page = await _repository.popular(page: 1);
+      final page = await _fetch(1);
+      if (generation != _generation) return;
+      final movies = _withoutRepeated(const [], page.movies);
       _emit(
-        page.movies.isEmpty
+        movies.isEmpty
             ? const PopularMoviesEmpty()
             : PopularMoviesLoaded(
-                movies: page.movies,
-                page: page.page,
+                movies: movies,
+                page: 1,
                 hasMore: page.hasMore,
               ),
       );
     } on Failure catch (failure) {
-      _emit(PopularMoviesError(failure));
+      if (generation == _generation) _emit(PopularMoviesError(failure));
     } finally {
       _loadingFirstPage = false;
     }
   }
 
-  /// Pede a próxima página; serve também para "tentar de novo" no rodapé.
-  /// Não faz nada sem lista carregada, na última página ou com um pedido em
-  /// andamento.
+  /// Pedido da rolagem. Não faz nada sem lista, na última página, com um
+  /// pedido em andamento ou depois de uma falha: aí só [retryNextPage] tenta
+  /// de novo, para a rolagem não martelar o TMDB (ex.: num 429).
   Future<void> loadMore() async {
     final current = _state;
-    if (current is! PopularMoviesLoaded ||
-        !current.hasMore ||
-        current.nextPage == NextPageStatus.loading) {
-      return;
+    if (current is PopularMoviesLoaded &&
+        current.hasMore &&
+        current.nextPage == NextPageStatus.idle) {
+      await _fetchNextPage(current);
     }
-    _emit(_copy(current, nextPage: NextPageStatus.loading));
+  }
+
+  /// "Tentar de novo" do rodapé, depois de a próxima página falhar.
+  Future<void> retryNextPage() async {
+    final current = _state;
+    if (current is PopularMoviesLoaded &&
+        current.nextPage == NextPageStatus.failed) {
+      await _fetchNextPage(current);
+    }
+  }
+
+  Future<void> _fetchNextPage(PopularMoviesLoaded current) async {
+    final generation = _generation;
+    final nextPage = current.page + 1;
+    _emit(current.withNextPage(NextPageStatus.loading));
     try {
-      final page = await _repository.popular(page: current.page + 1);
-      _emit(_append(current, page));
+      final page = await _fetch(nextPage);
+      if (generation != _generation) return;
+      _emit(
+        PopularMoviesLoaded(
+          movies: _withoutRepeated(current.movies, page.movies),
+          // A página pedida, e não a que a resposta diz, para o avanço não
+          // depender do eco do servidor.
+          page: nextPage,
+          hasMore: page.hasMore,
+        ),
+      );
     } on Failure {
-      _emit(_copy(current, nextPage: NextPageStatus.failed));
+      if (generation == _generation) {
+        _emit(current.withNextPage(NextPageStatus.failed));
+      }
+    }
+  }
+
+  /// O `TmdbClient` só lança [Failure]; qualquer outra exceção vira falha
+  /// inesperada, para a tela não ficar carregando para sempre. `Error` (bug)
+  /// continua subindo de propósito.
+  Future<MoviePage> _fetch(int page) async {
+    try {
+      return await _repository.popular(page: page);
+    } on Failure {
+      rethrow;
+    } on Exception {
+      throw const UnexpectedFailure('exceção fora das falhas tipadas');
     }
   }
 
   // A ordem por popularidade muda entre pedidos, e o TMDB pode repetir um
-  // filme na página seguinte; repetido quebraria o Hero e as chaves da grade.
-  PopularMoviesLoaded _append(PopularMoviesLoaded current, MoviePage page) {
-    final known = {for (final movie in current.movies) movie.id};
-    return PopularMoviesLoaded(
-      movies: [
-        ...current.movies,
-        ...page.movies.where((Movie movie) => known.add(movie.id)),
-      ],
-      page: page.page,
-      hasMore: page.hasMore,
-    );
+  // filme, até na mesma página; repetido quebraria as chaves da grade.
+  List<Movie> _withoutRepeated(List<Movie> current, List<Movie> incoming) {
+    final known = {for (final movie in current) movie.id};
+    return [...current, ...incoming.where((movie) => known.add(movie.id))];
   }
-
-  PopularMoviesLoaded _copy(
-    PopularMoviesLoaded current, {
-    required NextPageStatus nextPage,
-  }) => PopularMoviesLoaded(
-    movies: current.movies,
-    page: current.page,
-    hasMore: current.hasMore,
-    nextPage: nextPage,
-  );
 
   void _emit(PopularMoviesState state) {
     if (_disposed) return;

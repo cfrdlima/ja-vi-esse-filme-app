@@ -12,7 +12,7 @@ import 'package:ja_vi_esse_filme/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../helpers/test_app.dart';
-import '../../fakes/fake_movie_repository.dart';
+import '../../../../helpers/fake_movie_repository.dart';
 
 void main() {
   final l10n = lookupAppLocalizations(AppLocale.locale);
