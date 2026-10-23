@@ -1,6 +1,6 @@
 # Sessão 008 — Fase 1: Descobrir, filmes populares
 
-**Data**: 2026-10-23 · **Branch**: `feature/008-descobrir-populares` · **Status**: aberta
+**Data**: 2026-10-23 · **Branch**: `feature/008-descobrir-populares` · **Status**: fechada
 
 ## Objetivo
 Levar a lista de filmes populares (`/movie/popular`) do domínio até a aba Descobrir, com paginação infinita, os quatro estados e um pôster com placeholder. Junto entram a primeira feature em Clean Architecture (`features/movies`), o `provider` e o `cached_network_image`, a composição das dependências no `main.dart` e a política de privacidade passando a declarar o cache de imagens. Em cartaz e melhor avaliados ficam para a sessão 009.
@@ -27,8 +27,27 @@ Levar a lista de filmes populares (`/movie/popular`) do domínio até a aba Desc
 - [x] Revisão R1–R7 e S1, S2, S3, S6, S7, S8, S9 tratados; S4 e S11 para a sessão 009; S5 e S10 para o BACKLOG
 
 ## Decisões
+- Nenhuma nova. Valeram a 001 (`TmdbClient`), a 004 (ARB) e a 006 (política atualizada junto com o cache). `provider` e `cached_network_image` já estavam na stack do `CLAUDE.md`.
 
 ## Commits
+- `dec3a24` docs: abre sessão 008 e override de design da Descobrir
+- `ba4441c` chore: provider e cached_network_image
+- `68ef8cf` add: entidades Movie e MoviePage e MovieModel com parse defensivo
+- `08912e2` add: datasource e repositório de filmes populares
+- `11568a2` add: estado da lista de populares com paginação
+- `a5d6814` add: pôster 2:3 com placeholder e URL de imagem do TMDB validada
+- `a14d21d` add: textos da Descobrir e mensagem de UI por tipo de falha
+- `c2be779` add: tela Descobrir com os 4 estados e rolagem infinita
+- `afa0f23` add: composição do repositório de filmes no main e aba Descobrir real
+- `0ed517a` docs: política declara o cache de imagens (0.3)
+- `e3c7842` fix: grade da Descobrir não quebra no primeiro layout sem largura
+- `5b97618` docs: log da sessão 008
+- `a48df81` fix: corridas e nova tentativa da próxima página no notifier de populares
+- `aafd90c` fix: Descobrir pede a próxima página sem rolagem, só tenta de novo pelo botão e pulsa o skeleton com um controller
+- `4461b28` fix: pôster com fade do design system, sem animação no reduzir movimento, decodificado na largura da célula e com rótulo para filme sem título
+- `1d8977e` test: regressão do host da URL do pôster, router confere o load da Descobrir e expectLater no datasource
+- `4daa8e0` docs: política descreve a limpeza real do cache de imagens e a base legal dele
+- `c957941` docs: tratamento da revisão da sessão 008
 
 ## Notas
 - Contrato de `/movie/popular`, conferido em developer.themoviedb.org:
@@ -103,3 +122,18 @@ Levar a lista de filmes populares (`/movie/popular`) do domínio até a aba Desc
   - `flutter test` com 319 testes passando;
   - `gitleaks` sem vazamentos;
   - no emulador, oito arrastos longos sem nenhum erro no log.
+- Fechamento:
+  - `dart format` sem mudanças (67 arquivos), `flutter analyze` sem issues, `flutter test` com 319 testes passando e `gitleaks` sem vazamentos;
+  - `/revisar` rodou com o `code-reviewer` e o `security-auditor`.
+- **Pendências:**
+  - **Sessão 009:**
+    - em cartaz (`region=BR`) e melhor avaliados;
+    - generalizar para um `PagedMoviesNotifier` (S4);
+    - usar o `retryAfter` do 429 no botão (S11).
+  - **BACKLOG:**
+    - limite de 500 páginas;
+    - fábrica injetada no lugar da montagem do notifier no router;
+    - tela de configuração inválida em debug;
+    - transição animada entre estados;
+    - puxar para atualizar.
+  - **Política:** continua em rascunho, com 6 marcadores `A REVISAR`.
