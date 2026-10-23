@@ -79,6 +79,39 @@ void main() {
     });
   });
 
+  // O Android pode fazer o primeiro layout com a janela ainda sem largura;
+  // com o padding, a grade ficaria com largura negativa.
+  group('largura mínima', () {
+    Future<void> pumpNarrow(WidgetTester tester) => tester.pumpWidget(
+      testApp(
+        home: Align(
+          alignment: Alignment.topLeft,
+          child: SizedBox(
+            width: 20,
+            child: ChangeNotifierProvider.value(
+              value: notifier,
+              child: const DiscoverScreen(),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    testWidgets('não deve quebrar o skeleton sem largura', (tester) async {
+      unawaited(notifier.load());
+      await pumpNarrow(tester);
+
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('não deve quebrar a grade sem largura', (tester) async {
+      await pumpNarrow(tester);
+      await loadFirstPage(tester);
+
+      expect(tester.takeException(), isNull);
+    });
+  });
+
   group('vazio', () {
     testWidgets('deve explicar e oferecer tentar de novo', (tester) async {
       await pumpScreen(tester);

@@ -21,7 +21,7 @@ class DiscoverScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: Text(AppLocalizations.of(context).discoverTitle)),
       body: switch (notifier.state) {
-        PopularMoviesLoading() => const _LoadingView(),
+        PopularMoviesLoading() => const _GridWidthGuard(child: _LoadingView()),
         PopularMoviesEmpty() => _MessageView(
           message: AppLocalizations.of(context).discoverEmpty,
           onRetry: notifier.load,
@@ -30,9 +30,8 @@ class DiscoverScreen extends StatelessWidget {
           failure: failure,
           onRetry: notifier.load,
         ),
-        final PopularMoviesLoaded state => _MovieGrid(
-          state: state,
-          onLoadMore: notifier.loadMore,
+        final PopularMoviesLoaded state => _GridWidthGuard(
+          child: _MovieGrid(state: state, onLoadMore: notifier.loadMore),
         ),
       },
     );
@@ -47,6 +46,25 @@ SliverGridDelegate _gridDelegate(AppThemeTokens tokens) =>
       mainAxisSpacing: tokens.spacing.sm,
       crossAxisSpacing: tokens.spacing.sm,
     );
+
+/// Só monta a grade quando sobra largura depois do padding. O Android pode
+/// fazer o primeiro layout com a janela ainda sem largura, e o
+/// `SliverGridDelegateWithMaxCrossAxisExtent` não aceita largura zero.
+class _GridWidthGuard extends StatelessWidget {
+  const _GridWidthGuard({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final spacing = Theme.of(context).extension<AppThemeTokens>()!.spacing;
+    return LayoutBuilder(
+      builder: (_, constraints) => constraints.maxWidth > spacing.md * 2
+          ? child
+          : const SizedBox.shrink(),
+    );
+  }
+}
 
 class _LoadingView extends StatelessWidget {
   const _LoadingView();
