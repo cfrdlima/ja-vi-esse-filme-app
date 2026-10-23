@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:fake_async/fake_async.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:ja_vi_esse_filme/core/error/failures.dart';
 import 'package:ja_vi_esse_filme/features/movies/domain/entities/search_query.dart';
 import 'package:ja_vi_esse_filme/features/movies/presentation/state/paged_movies_state.dart';
 import 'package:ja_vi_esse_filme/features/movies/presentation/state/search_notifier.dart';
@@ -192,6 +195,167 @@ void main() {
         async.elapse(SearchNotifier.debounce);
 
         expect(() => previous.addListener(() {}), throwsFlutterError);
+      });
+    });
+  });
+
+  group('espera do 429', () {
+    const wait = Duration(seconds: 10);
+
+    /// Abre "matrix" e responde com 429 pedindo [retryAfter].
+    void rateLimited(
+      SearchNotifier notifier,
+      FakeAsync async, {
+      Duration? retryAfter = wait,
+    }) {
+      notifier.onQueryChanged('matrix');
+      async.elapse(SearchNotifier.debounce);
+      repository.fail(RateLimitFailure(retryAfter: retryAfter));
+      async.flushMicrotasks();
+    }
+
+    test('não deve pedir um termo novo durante a espera', () {
+      withNotifier((notifier, async) {
+        rateLimited(notifier, async);
+
+        notifier.onQueryChanged('matriz');
+        async.elapse(SearchNotifier.debounce);
+
+        expect(repository.requestedQueries, [SearchQuery('matrix')]);
+      });
+    });
+
+    test('deve manter o erro do termo anterior na tela durante a espera', () {
+      withNotifier((notifier, async) {
+        rateLimited(notifier, async);
+
+        notifier.onQueryChanged('matriz');
+        async.elapse(SearchNotifier.debounce);
+
+        expect(resultsOf(notifier).query, SearchQuery('matrix'));
+      });
+    });
+
+    test('deve pedir o último termo digitado quando a espera acaba', () {
+      withNotifier((notifier, async) {
+        rateLimited(notifier, async);
+        notifier.onQueryChanged('matriz');
+        async.elapse(SearchNotifier.debounce);
+        notifier.onQueryChanged('matrizes');
+        async.elapse(SearchNotifier.debounce);
+
+        async.elapse(wait);
+
+        expect(repository.requestedQueries, [
+          SearchQuery('matrix'),
+          SearchQuery('matrizes'),
+        ]);
+      });
+    });
+
+    test('deve segurar também a busca pelo teclado', () {
+      withNotifier((notifier, async) {
+        rateLimited(notifier, async);
+
+        notifier.submit('matriz');
+
+        expect(repository.requestedQueries, [SearchQuery('matrix')]);
+      });
+    });
+
+    test('deve limitar a espera a 60 s', () {
+      withNotifier((notifier, async) {
+        rateLimited(notifier, async, retryAfter: const Duration(hours: 1));
+        notifier.onQueryChanged('matriz');
+
+        async.elapse(const Duration(seconds: 60));
+
+        expect(repository.requestedQueries.last, SearchQuery('matriz'));
+      });
+    });
+
+    test('deve valer para o 429 da próxima página', () {
+      withNotifier((notifier, async) {
+        notifier.onQueryChanged('matrix');
+        async.elapse(SearchNotifier.debounce);
+        repository.complete(moviePage(page: 1));
+        async.flushMicrotasks();
+        unawaited(resultsOf(notifier).loadMore());
+        repository.fail(const RateLimitFailure(retryAfter: wait));
+        async.flushMicrotasks();
+
+        notifier.onQueryChanged('matriz');
+        async.elapse(SearchNotifier.debounce);
+
+        expect(repository.requestedQueries, [
+          SearchQuery('matrix'),
+          SearchQuery('matrix'),
+        ]);
+      });
+    });
+
+    test('sem retryAfter deve pedir o termo novo sem esperar', () {
+      withNotifier((notifier, async) {
+        rateLimited(notifier, async, retryAfter: null);
+
+        notifier.onQueryChanged('matriz');
+        async.elapse(SearchNotifier.debounce);
+
+        expect(repository.requestedQueries.last, SearchQuery('matriz'));
+      });
+    });
+
+    test('voltar ao termo mostrado deve descartar o termo que esperava', () {
+      withNotifier((notifier, async) {
+        rateLimited(notifier, async);
+        notifier.onQueryChanged('matriz');
+        async.elapse(SearchNotifier.debounce);
+        notifier.onQueryChanged('matrix');
+        async.elapse(SearchNotifier.debounce);
+
+        async.elapse(wait);
+
+        expect(repository.requestedQueries, [SearchQuery('matrix')]);
+      });
+    });
+
+    test('apagar até o termo curto deve descartar o termo que esperava', () {
+      withNotifier((notifier, async) {
+        rateLimited(notifier, async);
+        notifier.onQueryChanged('matriz');
+        async.elapse(SearchNotifier.debounce);
+        notifier.onQueryChanged('m');
+
+        async.elapse(wait);
+
+        expect(repository.requestedQueries, [SearchQuery('matrix')]);
+      });
+    });
+
+    test('limpar deve descartar o termo que esperava', () {
+      withNotifier((notifier, async) {
+        rateLimited(notifier, async);
+        notifier.onQueryChanged('matriz');
+        async.elapse(SearchNotifier.debounce);
+
+        notifier.clear();
+        async.elapse(wait);
+
+        expect(repository.requestedQueries, [SearchQuery('matrix')]);
+      });
+    });
+
+    test('dispose deve cancelar a espera', () {
+      fakeAsync((async) {
+        final notifier = SearchNotifier(repository: repository);
+        rateLimited(notifier, async);
+        notifier.onQueryChanged('matriz');
+        async.elapse(SearchNotifier.debounce);
+
+        notifier.dispose();
+        async.elapse(wait);
+
+        expect(repository.requestedQueries, [SearchQuery('matrix')]);
       });
     });
   });
