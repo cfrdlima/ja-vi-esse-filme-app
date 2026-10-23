@@ -1,9 +1,10 @@
 import 'dart:async';
 
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import '../../features/movies/domain/entities/movie.dart';
 import '../../features/movies/domain/repositories/movie_repository.dart';
 import '../../features/movies/presentation/screens/discover_screen.dart';
 import '../../features/movies/presentation/screens/movie_details_screen.dart';
@@ -60,20 +61,37 @@ GoRouter createAppRouter({required MovieRepository movieRepository}) =>
 /// baixo com a rolagem.
 GoRoute _movieDetailsRoute(MovieRepository movieRepository) => GoRoute(
   path: 'filme/:id',
-  builder: (_, state) => ChangeNotifierProvider(
-    // O go_router reaproveita a página quando só o `:id` muda (a chave dela é
-    // o caminho-padrão); com a chave pelo id, outro filme é outro notifier.
-    key: ValueKey(state.pathParameters['id']),
-    create: (_) {
-      final notifier = MovieDetailsNotifier(
-        repository: movieRepository,
-        movieId: _movieIdOf(state.pathParameters['id']!),
-      );
-      unawaited(notifier.load());
-      return notifier;
-    },
-    child: const MovieDetailsScreen(),
-  ),
+  // O go_router 18.1.0 procura o `MaterialApp` do pacote `material_ui`, e não
+  // o do `flutter/material.dart`; sem achá-lo, monta páginas sem transição,
+  // e o Hero não voa. A página do Material vem daqui, explícita.
+  pageBuilder: (_, state) {
+    final movieId = _movieIdOf(state.pathParameters['id']!);
+    return MaterialPage(
+      key: state.pageKey,
+      child: ChangeNotifierProvider(
+        // O go_router reaproveita a página quando só o `:id` muda (a chave dela
+        // é o caminho-padrão); com a chave pelo id, outro filme é outro notifier.
+        key: ValueKey(state.pathParameters['id']),
+        create: (_) {
+          final notifier = MovieDetailsNotifier(
+            repository: movieRepository,
+            movieId: movieId,
+          );
+          unawaited(notifier.load());
+          return notifier;
+        },
+        // O filme tocado na grade vem no `extra`, para o pôster já estar no
+        // lugar quando o Hero voa. A URL direta chega sem ele, e um filme de
+        // outro id não serve: o pôster seria o errado.
+        child: MovieDetailsScreen(
+          preview: switch (state.extra) {
+            final Movie movie when movie.id == movieId => movie,
+            _ => null,
+          },
+        ),
+      ),
+    );
+  },
 );
 
 /// O id vem da URL e pode ser qualquer texto. Só dígitos em base 10 viram

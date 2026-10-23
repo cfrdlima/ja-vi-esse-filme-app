@@ -7,7 +7,7 @@
 > - `ux` "Alt Text": imagem com conteúdo tem texto alternativo;
 > - `ux` "Image Optimization": tamanho de imagem adequado ao espaço;
 > - `truncation-strategy` e `dynamic-type`: quebrar linha antes de cortar, e crescer com a fonte do sistema;
-> - stack Flutter "Use Hero for transitions": avaliado e não usado (ver "Transição");
+> - stack Flutter "Use Hero for transitions": adotado na sessão 012 (ver "Transição");
 > - stack Flutter "Use ListView.builder": avaliado para o elenco e não usado (ver "Elenco").
 > A busca por lista horizontal de imagens na stack Flutter não trouxe resultado. O layout do elenco abaixo é padrão geral (fallback).
 
@@ -48,4 +48,10 @@
 ## Navegação e transição
 - Tocar num pôster da grade abre os detalhes na mesma aba (`/descobrir/filme/:id` ou `/buscar/filme/:id`). O pôster da grade tem `Semantics` de botão e alvo do tamanho da célula (sempre ≥ 48dp).
 - O voltar (seta, gesto ou botão do sistema) desempilha só os detalhes e devolve a grade na mesma rolagem, com a busca ou a categoria intactas.
-- **Transição:** a padrão do Material para rota empilhada, sem `Hero`. As páginas do TMDB podem repetir um filme, e duas grades com a mesma tag de `Hero` quebram a transição.
+- **Transição:** a padrão do Material para rota empilhada, com o pôster voando da grade até o cabeçalho num `Hero(tag: 'poster-<id>')` (sessão 012; consulta à `ui-ux-pro-max`: stack Flutter "Use Hero for transitions", `ux` "Excessive Motion", com um único elemento animado, e "Reduced Motion").
+  - **Tag única:** a tag só precisa ser única dentro de um navigator. Cada aba tem o seu (o go_router 18.1.0 dá um `HeroController` do Material a cada um), a grade tira os ids repetidos que o TMDB manda entre as páginas e a Descobrir só monta a grade de uma categoria por vez.
+  - **Destino no primeiro quadro:** os detalhes carregam depois do push, e sem destino o `Hero` não voa. A grade passa o `Movie` à rota (`extra`), e o skeleton mostra o pôster de verdade no lugar do bloco pulsante. Sem `extra` (URL direta), fica o skeleton de sempre, sem voo.
+  - **Erro e "não encontrado"** não têm pôster, então o voltar desses estados usa só a transição da rota.
+  - **Movimento reduzido:** com `disableAnimations`, não há `Hero` e a troca é a da rota.
+  - **Mesma imagem no cache:** o pôster é decodificado no tamanho do arquivo (`w342`), sem `memCacheWidth` por largura. Assim a grade, o voo e o cabeçalho usam a mesma imagem já decodificada, e o pôster voa desenhado, sem passar pelo placeholder.
+  - **Teclado:** o shell não encolhe com o teclado (cada tela desvia sozinha, e a aba recebe só a parte do teclado acima da barra). Se o navigator da aba mudasse de tamanho com o teclado fechando no meio do voo, o pôster sairia esticado.

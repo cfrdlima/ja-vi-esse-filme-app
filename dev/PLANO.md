@@ -3,9 +3,9 @@
 > Fonte da verdade do que construir. Atualizado por `/fechar-sessao`.
 
 ## Última sessão
-**011 — Fase 1: detalhes do filme** (fechada em 2026-10-23) · [log](sessoes/011-detalhes-filme.md)
-Tocar num pôster da Descobrir ou da Buscar abre os detalhes na própria aba (`filme/:id`, id só em dígitos), com sinopse (a do idioma original quando a pt-BR vem vazia, decisão 008), gêneros, data, duração, nota e até 15 pessoas do elenco, nos 4 estados e num pedido só. O voltar devolve a grade na mesma rolagem, e o card do elenco cresce com a fonte não linear do Android. São 581 testes.
-**Próximo passo:** a sessão 012, com os trailers (YouTube externo com host validado, o que exige aprovar o `url_launcher`) ou o `Hero` do pôster com tags únicas.
+**012 — Fase 1: Hero do pôster** (fechada em 2026-10-23) · [log](sessoes/012-hero-poster.md)
+O pôster voa da grade (Descobrir e Buscar) até os detalhes e volta, já com a imagem, porque a grade passa o filme pela rota e o skeleton mostra o pôster real. Sem voo no movimento reduzido. O emulador revelou que nenhuma rota animava (o go_router 18.1.0 não reconhece o `MaterialApp` e monta `NoTransitionPage`), corrigido nos detalhes com `MaterialPage`, além de um voo esticado com o teclado aberto, corrigido no shell. São 604 testes.
+**Próximo passo:** a sessão 013, com os trailers (YouTube externo com host validado, o que exige aprovar o `url_launcher`) ou a tela "Sobre".
 
 ## Fase 0 — Fundação
 - [x] Criar projeto (`io.github.cfrdlima.ja_vi_esse_filme`), `analysis_options.yaml`, `.gitignore` com `env/*.json` (exceto `example.json`)
@@ -37,7 +37,7 @@ Tocar num pôster da Descobrir ou da Buscar abre os detalhes na própria aba (`f
 - [x] Declarar em `docs/PRIVACIDADE.md` o cache de imagens (`cached_network_image`): prazo e como apagar
 - [x] Busca com debounce e estados vazio/erro, com `include_adult=false` (público 13+, política de privacidade) (sessão 010)
 - [x] Detalhes do filme: sinopse, gêneros, duração, nota, elenco (sessão 011)
-- [ ] Hero do pôster entre a grade/lista e os detalhes. Na sessão 011 ficou de fora, porque o TMDB repete filmes entre as páginas e duas tags de `Hero` iguais quebram a transição: pede tags únicas por aba e posição
+- [x] Hero do pôster entre a grade e os detalhes, com tag única por navigator de aba (sessão 012)
 - [ ] Trailers (abrir YouTube externo com host validado)
 - [ ] Tela "Sobre" com atribuição ao TMDB, política de privacidade e licenças das fontes (`LicenseRegistry`). Antes dela, criar o repositório público de suporte e publicar a política seguindo o procedimento da decisão 006. O link vai só para o Pages e exige aprovar o `url_launcher`
 

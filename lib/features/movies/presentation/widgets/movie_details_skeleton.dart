@@ -3,13 +3,25 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_sizes.dart';
 import '../../../../core/theme/app_theme_tokens.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../../domain/entities/movie.dart';
+import 'movie_poster.dart';
+import 'poster_hero.dart';
 import 'poster_skeleton.dart';
 import 'skeleton_pulse.dart';
 
 /// Carregando dos detalhes: o pôster, as linhas do cabeçalho e um bloco de
-/// parágrafo, no lugar em que o conteúdo vai aparecer.
+/// parágrafo, no lugar em que o conteúdo vai aparecer. Com o [preview] vindo
+/// da grade, o pôster de verdade fica no lugar do bloco, para o `Hero` ter
+/// onde pousar antes de o filme chegar.
 class MovieDetailsSkeleton extends StatelessWidget {
-  const MovieDetailsSkeleton({super.key});
+  const MovieDetailsSkeleton({this.preview, this.posterKey, super.key});
+
+  final Movie? preview;
+
+  /// Chave do pôster, a mesma do conteúdo. Se o filme chega no meio do voo,
+  /// o Hero de destino muda de pai sem sair da árvore; sem isso, o voo perde
+  /// o destino e some aos poucos, com o pôster novo já parado no lugar.
+  final Key? posterKey;
 
   static const _headerLines = [1.0, 0.6, 0.4];
   static const _paragraphLines = [1.0, 1.0, 1.0, 0.7];
@@ -41,7 +53,14 @@ class MovieDetailsSkeleton extends StatelessWidget {
                       children: [
                         SizedBox(
                           width: AppSizes.detailsPosterWidth,
-                          child: PosterSkeleton(opacity: opacity),
+                          child: switch (preview) {
+                            final preview? => PosterHero(
+                              key: posterKey,
+                              movieId: preview.id,
+                              child: MoviePoster(movie: preview),
+                            ),
+                            null => PosterSkeleton(opacity: opacity),
+                          },
                         ),
                         SizedBox(width: spacing.md),
                         Expanded(

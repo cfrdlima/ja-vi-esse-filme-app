@@ -1,9 +1,12 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ja_vi_esse_filme/core/l10n/app_locale.dart';
 import 'package:ja_vi_esse_filme/core/routing/app_router.dart';
 import 'package:ja_vi_esse_filme/core/routing/app_routes.dart';
+import 'package:ja_vi_esse_filme/core/theme/app_sizes.dart';
 import 'package:ja_vi_esse_filme/features/movies/domain/entities/movie.dart';
 import 'package:ja_vi_esse_filme/features/movies/presentation/screens/discover_screen.dart';
 import 'package:ja_vi_esse_filme/features/movies/presentation/screens/movie_details_screen.dart';
@@ -450,6 +453,125 @@ void main() {
         router.state.matchedLocation,
         AppRoutes.movieDetails(AppRoutes.search, 1),
       );
+    });
+
+    Movie? previewOf(WidgetTester tester) => tester
+        .widget<MovieDetailsScreen>(find.byType(MovieDetailsScreen))
+        .preview;
+
+    testWidgets('deve levar o filme tocado na Descobrir aos detalhes', (
+      tester,
+    ) async {
+      await pumpAppRouter(tester, movies: movies);
+
+      await tester.tap(find.byType(MoviePoster).at(1));
+      await tester.pumpAndSettle();
+
+      expect(previewOf(tester), movies[1]);
+    });
+
+    testWidgets('deve levar o filme tocado na Buscar aos detalhes', (
+      tester,
+    ) async {
+      await pumpAppRouter(tester, movies: movies);
+      await tapDestination(tester, 'Buscar');
+      await tester.enterText(find.byType(TextField), 'filme');
+      await tester.pump(SearchNotifier.debounce);
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byType(MoviePoster).first);
+      await tester.pumpAndSettle();
+
+      expect(previewOf(tester), movies[0]);
+    });
+
+    testWidgets('deve vir sem filme da grade quando a URL abre os detalhes', (
+      tester,
+    ) async {
+      final router = await pumpAppRouter(tester, movies: movies);
+
+      router.go(AppRoutes.movieDetails(AppRoutes.discover, 2));
+      await tester.pumpAndSettle();
+
+      expect(previewOf(tester), isNull);
+    });
+
+    testWidgets('deve animar a entrada dos detalhes', (tester) async {
+      await pumpAppRouter(tester, movies: movies);
+
+      await tester.tap(find.byType(MoviePoster).first);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 16));
+
+      final route = ModalRoute.of(
+        tester.element(find.byType(MovieDetailsScreen)),
+      )!;
+      expect(route.animation!.value, lessThan(1));
+    });
+
+    testWidgets('deve voar com o pôster da grade até os detalhes', (
+      tester,
+    ) async {
+      await pumpAppRouter(tester, movies: movies);
+      final grid = tester.getSize(find.byType(MoviePoster).first).width;
+
+      await tester.tap(find.byType(MoviePoster).first);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+
+      // A grade continua visível embaixo durante a transição: só o pôster do
+      // filme tocado interessa, e o da grade fica escondido pelo Hero.
+      expect(
+        tester
+            .getSize(
+              find.byWidgetPredicate(
+                (widget) => widget is MoviePoster && widget.movie.id == 1,
+              ),
+            )
+            .width,
+        // A célula pode ser mais larga ou mais estreita que o cabeçalho,
+        // conforme a tela do teste: o voo fica entre os dois.
+        inExclusiveRange(
+          math.min(grid, AppSizes.detailsPosterWidth),
+          math.max(grid, AppSizes.detailsPosterWidth),
+        ),
+      );
+    });
+
+    testWidgets('deve manter a proporção do pôster quando o teclado fecha no '
+        'meio do voo', (tester) async {
+      await pumpAppRouter(tester, movies: movies);
+      await tapDestination(tester, 'Buscar');
+      await tester.enterText(find.byType(TextField), 'filme');
+      await tester.pump(SearchNotifier.debounce);
+      await tester.pumpAndSettle();
+      tester.view.viewInsets = const FakeViewPadding(bottom: 300);
+      addTearDown(tester.view.resetViewInsets);
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byType(MoviePoster).first);
+      await tester.pump();
+      tester.view.viewInsets = FakeViewPadding.zero;
+      await tester.pump(const Duration(milliseconds: 100));
+
+      final size = tester.getSize(
+        find.byWidgetPredicate(
+          (widget) => widget is MoviePoster && widget.movie.id == 1,
+        ),
+      );
+      expect(size.width / size.height, closeTo(2 / 3, 0.01));
+    });
+
+    testWidgets('deve ignorar um filme de outro id no extra', (tester) async {
+      final router = await pumpAppRouter(tester, movies: movies);
+
+      router.go(
+        AppRoutes.movieDetails(AppRoutes.discover, 2),
+        extra: const Movie(id: 99, title: 'Outro'),
+      );
+      await tester.pumpAndSettle();
+
+      expect(previewOf(tester), isNull);
     });
 
     testWidgets('deve voltar à grade na mesma rolagem', (tester) async {

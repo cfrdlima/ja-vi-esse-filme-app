@@ -125,8 +125,10 @@ class _SearchBody extends StatelessWidget {
           // Um termo novo é uma grade nova, que começa do topo.
           key: ObjectKey(results),
           notifier: results,
-          onMovieTap: (movie) =>
-              context.go(AppRoutes.movieDetails(AppRoutes.search, movie.id)),
+          onMovieTap: (movie) => context.go(
+            AppRoutes.movieDetails(AppRoutes.search, movie.id),
+            extra: movie,
+          ),
           // Repetir a mesma busca daria o mesmo vazio: a ação é mudar o termo.
           empty: MoviesMessage(message: l10n.searchEmpty(results.query.text)),
         ),

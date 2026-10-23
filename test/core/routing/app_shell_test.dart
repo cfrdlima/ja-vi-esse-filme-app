@@ -175,4 +175,36 @@ void main() {
       },
     );
   });
+
+  group('teclado', () {
+    double keyboardInsetOfTab(WidgetTester tester) =>
+        MediaQuery.viewInsetsOf(tester.element(find.text('raiz a'))).bottom;
+
+    Future<void> openKeyboard(WidgetTester tester, double height) async {
+      await pumpShell(tester);
+      tester.view.viewInsets = FakeViewPadding(
+        bottom: height * tester.view.devicePixelRatio,
+      );
+      addTearDown(tester.view.resetViewInsets);
+      await tester.pump();
+    }
+
+    testWidgets('deve passar à aba só a parte do teclado acima da barra', (
+      tester,
+    ) async {
+      await openKeyboard(tester, 300);
+
+      final navigationBar = tester.getSize(find.byType(NavigationBar)).height;
+      expect(keyboardInsetOfTab(tester), 300 - navigationBar);
+    });
+
+    testWidgets(
+      'não deve passar teclado à aba quando ele cabe atrás da barra',
+      (tester) async {
+        await openKeyboard(tester, 40);
+
+        expect(keyboardInsetOfTab(tester), 0);
+      },
+    );
+  });
 }

@@ -4,14 +4,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ja_vi_esse_filme/core/error/failures.dart';
 import 'package:ja_vi_esse_filme/core/l10n/app_locale.dart';
+import 'package:ja_vi_esse_filme/core/theme/app_sizes.dart';
 import 'package:ja_vi_esse_filme/core/widgets/retry_button.dart';
 import 'package:ja_vi_esse_filme/features/movies/domain/entities/cast_member.dart';
+import 'package:ja_vi_esse_filme/features/movies/domain/entities/movie.dart';
 import 'package:ja_vi_esse_filme/features/movies/domain/entities/movie_details.dart';
 import 'package:ja_vi_esse_filme/features/movies/presentation/screens/movie_details_screen.dart';
 import 'package:ja_vi_esse_filme/features/movies/presentation/state/movie_details_notifier.dart';
 import 'package:ja_vi_esse_filme/features/movies/presentation/widgets/cast_member_card.dart';
 import 'package:ja_vi_esse_filme/features/movies/presentation/widgets/movie_details_content.dart';
 import 'package:ja_vi_esse_filme/features/movies/presentation/widgets/movie_poster.dart';
+import 'package:ja_vi_esse_filme/features/movies/presentation/widgets/poster_hero.dart';
 import 'package:ja_vi_esse_filme/features/movies/presentation/widgets/poster_skeleton.dart';
 import 'package:ja_vi_esse_filme/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
@@ -47,7 +50,7 @@ void main() {
 
   final bare = MovieDetails(id: 7, title: 'Filme Sem Nada', overview: '');
 
-  Widget screen({MediaQueryData? mediaQuery}) {
+  Widget screen({MediaQueryData? mediaQuery, Movie? preview}) {
     final app = testApp(
       home: ChangeNotifierProvider(
         create: (_) {
@@ -58,11 +61,24 @@ void main() {
           unawaited(notifier.load());
           return notifier;
         },
-        child: const MovieDetailsScreen(),
+        child: MovieDetailsScreen(preview: preview),
       ),
     );
     return mediaQuery == null ? app : MediaQuery(data: mediaQuery, child: app);
   }
+
+  const preview = Movie(
+    id: 7,
+    title: 'Duna: Parte Dois',
+    posterPath: '/poster-duna.jpg',
+  );
+
+  PosterHero heroOfPoster(WidgetTester tester) => tester.widget<PosterHero>(
+    find.ancestor(
+      of: find.byType(MoviePoster),
+      matching: find.byType(PosterHero),
+    ),
+  );
 
   Future<void> pumpWith(WidgetTester tester, MovieDetails details) async {
     await tester.pumpWidget(screen());
@@ -114,6 +130,47 @@ void main() {
       await tester.pump();
 
       expect(tester.getTopLeft(find.byType(MoviePoster)).dx, skeletonLeft);
+    });
+
+    testWidgets('deve mostrar o pôster da grade enquanto carrega', (
+      tester,
+    ) async {
+      await tester.pumpWidget(screen(preview: preview));
+
+      expect(
+        tester.widget<MoviePoster>(find.byType(MoviePoster)).movie,
+        preview,
+      );
+    });
+
+    testWidgets('deve pôr o pôster da grade no Hero do filme', (tester) async {
+      await tester.pumpWidget(screen(preview: preview));
+
+      expect(heroOfPoster(tester).movieId, 7);
+    });
+
+    testWidgets(
+      'deve pôr o placeholder no Hero quando o filme não tem pôster',
+      (tester) async {
+        await tester.pumpWidget(
+          screen(preview: const Movie(id: 7, title: 'Sem pôster')),
+        );
+
+        expect(
+          (
+            heroOfPoster(tester).movieId,
+            find.byIcon(Icons.movie_outlined).evaluate().length,
+            find.byType(PosterSkeleton).evaluate().length,
+          ),
+          (7, 1, 0),
+        );
+      },
+    );
+
+    testWidgets('não deve criar o Hero sem o filme da grade', (tester) async {
+      await tester.pumpWidget(screen());
+
+      expect(find.byType(PosterHero), findsNothing);
     });
   });
 
@@ -216,6 +273,12 @@ void main() {
         find.bySemanticsLabel(l10n.moviePosterOf('Duna: Parte Dois')),
         findsOneWidget,
       );
+    });
+
+    testWidgets('deve pôr o pôster no Hero do filme', (tester) async {
+      await pumpWith(tester, complete);
+
+      expect(heroOfPoster(tester).movieId, 7);
     });
 
     testWidgets('deve mostrar os gêneros', (tester) async {
@@ -331,6 +394,107 @@ void main() {
       );
 
       expect(find.bySemanticsLabel('Pessoa'), findsOneWidget);
+    });
+  });
+
+  group('transição', () {
+    const gridWidth = 60.0;
+
+    // Uma grade de um pôster só, que empilha os detalhes como a aba faz.
+    Future<void> pumpGrid(WidgetTester tester) => tester.pumpWidget(
+      testApp(
+        home: Builder(
+          builder: (context) => Align(
+            alignment: Alignment.bottomRight,
+            child: SizedBox(
+              width: gridWidth,
+              child: PosterHero(
+                movieId: 7,
+                child: MoviePoster(
+                  movie: preview,
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => ChangeNotifierProvider(
+                        create: (_) {
+                          final notifier = MovieDetailsNotifier(
+                            repository: repository,
+                            movieId: 7,
+                          );
+                          unawaited(notifier.load());
+                          return notifier;
+                        },
+                        child: const MovieDetailsScreen(preview: preview),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    Future<void> tapAndFlyHalfway(WidgetTester tester) async {
+      await tester.tap(find.byType(MoviePoster));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+
+    testWidgets('deve voar com o pôster da grade até os detalhes', (
+      tester,
+    ) async {
+      await pumpGrid(tester);
+
+      await tapAndFlyHalfway(tester);
+
+      expect(
+        tester.getSize(find.byType(MoviePoster)).width,
+        inExclusiveRange(gridWidth, AppSizes.detailsPosterWidth),
+      );
+    });
+
+    testWidgets('deve seguir voando quando o filme chega no meio do voo', (
+      tester,
+    ) async {
+      await pumpGrid(tester);
+      await tapAndFlyHalfway(tester);
+
+      repository.completeDetails(complete);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 50));
+
+      expect(find.byType(MoviePoster), findsOneWidget);
+    });
+
+    testWidgets('não deve ler o pôster duas vezes durante o voo', (
+      tester,
+    ) async {
+      final semantics = tester.ensureSemantics();
+      await pumpGrid(tester);
+
+      await tapAndFlyHalfway(tester);
+
+      expect(find.bySemanticsLabel(preview.title), findsOneWidget);
+      semantics.dispose();
+    });
+
+    testWidgets('deve voar de volta à grade ao voltar', (tester) async {
+      await pumpGrid(tester);
+      // O pulso do skeleton não para: o filme chega antes do `pumpAndSettle`.
+      await tester.tap(find.byType(MoviePoster));
+      await tester.pump();
+      repository.completeDetails(complete);
+      await tester.pumpAndSettle();
+
+      tester.state<NavigatorState>(find.byType(Navigator)).pop();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+
+      expect(
+        tester.getSize(find.byType(MoviePoster)).width,
+        inExclusiveRange(gridWidth, AppSizes.detailsPosterWidth),
+      );
     });
   });
 }
