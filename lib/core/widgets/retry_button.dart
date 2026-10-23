@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../../l10n/app_localizations.dart';
+import '../error/retry_wait.dart';
 
 enum _RetryButtonVariant { filled, text }
 
@@ -22,8 +23,7 @@ class RetryButton extends StatefulWidget {
     super.key,
   }) : _variant = _RetryButtonVariant.text;
 
-  /// O `Retry-After` vem do servidor; um valor enorme não pode travar o botão.
-  static const maxWait = Duration(seconds: 60);
+  static const maxWait = maxRetryWait;
 
   final VoidCallback onPressed;
   final Duration wait;
