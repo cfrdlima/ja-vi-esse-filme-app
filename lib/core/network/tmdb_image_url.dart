@@ -7,6 +7,9 @@ abstract final class TmdbImageUrl {
   /// Tamanho de pôster em grade (`tela-4-estados`).
   static Uri poster(String path) => _build('w342', path);
 
+  /// Foto de pessoa no elenco, com 96dp de largura (override `detalhes.md`).
+  static Uri profile(String path) => _build('w185', path);
+
   /// Um caminho do TMDB começa com `/` e não tem segmento vazio, `.` nem
   /// `..` (o que impede `//outro.host` e subida de pasta).
   static bool isValidPath(String path) =>

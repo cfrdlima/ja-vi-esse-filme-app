@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../core/routing/app_routes.dart';
 import '../../../../core/theme/app_theme_tokens.dart';
 import '../../../../core/widgets/retry_button.dart';
 import '../../../../l10n/app_localizations.dart';
@@ -34,6 +36,9 @@ class DiscoverScreen extends StatelessWidget {
                 // A rolagem de cada categoria fica no PageStorage da rota, e
                 // voltar a uma categoria volta ao mesmo ponto.
                 scrollKey: 'discover-${list.category.name}',
+                onMovieTap: (movie) => context.go(
+                  AppRoutes.movieDetails(AppRoutes.discover, movie.id),
+                ),
                 empty: MoviesMessage(
                   message: AppLocalizations.of(context).discoverEmpty,
                   action: RetryButton.filled(onPressed: list.load),

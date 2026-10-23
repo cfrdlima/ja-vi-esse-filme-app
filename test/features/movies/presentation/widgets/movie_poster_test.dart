@@ -108,4 +108,53 @@ void main() {
     // 120dp de célula × devicePixelRatio 3.
     expect(image(tester).memCacheWidth, 360);
   });
+
+  group('tocável', () {
+    Future<void> pumpTappable(WidgetTester tester, VoidCallback onTap) =>
+        tester.pumpWidget(
+          testApp(
+            home: Center(
+              child: SizedBox(
+                width: 120,
+                child: MoviePoster(movie: withPoster, onTap: onTap),
+              ),
+            ),
+          ),
+        );
+
+    testWidgets('deve chamar o onTap ao tocar', (tester) async {
+      var taps = 0;
+      await pumpTappable(tester, () => taps++);
+
+      await tester.tap(find.byType(MoviePoster));
+
+      expect(taps, 1);
+    });
+
+    testWidgets('deve ser um botão com o título para o leitor de tela', (
+      tester,
+    ) async {
+      await pumpTappable(tester, () {});
+
+      expect(
+        tester.getSemantics(find.byType(MoviePoster)),
+        isSemantics(label: 'Com pôster', isButton: true, hasTapAction: true),
+      );
+    });
+
+    testWidgets('não deve ser botão sem onTap', (tester) async {
+      await pumpPoster(tester, withPoster);
+
+      expect(
+        tester.getSemantics(find.byType(MoviePoster)),
+        isSemantics(isButton: false, hasTapAction: false),
+      );
+    });
+
+    testWidgets('deve ter alvo de toque de 48dp', (tester) async {
+      await pumpTappable(tester, () {});
+
+      await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
+    });
+  });
 }

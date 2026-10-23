@@ -1,0 +1,75 @@
+{
+  "adult": false,
+  "backdrop_path": null,
+  "genres": [
+    {
+      "id": 18,
+      "name": "Drama"
+    }
+  ],
+  "id": 12345,
+  "original_language": "ja",
+  "original_title": "七人の侍",
+  "overview": "",
+  "poster_path": "/poster-samurai.jpg",
+  "release_date": "1954-04-26",
+  "runtime": 207,
+  "title": "Os Sete Samurais",
+  "vote_average": 8.5,
+  "vote_count": 3500,
+  "credits": {
+    "cast": [
+      {
+        "id": 7450,
+        "name": "Toshirō Mifune",
+        "character": "Kikuchiyo",
+        "profile_path": "/mifune.jpg",
+        "order": 0
+      }
+    ],
+    "crew": []
+  },
+  "translations": {
+    "translations": [
+      {
+        "iso_3166_1": "US",
+        "iso_639_1": "en",
+        "name": "English",
+        "english_name": "English",
+        "data": {
+          "homepage": "",
+          "overview": "A veteran samurai gathers six others.",
+          "runtime": 207,
+          "tagline": "",
+          "title": "Seven Samurai"
+        }
+      },
+      {
+        "iso_3166_1": "JP",
+        "iso_639_1": "ja",
+        "name": "日本語",
+        "english_name": "Japanese",
+        "data": {
+          "homepage": "",
+          "overview": "",
+          "runtime": 0,
+          "tagline": "",
+          "title": ""
+        }
+      },
+      {
+        "iso_3166_1": "JP",
+        "iso_639_1": "ja",
+        "name": "日本語",
+        "english_name": "Japanese",
+        "data": {
+          "homepage": "",
+          "overview": "戦国時代の農村を野武士から守る七人の侍。",
+          "runtime": 207,
+          "tagline": "",
+          "title": "七人の侍"
+        }
+      }
+    ]
+  }
+}

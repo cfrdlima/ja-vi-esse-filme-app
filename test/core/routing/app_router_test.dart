@@ -1,9 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+import 'package:ja_vi_esse_filme/core/l10n/app_locale.dart';
 import 'package:ja_vi_esse_filme/core/routing/app_router.dart';
+import 'package:ja_vi_esse_filme/core/routing/app_routes.dart';
+import 'package:ja_vi_esse_filme/features/movies/domain/entities/movie.dart';
 import 'package:ja_vi_esse_filme/features/movies/presentation/screens/discover_screen.dart';
+import 'package:ja_vi_esse_filme/features/movies/presentation/screens/movie_details_screen.dart';
 import 'package:ja_vi_esse_filme/features/movies/presentation/screens/search_screen.dart';
+import 'package:ja_vi_esse_filme/features/movies/presentation/state/search_notifier.dart';
+import 'package:ja_vi_esse_filme/features/movies/presentation/widgets/movie_poster.dart';
+import 'package:ja_vi_esse_filme/l10n/app_localizations.dart';
 
 import '../../helpers/back_navigation.dart';
 import '../../helpers/stub_movie_repository.dart';
@@ -12,8 +19,11 @@ import '../../helpers/test_app.dart';
 Future<GoRouter> pumpAppRouter(
   WidgetTester tester, {
   TextScaler textScaler = TextScaler.noScaling,
+  List<Movie> movies = const [],
 }) async {
-  final router = createAppRouter(movieRepository: StubMovieRepository());
+  final router = createAppRouter(
+    movieRepository: StubMovieRepository(movies: movies),
+  );
   addTearDown(router.dispose);
   await tester.pumpWidget(
     testRouterApp(
@@ -300,5 +310,169 @@ void main() {
         expect(router.state.matchedLocation, AppRoutes.discover);
       });
     }
+  });
+
+  group('detalhes do filme', () {
+    final l10n = lookupAppLocalizations(AppLocale.locale);
+
+    Future<GoRouter> openDetails(WidgetTester tester, String location) async {
+      final router = await pumpAppRouter(tester);
+      router.go(location);
+      await tester.pumpAndSettle();
+      return router;
+    }
+
+    int selectedTab(WidgetTester tester) =>
+        tester.widget<NavigationBar>(find.byType(NavigationBar)).selectedIndex;
+
+    for (final (tab, path, index) in [
+      ('Descobrir', AppRoutes.discover, 0),
+      ('Buscar', AppRoutes.search, 1),
+    ]) {
+      testWidgets('deve abrir os detalhes dentro da aba $tab', (tester) async {
+        await openDetails(tester, AppRoutes.movieDetails(path, 7));
+
+        expect(
+          (
+            find.byType(MovieDetailsScreen).evaluate().length,
+            selectedTab(tester),
+          ),
+          (1, index),
+        );
+      });
+
+      testWidgets('deve voltar à grade da aba $tab ao voltar', (tester) async {
+        final router = await openDetails(
+          tester,
+          AppRoutes.movieDetails(path, 7),
+        );
+
+        await router.routerDelegate.popRoute();
+        await tester.pumpAndSettle();
+
+        expect(router.state.matchedLocation, path);
+      });
+
+      testWidgets('deve avisar o Android que trata o voltar nos detalhes '
+          'da aba $tab', (tester) async {
+        final frameworkHandlesBack = recordFrameworkHandlesBack(tester);
+
+        await openDetails(tester, AppRoutes.movieDetails(path, 7));
+
+        expect(frameworkHandlesBack(), isTrue);
+      });
+    }
+
+    testWidgets('deve pedir os detalhes do id da rota', (tester) async {
+      await openDetails(tester, AppRoutes.movieDetails(AppRoutes.search, 42));
+
+      expect(find.text('Filme 42'), findsWidgets);
+    });
+
+    for (final id in [
+      'abc',
+      '0',
+      '-1',
+      '7.5',
+      '99999999999999999999',
+      '0x1F',
+      '+7',
+      ' 7',
+    ]) {
+      testWidgets('deve mostrar não encontrado com o id $id', (tester) async {
+        await openDetails(tester, '${AppRoutes.discover}/filme/$id');
+
+        expect(find.text(l10n.movieNotFound), findsOneWidget);
+      });
+    }
+
+    // O go_router reaproveita a página quando só o parâmetro muda: o
+    // provider precisa trocar junto com o id.
+    testWidgets('deve trocar de filme quando só o id da rota muda', (
+      tester,
+    ) async {
+      final router = await openDetails(
+        tester,
+        AppRoutes.movieDetails(AppRoutes.discover, 1),
+      );
+
+      router.go(AppRoutes.movieDetails(AppRoutes.discover, 2));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Filme 2'), findsWidgets);
+    });
+
+    testWidgets('a seta da barra deve voltar à grade', (tester) async {
+      final router = await openDetails(
+        tester,
+        AppRoutes.movieDetails(AppRoutes.search, 7),
+      );
+
+      await tester.tap(find.byType(BackButton));
+      await tester.pumpAndSettle();
+
+      expect(router.state.matchedLocation, AppRoutes.search);
+    });
+  });
+
+  group('pôster da grade', () {
+    final movies = [
+      for (var i = 1; i <= 40; i++) Movie(id: i, title: 'Filme $i'),
+    ];
+
+    testWidgets('deve abrir os detalhes do filme tocado na Descobrir', (
+      tester,
+    ) async {
+      final router = await pumpAppRouter(tester, movies: movies);
+
+      await tester.tap(find.byType(MoviePoster).at(1));
+      await tester.pumpAndSettle();
+
+      expect(
+        router.state.matchedLocation,
+        AppRoutes.movieDetails(AppRoutes.discover, 2),
+      );
+    });
+
+    testWidgets('deve abrir os detalhes do filme tocado na Buscar', (
+      tester,
+    ) async {
+      final router = await pumpAppRouter(tester, movies: movies);
+      await tapDestination(tester, 'Buscar');
+      await tester.enterText(find.byType(TextField), 'filme');
+      await tester.pump(SearchNotifier.debounce);
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byType(MoviePoster).first);
+      await tester.pumpAndSettle();
+
+      expect(
+        router.state.matchedLocation,
+        AppRoutes.movieDetails(AppRoutes.search, 1),
+      );
+    });
+
+    testWidgets('deve voltar à grade na mesma rolagem', (tester) async {
+      final router = await pumpAppRouter(tester, movies: movies);
+      await tester.drag(find.byType(CustomScrollView), const Offset(0, -300));
+      await tester.pumpAndSettle();
+      final offset = tester
+          .state<ScrollableState>(find.byType(Scrollable).first)
+          .position
+          .pixels;
+
+      await tester.tap(find.byType(MoviePoster).first);
+      await tester.pumpAndSettle();
+      await router.routerDelegate.popRoute();
+      await tester.pumpAndSettle();
+
+      expect(
+        tester
+            .state<ScrollableState>(find.byType(Scrollable).first)
+            .position
+            .pixels,
+        offset,
+      );
+    });
   });
 }

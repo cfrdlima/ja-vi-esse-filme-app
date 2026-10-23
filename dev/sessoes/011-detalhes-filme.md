@@ -1,0 +1,106 @@
+# Sessão 011 — Fase 1: detalhes do filme
+
+**Data**: 2026-10-23 · **Branch**: `feature/011-detalhes-filme` · **Status**: fechada
+
+## Objetivo
+Tocar num pôster da Descobrir ou da Buscar abre os detalhes do filme numa rota dentro da própria aba (`/descobrir/filme/:id` e `/buscar/filme/:id`). A tela mostra sinopse (com o texto original quando a de pt-BR vier vazia), gêneros, duração, nota, data e até 15 pessoas do elenco, e tem os 4 estados. O pedido é um só: `/movie/{id}` com o elenco anexado.
+
+## Checklist
+- [x] Contrato: conferir `/movie/{id}` e `append_to_response` (`credits`, e o que trazer para a sinopse original) na documentação oficial (Context7/web): campos nulos, `runtime`, `genres`, `cast` (`order`, `character`, `profile_path`)
+- [x] Design: consultar a `ui-ux-pro-max` (stack Flutter) para tela de detalhe, elenco horizontal e textos longos; criar o override `pages/detalhes.md`
+- [x] Domínio: `MovieDetails` e `CastMember`, com o teto de 15 pessoas no domínio — RED / GREEN / REFACTOR
+- [x] Domínio: `MovieRepository.details(id)`, recusando id < 1 sem chamar o TMDB — RED / GREEN
+- [x] Fixtures `movie_details_*.json` (completo, com campos nulos/vazios e com sinopse pt-BR vazia)
+- [x] Datasource + model: parse defensivo (`runtime` nulo ou 0, `release_date` vazio, `genres`/`cast` ausentes, item de elenco quebrado), elenco pela `order` e cortado em 15 — RED / GREEN / REFACTOR
+- [x] Sinopse: fallback para o texto original quando a de pt-BR vier vazia — RED / GREEN
+- [x] Formatação pt-BR (`intl`, decisão 005): duração ("2 h 15 min"), data e nota ("7,8"), na `presentation` — RED / GREEN
+- [x] Estado: `MovieDetailsNotifier` (carregando, erro com a falha, sucesso; 404 como estado próprio) — RED / GREEN / REFACTOR
+- [x] Tela de detalhes: 4 estados (skeleton, "filme não encontrado", erro com `RetryButton`, sucesso), pôster com placeholder, elenco horizontal com foto ou placeholder e `Semantics` — RED / GREEN, com `textScaler` 1.5 numa tela de 320dp
+- [x] Rotas: `filme/:id` como sub-rota (`routes:` do `firstTabBranch`/`tabBranch`, que já existe) dentro de Descobrir e Buscar, id inválido vai para "não encontrado", e o voltar retorna à grade com a rolagem e não cai na regra do voltar da raiz da aba — RED / GREEN
+- [x] Pôster tocável na grade (alvo ≥ 48dp, `Semantics` de botão) que abre os detalhes da aba atual — RED / GREEN
+- [x] Strings novas no ARB (títulos de seção, duração, nota, "não encontrado", elenco, sem sinopse)
+- [x] Tríade: `flutter analyze` limpo, `flutter test` verde e emulador (abrir pelas duas abas, voltar, filme sem pôster/sinopse, fonte grande)
+- [x] `/revisar`: `code-reviewer` + `security-auditor` (a sessão toca rede e rota com parâmetro)
+- [x] I1: provider dos detalhes com `key` pelo id, para ir de `filme/1` a `filme/2` trocar o filme (o `pageKey` do go_router é o caminho-padrão) — RED / GREEN
+- [x] I2: testes de fonte 1.5x dos detalhes numa tela de fato de 320dp (`tester.view`) — RED / GREEN
+- [x] S1: id da rota só em base 10 (`0x1F` vai para "não encontrado") — RED / GREEN
+- [x] S2: teste do notifier descartado registra um ouvinte e confere que ele não é chamado
+- [x] S3: teste de dados ausentes procura o texto exato de data e duração
+- [x] S4: título do filme no cabeçalho marcado como cabeçalho para o leitor de tela: descartado, porque a AppBar já marca o título como cabeçalho (ver Notas)
+- [x] S5: skeleton dos detalhes com a mesma largura máxima do conteúdo (640dp) — RED / GREEN
+
+## Decisões
+- [008 — Sinopse original via `append_to_response=translations`](../decisoes/008-sinopse-original-via-translations.md)
+
+## Commits
+- 456a45b docs: tratamento da revisão da sessão 011
+- 29fe173 fix: skeleton dos detalhes com a largura máxima do conteúdo no tablet
+- 0dbe9e8 test: dados ausentes conferidos pela lista exata de textos dos detalhes
+- bdcd304 test: resposta depois do descarte termina sem erro e não muda o estado
+- fac53d6 fix: id da rota de detalhes só em dígitos de base 10
+- 49a7f95 test: fonte grande dos detalhes numa tela de fato de 320dp, e também em 2x
+- 0de4b9c fix: trocar só o id da rota de detalhes troca o filme mostrado
+- 72bec9d docs: itens da revisão da sessão 011 no log
+- 9b82b44 docs: log da sessão 011
+- 178244e fix: card do elenco segue a escala não linear da fonte do Android
+- 4a8cc14 fix: card do elenco cresce com a fonte e o nome não quebra no meio da palavra
+- d9a1ce0 add: tocar num pôster da grade abre os detalhes na aba atual
+- 474796d add: pôster tocável, com semântica de botão
+- dcc7ea9 add: detalhes do filme como sub-rota das abas Descobrir e Buscar
+- 7892ba8 add: tela de detalhes do filme com os 4 estados, gêneros, sinopse e elenco
+- 5bc58ab refactor: pulso do skeleton sai da grade para SkeletonPulse
+- 7f0d991 add: URL da foto de perfil do TMDB em w185
+- 58d484c add: MovieDetailsNotifier com carregando, erro, sucesso e não encontrado
+- e3dafc1 add: duração, nota e data do filme formatadas em pt-BR
+- dae3dd4 add: detalhes do filme no repositório, recusando id menor que 1
+- 0b865bd add: detalhes do filme no datasource, com elenco e traduções anexados
+- 78fb6e8 add: model dos detalhes do filme com elenco pela order e sinopse do idioma original
+- 0571f5b refactor: leituras defensivas do JSON do TMDB saem do MovieModel para TmdbJson
+- 408d622 add: MovieDetails e CastMember com o elenco limitado a 15 no domínio
+- 082f8e3 docs: contrato e design da tela de detalhes (decisão 008)
+- e2cf5dd docs: rota de detalhes como sub-rota da aba no checklist da sessão 011
+- 5b8db6c docs: abre sessão 011
+
+## Notas
+- Contrato (Context7): `/movie/{id}` aceita `append_to_response` com até 20 itens. Com `language=pt-BR`, o `overview` vem vazio quando o filme não tem tradução, e a sinopse original só vem nas traduções. Daí a decisão 008: `append_to_response=credits,translations`.
+- Design: override `pages/detalhes.md`. Sem `Hero`, porque as páginas do TMDB podem repetir um filme e duas tags iguais quebram a transição. O elenco é uma `Row` num scroll horizontal (no máximo 15 itens, com altura que acompanha a fonte grande), e não um `ListView.builder`.
+- Ordem: o repositório saiu depois do model e do datasource, porque o teste dele monta o datasource real com `MockClient`.
+- Refactors, todos com os testes verdes antes e depois:
+  - `TmdbJson`: as leituras defensivas saíram do `MovieModel` e servem aos dois models;
+  - `SkeletonPulse`: o pulso saiu da grade e serve também ao skeleton dos detalhes;
+  - `AppRoutes` foi para `app_routes.dart`, para as telas navegarem sem importar o router, que importa as telas. Esse refactor entrou no mesmo commit do toque no pôster (`d9a1ce0`), em vez de ir num commit próprio.
+- Formatação: a nota e a data saem direto do ARB (`decimalPatternDigits` e `yMd`), e só a duração tem função própria (`formatRuntime`). Os wrappers de nota e data, sem regra, saíram no REFACTOR.
+- Id da rota: o `int.tryParse` da rota manda `null` para o que não é número, e o notifier trata `null` e id < 1 como "não encontrado", sem pedido ao TMDB. Testado com `abc`, `0`, `-1`, `7.5` e um número maior que 64 bits.
+- Testes:
+  - o desempate do elenco pelo índice só aparece com mais de 32 pessoas, porque o `sort` do Dart é estável por inserção até 32. Por isso o teste usa 40;
+  - um record com listas comparou por identidade (o mesmo defeito das sessões 009 e 010), e o teste foi separado em dois antes do GREEN;
+  - mutações pegas: o desempate do elenco, a pessoa sem `order` no fim, as guardas do notifier (pedido em andamento, id < 1, emitir depois do `dispose`), a nota sem guarda e sem rótulo, o card sem `excludeSemantics` e o "tentar de novo" no 404;
+  - uma sonda temporária confirmou que o teste da rolagem rola de fato (280 px), abre os detalhes e volta à mesma posição.
+- Emulador (Medium Phone API 36):
+  - **Descobrir:** tocar num pôster abre os detalhes com a barra das abas visível. O voltar do sistema devolve a grade na mesma rolagem (captura idêntica à de antes de abrir).
+  - **Buscar:** "cidade de deus" e depois um pôster abrem os detalhes na aba Buscar. A seta da barra volta à grade com o termo intacto, e o elenco rola na horizontal.
+  - **Dados:** a data sai em dd/MM/aaaa, a duração em "2 h 10 min" e "52 min", a nota em "8,4". O título longo leva reticências na barra e quebra linha no cabeçalho.
+  - **Fonte 1.5x:** sem overflow, e os gêneros quebram linha. O nome no elenco quebrava no meio da palavra ("Fernand / o Meir…"), porque o card tinha 96dp fixos. Isso foi corrigido em dois passos:
+    1. o card passou a crescer com a fonte, mas o `scale(96)` não mudou nada no aparelho, porque o Android 14 escala a fonte de forma não linear e trata 96 como um tamanho grande;
+    2. o fator passou a vir do tamanho da fonte do nome (`bodyMedium`), com um teste que usa um `TextScaler` não linear.
+  - **Erro:** com o modo avião, aparece "Sem conexão com a internet" e o "Tentar de novo"; com a rede de volta, o toque carrega o filme.
+  - **Não conferido no aparelho:** a sinopse do idioma original, porque não achei um filme sem sinopse pt-BR, e o "não encontrado", que só se alcança por URL. Os dois ficam cobertos pelos testes de model, de rota e de tela.
+  - Nenhuma exceção nem overflow no log do `flutter run`.
+  - **Observação:** o personagem vem do TMDB sem tradução ("Himself", "Herself"). É dado do TMDB, e não do app.
+- Tríade antes do `/revisar`: `dart format` sem mudanças (106 arquivos), `flutter analyze` sem issues, `flutter test` com 573 testes passando (eram 473) e `gitleaks` sem vazamentos.
+- Revisão (`code-reviewer` e `security-auditor`): nada bloqueante.
+  - O `security-auditor` aprovou fechar a sessão. A rota não é alcançável por deep link (o manifesto só tem MAIN/LAUNCHER), as imagens passam pelo host fixo e o texto de terceiros só vai para `Text`.
+  - O `code-reviewer` pediu dois itens importantes e sete sugestões.
+  - O usuário seguiu a recomendação: I1, I2, S1, S2, S3, S4 e S5 nesta sessão. S6, S7 e o alerta de controle bidirecional do auditor foram para o BACKLOG.
+- Tratamento:
+  - **I1:** confirmado no código do go_router 18.1.0 (`match.dart`): a `pageKey` é o caminho-padrão (`/descobrir/filme/:id`), e ir de `filme/1` a `filme/2` mantinha o notifier do filme 1. O provider ganhou `key` pelo id, com teste de router.
+  - **I2:** os testes de fonte grande rodavam a 800dp, porque o `MaterialApp` tira o tamanho da view, e não do `MediaQuery` de fora. Passaram a usar o `tester.view` em 320dp, e entrou um caso com fonte 2x. Mutação: um pôster de 400dp reprova os quatro testes.
+  - **S1:** a rota aceita só dígitos em base 10. O `int.tryParse` sozinho aceitava `0x1F`, `+7` e `" 7"`, os três com teste.
+  - **S2:** o `ChangeNotifier` já tira os ouvintes no `dispose`, então um ouvinte registrado não provaria nada. Os testes passaram a conferir o que a guarda evita: lançar e mudar o estado. Os dois reprovam sem a guarda.
+  - **S3:** o filme sem dados confere a lista exata de textos do conteúdo. Mutação: um "—" no lugar da duração reprova o teste.
+  - **S4:** descartado depois do RED. A AppBar do Material já põe `header: true` no título (`app_bar.dart`, linha 1079) e o usa como nome da rota. Marcar também o título do conteúdo o tornaria cabeçalho duas vezes. O código e o teste foram desfeitos antes do commit.
+  - **S5:** o skeleton usa a mesma largura máxima do conteúdo. No tablet (1200dp), o pôster do skeleton estava em 16 e o do conteúdo em 280; o teste confere que os dois ficam no mesmo lugar.
+- Tríade depois do tratamento: `dart format` sem mudanças (106 arquivos), `flutter analyze` sem issues, `flutter test` com 581 testes passando e `gitleaks` sem vazamentos.
+- Pendências:
+  - não conferi no aparelho a sinopse no idioma original nem o "não encontrado" (ver a nota do emulador); os dois estão cobertos por testes;
+  - o `Hero` do pôster (item da Fase 1) continua aberto. Nesta sessão ele foi avaliado e deixado de fora, porque as páginas do TMDB repetem filmes e duas tags iguais quebram a transição. Ele pede tags únicas por aba e por posição, ou uma transição sem `Hero`.

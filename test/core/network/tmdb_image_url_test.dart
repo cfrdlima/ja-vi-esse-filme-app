@@ -8,6 +8,19 @@ void main() {
     expect(url.toString(), 'https://image.tmdb.org/t/p/w342/abc.jpg');
   });
 
+  test('deve montar a URL da foto de perfil em w185', () {
+    final url = TmdbImageUrl.profile('/pessoa.jpg');
+
+    expect(url.toString(), 'https://image.tmdb.org/t/p/w185/pessoa.jpg');
+  });
+
+  test('deve recusar caminho de foto de perfil fora do formato', () {
+    expect(
+      () => TmdbImageUrl.profile('//outro.host/x.jpg'),
+      throwsArgumentError,
+    );
+  });
+
   test('deve recusar caminho que não começa com barra', () {
     expect(
       () => TmdbImageUrl.poster('https://outro.host/x.jpg'),

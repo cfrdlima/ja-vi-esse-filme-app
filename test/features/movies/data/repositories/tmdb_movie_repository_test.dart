@@ -69,4 +69,24 @@ void main() {
       expect(requests, 0);
     });
   });
+
+  group('detalhes', () {
+    test('deve devolver os detalhes do filme pedido', () async {
+      final repository = repositoryWith('{"id":7,"title":"Filme"}');
+
+      final details = await repository.details(7);
+
+      expect((details.id, details.title), (7, 'Filme'));
+    });
+
+    test('deve recusar id menor que 1 sem chamar o TMDB', () async {
+      final repository = repositoryWith('{}');
+
+      await expectLater(
+        () => repository.details(0),
+        throwsA(isA<RangeError>()),
+      );
+      expect(requests, 0);
+    });
+  });
 }

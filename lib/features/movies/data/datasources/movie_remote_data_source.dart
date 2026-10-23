@@ -1,12 +1,14 @@
 import '../../../../core/error/failures.dart';
 import '../../../../core/network/tmdb_client.dart';
 import '../../domain/entities/movie_category.dart';
+import '../../domain/entities/movie_details.dart';
 import '../../domain/entities/movie_page.dart';
 import '../../domain/entities/search_query.dart';
+import '../models/movie_details_model.dart';
 import '../models/movie_model.dart';
 
-/// Listas de filmes do TMDB. O [TmdbClient] já converte status e erros de
-/// rede em falhas tipadas; aqui só o JSON vira entidade.
+/// Filmes do TMDB: listas e detalhes. O [TmdbClient] já converte status e
+/// erros de rede em falhas tipadas; aqui só o JSON vira entidade.
 class MovieRemoteDataSource {
   MovieRemoteDataSource({required this._client});
 
@@ -42,6 +44,19 @@ class MovieRemoteDataSource {
       },
     );
     return _parsePage(json);
+  }
+
+  /// Detalhes com o elenco e as traduções no mesmo pedido (decisão 008).
+  Future<MovieDetails> details(int id) async {
+    final json = await _client.get(
+      'movie/$id',
+      query: {'append_to_response': 'credits,translations'},
+    );
+    try {
+      return MovieDetailsModel.fromJson(json).toEntity();
+    } on FormatException {
+      throw const UnexpectedFailure('detalhes do filme sem id');
+    }
   }
 
   String _pathOf(MovieCategory category) => switch (category) {

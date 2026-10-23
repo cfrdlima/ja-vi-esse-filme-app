@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../core/routing/app_routes.dart';
 import '../../../../core/theme/app_sizes.dart';
 import '../../../../core/theme/app_theme_tokens.dart';
 import '../../../../l10n/app_localizations.dart';
@@ -123,6 +125,8 @@ class _SearchBody extends StatelessWidget {
           // Um termo novo é uma grade nova, que começa do topo.
           key: ObjectKey(results),
           notifier: results,
+          onMovieTap: (movie) =>
+              context.go(AppRoutes.movieDetails(AppRoutes.search, movie.id)),
           // Repetir a mesma busca daria o mesmo vazio: a ação é mudar o termo.
           empty: MoviesMessage(message: l10n.searchEmpty(results.query.text)),
         ),
