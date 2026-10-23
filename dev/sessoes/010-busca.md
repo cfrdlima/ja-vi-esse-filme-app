@@ -1,6 +1,6 @@
 # Sessão 010 — Fase 1: busca de filmes
 
-**Data**: 2026-10-23 · **Branch**: `feature/010-busca` · **Status**: aberta
+**Data**: 2026-10-23 · **Branch**: `feature/010-busca` · **Status**: fechada
 
 ## Objetivo
 Trocar o placeholder da aba Buscar por uma busca de filmes (`/search/movie` com `include_adult=false`) com debounce de 400 ms, termo de 2 a 100 caracteres validado no domínio e paginação infinita. A tela tem os estados inicial, carregando, vazio, erro (com a espera do 429) e sucesso, e o app não guarda histórico de busca.
@@ -56,6 +56,7 @@ Trocar o placeholder da aba Buscar por uma busca de filmes (`/search/movie` com 
 - `a8aa062` fix: campo da busca limita em code points e pede ao teclado que não aprenda o termo
 - `fba3f61` test: termo com &include_adult=true não troca o filtro de adultos
 - `84ac228` docs: override da Buscar com a espera do 429, o limite em code points e o anúncio
+- `6ce799e` docs: tratamento da revisão da sessão 010
 
 ## Notas
 - Contrato (developer.themoviedb.org, via Context7): `GET /3/search/movie` com `query` (obrigatório), `include_adult` (padrão `false`), `language`, `page`, `primary_release_year`, `region` e `year`. A resposta tem a mesma forma das listas (`page`, `results`, `total_pages`, `total_results`), então o parse é o mesmo `_parsePage`. O app manda `query`, `page` e `include_adult=false` explícito (seção 11 da política, 13+); `language=pt-BR` já vem do `TmdbClient`.
@@ -108,3 +109,15 @@ Trocar o placeholder da aba Buscar por uma busca de filmes (`/search/movie` com 
   - **Correção automática:** o Gboard trocou "poderoso" por "ponderosa" ao digitar pelo `adb`. É o `autocorrect` padrão, mantido como o auditor recomendou; fica como observação.
   - Nenhuma exceção no log.
 - Tríade depois da revisão: `dart format` sem mudanças (86 arquivos), `flutter analyze` sem issues, `flutter test` com 473 testes passando e `gitleaks` sem vazamentos.
+- Fechamento: `dart format` sem mudanças (86 arquivos), `flutter analyze` sem issues, `flutter test` com 473 testes passando e `gitleaks` sem vazamentos. O `/revisar` rodou com o `code-reviewer` e o `security-auditor`.
+- **Pendências:**
+  - **BACKLOG:**
+    - `context.select` na `SearchScreen` (S3);
+    - validação do termo sem exceção a cada tecla (S4);
+    - descartar no parse os itens com `adult == true`.
+  - **Observações sem item:**
+    - o rótulo flutuante do campo sem foco fica meio fora do fundo (tema dos campos);
+    - a correção automática do teclado pode trocar títulos;
+    - limpar e digitar durante a espera do 429 deixa a tela no estado inicial sem aviso.
+  - **Próxima sessão:** detalhes do filme (Fase 1).
+  - **Política:** continua em rascunho, com 6 marcadores `A REVISAR`; esta sessão não pediu mudança nela.
