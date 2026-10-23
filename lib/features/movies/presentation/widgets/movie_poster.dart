@@ -8,29 +8,48 @@ import '../../../../l10n/app_localizations.dart';
 import '../../domain/entities/movie.dart';
 
 /// Pôster 2:3 de um filme. Sem `posterPath`, enquanto carrega ou se a imagem
-/// falhar, mostra um placeholder desenhado.
+/// falhar, mostra um placeholder desenhado. Com [onTap], vira um botão do
+/// tamanho do pôster.
 class MoviePoster extends StatelessWidget {
-  const MoviePoster({required this.movie, super.key});
+  const MoviePoster({required this.movie, this.onTap, super.key});
 
   final Movie movie;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     final radii = Theme.of(context).extension<AppThemeTokens>()!.radii;
     final path = movie.posterPath;
+    final onTap = this.onTap;
     return Semantics(
       label: movie.title.isEmpty
           ? AppLocalizations.of(context).movieUntitled
           : movie.title,
       image: true,
+      // O `excludeSemantics` tira a ação do InkWell da árvore; ela é repetida
+      // aqui para o leitor de tela poder tocar.
+      button: onTap != null,
+      onTap: onTap,
       excludeSemantics: true,
       child: AspectRatio(
         aspectRatio: 2 / 3,
         child: ClipRRect(
           borderRadius: BorderRadius.circular(radii.md),
-          child: path == null
-              ? const _PosterPlaceholder()
-              : _PosterImage(path: path),
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              if (path == null)
+                const _PosterPlaceholder()
+              else
+                _PosterImage(path: path),
+              // O ripple fica por cima: por baixo, a imagem o esconderia.
+              if (onTap != null)
+                Material(
+                  type: MaterialType.transparency,
+                  child: InkWell(onTap: onTap),
+                ),
+            ],
+          ),
         ),
       ),
     );
