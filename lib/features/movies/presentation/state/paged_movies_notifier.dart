@@ -2,18 +2,12 @@ import 'package:flutter/foundation.dart';
 
 import '../../../../core/error/failures.dart';
 import '../../domain/entities/movie.dart';
-import '../../domain/entities/movie_category.dart';
 import '../../domain/entities/movie_page.dart';
-import '../../domain/repositories/movie_repository.dart';
 import 'paged_movies_state.dart';
 
-/// Uma lista paginada de filmes de uma [MovieCategory].
-class PagedMoviesNotifier extends ChangeNotifier {
-  PagedMoviesNotifier({required this._repository, required this.category});
-
-  final MovieRepository _repository;
-  final MovieCategory category;
-
+/// Uma lista paginada de filmes. A subclasse diz de onde vem cada página
+/// ([fetchPage]); a paginação, os repetidos e as falhas ficam aqui.
+abstract class PagedMoviesNotifier extends ChangeNotifier {
   PagedMoviesState _state = const PagedMoviesLoading();
   PagedMoviesState get state => _state;
 
@@ -89,12 +83,16 @@ class PagedMoviesNotifier extends ChangeNotifier {
     }
   }
 
+  /// Pede a [page] (começa em 1) ao repositório.
+  @protected
+  Future<MoviePage> fetchPage(int page);
+
   /// O `TmdbClient` só lança [Failure]; qualquer outra exceção vira falha
   /// inesperada, para a tela não ficar carregando para sempre. `Error` (bug)
   /// continua subindo de propósito.
   Future<MoviePage> _fetch(int page) async {
     try {
-      return await _repository.byCategory(category, page: page);
+      return await fetchPage(page);
     } on Failure {
       rethrow;
     } on Exception {

@@ -12,8 +12,8 @@ import '../../../../core/theme/app_theme_tokens.dart';
 import '../../../../core/widgets/retry_button.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../domain/entities/movie_category.dart';
+import '../state/category_movies_notifier.dart';
 import '../state/discover_notifier.dart';
-import '../state/paged_movies_notifier.dart';
 import '../state/paged_movies_state.dart';
 import '../widgets/movie_poster.dart';
 import '../widgets/poster_skeleton.dart';
@@ -94,7 +94,7 @@ class _CategorySelector extends StatelessWidget {
 class _PagedMoviesView extends StatelessWidget {
   const _PagedMoviesView({required this.notifier, super.key});
 
-  final PagedMoviesNotifier notifier;
+  final CategoryMoviesNotifier notifier;
 
   @override
   Widget build(BuildContext context) => switch (notifier.state) {

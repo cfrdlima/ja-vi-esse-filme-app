@@ -8,8 +8,8 @@ import 'package:ja_vi_esse_filme/core/error/failures.dart';
 import 'package:ja_vi_esse_filme/core/l10n/app_locale.dart';
 import 'package:ja_vi_esse_filme/features/movies/domain/entities/movie_category.dart';
 import 'package:ja_vi_esse_filme/features/movies/presentation/screens/discover_screen.dart';
+import 'package:ja_vi_esse_filme/features/movies/presentation/state/category_movies_notifier.dart';
 import 'package:ja_vi_esse_filme/features/movies/presentation/state/discover_notifier.dart';
-import 'package:ja_vi_esse_filme/features/movies/presentation/state/paged_movies_notifier.dart';
 import 'package:ja_vi_esse_filme/features/movies/presentation/widgets/movie_poster.dart';
 import 'package:ja_vi_esse_filme/features/movies/presentation/widgets/poster_skeleton.dart';
 import 'package:ja_vi_esse_filme/l10n/app_localizations.dart';
@@ -23,7 +23,7 @@ void main() {
   late FakeMovieRepository repository;
   late DiscoverNotifier discover;
   // A lista de populares, que abre carregando.
-  late PagedMoviesNotifier notifier;
+  late CategoryMoviesNotifier notifier;
   final created = <DiscoverNotifier>[];
 
   setUp(() => repository = FakeMovieRepository());
