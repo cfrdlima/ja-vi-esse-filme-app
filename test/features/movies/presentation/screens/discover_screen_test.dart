@@ -5,7 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:ja_vi_esse_filme/core/error/failures.dart';
 import 'package:ja_vi_esse_filme/core/l10n/app_locale.dart';
 import 'package:ja_vi_esse_filme/features/movies/presentation/screens/discover_screen.dart';
-import 'package:ja_vi_esse_filme/features/movies/presentation/state/popular_movies_notifier.dart';
+import 'package:ja_vi_esse_filme/features/movies/presentation/state/paged_movies_notifier.dart';
 import 'package:ja_vi_esse_filme/features/movies/presentation/widgets/movie_poster.dart';
 import 'package:ja_vi_esse_filme/features/movies/presentation/widgets/poster_skeleton.dart';
 import 'package:ja_vi_esse_filme/l10n/app_localizations.dart';
@@ -17,11 +17,11 @@ import '../../../../helpers/test_app.dart';
 void main() {
   final l10n = lookupAppLocalizations(AppLocale.locale);
   late FakeMovieRepository repository;
-  late PopularMoviesNotifier notifier;
+  late PagedMoviesNotifier notifier;
 
   setUp(() {
     repository = FakeMovieRepository();
-    notifier = PopularMoviesNotifier(repository: repository);
+    notifier = PagedMoviesNotifier(repository: repository);
   });
 
   tearDown(() => notifier.dispose());

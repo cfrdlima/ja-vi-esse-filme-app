@@ -6,7 +6,7 @@ import 'package:provider/provider.dart';
 
 import '../../features/movies/domain/repositories/movie_repository.dart';
 import '../../features/movies/presentation/screens/discover_screen.dart';
-import '../../features/movies/presentation/state/popular_movies_notifier.dart';
+import '../../features/movies/presentation/state/paged_movies_notifier.dart';
 import '../../l10n/app_localizations.dart';
 import '../widgets/placeholder_screen.dart';
 import 'app_shell.dart';
@@ -34,7 +34,7 @@ GoRouter createAppRouter({required MovieRepository movieRepository}) =>
             // troca de aba.
             root: ChangeNotifierProvider(
               create: (_) {
-                final notifier = PopularMoviesNotifier(
+                final notifier = PagedMoviesNotifier(
                   repository: movieRepository,
                 );
                 // O notifier guarda o resultado, inclusive a falha, no estado.

@@ -4,18 +4,18 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:ja_vi_esse_filme/core/error/failures.dart';
 import 'package:ja_vi_esse_filme/features/movies/domain/entities/movie.dart';
 import 'package:ja_vi_esse_filme/features/movies/domain/entities/movie_page.dart';
-import 'package:ja_vi_esse_filme/features/movies/presentation/state/popular_movies_notifier.dart';
-import 'package:ja_vi_esse_filme/features/movies/presentation/state/popular_movies_state.dart';
+import 'package:ja_vi_esse_filme/features/movies/presentation/state/paged_movies_notifier.dart';
+import 'package:ja_vi_esse_filme/features/movies/presentation/state/paged_movies_state.dart';
 
 import '../../../../helpers/fake_movie_repository.dart';
 
 void main() {
   late FakeMovieRepository repository;
-  late PopularMoviesNotifier notifier;
+  late PagedMoviesNotifier notifier;
 
   setUp(() {
     repository = FakeMovieRepository();
-    notifier = PopularMoviesNotifier(repository: repository);
+    notifier = PagedMoviesNotifier(repository: repository);
   });
 
   tearDown(() => notifier.dispose());
@@ -28,13 +28,13 @@ void main() {
 
   group('primeira página', () {
     test('deve começar carregando', () {
-      expect(notifier.state, isA<PopularMoviesLoading>());
+      expect(notifier.state, isA<PagedMoviesLoading>());
     });
 
     test('deve mostrar os filmes da primeira página', () async {
       await loadFirstPage();
 
-      final state = notifier.state as PopularMoviesLoaded;
+      final state = notifier.state as PagedMoviesLoaded;
       expect(state.movies.map((m) => m.id), [100, 101]);
     });
 
@@ -43,7 +43,7 @@ void main() {
       repository.complete(moviePage(page: 1, count: 0, totalPages: 0));
       await future;
 
-      expect(notifier.state, isA<PopularMoviesEmpty>());
+      expect(notifier.state, isA<PagedMoviesEmpty>());
     });
 
     test('deve guardar a falha quando a primeira página falha', () async {
@@ -53,7 +53,7 @@ void main() {
 
       expect(
         notifier.state,
-        isA<PopularMoviesError>().having(
+        isA<PagedMoviesError>().having(
           (s) => s.failure,
           'failure',
           isA<NetworkFailure>(),
@@ -68,7 +68,7 @@ void main() {
 
       final retry = notifier.load();
 
-      expect(notifier.state, isA<PopularMoviesLoading>());
+      expect(notifier.state, isA<PagedMoviesLoading>());
       repository.complete(moviePage(page: 1));
       await retry;
     });
@@ -98,7 +98,7 @@ void main() {
       );
       await future;
 
-      final state = notifier.state as PopularMoviesLoaded;
+      final state = notifier.state as PagedMoviesLoaded;
       expect(state.movies.map((m) => m.id), [1]);
     });
 
@@ -111,7 +111,7 @@ void main() {
 
         expect(
           notifier.state,
-          isA<PopularMoviesError>().having(
+          isA<PagedMoviesError>().having(
             (s) => s.failure,
             'failure',
             isA<UnexpectedFailure>(),
@@ -129,7 +129,7 @@ void main() {
       repository.complete(moviePage(page: 2));
       await future;
 
-      final state = notifier.state as PopularMoviesLoaded;
+      final state = notifier.state as PagedMoviesLoaded;
       expect(state.movies.map((m) => m.id), [100, 101, 200, 201]);
     });
 
@@ -138,7 +138,7 @@ void main() {
 
       final future = notifier.loadMore();
 
-      final state = notifier.state as PopularMoviesLoaded;
+      final state = notifier.state as PagedMoviesLoaded;
       expect(state.nextPage, NextPageStatus.loading);
       repository.complete(moviePage(page: 2));
       await future;
@@ -176,7 +176,7 @@ void main() {
       repository.fail(const RateLimitFailure());
       await future;
 
-      final state = notifier.state as PopularMoviesLoaded;
+      final state = notifier.state as PagedMoviesLoaded;
       expect((state.movies.length, state.nextPage), (2, NextPageStatus.failed));
     });
 
@@ -222,7 +222,7 @@ void main() {
       repository.complete(moviePage(page: 2, totalPages: 2));
       await future;
 
-      final state = notifier.state as PopularMoviesLoaded;
+      final state = notifier.state as PagedMoviesLoaded;
       expect(state.hasMore, isFalse);
     });
 
@@ -242,7 +242,7 @@ void main() {
       );
       await future;
 
-      final state = notifier.state as PopularMoviesLoaded;
+      final state = notifier.state as PagedMoviesLoaded;
       expect(state.movies.map((m) => m.id), [100, 101, 200]);
     });
 
@@ -270,7 +270,7 @@ void main() {
         repository.complete(moviePage(page: 2));
         await stale;
 
-        expect(notifier.state, isA<PopularMoviesLoading>());
+        expect(notifier.state, isA<PagedMoviesLoading>());
         repository.complete(moviePage(page: 1, count: 1));
         await reload;
       },
@@ -285,7 +285,7 @@ void main() {
         repository.fail(Exception('inesperada'));
         await future;
 
-        final state = notifier.state as PopularMoviesLoaded;
+        final state = notifier.state as PagedMoviesLoaded;
         expect(state.nextPage, NextPageStatus.failed);
       },
     );
@@ -297,6 +297,6 @@ void main() {
     repository.complete(moviePage(page: 1));
 
     await expectLater(future, completes);
-    notifier = PopularMoviesNotifier(repository: repository);
+    notifier = PagedMoviesNotifier(repository: repository);
   });
 }

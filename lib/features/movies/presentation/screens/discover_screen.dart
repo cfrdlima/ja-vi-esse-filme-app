@@ -9,8 +9,8 @@ import '../../../../core/theme/app_motion.dart';
 import '../../../../core/theme/app_sizes.dart';
 import '../../../../core/theme/app_theme_tokens.dart';
 import '../../../../l10n/app_localizations.dart';
-import '../state/popular_movies_notifier.dart';
-import '../state/popular_movies_state.dart';
+import '../state/paged_movies_notifier.dart';
+import '../state/paged_movies_state.dart';
 import '../widgets/movie_poster.dart';
 import '../widgets/poster_skeleton.dart';
 
@@ -20,20 +20,20 @@ class DiscoverScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final notifier = context.watch<PopularMoviesNotifier>();
+    final notifier = context.watch<PagedMoviesNotifier>();
     return Scaffold(
       appBar: AppBar(title: Text(AppLocalizations.of(context).discoverTitle)),
       body: switch (notifier.state) {
-        PopularMoviesLoading() => const _GridWidthGuard(child: _LoadingView()),
-        PopularMoviesEmpty() => _MessageView(
+        PagedMoviesLoading() => const _GridWidthGuard(child: _LoadingView()),
+        PagedMoviesEmpty() => _MessageView(
           message: AppLocalizations.of(context).discoverEmpty,
           onRetry: notifier.load,
         ),
-        PopularMoviesError(:final failure) => _ErrorView(
+        PagedMoviesError(:final failure) => _ErrorView(
           failure: failure,
           onRetry: notifier.load,
         ),
-        final PopularMoviesLoaded state => _GridWidthGuard(
+        final PagedMoviesLoaded state => _GridWidthGuard(
           child: _MovieGrid(
             state: state,
             onLoadMore: notifier.loadMore,
@@ -194,7 +194,7 @@ class _MovieGrid extends StatefulWidget {
     required this.onRetryNextPage,
   });
 
-  final PopularMoviesLoaded state;
+  final PagedMoviesLoaded state;
   final VoidCallback onLoadMore;
   final VoidCallback onRetryNextPage;
 
