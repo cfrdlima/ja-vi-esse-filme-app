@@ -20,11 +20,14 @@ class CastMemberCard extends StatelessWidget {
     final theme = Theme.of(context);
     final tokens = theme.extension<AppThemeTokens>()!;
     final character = member.character;
-    // Cresce com a fonte: com a largura fixa, o nome quebrava no meio da
-    // palavra na fonte grande.
-    final width = MediaQuery.textScalerOf(
-      context,
-    ).scale(AppSizes.castPhotoWidth);
+    // Cresce na escala do texto do nome: com a largura fixa, o nome quebrava
+    // no meio da palavra na fonte grande. A escala do Android é não linear,
+    // por isso o fator vem do tamanho da fonte do nome, e não de 96.
+    final nameSize = theme.textTheme.bodyMedium!.fontSize!;
+    final width =
+        AppSizes.castPhotoWidth *
+        MediaQuery.textScalerOf(context).scale(nameSize) /
+        nameSize;
     return Semantics(
       label: character.isEmpty
           ? member.name
