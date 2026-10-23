@@ -13,19 +13,9 @@ import '../../features/movies/presentation/state/movie_details_notifier.dart';
 import '../../features/movies/presentation/state/search_notifier.dart';
 import '../../l10n/app_localizations.dart';
 import '../widgets/placeholder_screen.dart';
+import 'app_routes.dart';
 import 'app_shell.dart';
 import 'not_found_screen.dart';
-
-abstract final class AppRoutes {
-  static const discover = '/descobrir';
-  static const search = '/buscar';
-  static const shelf = '/estante';
-  static const profile = '/perfil';
-
-  /// Detalhes do filme [id] dentro da aba [tabPath] ([discover] ou [search]),
-  /// com a barra das abas visível e o voltar devolvendo a grade.
-  static String movieDetails(String tabPath, int id) => '$tabPath/filme/$id';
-}
 
 /// As dependências chegam já montadas pelo `main.dart` (ou por fakes nos
 /// testes).

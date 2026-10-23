@@ -7,6 +7,7 @@ import '../../../../core/theme/app_sizes.dart';
 import '../../../../core/theme/app_theme_tokens.dart';
 import '../../../../core/widgets/retry_button.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../../domain/entities/movie.dart';
 import '../state/paged_movies_notifier.dart';
 import '../state/paged_movies_state.dart';
 import 'movie_poster.dart';
@@ -19,6 +20,7 @@ class PagedMoviesView extends StatelessWidget {
   const PagedMoviesView({
     required this.notifier,
     required this.empty,
+    required this.onMovieTap,
     this.scrollKey,
     super.key,
   });
@@ -30,6 +32,9 @@ class PagedMoviesView extends StatelessWidget {
   final String? scrollKey;
 
   final Widget empty;
+
+  /// Toque num pôster da grade; a tela diz para onde ele leva.
+  final ValueChanged<Movie> onMovieTap;
 
   @override
   Widget build(BuildContext context) => switch (notifier.state) {
@@ -45,6 +50,7 @@ class PagedMoviesView extends StatelessWidget {
         state: state,
         onLoadMore: notifier.loadMore,
         onRetryNextPage: notifier.retryNextPage,
+        onMovieTap: onMovieTap,
       ),
     ),
   };
@@ -170,12 +176,14 @@ class _MovieGrid extends StatefulWidget {
     required this.state,
     required this.onLoadMore,
     required this.onRetryNextPage,
+    required this.onMovieTap,
   });
 
   final String? scrollKey;
   final PagedMoviesLoaded state;
   final VoidCallback onLoadMore;
   final VoidCallback onRetryNextPage;
+  final ValueChanged<Movie> onMovieTap;
 
   @override
   State<_MovieGrid> createState() => _MovieGridState();
@@ -242,6 +250,7 @@ class _MovieGridState extends State<_MovieGrid> {
             itemBuilder: (_, index) => MoviePoster(
               key: ValueKey(movies[index].id),
               movie: movies[index],
+              onTap: () => widget.onMovieTap(movies[index]),
             ),
           ),
         ),
