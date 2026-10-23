@@ -61,6 +61,9 @@ GoRouter createAppRouter({required MovieRepository movieRepository}) =>
 GoRoute _movieDetailsRoute(MovieRepository movieRepository) => GoRoute(
   path: 'filme/:id',
   builder: (_, state) => ChangeNotifierProvider(
+    // O go_router reaproveita a página quando só o `:id` muda (a chave dela é
+    // o caminho-padrão); com a chave pelo id, outro filme é outro notifier.
+    key: ValueKey(state.pathParameters['id']),
     create: (_) {
       final notifier = MovieDetailsNotifier(
         repository: movieRepository,

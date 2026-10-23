@@ -377,6 +377,22 @@ void main() {
       });
     }
 
+    // O go_router reaproveita a página quando só o parâmetro muda: o
+    // provider precisa trocar junto com o id.
+    testWidgets('deve trocar de filme quando só o id da rota muda', (
+      tester,
+    ) async {
+      final router = await openDetails(
+        tester,
+        AppRoutes.movieDetails(AppRoutes.discover, 1),
+      );
+
+      router.go(AppRoutes.movieDetails(AppRoutes.discover, 2));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Filme 2'), findsWidgets);
+    });
+
     testWidgets('a seta da barra deve voltar à grade', (tester) async {
       final router = await openDetails(
         tester,
