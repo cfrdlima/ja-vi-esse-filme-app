@@ -76,7 +76,7 @@ void main() {
     test('deve lançar UnexpectedFailure sem page ou total_pages', () async {
       final dataSource = dataSourceRespondingWith('{"results":[]}');
 
-      expect(
+      await expectLater(
         () => dataSource.popular(page: 1),
         throwsA(isA<UnexpectedFailure>()),
       );
@@ -85,7 +85,7 @@ void main() {
     test('deve repassar a falha tipada do cliente', () async {
       final dataSource = dataSourceRespondingWith('{}', 429);
 
-      expect(
+      await expectLater(
         () => dataSource.popular(page: 1),
         throwsA(isA<RateLimitFailure>()),
       );

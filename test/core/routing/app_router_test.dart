@@ -64,12 +64,19 @@ void main() {
       expect(router.state.matchedLocation, AppRoutes.discover);
     });
 
-    testWidgets('a aba Descobrir deve mostrar os filmes populares', (
+    testWidgets('a aba Descobrir deve carregar os filmes populares', (
       tester,
     ) async {
       await pumpAppRouter(tester);
 
-      expect(find.byType(DiscoverScreen), findsOneWidget);
+      // O stub responde lista vazia: ver o vazio prova que o load() rodou.
+      expect(
+        find.descendant(
+          of: find.byType(DiscoverScreen),
+          matching: find.text('Nenhum filme popular por aqui agora.'),
+        ),
+        findsOneWidget,
+      );
     });
 
     testWidgets('deve mostrar a barra com as 4 abas em PT-BR', (tester) async {
