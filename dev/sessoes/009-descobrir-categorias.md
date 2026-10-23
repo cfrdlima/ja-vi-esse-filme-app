@@ -21,17 +21,17 @@ Levar em cartaz (`/movie/now_playing` com `region=BR`) e melhor avaliados (`/mov
 - [x] Composição: o router monta o `DiscoverNotifier` e escolhe Populares (`select`), que dispara o primeiro carregamento
 - [x] Tríade: `flutter analyze` limpo, `flutter test` verde e emulador (troca de categoria, rolagem guardada e fonte grande)
 - [x] `/revisar`: `code-reviewer` + `security-auditor` (a sessão toca rede)
-- [ ] R1: `DiscoverNotifier` cria e carrega a lista só no `select`, chamado pelo construtor; `current` sem efeito colateral e sem `_started` — RED / GREEN / REFACTOR
-- [ ] R2: teste "deve mostrar os filmes da categoria tocada" confere os pôsteres da categoria — RED / GREEN
-- [ ] R3: chips sem check (`chipTheme` em `core/theme/`) cabendo numa linha a 412dp, com nova validação no emulador — RED / GREEN
-- [ ] S2: tirar o `ObjectKey(failure)` redundante e corrigir o comentário do `RetryButton`
-- [ ] S3: teste de que reconstruir o pai com a mesma espera não reinicia a contagem
-- [ ] S4: teste do timer pendente deixa explícito que a checagem é do `flutter_test`
-- [ ] S5: teste do `DiscoverNotifier` confere a categoria da lista atual
-- [ ] S6: `PagedMoviesNotifier.category` exposto; a tela deriva a categoria dele, e `PageStorageKey` com prefixo `discover-`
-- [ ] S7: `retryWaitOf` vai para `core/error/`
-- [ ] S8: "Mais bem avaliados" e rótulo de leitor de tela com "segundos" no botão em espera
-- [ ] S9: linha em branco antes de `group('em cartaz')`
+- [x] R1: `DiscoverNotifier` cria e carrega a lista só no `select`, chamado pelo construtor; `current` sem efeito colateral e sem `_started` — RED / GREEN / REFACTOR
+- [x] R2: teste "deve mostrar os filmes da categoria tocada" confere os pôsteres da categoria — RED / GREEN
+- [x] R3: chips sem check (`chipTheme` em `core/theme/`) cabendo numa linha a 412dp, com nova validação no emulador — RED / GREEN
+- [x] S2: tirar o `ObjectKey(failure)` redundante e corrigir o comentário do `RetryButton`
+- [x] S3: teste de que reconstruir o pai com a mesma espera não reinicia a contagem
+- [x] S4: teste do timer pendente deixa explícito que a checagem é do `flutter_test`
+- [x] S5: teste do `DiscoverNotifier` confere a categoria da lista atual
+- [x] S6: `PagedMoviesNotifier.category` exposto; a tela deriva a categoria dele, e `PageStorageKey` com prefixo `discover-`
+- [x] S7: `retryWaitOf` vai para `core/error/`
+- [x] S8: "Mais bem avaliados" e rótulo de leitor de tela com "segundos" no botão em espera
+- [x] S9: linha em branco antes de `group('em cartaz')`
 
 ## Decisões
 - Nenhuma nova. Valeram a 001 (todo acesso pelo `TmdbClient`), a 002 (`ui-ux-pro-max`) e a 004 (ARB). Sem dependência nova.
@@ -48,6 +48,15 @@ Levar em cartaz (`/movie/now_playing` com `region=BR`) e melhor avaliados (`/mov
 - `0e12a7e` add: seletor de categoria na Descobrir
 - `56ee349` add: cada categoria da Descobrir guarda a própria rolagem
 - `4125a51` docs: override da Descobrir com o seletor e a espera do 429
+- `048a8a7` docs: log da sessão 009
+- `fe501e5` docs: itens da revisão da sessão 009 no log e no backlog
+- `4d7da1d` fix: DiscoverNotifier carrega a lista só no select e o current fica sem efeito colateral
+- `d9099ed` refactor: Descobrir lê a categoria da própria lista e a key da rolagem ganha prefixo
+- `89df2c7` refactor: retryWaitOf vai para core/error e sai a key redundante do botão
+- `9302786` test: contagem não recomeça no rebuild, timer cancelado explícito e linha em branco entre grupos
+- `2622a98` fix: chips da Descobrir sem check e com respiro xs, cabendo numa linha, e Mais bem avaliados
+- `e3a22ee` fix: botão em espera anuncia os segundos por extenso ao leitor de tela
+- `d75009a` docs: override da Descobrir com chips sem check e rótulo por extenso
 
 ## Notas
 - Contrato (developer.themoviedb.org, via Context7):
@@ -71,3 +80,17 @@ Levar em cartaz (`/movie/now_playing` com `region=BR`) e melhor avaliados (`/mov
   - **Observação:** mesmo com fonte 1.0, num celular de 412dp os três chips ocupam duas linhas (o selecionado tem o ícone de check). Isso gasta uma linha da grade.
   - O 429 com `Retry-After` não dá para provocar no TMDB real; está coberto por testes de widget.
 - Tríade antes do `/revisar`: `dart format` sem mudanças, `flutter analyze` sem issues, `flutter test` com 364 testes passando (eram 319) e `gitleaks` sem vazamentos.
+- Revisão (`code-reviewer` e `security-auditor`): nada bloqueante. O `security-auditor` aprovou fechar. O `code-reviewer` pediu R1 a R3. O usuário seguiu a recomendação: R1–R3 e S2–S9 nesta sessão; S1 e S10 para o BACKLOG.
+- Tratamento:
+  - **R1:** o construtor do `DiscoverNotifier` abre a categoria inicial (populares por padrão) e o `select` é o único que cria e carrega uma lista. O `current` é `_lists[_category]!`, o `_started` saiu e o router não chama mais o `select`. Nos testes de tela, o notifier passou a ser criado dentro do `testWidgets` (`createDiscover`), porque o primeiro pedido nascido no `setUp` ficava fora da zona do teste e o `pump` não entregava a resposta.
+  - **R2:** o teste responde o pedido de Mais bem avaliados e confere os 3 pôsteres dela. Ele usa `totalPages: 1` em populares para o pedido da página 2 não entrar na fila do fake.
+  - **R3:** `chipTheme` sem check e com `labelPadding` `xs`. Com "Mais bem avaliados" (S8), só tirar o check não bastava (387dp contra 380dp úteis, medido com a Inter de verdade). O teste de layout carrega a Inter empacotada, porque a Ahem dos testes alarga cada letra. No emulador, os três chips cabem numa linha com fonte 1.0 e quebram linha sem overflow com 1.5x.
+  - **S2:** sem `ObjectKey(failure)`; o comentário do `RetryButton` diz quando a contagem recomeça.
+  - **S3:** teste de rebuild com a mesma espera. Passa desde o início: o código já estava certo e o teste guarda a regressão.
+  - **S4:** o teste do timer não tem `expect` próprio e diz que a checagem é do `flutter_test`. Uma mutação (tirar o `cancel()` do `dispose`) reprova o teste com "A Timer is still pending".
+  - **S5/S6:** `PagedMoviesNotifier.category` público; a tela deriva a categoria da lista, e a key da rolagem é `PageStorageKey('discover-<categoria>')`.
+  - **S7:** `retryWaitOf` em `core/error/retry_wait.dart`, com o teste em `test/core/error/`.
+  - **S8:** "Mais bem avaliados" e `retryInSemantics` (plural "1 segundo" / "N segundos") como `semanticsLabel` do texto em espera.
+  - **S9:** linha em branco entre os grupos.
+- Tríade depois da revisão: `dart format` sem mudanças (74 arquivos), `flutter analyze` sem issues, `flutter test` com 371 testes passando e `gitleaks` sem vazamentos.
+
