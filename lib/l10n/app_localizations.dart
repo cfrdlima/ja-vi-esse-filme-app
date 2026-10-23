@@ -339,6 +339,42 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'{name}, {character}'**
   String castMemberSemantics(String name, String character);
+
+  /// Título da seção de trailers nos detalhes
+  ///
+  /// In pt, this message translates to:
+  /// **'Trailers'**
+  String get movieTrailersTitle;
+
+  /// Tipo de vídeo: trailer completo
+  ///
+  /// In pt, this message translates to:
+  /// **'Trailer'**
+  String get trailerKindTrailer;
+
+  /// Tipo de vídeo: teaser, mais curto que o trailer
+  ///
+  /// In pt, this message translates to:
+  /// **'Teaser'**
+  String get trailerKindTeaser;
+
+  /// Linha abaixo do nome do trailer: o tipo e onde ele abre
+  ///
+  /// In pt, this message translates to:
+  /// **'{kind} · YouTube'**
+  String trailerSubtitle(String kind);
+
+  /// O leitor de tela lê o trailer como link que sai do app
+  ///
+  /// In pt, this message translates to:
+  /// **'{name}, {kind}. Abre no YouTube'**
+  String trailerSemantics(String name, String kind);
+
+  /// Aviso quando nenhum app do aparelho abre o trailer
+  ///
+  /// In pt, this message translates to:
+  /// **'Não foi possível abrir o trailer.'**
+  String get trailerOpenFailed;
 }
 
 class _AppLocalizationsDelegate

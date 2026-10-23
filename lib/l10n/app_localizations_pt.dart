@@ -178,4 +178,26 @@ class AppLocalizationsPt extends AppLocalizations {
   String castMemberSemantics(String name, String character) {
     return '$name, $character';
   }
+
+  @override
+  String get movieTrailersTitle => 'Trailers';
+
+  @override
+  String get trailerKindTrailer => 'Trailer';
+
+  @override
+  String get trailerKindTeaser => 'Teaser';
+
+  @override
+  String trailerSubtitle(String kind) {
+    return '$kind · YouTube';
+  }
+
+  @override
+  String trailerSemantics(String name, String kind) {
+    return '$name, $kind. Abre no YouTube';
+  }
+
+  @override
+  String get trailerOpenFailed => 'Não foi possível abrir o trailer.';
 }
