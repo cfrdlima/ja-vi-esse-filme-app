@@ -149,6 +149,46 @@ void main() {
       expect(details.trailers.first, trailers.last);
     });
 
+    test('deve ficar só com o mais relevante entre vídeos de mesma key', () {
+      final english = Trailer(
+        key: 'Way9Dexny3w',
+        name: 'Em inglês',
+        kind: TrailerKind.trailer,
+        official: true,
+        language: 'en',
+      );
+      final portuguese = Trailer(
+        key: 'Way9Dexny3w',
+        name: 'Em português',
+        kind: TrailerKind.trailer,
+        official: true,
+        language: 'pt',
+      );
+
+      final details = detailsWithTrailers([english, portuguese]);
+
+      expect(details.trailers, [portuguese]);
+    });
+
+    test('deve tirar as keys repetidas antes de cortar', () {
+      final repeated = [for (var i = 0; i < 4; i++) trailer()];
+      final duplicates = [
+        for (final original in repeated)
+          Trailer(
+            key: original.key,
+            name: 'Cópia',
+            kind: original.kind,
+            official: original.official,
+            language: original.language,
+          ),
+      ];
+      final last = trailer();
+
+      final details = detailsWithTrailers([...repeated, ...duplicates, last]);
+
+      expect(details.trailers.last, last);
+    });
+
     test('não deve deixar os trailers serem alterados depois de criado', () {
       final details = detailsWithTrailers([trailer()]);
 

@@ -16,7 +16,9 @@ final class MovieDetails {
     List<Trailer> trailers = const [],
   }) : genres = List.unmodifiable(genres),
        cast = List.unmodifiable(cast.take(maxCast)),
-       trailers = List.unmodifiable(_byRelevance(trailers).take(maxTrailers));
+       trailers = List.unmodifiable(
+         _distinctKeys(_byRelevance(trailers)).take(maxTrailers),
+       );
 
   /// Teto do elenco mostrado, na ordem de crédito do filme.
   static const maxCast = 15;
@@ -42,6 +44,13 @@ final class MovieDetails {
 
   /// Oficiais primeiro, depois os em português, depois trailer antes de teaser.
   final List<Trailer> trailers;
+
+  // O TMDB pode cadastrar o mesmo vídeo em dois idiomas. Depois da ordem,
+  // fica o primeiro, que é o mais relevante.
+  static Iterable<Trailer> _distinctKeys(Iterable<Trailer> trailers) {
+    final seen = <String>{};
+    return trailers.where((trailer) => seen.add(trailer.key));
+  }
 
   // O `sort` do Dart não é estável, por isso o índice original desempata.
   static Iterable<Trailer> _byRelevance(List<Trailer> trailers) {
