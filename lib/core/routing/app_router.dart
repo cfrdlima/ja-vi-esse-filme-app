@@ -61,27 +61,31 @@ GoRouter createAppRouter({required MovieRepository movieRepository}) =>
 /// baixo com a rolagem.
 GoRoute _movieDetailsRoute(MovieRepository movieRepository) => GoRoute(
   path: 'filme/:id',
-  builder: (_, state) => ChangeNotifierProvider(
-    // O go_router reaproveita a página quando só o `:id` muda (a chave dela é
-    // o caminho-padrão); com a chave pelo id, outro filme é outro notifier.
-    key: ValueKey(state.pathParameters['id']),
-    create: (_) {
-      final notifier = MovieDetailsNotifier(
-        repository: movieRepository,
-        movieId: _movieIdOf(state.pathParameters['id']!),
-      );
-      unawaited(notifier.load());
-      return notifier;
-    },
-    // O filme tocado na grade vem no `extra`, para o pôster já estar no
-    // lugar quando o Hero voa. A URL direta chega sem ele.
-    child: MovieDetailsScreen(
-      preview: switch (state.extra) {
-        final Movie movie => movie,
-        _ => null,
+  builder: (_, state) {
+    final movieId = _movieIdOf(state.pathParameters['id']!);
+    return ChangeNotifierProvider(
+      // O go_router reaproveita a página quando só o `:id` muda (a chave dela
+      // é o caminho-padrão); com a chave pelo id, outro filme é outro notifier.
+      key: ValueKey(state.pathParameters['id']),
+      create: (_) {
+        final notifier = MovieDetailsNotifier(
+          repository: movieRepository,
+          movieId: movieId,
+        );
+        unawaited(notifier.load());
+        return notifier;
       },
-    ),
-  ),
+      // O filme tocado na grade vem no `extra`, para o pôster já estar no
+      // lugar quando o Hero voa. A URL direta chega sem ele, e um filme de
+      // outro id não serve: o pôster seria o errado.
+      child: MovieDetailsScreen(
+        preview: switch (state.extra) {
+          final Movie movie when movie.id == movieId => movie,
+          _ => null,
+        },
+      ),
+    );
+  },
 );
 
 /// O id vem da URL e pode ser qualquer texto. Só dígitos em base 10 viram

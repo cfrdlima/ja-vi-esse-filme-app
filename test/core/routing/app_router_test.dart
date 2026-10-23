@@ -493,6 +493,18 @@ void main() {
       expect(previewOf(tester), isNull);
     });
 
+    testWidgets('deve ignorar um filme de outro id no extra', (tester) async {
+      final router = await pumpAppRouter(tester, movies: movies);
+
+      router.go(
+        AppRoutes.movieDetails(AppRoutes.discover, 2),
+        extra: const Movie(id: 99, title: 'Outro'),
+      );
+      await tester.pumpAndSettle();
+
+      expect(previewOf(tester), isNull);
+    });
+
     testWidgets('deve voltar à grade na mesma rolagem', (tester) async {
       final router = await pumpAppRouter(tester, movies: movies);
       await tester.drag(find.byType(CustomScrollView), const Offset(0, -300));
