@@ -26,7 +26,7 @@ final class PagedMoviesLoaded extends PagedMoviesState {
     required this.movies,
     required this.page,
     required this.hasMore,
-    this.nextPage = NextPageStatus.idle,
+    this.nextPage = const NextPageIdle(),
   });
 
   final List<Movie> movies;
@@ -45,4 +45,21 @@ final class PagedMoviesLoaded extends PagedMoviesState {
 }
 
 /// Situação do pedido da próxima página, mostrada no rodapé da grade.
-enum NextPageStatus { idle, loading, failed }
+sealed class NextPageStatus {
+  const NextPageStatus();
+}
+
+final class NextPageIdle extends NextPageStatus {
+  const NextPageIdle();
+}
+
+final class NextPageLoading extends NextPageStatus {
+  const NextPageLoading();
+}
+
+/// Guarda a falha para o rodapé respeitar o `retryAfter` de um 429.
+final class NextPageFailed extends NextPageStatus {
+  const NextPageFailed(this.failure);
+
+  final Failure failure;
+}

@@ -53,7 +53,7 @@ class PagedMoviesNotifier extends ChangeNotifier {
     final current = _state;
     if (current is PagedMoviesLoaded &&
         current.hasMore &&
-        current.nextPage == NextPageStatus.idle) {
+        current.nextPage is NextPageIdle) {
       await _fetchNextPage(current);
     }
   }
@@ -61,8 +61,7 @@ class PagedMoviesNotifier extends ChangeNotifier {
   /// "Tentar de novo" do rodapé, depois de a próxima página falhar.
   Future<void> retryNextPage() async {
     final current = _state;
-    if (current is PagedMoviesLoaded &&
-        current.nextPage == NextPageStatus.failed) {
+    if (current is PagedMoviesLoaded && current.nextPage is NextPageFailed) {
       await _fetchNextPage(current);
     }
   }
@@ -70,7 +69,7 @@ class PagedMoviesNotifier extends ChangeNotifier {
   Future<void> _fetchNextPage(PagedMoviesLoaded current) async {
     final generation = _generation;
     final nextPage = current.page + 1;
-    _emit(current.withNextPage(NextPageStatus.loading));
+    _emit(current.withNextPage(const NextPageLoading()));
     try {
       final page = await _fetch(nextPage);
       if (generation != _generation) return;
@@ -83,9 +82,9 @@ class PagedMoviesNotifier extends ChangeNotifier {
           hasMore: page.hasMore,
         ),
       );
-    } on Failure {
+    } on Failure catch (failure) {
       if (generation == _generation) {
-        _emit(current.withNextPage(NextPageStatus.failed));
+        _emit(current.withNextPage(NextPageFailed(failure)));
       }
     }
   }

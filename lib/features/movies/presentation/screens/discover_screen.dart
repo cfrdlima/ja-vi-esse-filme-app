@@ -285,11 +285,9 @@ class _NextPageFooter extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.only(bottom: spacing.lg),
       child: switch (status) {
-        NextPageStatus.idle => const SizedBox.shrink(),
-        NextPageStatus.loading => const Center(
-          child: CircularProgressIndicator(),
-        ),
-        NextPageStatus.failed => Column(
+        NextPageIdle() => const SizedBox.shrink(),
+        NextPageLoading() => const Center(child: CircularProgressIndicator()),
+        NextPageFailed() => Column(
           children: [
             Text(
               l10n.discoverLoadMoreFailed,

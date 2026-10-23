@@ -149,7 +149,7 @@ void main() {
       final future = notifier.loadMore();
 
       final state = notifier.state as PagedMoviesLoaded;
-      expect(state.nextPage, NextPageStatus.loading);
+      expect(state.nextPage, isA<NextPageLoading>());
       repository.complete(moviePage(page: 2));
       await future;
     });
@@ -187,7 +187,29 @@ void main() {
       await future;
 
       final state = notifier.state as PagedMoviesLoaded;
-      expect((state.movies.length, state.nextPage), (2, NextPageStatus.failed));
+      expect(state.movies.length, 2);
+    });
+
+    test('deve guardar a falha da próxima página', () async {
+      await loadFirstPage();
+
+      final future = notifier.loadMore();
+      repository.fail(const RateLimitFailure(retryAfter: Duration(seconds: 7)));
+      await future;
+
+      final state = notifier.state as PagedMoviesLoaded;
+      expect(
+        state.nextPage,
+        isA<NextPageFailed>().having(
+          (s) => s.failure,
+          'failure',
+          isA<RateLimitFailure>().having(
+            (f) => f.retryAfter,
+            'retryAfter',
+            const Duration(seconds: 7),
+          ),
+        ),
+      );
     });
 
     test('não deve pedir de novo pela rolagem depois da falha', () async {
@@ -296,7 +318,14 @@ void main() {
         await future;
 
         final state = notifier.state as PagedMoviesLoaded;
-        expect(state.nextPage, NextPageStatus.failed);
+        expect(
+          state.nextPage,
+          isA<NextPageFailed>().having(
+            (s) => s.failure,
+            'failure',
+            isA<UnexpectedFailure>(),
+          ),
+        );
       },
     );
   });
