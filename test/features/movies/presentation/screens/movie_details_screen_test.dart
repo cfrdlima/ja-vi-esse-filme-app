@@ -11,6 +11,8 @@ import 'package:ja_vi_esse_filme/features/movies/presentation/screens/movie_deta
 import 'package:ja_vi_esse_filme/features/movies/presentation/state/movie_details_notifier.dart';
 import 'package:ja_vi_esse_filme/features/movies/presentation/widgets/cast_member_card.dart';
 import 'package:ja_vi_esse_filme/features/movies/presentation/widgets/movie_details_content.dart';
+import 'package:ja_vi_esse_filme/features/movies/presentation/widgets/movie_poster.dart';
+import 'package:ja_vi_esse_filme/features/movies/presentation/widgets/poster_skeleton.dart';
 import 'package:ja_vi_esse_filme/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
@@ -96,6 +98,22 @@ void main() {
       await pumpNarrow(tester);
 
       expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('deve pôr o pôster onde o conteúdo vai aparecer no tablet', (
+      tester,
+    ) async {
+      tester.view
+        ..physicalSize = const Size(1200, 800)
+        ..devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(screen());
+      final skeletonLeft = tester.getTopLeft(find.byType(PosterSkeleton)).dx;
+
+      repository.completeDetails(complete);
+      await tester.pump();
+
+      expect(tester.getTopLeft(find.byType(MoviePoster)).dx, skeletonLeft);
     });
   });
 

@@ -25,25 +25,35 @@ class MovieDetailsSkeleton extends StatelessWidget {
           builder: (_, opacity) => SingleChildScrollView(
             physics: const NeverScrollableScrollPhysics(),
             padding: EdgeInsets.all(spacing.md),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
+            // A mesma largura máxima do conteúdo, para nada pular de lugar
+            // no tablet quando o filme chega.
+            child: Align(
+              alignment: Alignment.topCenter,
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(
+                  maxWidth: AppSizes.readableWidth,
+                ),
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    SizedBox(
-                      width: AppSizes.detailsPosterWidth,
-                      child: PosterSkeleton(opacity: opacity),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(
+                          width: AppSizes.detailsPosterWidth,
+                          child: PosterSkeleton(opacity: opacity),
+                        ),
+                        SizedBox(width: spacing.md),
+                        Expanded(
+                          child: _Lines(widths: _headerLines, opacity: opacity),
+                        ),
+                      ],
                     ),
-                    SizedBox(width: spacing.md),
-                    Expanded(
-                      child: _Lines(widths: _headerLines, opacity: opacity),
-                    ),
+                    SizedBox(height: spacing.lg),
+                    _Lines(widths: _paragraphLines, opacity: opacity),
                   ],
                 ),
-                SizedBox(height: spacing.lg),
-                _Lines(widths: _paragraphLines, opacity: opacity),
-              ],
+              ),
             ),
           ),
         ),
