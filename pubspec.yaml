@@ -7,6 +7,7 @@ environment:
   sdk: ^3.12.2
 
 dependencies:
+  cached_network_image: ^4.0.3
   flutter:
     sdk: flutter
   flutter_localizations:
@@ -14,6 +15,7 @@ dependencies:
   go_router: ^18.1.0
   http: ^1.6.0
   intl: ^0.20.2
+  provider: ^6.1.5+1
 
 dev_dependencies:
   flutter_test:

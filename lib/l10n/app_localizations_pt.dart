@@ -31,4 +31,32 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get notFoundGoHome => 'Ir para Descobrir';
+
+  @override
+  String get discoverTitle => 'Descobrir';
+
+  @override
+  String get discoverLoading => 'Carregando filmes populares';
+
+  @override
+  String get discoverEmpty => 'Nenhum filme popular por aqui agora.';
+
+  @override
+  String get discoverLoadMoreFailed => 'Não foi possível carregar mais filmes.';
+
+  @override
+  String get retry => 'Tentar de novo';
+
+  @override
+  String get failureNetwork => 'Sem conexão com a internet. Confira sua rede.';
+
+  @override
+  String get failureRateLimit =>
+      'Muitos pedidos em pouco tempo. Espere um pouco.';
+
+  @override
+  String get failureGeneric => 'Algo deu errado ao falar com o TMDB.';
+
+  @override
+  String get movieUntitled => 'Filme sem título';
 }

@@ -2,15 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ja_vi_esse_filme/core/routing/app_router.dart';
+import 'package:ja_vi_esse_filme/features/movies/presentation/screens/discover_screen.dart';
 
 import '../../helpers/back_navigation.dart';
+import '../../helpers/stub_movie_repository.dart';
 import '../../helpers/test_app.dart';
 
 Future<GoRouter> pumpAppRouter(
   WidgetTester tester, {
   TextScaler textScaler = TextScaler.noScaling,
 }) async {
-  final router = createAppRouter();
+  final router = createAppRouter(movieRepository: StubMovieRepository());
   addTearDown(router.dispose);
   await tester.pumpWidget(
     testRouterApp(
@@ -60,6 +62,21 @@ void main() {
       final router = await pumpAppRouter(tester);
 
       expect(router.state.matchedLocation, AppRoutes.discover);
+    });
+
+    testWidgets('a aba Descobrir deve carregar os filmes populares', (
+      tester,
+    ) async {
+      await pumpAppRouter(tester);
+
+      // O stub responde lista vazia: ver o vazio prova que o load() rodou.
+      expect(
+        find.descendant(
+          of: find.byType(DiscoverScreen),
+          matching: find.text('Nenhum filme popular por aqui agora.'),
+        ),
+        findsOneWidget,
+      );
     });
 
     testWidgets('deve mostrar a barra com as 4 abas em PT-BR', (tester) async {

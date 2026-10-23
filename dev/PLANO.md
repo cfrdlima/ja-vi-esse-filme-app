@@ -3,9 +3,9 @@
 > Fonte da verdade do que construir. Atualizado por `/fechar-sessao`.
 
 ## Última sessão
-**007 — Antes da Fase 1: política de privacidade** (fechada em 2026-10-23) · [log](sessoes/007-politica-de-privacidade.md)
-A política (LGPD) está em rascunho 0.2 em `docs/PRIVACIDADE.md`: controlador identificado, legítimo interesse no uso sem login, execução de contrato no login TMDB, contato por e-mail privado e por Issues, e público a partir de 13 anos. Ela vai ser publicada num repositório público separado, com GitHub Pages (decisão 006). Os 7 marcadores `A REVISAR` são resolvidos nas fases em que cada ponto entra.
-**Próximo passo:** a Fase 1, a começar por Descobrir.
+**008 — Fase 1: Descobrir, filmes populares** (fechada em 2026-10-23) · [log](sessoes/008-descobrir-populares.md)
+A aba Descobrir agora mostra os populares do TMDB. É a primeira feature em Clean Architecture (`features/movies`), com paginação infinita protegida contra corridas, os 4 estados, um pôster 2:3 com URL de imagem validada e as dependências montadas no `main.dart`. A política de privacidade (0.3) declara o cache de imagens. São 319 testes.
+**Próximo passo:** a sessão 009, com em cartaz (`region=BR`) e melhor avaliados na Descobrir, generalizando o notifier para `PagedMoviesNotifier` e usando o `retryAfter` do 429 no botão.
 
 ## Fase 0 — Fundação
 - [x] Criar projeto (`io.github.cfrdlima.ja_vi_esse_filme`), `analysis_options.yaml`, `.gitignore` com `env/*.json` (exceto `example.json`)
@@ -32,8 +32,9 @@ A política (LGPD) está em rascunho 0.2 em `docs/PRIVACIDADE.md`: controlador i
 - [x] Política de privacidade (o que o app coleta, LGPD), para a tela "Sobre"
 
 ## Fase 1 — Explorar (sem login)
-- [ ] Descobrir: populares, em cartaz, melhor avaliados (paginação infinita)
-- [ ] Declarar em `docs/PRIVACIDADE.md` o cache de imagens (`cached_network_image`): prazo e como apagar
+- [x] Descobrir: populares com paginação infinita (sessão 008)
+- [ ] Descobrir: em cartaz (`region=BR`) e melhor avaliados, com seletor na tela, generalizando o notifier (`PagedMoviesNotifier`) e usando o `retryAfter` do 429 no botão "Tentar de novo"
+- [x] Declarar em `docs/PRIVACIDADE.md` o cache de imagens (`cached_network_image`): prazo e como apagar
 - [ ] Busca com debounce e estados vazio/erro, com `include_adult=false` (público 13+, política de privacidade)
 - [ ] Detalhes do filme: sinopse, gêneros, duração, nota, elenco
 - [ ] Hero do pôster entre a grade/lista e os detalhes
@@ -57,6 +58,6 @@ A política (LGPD) está em rascunho 0.2 em `docs/PRIVACIDADE.md`: controlador i
 - [ ] Acessibilidade e fonte grande
 - [ ] Ícone, splash, nome do app
 - [ ] Crash reporting (Crashlytics ou Sentry — exige decisão de dependência); ao entrar, tirar o `debugPrint` do reporter do release (`kDebugMode`) e atualizar a política
-- [ ] Política de privacidade: nenhum marcador `A REVISAR`, vigência com data explícita, cópia publicada igual ao `docs/PRIVACIDADE.md` e permissões do manifest mesclado iguais às da política
+- [ ] Política de privacidade: nenhum marcador `A REVISAR`, vigência com data explícita, cópia publicada igual ao `docs/PRIVACIDADE.md` e permissões do manifest mesclado iguais às da política, e os números do cache de imagens (30 dias, cerca de 200) conferidos no `flutter_cache_manager` da versão em uso
 - [ ] Rever a decisão 001 (proxy) antes da loja (se entrar, atualizar a política): host do proxy em `AppConfig.allowedHosts`, e atenção ao `replace(queryParameters:)`, que descarta a query da base URL
 - [ ] Build release ofuscado e assinado: pôr `--obfuscate --split-debug-info=build/symbols` no comando do `CLAUDE.md` e trocar a assinatura de debug

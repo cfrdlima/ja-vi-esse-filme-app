@@ -23,3 +23,8 @@ Ideias que surgiram e não estão no plano imediato. Marque **[prioritário]** o
 - `CODEOWNERS` cobrindo `.gitleaks.toml`, `.gitleaksignore` e `.github/`, com a branch protection exigindo revisão do dono, para que um PR não desligue a própria varredura de segredos (revisão da sessão 005, item 6)
 - Ponto único da configuração do `MaterialApp` (tema, locale, delegates) para o `main.dart` e para `testApp`/`testRouterApp`, quando surgir um quarto campo comum, como `themeMode` ou `darkTheme` (revisão da sessão 006, item 6)
 - Fase 1: chaves de título próprias por tela (`discoverTitle`, `searchTitle`, `profileTitle`), para que encurtar o rótulo de uma aba não mude o título da tela (revisão da sessão 006, item 7)
+- Tela de "configuração inválida" em debug: com o `env/*.json` sem token, a `ConfigException` acontece antes do `runApp`, e o app fica parado na tela de abertura sem nenhuma mensagem (sessão 008)
+- Transição animada entre os estados das telas (carregando, vazio, erro e sucesso), porque o `MASTER.md` §7 pede que a mudança de estado não seja instantânea (sessão 008)
+- "Puxar para atualizar" na Descobrir. O notifier já descarta a resposta atrasada da página seguinte (contador de geração), conforme a revisão da sessão 008
+- Limite de 500 páginas nas listas do TMDB, citado pela comunidade mas sem documentação oficial encontrada na sessão 008. Hoje uma página recusada vira erro no rodapé
+- Uma fábrica injetada no lugar do router montando o `PopularMoviesNotifier` (`createAppRouter`), quando houver mais de uma feature com estado próprio (revisão da sessão 008, S10)

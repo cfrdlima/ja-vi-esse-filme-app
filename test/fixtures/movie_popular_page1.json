@@ -1,0 +1,46 @@
+{
+  "page": 1,
+  "results": [
+    {
+      "adult": false,
+      "backdrop_path": "/fundo-duna.jpg",
+      "genre_ids": [878, 12],
+      "id": 693134,
+      "original_language": "en",
+      "original_title": "Dune: Part Two",
+      "overview": "Paul Atreides se une a Chani e aos Fremen.",
+      "popularity": 812.4,
+      "poster_path": "/poster-duna.jpg",
+      "release_date": "2024-02-27",
+      "title": "Duna: Parte Dois",
+      "video": false,
+      "vote_average": 8.1,
+      "vote_count": 6200
+    },
+    {
+      "adult": false,
+      "backdrop_path": null,
+      "genre_ids": [],
+      "id": 1184918,
+      "original_language": "pt",
+      "original_title": "Filme Sem Pôster",
+      "overview": "",
+      "popularity": 120.0,
+      "poster_path": null,
+      "release_date": "",
+      "title": "Filme Sem Pôster",
+      "video": false,
+      "vote_average": 7,
+      "vote_count": 0
+    },
+    {
+      "adult": false,
+      "id": 42,
+      "original_title": "Only Original Title",
+      "poster_path": "/so-original.jpg",
+      "release_date": "2023-13-45"
+    }
+  ],
+  "total_pages": 48213,
+  "total_results": 964244
+}

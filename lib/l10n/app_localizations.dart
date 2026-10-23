@@ -141,6 +141,60 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Ir para Descobrir'**
   String get notFoundGoHome;
+
+  /// Título da tela Descobrir; separado de tabDiscover para que encurtar o rótulo da aba não mude o título
+  ///
+  /// In pt, this message translates to:
+  /// **'Descobrir'**
+  String get discoverTitle;
+
+  /// Anúncio do leitor de tela enquanto a grade de populares carrega
+  ///
+  /// In pt, this message translates to:
+  /// **'Carregando filmes populares'**
+  String get discoverLoading;
+
+  /// Estado vazio da lista de populares, que vem do TMDB e não do usuário
+  ///
+  /// In pt, this message translates to:
+  /// **'Nenhum filme popular por aqui agora.'**
+  String get discoverEmpty;
+
+  /// Rodapé da grade quando a próxima página falha; os filmes já carregados continuam
+  ///
+  /// In pt, this message translates to:
+  /// **'Não foi possível carregar mais filmes.'**
+  String get discoverLoadMoreFailed;
+
+  /// Botão que repete a última ação que falhou
+  ///
+  /// In pt, this message translates to:
+  /// **'Tentar de novo'**
+  String get retry;
+
+  /// Erro de rede, DNS, TLS ou tempo esgotado
+  ///
+  /// In pt, this message translates to:
+  /// **'Sem conexão com a internet. Confira sua rede.'**
+  String get failureNetwork;
+
+  /// Erro 429 do TMDB
+  ///
+  /// In pt, this message translates to:
+  /// **'Muitos pedidos em pouco tempo. Espere um pouco.'**
+  String get failureRateLimit;
+
+  /// Qualquer outra falha (401, 404, 5xx, resposta inesperada)
+  ///
+  /// In pt, this message translates to:
+  /// **'Algo deu errado ao falar com o TMDB.'**
+  String get failureGeneric;
+
+  /// Rótulo de acessibilidade do pôster quando o TMDB não manda título nenhum
+  ///
+  /// In pt, this message translates to:
+  /// **'Filme sem título'**
+  String get movieUntitled;
 }
 
 class _AppLocalizationsDelegate
