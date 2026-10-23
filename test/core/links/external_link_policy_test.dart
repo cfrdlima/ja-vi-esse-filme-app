@@ -26,6 +26,17 @@ void main() {
     ('com userInfo', 'https://user@www.youtube.com/watch?v=Way9Dexny3w'),
     ('com porta', 'https://www.youtube.com:8443/watch?v=Way9Dexny3w'),
     ('relativa', '/watch?v=Way9Dexny3w'),
+    ('com ponto no fim do host', 'https://www.youtube.com./watch'),
+    // O "о" é cirílico (U+043E), não o "o" latino.
+    ('de host homógrafo', 'https://www.y\u043eutube.com/watch'),
+    (
+      'com barra codificada antes da arroba',
+      'https://www.youtube.com%2F@evil.com/',
+    ),
+    (
+      'com barra invertida antes da arroba',
+      r'https://evil.com\@www.youtube.com/',
+    ),
   ]) {
     test('deve recusar a URL $reason', () {
       expect(policy.allows(Uri.parse(link)), isFalse);
