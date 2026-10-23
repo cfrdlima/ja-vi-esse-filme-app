@@ -21,13 +21,17 @@ Tocar num pôster da grade (Descobrir ou Buscar) leva o pôster voando até o lu
 - [x] Shell sem `resizeToAvoidBottomInset`, e a aba recebe só a parte do teclado acima da barra — RED / GREEN
 - [x] Pôster decodificado no tamanho do arquivo, para o voo usar a imagem do cache — RED / GREEN
 - [x] `/revisar`: `code-reviewer` e `security-auditor` (a sessão mexe na rota com parâmetro, no `extra`)
-- [ ] C3: preview sem `posterPath` mostra o placeholder no skeleton, dentro do `PosterHero` e sem `PosterSkeleton` — RED / GREEN
-- [ ] C4: teste de voo do router com a faixa de tamanhos independente da ordem (`min`/`max`)
-- [ ] C6: renomear `poster` para `preview` no `MovieDetailsSkeleton`, o mesmo nome da tela e da rota — REFACTOR
+- [x] C3: preview sem `posterPath` mostra o placeholder no skeleton, dentro do `PosterHero` e sem `PosterSkeleton` — RED / GREEN
+- [x] C4: teste de voo do router com a faixa de tamanhos independente da ordem (`min`/`max`)
+- [x] C6: renomear `poster` para `preview` no `MovieDetailsSkeleton`, o mesmo nome da tela e da rota — REFACTOR
 
 ## Decisões
 
 ## Commits
+- ff9e2ad refactor: skeleton dos detalhes chama o filme da grade de preview
+- bcb684c test: voo do router entre os dois tamanhos em qualquer ordem
+- 3205be3 test: preview sem pôster põe o placeholder no Hero do skeleton
+- e7015ba docs: tratamento da revisão da sessão 012
 - 6bb425b fix: aba recebe só a parte do teclado acima da barra das abas
 - 24735a9 fix: shell não encolhe com o teclado, e o pôster voa sem esticar
 - 5e67e94 fix: detalhes como MaterialPage, com transição e voo do Hero
@@ -69,3 +73,8 @@ Tocar num pôster da grade (Descobrir ou Buscar) leva o pôster voando até o lu
   - O `code-reviewer` confirmou com mutações que três testes novos pegam regressão de fato: o shell que encolhe com o teclado, o conteúdo sem `posterKey` e o `memCacheWidth` de volta.
   - O auditor concluiu que o `extra` não abre nenhum vetor: não há deep link de VIEW, não há restauração nem `extraCodec`, o `posterPath` já foi validado pelo `TmdbJson.imagePath` e o host é fixo. A política de privacidade não muda.
   - O usuário escolheu tratar C3, C4 e C6 nesta sessão; C1, C2, C5, C7 e A1 foram para o BACKLOG.
+- **Tratamento da revisão:**
+  - **C3:** o teste passou sem código novo, porque o comportamento já existia. Mutação: tirar o placeholder do skeleton quando o preview não tem `posterPath` reprova o teste.
+  - **C4:** a faixa do voo usa `min`/`max` dos dois tamanhos.
+  - **C6:** o parâmetro do skeleton passou a se chamar `preview`.
+- **Tríade depois do tratamento:** `dart format` sem mudanças (108 arquivos), `flutter analyze` sem issues, `flutter test` com 604 testes passando e `gitleaks` sem vazamentos.
