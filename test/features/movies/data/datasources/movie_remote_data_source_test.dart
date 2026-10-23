@@ -271,4 +271,63 @@ void main() {
       );
     });
   });
+
+  group('detalhes', () {
+    test('deve pedir movie/{id}', () async {
+      final dataSource = dataSourceRespondingWith(
+        readFixture('movie_details_full.json'),
+      );
+
+      await dataSource.details(693134);
+
+      expect(captured.url.path, '/3/movie/693134');
+    });
+
+    test('deve anexar o elenco e as traduções no mesmo pedido', () async {
+      final dataSource = dataSourceRespondingWith(
+        readFixture('movie_details_full.json'),
+      );
+
+      await dataSource.details(693134);
+
+      expect(
+        captured.url.queryParameters['append_to_response'],
+        'credits,translations',
+      );
+    });
+
+    test('deve devolver os detalhes do filme', () async {
+      final dataSource = dataSourceRespondingWith(
+        readFixture('movie_details_full.json'),
+      );
+
+      final details = await dataSource.details(693134);
+
+      expect((details.id, details.title), (693134, 'Duna: Parte Dois'));
+    });
+
+    test(
+      'deve lançar UnexpectedFailure quando a resposta vem sem id',
+      () async {
+        final dataSource = dataSourceRespondingWith('{"title":"Sem id"}');
+
+        await expectLater(
+          () => dataSource.details(1),
+          throwsA(isA<UnexpectedFailure>()),
+        );
+      },
+    );
+
+    test('deve repassar o 404 como NotFoundFailure', () async {
+      final dataSource = dataSourceRespondingWith(
+        readFixture('tmdb_error_404.json'),
+        404,
+      );
+
+      await expectLater(
+        () => dataSource.details(999999999),
+        throwsA(isA<NotFoundFailure>()),
+      );
+    });
+  });
 }
