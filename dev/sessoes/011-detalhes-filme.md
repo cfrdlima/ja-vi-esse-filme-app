@@ -20,7 +20,14 @@ Tocar num pôster da Descobrir ou da Buscar abre os detalhes do filme numa rota 
 - [x] Pôster tocável na grade (alvo ≥ 48dp, `Semantics` de botão) que abre os detalhes da aba atual — RED / GREEN
 - [x] Strings novas no ARB (títulos de seção, duração, nota, "não encontrado", elenco, sem sinopse)
 - [x] Tríade: `flutter analyze` limpo, `flutter test` verde e emulador (abrir pelas duas abas, voltar, filme sem pôster/sinopse, fonte grande)
-- [ ] `/revisar`: `code-reviewer` + `security-auditor` (a sessão toca rede e rota com parâmetro)
+- [x] `/revisar`: `code-reviewer` + `security-auditor` (a sessão toca rede e rota com parâmetro)
+- [ ] I1: provider dos detalhes com `key` pelo id, para ir de `filme/1` a `filme/2` trocar o filme (o `pageKey` do go_router é o caminho-padrão) — RED / GREEN
+- [ ] I2: testes de fonte 1.5x dos detalhes numa tela de fato de 320dp (`tester.view`) — RED / GREEN
+- [ ] S1: id da rota só em base 10 (`0x1F` vai para "não encontrado") — RED / GREEN
+- [ ] S2: teste do notifier descartado registra um ouvinte e confere que ele não é chamado
+- [ ] S3: teste de dados ausentes procura o texto exato de data e duração
+- [ ] S4: título do filme no cabeçalho marcado como cabeçalho para o leitor de tela — RED / GREEN
+- [ ] S5: skeleton dos detalhes com a mesma largura máxima do conteúdo (640dp) — RED / GREEN
 
 ## Decisões
 - [008 — Sinopse original via `append_to_response=translations`](../decisoes/008-sinopse-original-via-translations.md)
