@@ -299,14 +299,17 @@ void main() {
       },
     );
 
-    test('deve pedir os vídeos em português e em inglês', () async {
+    test('deve pedir os vídeos do Brasil, de Portugal e em inglês', () async {
       final dataSource = dataSourceRespondingWith(
         readFixture('movie_details_full.json'),
       );
 
       await dataSource.details(693134);
 
-      expect(captured.url.queryParameters['include_video_language'], 'pt,en');
+      expect(
+        captured.url.queryParameters['include_video_language'],
+        'pt-BR,pt,en',
+      );
     });
 
     test('deve devolver os detalhes do filme', () async {

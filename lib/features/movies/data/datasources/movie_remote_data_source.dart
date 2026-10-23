@@ -54,8 +54,10 @@ class MovieRemoteDataSource {
       query: {
         'append_to_response': 'credits,translations,videos',
         // Sem este filtro, o `language=pt-BR` deixa só os vídeos em
-        // português, e a maioria dos filmes ficaria sem trailer.
-        'include_video_language': 'pt,en',
+        // português, e a maioria dos filmes ficaria sem trailer. O `pt`
+        // sozinho só traz os de Portugal: os do Brasil pedem o `pt-BR`
+        // (conferido no emulador, sessão 013).
+        'include_video_language': 'pt-BR,pt,en',
       },
     );
     try {
