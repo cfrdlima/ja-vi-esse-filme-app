@@ -8,13 +8,13 @@
 > A busca por paginação infinita não trouxe regra específica. As regras de paginação abaixo são o padrão geral (fallback), e não resultado do banco.
 
 ## Grade
-- `GridView.builder` com `SliverGridDelegateWithMaxCrossAxisExtent`, para que o número de colunas acompanhe a largura (2 colunas no celular comum e mais no tablet), sem largura fixa.
+- Grade preguiçosa (`SliverGrid` com builder, num `CustomScrollView` para o rodapé caber na mesma rolagem), usando `SliverGridDelegateWithMaxCrossAxisExtent` com **largura máxima de célula de 180dp**. Assim o número de colunas acompanha a largura (3 colunas num celular de 400dp e mais no tablet), sem largura fixa.
 - Pôster 2:3, raio `md`, fundo `surfaceContainer`, sem sombra. Espaçamento `sm` entre os itens e padding `md` na tela (`MASTER.md`).
 - Sem texto sobre o pôster na grade. O título vai no `Semantics` do pôster.
 - Placeholder desenhado (ícone de filme em `onSurfaceVariant` sobre `surfaceContainer`) quando não há `poster_path` e enquanto a imagem carrega. Erro de imagem também mostra o placeholder, nunca uma imagem quebrada.
 
 ## Estados
-- **Carregando (primeira página):** grade de skeleton com as mesmas células 2:3 da grade real, para não pular o layout. A animação é de pulso suave de opacidade e fica estática quando `MediaQuery.disableAnimationsOf` é verdadeiro. A grade tem `Semantics` de "carregando".
+- **Carregando (primeira página):** grade de skeleton com as mesmas células 2:3 da grade real, para não pular o layout. A animação é de pulso suave de opacidade (ciclo de **1200 ms**, ida e volta, `Curves.easeInOut`) e fica estática quando `MediaQuery.disableAnimationsOf` é verdadeiro. A grade tem `Semantics` de "carregando".
 - **Vazio:** mensagem curta. Em Descobrir, o vazio vem do TMDB e não do usuário, então a ação é "Tentar de novo".
 - **Erro (primeira página):** mensagem amigável por tipo de falha (sem rede, limite de requisições, genérica) e o botão "Tentar de novo", com alvo ≥ 48dp.
 - **Sucesso:** grade.
