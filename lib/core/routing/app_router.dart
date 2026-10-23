@@ -4,6 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import '../../features/movies/domain/entities/movie_category.dart';
 import '../../features/movies/domain/repositories/movie_repository.dart';
 import '../../features/movies/presentation/screens/discover_screen.dart';
 import '../../features/movies/presentation/state/paged_movies_notifier.dart';
@@ -36,6 +37,7 @@ GoRouter createAppRouter({required MovieRepository movieRepository}) =>
               create: (_) {
                 final notifier = PagedMoviesNotifier(
                   repository: movieRepository,
+                  category: MovieCategory.popular,
                 );
                 // O notifier guarda o resultado, inclusive a falha, no estado.
                 unawaited(notifier.load());

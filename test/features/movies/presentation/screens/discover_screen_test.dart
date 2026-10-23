@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ja_vi_esse_filme/core/error/failures.dart';
 import 'package:ja_vi_esse_filme/core/l10n/app_locale.dart';
+import 'package:ja_vi_esse_filme/features/movies/domain/entities/movie_category.dart';
 import 'package:ja_vi_esse_filme/features/movies/presentation/screens/discover_screen.dart';
 import 'package:ja_vi_esse_filme/features/movies/presentation/state/paged_movies_notifier.dart';
 import 'package:ja_vi_esse_filme/features/movies/presentation/widgets/movie_poster.dart';
@@ -21,7 +22,10 @@ void main() {
 
   setUp(() {
     repository = FakeMovieRepository();
-    notifier = PagedMoviesNotifier(repository: repository);
+    notifier = PagedMoviesNotifier(
+      repository: repository,
+      category: MovieCategory.popular,
+    );
   });
 
   tearDown(() => notifier.dispose());

@@ -9,11 +9,13 @@ import 'package:ja_vi_esse_filme/features/movies/domain/repositories/movie_repos
 /// responder com [complete] ou [fail].
 class FakeMovieRepository implements MovieRepository {
   final List<int> requestedPages = [];
+  final List<MovieCategory> requestedCategories = [];
   final List<Completer<MoviePage>> _pending = [];
 
   @override
   Future<MoviePage> byCategory(MovieCategory category, {required int page}) {
     requestedPages.add(page);
+    requestedCategories.add(category);
     final completer = Completer<MoviePage>();
     _pending.add(completer);
     return completer.future;

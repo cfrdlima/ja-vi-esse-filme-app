@@ -7,10 +7,12 @@ import '../../domain/entities/movie_page.dart';
 import '../../domain/repositories/movie_repository.dart';
 import 'paged_movies_state.dart';
 
+/// Uma lista paginada de filmes de uma [MovieCategory].
 class PagedMoviesNotifier extends ChangeNotifier {
-  PagedMoviesNotifier({required this._repository});
+  PagedMoviesNotifier({required this._repository, required this._category});
 
   final MovieRepository _repository;
+  final MovieCategory _category;
 
   PagedMoviesState _state = const PagedMoviesLoading();
   PagedMoviesState get state => _state;
@@ -93,7 +95,7 @@ class PagedMoviesNotifier extends ChangeNotifier {
   /// continua subindo de propósito.
   Future<MoviePage> _fetch(int page) async {
     try {
-      return await _repository.byCategory(MovieCategory.popular, page: page);
+      return await _repository.byCategory(_category, page: page);
     } on Failure {
       rethrow;
     } on Exception {
@@ -101,8 +103,9 @@ class PagedMoviesNotifier extends ChangeNotifier {
     }
   }
 
-  // A ordem das listas (popularidade, nota) muda entre pedidos, e o TMDB pode repetir um
-  // filme, até na mesma página; repetido quebraria as chaves da grade.
+  // A ordem das listas (popularidade, nota) muda entre pedidos, e o TMDB
+  // pode repetir um filme, até na mesma página; repetido quebraria as chaves
+  // da grade.
   List<Movie> _withoutRepeated(List<Movie> current, List<Movie> incoming) {
     final known = {for (final movie in current) movie.id};
     return [...current, ...incoming.where((movie) => known.add(movie.id))];
