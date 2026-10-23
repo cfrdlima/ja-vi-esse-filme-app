@@ -1,6 +1,6 @@
 # Sessão 012 — Fase 1: Hero do pôster
 
-**Data**: 2026-10-23 · **Branch**: `feature/012-hero-poster` · **Status**: aberta
+**Data**: 2026-10-23 · **Branch**: `feature/012-hero-poster` · **Status**: fechada
 
 ## Objetivo
 Tocar num pôster da grade (Descobrir ou Buscar) leva o pôster voando até o lugar dele nos detalhes, com um `Hero` de tag única dentro do navigator da aba. A transição precisa achar o pôster de destino já no primeiro quadro, enquanto os detalhes ainda carregam, e respeitar o movimento reduzido.
@@ -26,12 +26,16 @@ Tocar num pôster da grade (Descobrir ou Buscar) leva o pôster voando até o lu
 - [x] C6: renomear `poster` para `preview` no `MovieDetailsSkeleton`, o mesmo nome da tela e da rota — REFACTOR
 
 ## Decisões
+Nenhuma decisão nova. A troca do `memCacheWidth` pela decodificação no tamanho do arquivo foi escolha do usuário na sessão e está nas Notas e no `pages/detalhes.md`.
 
 ## Commits
+- (este commit) docs: fecha sessão 012
+- 53758ff docs: itens da revisão da sessão 012 no log
 - ff9e2ad refactor: skeleton dos detalhes chama o filme da grade de preview
 - bcb684c test: voo do router entre os dois tamanhos em qualquer ordem
 - 3205be3 test: preview sem pôster põe o placeholder no Hero do skeleton
 - e7015ba docs: tratamento da revisão da sessão 012
+- 22a7e15 docs: transição com Hero no design e log da sessão 012
 - 6bb425b fix: aba recebe só a parte do teclado acima da barra das abas
 - 24735a9 fix: shell não encolhe com o teclado, e o pôster voa sem esticar
 - 5e67e94 fix: detalhes como MaterialPage, com transição e voo do Hero
@@ -78,3 +82,8 @@ Tocar num pôster da grade (Descobrir ou Buscar) leva o pôster voando até o lu
   - **C4:** a faixa do voo usa `min`/`max` dos dois tamanhos.
   - **C6:** o parâmetro do skeleton passou a se chamar `preview`.
 - **Tríade depois do tratamento:** `dart format` sem mudanças (108 arquivos), `flutter analyze` sem issues, `flutter test` com 604 testes passando e `gitleaks` sem vazamentos.
+- **Pendências:**
+  - conferir no aparelho o filme sem pôster e a fonte grande (os dois estão cobertos por testes);
+  - erro e "não encontrado" sem pôster: o voltar desses estados não voa;
+  - qualquer rota empilhada nova precisa de `pageBuilder` com `MaterialPage`, até o go_router reconhecer o `MaterialApp` (BACKLOG);
+  - C1, C2, C5, C7 e A1 da revisão estão no BACKLOG.
