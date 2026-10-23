@@ -67,10 +67,19 @@ void main() {
     await tester.pump();
   }
 
-  const largeFont = MediaQueryData(
-    size: Size(320, 640),
-    textScaler: TextScaler.linear(1.5),
-  );
+  // O `MaterialApp` tira o tamanho da view, e não do `MediaQuery` de fora:
+  // a tela estreita precisa vir do `tester.view`.
+  Future<void> pumpNarrow(WidgetTester tester, {double textScale = 1.5}) {
+    tester.view
+      ..physicalSize = const Size(320, 640)
+      ..devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    return tester.pumpWidget(
+      screen(
+        mediaQuery: MediaQueryData(textScaler: TextScaler.linear(textScale)),
+      ),
+    );
+  }
 
   group('carregando', () {
     testWidgets('deve mostrar o skeleton, sem spinner', (tester) async {
@@ -83,7 +92,7 @@ void main() {
     testWidgets('não deve vazar com fonte 1.5x numa tela de 320dp', (
       tester,
     ) async {
-      await tester.pumpWidget(screen(mediaQuery: largeFont));
+      await pumpNarrow(tester);
 
       expect(tester.takeException(), isNull);
     });
@@ -145,7 +154,7 @@ void main() {
     testWidgets('não deve vazar com fonte 1.5x numa tela de 320dp', (
       tester,
     ) async {
-      await tester.pumpWidget(screen(mediaQuery: largeFont));
+      await pumpNarrow(tester);
       repository.failDetails(const RateLimitFailure());
       await tester.pump();
 
@@ -234,7 +243,17 @@ void main() {
     testWidgets('não deve vazar com fonte 1.5x numa tela de 320dp', (
       tester,
     ) async {
-      await tester.pumpWidget(screen(mediaQuery: largeFont));
+      await pumpNarrow(tester);
+      repository.completeDetails(complete);
+      await tester.pump();
+
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('não deve vazar com fonte 2x (o máximo do Android) em 320dp', (
+      tester,
+    ) async {
+      await pumpNarrow(tester, textScale: 2);
       repository.completeDetails(complete);
       await tester.pump();
 
