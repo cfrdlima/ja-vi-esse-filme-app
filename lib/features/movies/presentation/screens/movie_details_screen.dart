@@ -13,10 +13,19 @@ import '../widgets/movie_details_skeleton.dart';
 import '../widgets/paged_movies_view.dart';
 
 /// Detalhes de um filme, numa rota dentro da aba que o abriu.
-class MovieDetailsScreen extends StatelessWidget {
+class MovieDetailsScreen extends StatefulWidget {
   const MovieDetailsScreen({this.preview, super.key});
 
+  /// O filme tocado na grade, para o pôster aparecer antes dos detalhes.
   final Movie? preview;
+
+  @override
+  State<MovieDetailsScreen> createState() => _MovieDetailsScreenState();
+}
+
+class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
+  // O pôster passa do skeleton para o conteúdo sem perder o Hero.
+  final _posterKey = GlobalKey();
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +47,10 @@ class MovieDetailsScreen extends StatelessWidget {
         ),
       ),
       body: switch (state) {
-        MovieDetailsLoading() => MovieDetailsSkeleton(poster: preview),
+        MovieDetailsLoading() => MovieDetailsSkeleton(
+          poster: widget.preview,
+          posterKey: _posterKey,
+        ),
         // Repetir daria o mesmo resultado: a saída é o voltar da barra.
         MovieDetailsNotFound() => MoviesMessage(message: l10n.movieNotFound),
         MovieDetailsError(:final failure) => MoviesMessage(
@@ -50,6 +62,7 @@ class MovieDetailsScreen extends StatelessWidget {
         ),
         MovieDetailsLoaded(:final details) => MovieDetailsContent(
           details: details,
+          posterKey: _posterKey,
         ),
       },
     );

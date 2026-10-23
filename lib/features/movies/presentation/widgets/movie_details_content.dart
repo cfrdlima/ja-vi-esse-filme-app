@@ -13,9 +13,12 @@ import 'poster_hero.dart';
 /// Sucesso dos detalhes: cabeçalho, gêneros, sinopse e elenco (override
 /// `detalhes.md`). O que o TMDB não mandou some, sem traço.
 class MovieDetailsContent extends StatelessWidget {
-  const MovieDetailsContent({required this.details, super.key});
+  const MovieDetailsContent({required this.details, this.posterKey, super.key});
 
   final MovieDetails details;
+
+  /// Chave do pôster, a mesma do skeleton: ver [MovieDetailsSkeleton.posterKey].
+  final Key? posterKey;
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +33,7 @@ class MovieDetailsContent extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _Header(details: details),
+              _Header(details: details, posterKey: posterKey),
               if (details.genres.isNotEmpty) ...[
                 SizedBox(height: spacing.md),
                 _Genres(genres: details.genres),
@@ -54,9 +57,10 @@ class MovieDetailsContent extends StatelessWidget {
 }
 
 class _Header extends StatelessWidget {
-  const _Header({required this.details});
+  const _Header({required this.details, required this.posterKey});
 
   final MovieDetails details;
+  final Key? posterKey;
 
   @override
   Widget build(BuildContext context) {
@@ -76,6 +80,7 @@ class _Header extends StatelessWidget {
             image: true,
             excludeSemantics: true,
             child: PosterHero(
+              key: posterKey,
               movieId: details.id,
               child: MoviePoster(
                 movie: Movie(

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ja_vi_esse_filme/core/error/failures.dart';
 import 'package:ja_vi_esse_filme/core/l10n/app_locale.dart';
+import 'package:ja_vi_esse_filme/core/theme/app_sizes.dart';
 import 'package:ja_vi_esse_filme/core/widgets/retry_button.dart';
 import 'package:ja_vi_esse_filme/features/movies/domain/entities/cast_member.dart';
 import 'package:ja_vi_esse_filme/features/movies/domain/entities/movie.dart';
@@ -375,6 +376,95 @@ void main() {
       );
 
       expect(find.bySemanticsLabel('Pessoa'), findsOneWidget);
+    });
+  });
+
+  group('transição', () {
+    const gridWidth = 60.0;
+
+    // Uma grade de um pôster só, que empilha os detalhes como a aba faz.
+    Future<void> pumpGrid(WidgetTester tester) => tester.pumpWidget(
+      testApp(
+        home: Builder(
+          builder: (context) => Align(
+            alignment: Alignment.bottomRight,
+            child: SizedBox(
+              width: gridWidth,
+              child: PosterHero(
+                movieId: 7,
+                child: MoviePoster(
+                  movie: preview,
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => ChangeNotifierProvider(
+                        create: (_) {
+                          final notifier = MovieDetailsNotifier(
+                            repository: repository,
+                            movieId: 7,
+                          );
+                          unawaited(notifier.load());
+                          return notifier;
+                        },
+                        child: const MovieDetailsScreen(preview: preview),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    Future<void> tapAndFlyHalfway(WidgetTester tester) async {
+      await tester.tap(find.byType(MoviePoster));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+
+    testWidgets('deve voar com o pôster da grade até os detalhes', (
+      tester,
+    ) async {
+      await pumpGrid(tester);
+
+      await tapAndFlyHalfway(tester);
+
+      expect(
+        tester.getSize(find.byType(MoviePoster)).width,
+        inExclusiveRange(gridWidth, AppSizes.detailsPosterWidth),
+      );
+    });
+
+    testWidgets('deve seguir voando quando o filme chega no meio do voo', (
+      tester,
+    ) async {
+      await pumpGrid(tester);
+      await tapAndFlyHalfway(tester);
+
+      repository.completeDetails(complete);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 50));
+
+      expect(find.byType(MoviePoster), findsOneWidget);
+    });
+
+    testWidgets('deve voar de volta à grade ao voltar', (tester) async {
+      await pumpGrid(tester);
+      // O pulso do skeleton não para: o filme chega antes do `pumpAndSettle`.
+      await tester.tap(find.byType(MoviePoster));
+      await tester.pump();
+      repository.completeDetails(complete);
+      await tester.pumpAndSettle();
+
+      tester.state<NavigatorState>(find.byType(Navigator)).pop();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+
+      expect(
+        tester.getSize(find.byType(MoviePoster)).width,
+        inExclusiveRange(gridWidth, AppSizes.detailsPosterWidth),
+      );
     });
   });
 }

@@ -14,9 +14,14 @@ import 'skeleton_pulse.dart';
 /// da grade, o pôster de verdade fica no lugar do bloco, para o `Hero` ter
 /// onde pousar antes de o filme chegar.
 class MovieDetailsSkeleton extends StatelessWidget {
-  const MovieDetailsSkeleton({this.poster, super.key});
+  const MovieDetailsSkeleton({this.poster, this.posterKey, super.key});
 
   final Movie? poster;
+
+  /// Chave do pôster, a mesma do conteúdo. Se o filme chega no meio do voo,
+  /// o Hero de destino muda de pai sem sair da árvore; sem isso, o voo perde
+  /// o destino e some aos poucos, com o pôster novo já parado no lugar.
+  final Key? posterKey;
 
   static const _headerLines = [1.0, 0.6, 0.4];
   static const _paragraphLines = [1.0, 1.0, 1.0, 0.7];
@@ -50,6 +55,7 @@ class MovieDetailsSkeleton extends StatelessWidget {
                           width: AppSizes.detailsPosterWidth,
                           child: switch (poster) {
                             final poster? => PosterHero(
+                              key: posterKey,
                               movieId: poster.id,
                               child: MoviePoster(movie: poster),
                             ),
