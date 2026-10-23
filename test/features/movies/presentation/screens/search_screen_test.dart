@@ -223,6 +223,20 @@ void main() {
       expect(find.text(l10n.searchEmpty('xyzxyz')), findsOneWidget);
     });
 
+    testWidgets('deve anunciar o vazio ao leitor de tela', (tester) async {
+      final semantics = tester.ensureSemantics();
+      await pumpScreen(tester);
+      await typeAndWait(tester, 'xyzxyz');
+
+      await answer(tester, count: 0);
+
+      expect(
+        tester.getSemantics(find.text(l10n.searchEmpty('xyzxyz'))),
+        isSemantics(isLiveRegion: true),
+      );
+      semantics.dispose();
+    });
+
     testWidgets('não deve oferecer tentar de novo', (tester) async {
       await pumpScreen(tester);
       await typeAndWait(tester, 'xyzxyz');
@@ -247,9 +261,40 @@ void main() {
         findsOneWidget,
       );
     });
+
+    testWidgets('deve anunciar o aviso ao leitor de tela', (tester) async {
+      final semantics = tester.ensureSemantics();
+      await pumpScreen(tester);
+
+      await tester.enterText(find.byType(TextField), 'e\u0301' * 51);
+      await tester.pump();
+
+      expect(
+        tester.getSemantics(
+          find.text(l10n.searchTooLong(SearchQuery.maxLength)),
+        ),
+        isSemantics(isLiveRegion: true),
+      );
+      semantics.dispose();
+    });
   });
 
   group('erro', () {
+    testWidgets('deve anunciar o erro ao leitor de tela', (tester) async {
+      final semantics = tester.ensureSemantics();
+      await pumpScreen(tester);
+      await typeAndWait(tester, 'matrix');
+
+      repository.fail(const NetworkFailure());
+      await tester.pump();
+
+      expect(
+        tester.getSemantics(find.text(l10n.failureNetwork)),
+        isSemantics(isLiveRegion: true),
+      );
+      semantics.dispose();
+    });
+
     testWidgets('deve mostrar a mensagem e tentar de novo', (tester) async {
       await pumpScreen(tester);
       await typeAndWait(tester, 'matrix');

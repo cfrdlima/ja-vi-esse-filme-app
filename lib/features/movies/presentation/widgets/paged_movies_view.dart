@@ -177,11 +177,17 @@ class MoviesMessage extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
-              message,
-              textAlign: TextAlign.center,
-              style: theme.textTheme.bodyLarge?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
+            // Região viva: na Buscar o foco fica no campo, e sem o anúncio
+            // quem usa leitor de tela não sabe que a busca terminou vazia ou
+            // falhou.
+            Semantics(
+              liveRegion: true,
+              child: Text(
+                message,
+                textAlign: TextAlign.center,
+                style: theme.textTheme.bodyLarge?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
               ),
             ),
             if (action != null) ...[SizedBox(height: spacing.md), action],
