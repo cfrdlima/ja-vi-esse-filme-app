@@ -19,7 +19,7 @@ Tocar num pôster da Descobrir ou da Buscar abre os detalhes do filme numa rota 
 - [x] Rotas: `filme/:id` como sub-rota (`routes:` do `firstTabBranch`/`tabBranch`, que já existe) dentro de Descobrir e Buscar, id inválido vai para "não encontrado", e o voltar retorna à grade com a rolagem e não cai na regra do voltar da raiz da aba — RED / GREEN
 - [x] Pôster tocável na grade (alvo ≥ 48dp, `Semantics` de botão) que abre os detalhes da aba atual — RED / GREEN
 - [x] Strings novas no ARB (títulos de seção, duração, nota, "não encontrado", elenco, sem sinopse)
-- [ ] Tríade: `flutter analyze` limpo, `flutter test` verde e emulador (abrir pelas duas abas, voltar, filme sem pôster/sinopse, fonte grande)
+- [x] Tríade: `flutter analyze` limpo, `flutter test` verde e emulador (abrir pelas duas abas, voltar, filme sem pôster/sinopse, fonte grande)
 - [ ] `/revisar`: `code-reviewer` + `security-auditor` (a sessão toca rede e rota com parâmetro)
 
 ## Decisões
@@ -42,3 +42,15 @@ Tocar num pôster da Descobrir ou da Buscar abre os detalhes do filme numa rota 
   - um record com listas comparou por identidade (o mesmo defeito das sessões 009 e 010), e o teste foi separado em dois antes do GREEN;
   - mutações pegas: o desempate do elenco, a pessoa sem `order` no fim, as guardas do notifier (pedido em andamento, id < 1, emitir depois do `dispose`), a nota sem guarda e sem rótulo, o card sem `excludeSemantics` e o "tentar de novo" no 404;
   - uma sonda temporária confirmou que o teste da rolagem rola de fato (280 px), abre os detalhes e volta à mesma posição.
+- Emulador (Medium Phone API 36):
+  - **Descobrir:** tocar num pôster abre os detalhes com a barra das abas visível. O voltar do sistema devolve a grade na mesma rolagem (captura idêntica à de antes de abrir).
+  - **Buscar:** "cidade de deus" e depois um pôster abrem os detalhes na aba Buscar. A seta da barra volta à grade com o termo intacto, e o elenco rola na horizontal.
+  - **Dados:** a data sai em dd/MM/aaaa, a duração em "2 h 10 min" e "52 min", a nota em "8,4". O título longo leva reticências na barra e quebra linha no cabeçalho.
+  - **Fonte 1.5x:** sem overflow, e os gêneros quebram linha. O nome no elenco quebrava no meio da palavra ("Fernand / o Meir…"), porque o card tinha 96dp fixos. Isso foi corrigido em dois passos:
+    1. o card passou a crescer com a fonte, mas o `scale(96)` não mudou nada no aparelho, porque o Android 14 escala a fonte de forma não linear e trata 96 como um tamanho grande;
+    2. o fator passou a vir do tamanho da fonte do nome (`bodyMedium`), com um teste que usa um `TextScaler` não linear.
+  - **Erro:** com o modo avião, aparece "Sem conexão com a internet" e o "Tentar de novo"; com a rede de volta, o toque carrega o filme.
+  - **Não conferido no aparelho:** a sinopse do idioma original, porque não achei um filme sem sinopse pt-BR, e o "não encontrado", que só se alcança por URL. Os dois ficam cobertos pelos testes de model, de rota e de tela.
+  - Nenhuma exceção nem overflow no log do `flutter run`.
+  - **Observação:** o personagem vem do TMDB sem tradução ("Himself", "Herself"). É dado do TMDB, e não do app.
+- Tríade antes do `/revisar`: `dart format` sem mudanças (106 arquivos), `flutter analyze` sem issues, `flutter test` com 573 testes passando (eram 473) e `gitleaks` sem vazamentos.
