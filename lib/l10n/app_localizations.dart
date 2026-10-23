@@ -148,17 +148,53 @@ abstract class AppLocalizations {
   /// **'Descobrir'**
   String get discoverTitle;
 
-  /// Anúncio do leitor de tela enquanto a grade da categoria escolhida carrega
+  /// Anúncio do leitor de tela enquanto uma grade de filmes (Descobrir, Buscar) carrega
   ///
   /// In pt, this message translates to:
   /// **'Carregando filmes'**
-  String get discoverLoading;
+  String get moviesLoading;
 
   /// Estado vazio da categoria escolhida, que vem do TMDB e não do usuário
   ///
   /// In pt, this message translates to:
   /// **'Nenhum filme por aqui agora.'**
   String get discoverEmpty;
+
+  /// Título da tela Buscar; separado de tabSearch para que encurtar o rótulo da aba não mude o título
+  ///
+  /// In pt, this message translates to:
+  /// **'Buscar'**
+  String get searchTitle;
+
+  /// Rótulo visível do campo de busca
+  ///
+  /// In pt, this message translates to:
+  /// **'Título do filme'**
+  String get searchFieldLabel;
+
+  /// Tooltip e rótulo do leitor de tela do botão que apaga o termo digitado
+  ///
+  /// In pt, this message translates to:
+  /// **'Limpar busca'**
+  String get searchClear;
+
+  /// Estado inicial da Buscar, sem termo ou com termo curto demais
+  ///
+  /// In pt, this message translates to:
+  /// **'Busque pelo título, em português ou no original.'**
+  String get searchIdle;
+
+  /// Estado vazio da Buscar, com o termo digitado e uma sugestão
+  ///
+  /// In pt, this message translates to:
+  /// **'Nenhum filme encontrado para “{query}”. Confira a grafia ou tente o título original.'**
+  String searchEmpty(String query);
+
+  /// Aviso quando o termo passa do tamanho máximo e não é buscado
+  ///
+  /// In pt, this message translates to:
+  /// **'Use até {max} caracteres na busca.'**
+  String searchTooLong(int max);
 
   /// Categoria da Descobrir: filmes populares no TMDB
   ///
@@ -182,7 +218,7 @@ abstract class AppLocalizations {
   ///
   /// In pt, this message translates to:
   /// **'Não foi possível carregar mais filmes.'**
-  String get discoverLoadMoreFailed;
+  String get moviesLoadMoreFailed;
 
   /// Botão que repete a última ação que falhou
   ///

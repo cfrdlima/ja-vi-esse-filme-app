@@ -2,6 +2,7 @@ import '../../../../core/error/failures.dart';
 import '../../../../core/network/tmdb_client.dart';
 import '../../domain/entities/movie_category.dart';
 import '../../domain/entities/movie_page.dart';
+import '../../domain/entities/search_query.dart';
 import '../models/movie_model.dart';
 
 /// Listas de filmes do TMDB. O [TmdbClient] já converte status e erros de
@@ -24,6 +25,20 @@ class MovieRemoteDataSource {
       query: {
         'page': '$page',
         if (category == MovieCategory.nowPlaying) 'region': _region,
+      },
+    );
+    return _parsePage(json);
+  }
+
+  Future<MoviePage> search(SearchQuery query, {required int page}) async {
+    final json = await _client.get(
+      'search/movie',
+      query: {
+        'query': query.text,
+        'page': '$page',
+        // O app é para 13+ (política de privacidade, seção 11). O padrão do
+        // TMDB já é false, mas fica explícito para não depender dele.
+        'include_adult': 'false',
       },
     );
     return _parsePage(json);

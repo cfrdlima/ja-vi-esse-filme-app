@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:ja_vi_esse_filme/features/movies/domain/entities/movie.dart';
 import 'package:ja_vi_esse_filme/features/movies/domain/entities/movie_category.dart';
 import 'package:ja_vi_esse_filme/features/movies/domain/entities/movie_page.dart';
+import 'package:ja_vi_esse_filme/features/movies/domain/entities/search_query.dart';
 import 'package:ja_vi_esse_filme/features/movies/domain/repositories/movie_repository.dart';
 
 /// Repositório controlado pelo teste: cada pedido fica pendente até o teste
@@ -10,12 +11,24 @@ import 'package:ja_vi_esse_filme/features/movies/domain/repositories/movie_repos
 class FakeMovieRepository implements MovieRepository {
   final List<int> requestedPages = [];
   final List<MovieCategory> requestedCategories = [];
+  final List<SearchQuery> requestedQueries = [];
   final List<Completer<MoviePage>> _pending = [];
 
   @override
   Future<MoviePage> byCategory(MovieCategory category, {required int page}) {
     requestedPages.add(page);
     requestedCategories.add(category);
+    return _enqueue();
+  }
+
+  @override
+  Future<MoviePage> search(SearchQuery query, {required int page}) {
+    requestedPages.add(page);
+    requestedQueries.add(query);
+    return _enqueue();
+  }
+
+  Future<MoviePage> _enqueue() {
     final completer = Completer<MoviePage>();
     _pending.add(completer);
     return completer.future;

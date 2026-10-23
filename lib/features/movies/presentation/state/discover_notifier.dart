@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart';
 
 import '../../domain/entities/movie_category.dart';
 import '../../domain/repositories/movie_repository.dart';
-import 'paged_movies_notifier.dart';
+import 'category_movies_notifier.dart';
 
 /// Categoria escolhida na Descobrir e uma lista paginada por categoria. As
 /// listas ficam vivas: voltar a uma categoria mostra os filmes e a página já
@@ -20,12 +20,12 @@ class DiscoverNotifier extends ChangeNotifier {
   }
 
   final MovieRepository _repository;
-  final _lists = <MovieCategory, PagedMoviesNotifier>{};
+  final _lists = <MovieCategory, CategoryMoviesNotifier>{};
 
   MovieCategory _category;
   MovieCategory get category => _category;
 
-  PagedMoviesNotifier get current => _lists[_category]!;
+  CategoryMoviesNotifier get current => _lists[_category]!;
 
   /// Mostra a [category] e carrega a lista dela na primeira vez.
   void select(MovieCategory category) {
@@ -37,7 +37,7 @@ class DiscoverNotifier extends ChangeNotifier {
 
   void _open(MovieCategory category) {
     if (_lists.containsKey(category)) return;
-    final list = PagedMoviesNotifier(
+    final list = CategoryMoviesNotifier(
       repository: _repository,
       category: category,
     );

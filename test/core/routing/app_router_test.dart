@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ja_vi_esse_filme/core/routing/app_router.dart';
 import 'package:ja_vi_esse_filme/features/movies/presentation/screens/discover_screen.dart';
+import 'package:ja_vi_esse_filme/features/movies/presentation/screens/search_screen.dart';
 
 import '../../helpers/back_navigation.dart';
 import '../../helpers/stub_movie_repository.dart';
@@ -108,6 +109,36 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(router.state.matchedLocation, AppRoutes.discover);
+    });
+  });
+
+  group('aba Buscar', () {
+    testWidgets('deve mostrar a tela de busca', (tester) async {
+      await pumpAppRouter(tester);
+
+      await tapDestination(tester, 'Buscar');
+
+      expect(find.byType(SearchScreen), findsOneWidget);
+    });
+
+    testWidgets('deve guardar o termo ao trocar de aba e voltar', (
+      tester,
+    ) async {
+      await pumpAppRouter(tester);
+      await tapDestination(tester, 'Buscar');
+      await tester.enterText(find.byType(TextField), 'matrix');
+      await tester.pumpAndSettle();
+
+      await tapDestination(tester, 'Descobrir');
+      await tapDestination(tester, 'Buscar');
+
+      expect(
+        find.descendant(
+          of: find.byType(SearchScreen),
+          matching: find.text('matrix'),
+        ),
+        findsOneWidget,
+      );
     });
   });
 

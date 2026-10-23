@@ -5,6 +5,7 @@ import 'package:ja_vi_esse_filme/core/error/failures.dart';
 import 'package:ja_vi_esse_filme/features/movies/domain/entities/movie.dart';
 import 'package:ja_vi_esse_filme/features/movies/domain/entities/movie_category.dart';
 import 'package:ja_vi_esse_filme/features/movies/domain/entities/movie_page.dart';
+import 'package:ja_vi_esse_filme/features/movies/presentation/state/category_movies_notifier.dart';
 import 'package:ja_vi_esse_filme/features/movies/presentation/state/paged_movies_notifier.dart';
 import 'package:ja_vi_esse_filme/features/movies/presentation/state/paged_movies_state.dart';
 
@@ -16,7 +17,7 @@ void main() {
 
   setUp(() {
     repository = FakeMovieRepository();
-    notifier = PagedMoviesNotifier(
+    notifier = CategoryMoviesNotifier(
       repository: repository,
       category: MovieCategory.topRated,
     );
@@ -29,16 +30,6 @@ void main() {
     repository.complete(moviePage(page: 1, totalPages: totalPages));
     await future;
   }
-
-  test('deve expor a categoria da lista', () {
-    expect(notifier.category, MovieCategory.topRated);
-  });
-
-  test('deve pedir a categoria recebida', () async {
-    await loadFirstPage();
-
-    expect(repository.requestedCategories, [MovieCategory.topRated]);
-  });
 
   group('primeira página', () {
     test('deve começar carregando', () {
@@ -340,9 +331,56 @@ void main() {
     repository.complete(moviePage(page: 1));
 
     await expectLater(future, completes);
-    notifier = PagedMoviesNotifier(
+    notifier = CategoryMoviesNotifier(
       repository: repository,
       category: MovieCategory.topRated,
     );
+  });
+
+  group('descartado', () {
+    // O tearDown descarta o notifier, e descartar duas vezes é erro.
+    void disposeAndReplace() {
+      final disposed = notifier;
+      notifier = CategoryMoviesNotifier(
+        repository: FakeMovieRepository(),
+        category: MovieCategory.topRated,
+      );
+      disposed.dispose();
+    }
+
+    test('não deve pedir a primeira página', () {
+      final disposed = notifier;
+      disposeAndReplace();
+
+      // Sem await: se o pedido saísse, ficaria pendente no fake.
+      unawaited(disposed.load());
+
+      expect(repository.requestedPages, isEmpty);
+    });
+
+    test('não deve pedir a próxima página', () async {
+      await loadFirstPage();
+      final disposed = notifier;
+      disposeAndReplace();
+
+      // Sem await: se o pedido saísse, ficaria pendente no fake.
+      unawaited(disposed.loadMore());
+
+      expect(repository.requestedPages, [1]);
+    });
+
+    test('não deve repetir a próxima página que falhou', () async {
+      await loadFirstPage();
+      final future = notifier.loadMore();
+      repository.fail(const NetworkFailure());
+      await future;
+      final disposed = notifier;
+      disposeAndReplace();
+
+      // Sem await: se o pedido saísse, ficaria pendente no fake.
+      unawaited(disposed.retryNextPage());
+
+      expect(repository.requestedPages, [1, 2]);
+    });
   });
 }

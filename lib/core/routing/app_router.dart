@@ -4,7 +4,9 @@ import 'package:provider/provider.dart';
 
 import '../../features/movies/domain/repositories/movie_repository.dart';
 import '../../features/movies/presentation/screens/discover_screen.dart';
+import '../../features/movies/presentation/screens/search_screen.dart';
 import '../../features/movies/presentation/state/discover_notifier.dart';
+import '../../features/movies/presentation/state/search_notifier.dart';
 import '../../l10n/app_localizations.dart';
 import '../widgets/placeholder_screen.dart';
 import 'app_shell.dart';
@@ -37,7 +39,10 @@ GoRouter createAppRouter({required MovieRepository movieRepository}) =>
           ),
           tabBranch(
             path: AppRoutes.search,
-            root: _placeholder((l10n) => l10n.tabSearch),
+            root: ChangeNotifierProvider(
+              create: (_) => SearchNotifier(repository: movieRepository),
+              child: const SearchScreen(),
+            ),
           ),
           tabBranch(
             path: AppRoutes.shelf,

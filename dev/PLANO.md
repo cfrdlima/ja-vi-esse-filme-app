@@ -3,9 +3,9 @@
 > Fonte da verdade do que construir. Atualizado por `/fechar-sessao`.
 
 ## Última sessão
-**009 — Fase 1: Descobrir, em cartaz e melhor avaliados** (fechada em 2026-10-23) · [log](sessoes/009-descobrir-categorias.md)
-A Descobrir ganhou o seletor de categoria (Populares, Em cartaz com `region=BR` e Mais bem avaliados), com uma lista viva por categoria (`DiscoverNotifier` + `PagedMoviesNotifier`) que guarda filmes e rolagem. O "Tentar de novo" respeita o `retryAfter` do 429 com contagem (teto de 60 s), no erro e no rodapé. São 371 testes.
-**Próximo passo:** a sessão 010, com a busca (debounce, estados vazio/erro e `include_adult=false`).
+**010 — Fase 1: busca de filmes** (fechada em 2026-10-23) · [log](sessoes/010-busca.md)
+A aba Buscar busca no `/search/movie` com `include_adult=false`, debounce de 400 ms e termo de 2 a 100 code points validado no domínio, com paginação infinita e os estados inicial, carregando, vazio, erro e "longo demais" anunciados ao leitor de tela. Trocar o termo não fura a espera do 429, e o app não guarda histórico (o teclado também é pedido a não aprender). São 473 testes.
+**Próximo passo:** a sessão 011, com os detalhes do filme (sinopse, gêneros, duração, nota e elenco).
 
 ## Fase 0 — Fundação
 - [x] Criar projeto (`io.github.cfrdlima.ja_vi_esse_filme`), `analysis_options.yaml`, `.gitignore` com `env/*.json` (exceto `example.json`)
@@ -35,7 +35,7 @@ A Descobrir ganhou o seletor de categoria (Populares, Em cartaz com `region=BR` 
 - [x] Descobrir: populares com paginação infinita (sessão 008)
 - [x] Descobrir: em cartaz (`region=BR`) e melhor avaliados, com seletor na tela, generalizando o notifier (`PagedMoviesNotifier`) e usando o `retryAfter` do 429 no botão "Tentar de novo" (sessão 009)
 - [x] Declarar em `docs/PRIVACIDADE.md` o cache de imagens (`cached_network_image`): prazo e como apagar
-- [ ] Busca com debounce e estados vazio/erro, com `include_adult=false` (público 13+, política de privacidade)
+- [x] Busca com debounce e estados vazio/erro, com `include_adult=false` (público 13+, política de privacidade) (sessão 010)
 - [ ] Detalhes do filme: sinopse, gêneros, duração, nota, elenco
 - [ ] Hero do pôster entre a grade/lista e os detalhes
 - [ ] Trailers (abrir YouTube externo com host validado)

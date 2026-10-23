@@ -36,10 +36,32 @@ class AppLocalizationsPt extends AppLocalizations {
   String get discoverTitle => 'Descobrir';
 
   @override
-  String get discoverLoading => 'Carregando filmes';
+  String get moviesLoading => 'Carregando filmes';
 
   @override
   String get discoverEmpty => 'Nenhum filme por aqui agora.';
+
+  @override
+  String get searchTitle => 'Buscar';
+
+  @override
+  String get searchFieldLabel => 'Título do filme';
+
+  @override
+  String get searchClear => 'Limpar busca';
+
+  @override
+  String get searchIdle => 'Busque pelo título, em português ou no original.';
+
+  @override
+  String searchEmpty(String query) {
+    return 'Nenhum filme encontrado para “$query”. Confira a grafia ou tente o título original.';
+  }
+
+  @override
+  String searchTooLong(int max) {
+    return 'Use até $max caracteres na busca.';
+  }
 
   @override
   String get categoryPopular => 'Populares';
@@ -51,7 +73,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get categoryTopRated => 'Mais bem avaliados';
 
   @override
-  String get discoverLoadMoreFailed => 'Não foi possível carregar mais filmes.';
+  String get moviesLoadMoreFailed => 'Não foi possível carregar mais filmes.';
 
   @override
   String get retry => 'Tentar de novo';

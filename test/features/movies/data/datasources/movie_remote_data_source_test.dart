@@ -6,6 +6,7 @@ import 'package:ja_vi_esse_filme/core/error/failures.dart';
 import 'package:ja_vi_esse_filme/core/network/tmdb_client.dart';
 import 'package:ja_vi_esse_filme/features/movies/data/datasources/movie_remote_data_source.dart';
 import 'package:ja_vi_esse_filme/features/movies/domain/entities/movie_category.dart';
+import 'package:ja_vi_esse_filme/features/movies/domain/entities/search_query.dart';
 
 import '../../../../helpers/fixtures.dart';
 
@@ -177,5 +178,97 @@ void main() {
       topRatedQuery,
       popularQuery,
     ], everyElement(isNot(contains('region'))));
+  });
+
+  group('busca', () {
+    test('deve pedir search/movie', () async {
+      final dataSource = dataSourceRespondingWith(
+        readFixture('search_movie_page1.json'),
+      );
+
+      await dataSource.search(SearchQuery('matrix'), page: 1);
+
+      expect(captured.url.path, '/3/search/movie');
+    });
+
+    test('deve mandar o termo normalizado na query', () async {
+      final dataSource = dataSourceRespondingWith(
+        readFixture('search_movie_page1.json'),
+      );
+
+      await dataSource.search(SearchQuery('  matrix  '), page: 1);
+
+      expect(captured.url.queryParameters['query'], 'matrix');
+    });
+
+    test('deve pedir a página na query', () async {
+      final dataSource = dataSourceRespondingWith(
+        readFixture('search_movie_page1.json'),
+      );
+
+      await dataSource.search(SearchQuery('matrix'), page: 3);
+
+      expect(captured.url.queryParameters['page'], '3');
+    });
+
+    test('deve pedir sem filmes adultos', () async {
+      final dataSource = dataSourceRespondingWith(
+        readFixture('search_movie_page1.json'),
+      );
+
+      await dataSource.search(SearchQuery('matrix'), page: 1);
+
+      expect(captured.url.queryParameters['include_adult'], 'false');
+    });
+
+    test('deve codificar acento, espaço e & do termo na URL', () async {
+      final dataSource = dataSourceRespondingWith(
+        readFixture('search_movie_empty.json'),
+      );
+
+      await dataSource.search(SearchQuery('Amélie & cia'), page: 1);
+
+      // Decodificado inteiro: o "&" do termo não virou um parâmetro novo.
+      expect(captured.url.queryParameters['query'], 'Amélie & cia');
+    });
+
+    test('o termo não deve trocar o include_adult', () async {
+      final dataSource = dataSourceRespondingWith(
+        readFixture('search_movie_empty.json'),
+      );
+
+      await dataSource.search(SearchQuery('x&include_adult=true'), page: 1);
+
+      expect(captured.url.queryParametersAll['include_adult'], ['false']);
+    });
+
+    test('deve devolver os filmes, inclusive o sem pôster', () async {
+      final dataSource = dataSourceRespondingWith(
+        readFixture('search_movie_page1.json'),
+      );
+
+      final page = await dataSource.search(SearchQuery('matrix'), page: 1);
+
+      expect(page.movies.map((m) => m.id), [603, 1287536]);
+    });
+
+    test('deve devolver página vazia quando nada é encontrado', () async {
+      final dataSource = dataSourceRespondingWith(
+        readFixture('search_movie_empty.json'),
+      );
+
+      final page = await dataSource.search(SearchQuery('xyzxyz'), page: 1);
+
+      expect(page.movies, isEmpty);
+    });
+
+    test('deve repassar a falha tipada do cliente', () async {
+      final dataSource = dataSourceRespondingWith('{}', 429);
+
+      await expectLater(
+        () => dataSource.search(SearchQuery('matrix'), page: 1),
+        throwsA(isA<RateLimitFailure>()),
+      );
+    });
   });
 }
