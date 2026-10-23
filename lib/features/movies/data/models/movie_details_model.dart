@@ -2,8 +2,9 @@ import '../../domain/entities/cast_member.dart';
 import '../../domain/entities/movie_details.dart';
 import 'tmdb_json.dart';
 
-/// Resposta de `/movie/{id}` com `append_to_response=credits,translations`,
-/// com parse defensivo ([TmdbJson]).
+/// Resposta de `/movie/{id}` com
+/// `append_to_response=credits,translations,videos`, com parse defensivo
+/// ([TmdbJson]).
 final class MovieDetailsModel {
   const MovieDetailsModel._(this._json, this._id);
 
