@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../core/theme/app_sizes.dart';
@@ -75,15 +76,18 @@ class _SearchFieldState extends State<_SearchField> {
       child: TextField(
         controller: _controller,
         focusNode: _focusNode,
-        maxLength: SearchQuery.maxLength,
+        // Corta na mesma unidade do domínio. O `maxLength` contaria
+        // caracteres visíveis, e um acento combinante passaria do limite.
+        inputFormatters: const [_CodePointLimit(SearchQuery.maxLength)],
         textInputAction: TextInputAction.search,
+        // O app não guarda o que é buscado (política, seção 3.1), e pede o
+        // mesmo ao teclado. Sugestão e correção continuam ajudando a digitar.
+        enableIMEPersonalizedLearning: false,
         onChanged: widget.onChanged,
         onSubmitted: widget.onSubmitted,
         decoration: InputDecoration(
           labelText: l10n.searchFieldLabel,
           prefixIcon: const Icon(Icons.search),
-          // O limite existe para o TMDB, e não para a pessoa acompanhar.
-          counterText: '',
           suffixIcon: ListenableBuilder(
             listenable: _controller,
             builder: (_, _) => _controller.text.isEmpty
@@ -157,6 +161,27 @@ class _IdleView extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// Limita o texto a [max] code points, cortando o que passar (como no colar).
+class _CodePointLimit extends TextInputFormatter {
+  const _CodePointLimit(this.max);
+
+  final int max;
+
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    final runes = newValue.text.runes;
+    if (runes.length <= max) return newValue;
+    final text = String.fromCharCodes(runes.take(max));
+    return TextEditingValue(
+      text: text,
+      selection: TextSelection.collapsed(offset: text.length),
     );
   }
 }

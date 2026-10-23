@@ -71,6 +71,38 @@ void main() {
       );
     });
 
+    testWidgets('deve contar o limite em code points, como o domínio', (
+      tester,
+    ) async {
+      await pumpScreen(tester);
+
+      // "e" + acento combinante: um caractere visível, dois code points.
+      await tester.enterText(find.byType(TextField), 'e\u0301' * 60);
+
+      expect(
+        tester
+            .widget<TextField>(find.byType(TextField))
+            .controller!
+            .text
+            .runes
+            .length,
+        SearchQuery.maxLength,
+      );
+    });
+
+    testWidgets('deve pedir ao teclado que não aprenda o termo', (
+      tester,
+    ) async {
+      await pumpScreen(tester);
+
+      expect(
+        tester
+            .widget<TextField>(find.byType(TextField))
+            .enableIMEPersonalizedLearning,
+        isFalse,
+      );
+    });
+
     testWidgets('deve usar a ação de buscar do teclado', (tester) async {
       await pumpScreen(tester);
 
@@ -248,13 +280,20 @@ void main() {
   });
 
   group('longo demais', () {
+    // O campo já corta no máximo; o aviso é a defesa do estado, testada
+    // mandando o termo direto ao notifier.
+    Future<void> sendTooLong(WidgetTester tester) async {
+      tester
+          .element(find.byType(SearchScreen))
+          .read<SearchNotifier>()
+          .onQueryChanged('a' * (SearchQuery.maxLength + 1));
+      await tester.pump();
+    }
+
     testWidgets('deve avisar o máximo de caracteres', (tester) async {
       await pumpScreen(tester);
 
-      // Cada "e" + acento combinante conta como um caractere no campo e como
-      // dois no domínio, que conta code points.
-      await tester.enterText(find.byType(TextField), 'é' * 51);
-      await tester.pump();
+      await sendTooLong(tester);
 
       expect(
         find.text(l10n.searchTooLong(SearchQuery.maxLength)),
@@ -266,8 +305,7 @@ void main() {
       final semantics = tester.ensureSemantics();
       await pumpScreen(tester);
 
-      await tester.enterText(find.byType(TextField), 'e\u0301' * 51);
-      await tester.pump();
+      await sendTooLong(tester);
 
       expect(
         tester.getSemantics(
