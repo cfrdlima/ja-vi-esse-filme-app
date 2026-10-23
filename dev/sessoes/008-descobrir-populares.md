@@ -23,7 +23,8 @@ Levar a lista de filmes populares (`/movie/popular`) do domínio até a aba Desc
 - [x] Composição: `AppConfig`, `http.Client`, `TmdbClient` e repositório montados no `main.dart` e injetados, com `main_test` usando um fake; rota Descobrir sem placeholder
 - [x] `docs/PRIVACIDADE.md`: declarar o cache de imagens (prazo e como apagar) e remover o marcador da Fase 1 correspondente
 - [x] Tríade: `flutter analyze` limpo, `flutter test` verde e emulador (os 4 estados, rolagem infinita e fonte grande)
-- [ ] `/revisar`: `code-reviewer` + `security-auditor` (a sessão toca rede e composição de config)
+- [x] `/revisar`: `code-reviewer` + `security-auditor` (a sessão toca rede e composição de config)
+- [x] Revisão R1–R7 e S1, S2, S3, S6, S7, S8, S9 tratados; S4 e S11 para a sessão 009; S5 e S10 para o BACKLOG
 
 ## Decisões
 
@@ -70,3 +71,35 @@ Levar a lista de filmes populares (`/movie/popular`) do domínio até a aba Desc
   - tela de "configuração inválida" em debug, para não ficar parado na tela de abertura;
   - transição animada entre os estados (o `MASTER.md` pede que a mudança de estado não seja instantânea);
   - puxar para atualizar a Descobrir.
+- Revisão (`code-reviewer` e `security-auditor`): nada bloqueante. O `security-auditor` aprovou fechar e o `code-reviewer` pediu os itens R1 a R6. O usuário escolheu a opção (a) para o R7, que é ajustar só o texto, sem dependência nova.
+- Tratamento:
+  - **R1, corrida:** o `load()` agora incrementa uma geração, e a resposta de uma `loadMore` da geração anterior é descartada. Depois de reforçado para conferir o estado intermediário (`Loading`), o teste falha no notifier antigo.
+  - **R2, nova tentativa:** a rolagem chama `loadMore`, que não faz nada com o rodapé em `failed`. Só o botão chama `retryNextPage()`.
+  - **R3, página que não enche a tela:** o `_MovieGrid` usa um `ScrollController` e confere `extentAfter` depois de cada layout (post-frame). Uma primeira página que não enche a tela, ou uma página só com repetidos, pede a seguinte.
+  - **R4, fade do pôster:** `AppMotion.medium` na entrada e `AppMotion.short` na saída, e `Duration.zero` com o "reduzir movimento".
+  - **R5, pôster sem título:** usa `movieUntitled` ("Filme sem título") do ARB.
+  - **R6:** o teste do vazio virou dois, um que confere `discoverEmpty` e outro que confere o "Tentar de novo".
+  - **R7, política 0.3:**
+    - o texto descreve a limpeza real do cache: ela acontece com o app em uso, e o cache fica em torno de 200 imagens, podendo passar disso por até um dia;
+    - entrou uma linha do cache na tabela de base legal;
+    - um comentário interno manda conferir os números a cada atualização do pacote, e o PLANO (Fase 4) ganhou essa conferência.
+  - **S1:** o notifier grava a página pedida (`current.page + 1`). O teste de repetidos usa uma página 2 de verdade.
+  - **S2:** a primeira página também remove filmes repetidos.
+  - **S3:** uma `Exception` que não é `Failure` vira `UnexpectedFailure`. Um `Error` continua subindo de propósito, como no `TmdbClient`.
+  - **S6:** o padding da grade vem de `_gridPadding`, compartilhado entre a grade, o skeleton e o `_GridWidthGuard`.
+  - **S7:** um controller só no `_LoadingView`. O `PosterSkeleton` ficou stateless e recebe a opacidade, e a curva e a opacidade mínima foram para o `AppMotion`.
+  - **S8:** `memCacheWidth` = largura da célula × `devicePixelRatio`.
+  - **S9:**
+    - o teste do router agora prova que o `load()` rodou, porque o stub responde vazio e o texto do vazio aparece;
+    - `await expectLater` no datasource;
+    - os fakes foram para `test/helpers/`;
+    - `textScaler` 1.5 no rodapé `failed`;
+    - regressão do host com `%2F`, `\`, `@` e `\n`. Esses testes passam desde o início, porque o código já estava correto e eles só guardam esse comportamento.
+  - **Para a sessão 009:** S4 (generalizar para `PagedMoviesNotifier` com em cartaz e melhor avaliados) e S11 (usar o `retryAfter` do 429 no botão).
+  - **Para o BACKLOG:** S5 (limite de 500 páginas, sem documentação oficial) e S10 (fábrica injetada no lugar da montagem do notifier no router).
+- Tríade depois da revisão:
+  - `dart format` sem mudanças;
+  - `flutter analyze` sem issues;
+  - `flutter test` com 319 testes passando;
+  - `gitleaks` sem vazamentos;
+  - no emulador, oito arrastos longos sem nenhum erro no log.
