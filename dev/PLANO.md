@@ -41,23 +41,32 @@ O Perfil leva ao Sobre (`/perfil/sobre`), com a atribuição ao TMDB (logo e avi
 - [x] Trailers (abrir YouTube externo com host validado) (sessão 013)
 - [x] Tela "Sobre" com atribuição ao TMDB, política de privacidade e licenças das fontes (`LicenseRegistry`). Antes dela, criar o repositório público de suporte e publicar a política seguindo o procedimento da decisão 006. O link vai só para o Pages e exige aprovar o `url_launcher` (sessão 014)
 
-## Fase 2 — Conta TMDB
-- [ ] `TmdbClient` com POST/DELETE e tratamento do 204 com corpo vazio (pré-requisito do login)
-- [ ] Login via sessão TMDB (request_token → navegador → session_id no secure storage), validando a origem do retorno do deep link. A aprovação abre no navegador externo ou em Custom Tabs, nunca em WebView. Decidir se o account id e o nome de usuário ficam no aparelho e atualizar a política
-- [ ] Logout invalidando a sessão, e apagando o storage local mesmo se o `DELETE` falhar (sem rede, 429). Descrever esse comportamento na política
-- [ ] `data_extraction_rules.xml` (+ `fullBackupContent`) junto com o `flutter_secure_storage`, e a falha de leitura da sessão tratada como "deslogado"
-- [ ] Favoritos (`/account/{id}/favorite`)
-- [ ] Watchlist ("quero ver")
+## Fase 2 — Conta própria (Firebase, decisão 010)
+- [x] Replanejar a conta: conta própria com login do Google no Firebase no lugar da sessão do TMDB (decisão 010) (sessão 015)
+- [ ] Setup do Firebase. O usuário cria o projeto (Firestore em `southamerica-east1`), o app Android, o SHA-1 de debug e liga o provedor Google. Depois vêm o `flutterfire configure` e a decisão sobre versionar o `firebase_options.dart` e o `google-services.json` (chave restrita e exceção no `gitleaks`, ou gerados no CI). O `Firebase.initializeApp` entra no `main.dart` sem quebrar os handlers de erro
+- [ ] Domínio da conta: entidade do usuário (`uid`, nome, e-mail, foto), contrato do repositório (usuário atual em stream, entrar, sair e excluir) e falhas tipadas (login cancelado, sem rede, conta desativada). O cancelamento não é erro
+- [ ] Login com o Google: `google_sign_in` nativo e credencial no `FirebaseAuth`, injetado no `main.dart`, com fakes nos testes
+- [ ] Perfil logado e deslogado: botão "Entrar com Google" (diretrizes de marca do Google), nome e foto, e os 4 estados (consultar a `ui-ux-pro-max`)
+- [ ] Login opcional: uma ação que precisa de conta leva ao login e volta para onde estava
+- [ ] Logout: sai do Google e do Firebase e limpa o cache local do Firestore
+- [ ] Regras do Firestore (`firestore.rules`): só o dono lê e escreve `users/{uid}/…`, com validação de campos e tamanhos, testes no Emulator Suite e no CI
+- [ ] Modelo dos dados do filme: um documento por filme (`movie_id`, assistido, quero ver, favorito, datas) e se guarda cópia do título e do pôster (limite de 6 meses dos termos do TMDB)
+- [ ] Marcar como **assistido**, **quero assistir** e **favorito** nos detalhes, com atualização otimista e erro com "tentar de novo"
+- [ ] Estante: abas Assistidos, Quero assistir e Favoritos, com paginação e os 4 estados
+- [ ] Excluir a conta pelo app (com login recente) e por uma página na web, apagando os documentos e a conta no Auth (exigência do Google Play)
+- [ ] `data_extraction_rules.xml` (+ `fullBackupContent`) para o cache do Firestore e o token do Auth não irem para o backup nem para outro aparelho
+- [ ] Redator de segredos com os campos do Firebase (token de ID, token de refresh) e sem e-mail em log
+- [ ] Política de privacidade 2.0: conta Google, Firestore e região, Google como operador, transferência internacional do Auth, base legal, prazo e exclusão. Publicada no Pages (decisão 006) antes de uma versão com login chegar ao usuário
 
 ## Fase 3 — "Já vi esse filme"
-- [ ] Marcar como **já visto** (definir armazenamento — ver decisão a criar), e atualizar a seção 3.3 da política
-- [ ] Nota pessoal / data em que assistiu
-- [ ] Listas personalizadas (criar, renomear, adicionar/remover filme)
+- [ ] Nota pessoal e data em que assistiu, no documento do filme
+- [ ] Listas personalizadas (criar, renomear, apagar, adicionar e remover filme), com o nome validado e o tamanho máximo no domínio, e as regras do Firestore cobrindo as listas
 
 ## Fase 4 — Polimento e release
 - [ ] Acessibilidade e fonte grande
 - [ ] Ícone, splash, nome do app
 - [ ] Crash reporting (Crashlytics ou Sentry — exige decisão de dependência); ao entrar, tirar o `debugPrint` do reporter do release (`kDebugMode`) e atualizar a política
 - [ ] Política de privacidade: nenhum marcador `A REVISAR`, vigência com data explícita, cópia publicada igual ao `docs/PRIVACIDADE.md` e permissões do manifest mesclado iguais às da política, e os números do cache de imagens (30 dias, cerca de 200) conferidos no `flutter_cache_manager` da versão em uso
+- [ ] App Check do Firebase (decisão 010)
 - [ ] Rever a decisão 001 (proxy) antes da loja (se entrar, atualizar a política): host do proxy em `AppConfig.allowedHosts`, e atenção ao `replace(queryParameters:)`, que descarta a query da base URL
 - [ ] Build release ofuscado e assinado: pôr `--obfuscate --split-debug-info=build/symbols` no comando do `CLAUDE.md` e trocar a assinatura de debug
