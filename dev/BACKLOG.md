@@ -56,5 +56,6 @@ Ideias que surgiram e não estão no plano imediato. Marque **[prioritário]** o
   - o comando de build do `CLAUDE.md` ainda não tem `--obfuscate --split-debug-info`. É o mesmo item da Fase 4, mas quem copiar o comando hoje gera um APK sem ofuscação;
   - decidir entre domínio próprio (com "verified domain" no GitHub) e `cfrdlima.github.io` antes do primeiro APK público, porque cada APK congela a URL da política. Apagar a conta ou o repositório de suporte também quebra o link (complemento à decisão 006);
   - a página publicada usa o tema padrão do Jekyll, que carrega o `anchor.min.js` do `cdnjs.cloudflare.com` (com SRI). O CDN recebe o IP de quem abre a política, e a seção 5 só cita o GitHub Pages. Trocar por um `_layouts/default.html` sem o script, ou citar o CDN na política;
+  - revisão jurídica da base legal da política 1.0: a busca no art. 7º, V, e a transferência internacional no art. 33, IX, combinado com o art. 7º, V (sessão 014);
   - o commit antigo do repositório de suporte (`804d1b8`, com o e-mail `claudinei@mertins.com`) ainda responde por SHA no GitHub. Para tirá-lo antes da coleta de lixo, só pelo suporte do GitHub.
 

@@ -1,6 +1,6 @@
 # Sessão 014 — Fase 1: Tela "Sobre"
 
-**Data**: 2026-10-24 · **Branch**: `feature/014-tela-sobre` · **Status**: aberta
+**Data**: 2026-10-24 · **Branch**: `feature/014-tela-sobre` · **Status**: fechada
 
 ## Objetivo
 A aba Perfil ganha uma entrada "Sobre" que empilha a tela em `/perfil/sobre`, com a atribuição obrigatória ao TMDB (logo e aviso de não endosso), um resumo da política de privacidade com link para o GitHub Pages e as licenças das fontes no `LicenseRegistry`. Antes do link, a política é publicada no repositório público `cfrdlima/ja-vi-esse-filme-suporte`, seguindo o procedimento da decisão 006 e só com a confirmação do usuário.
@@ -32,8 +32,35 @@ A aba Perfil ganha uma entrada "Sobre" que empilha a tela em `/perfil/sobre`, co
 - [x] BACKLOG: S6, S8, S9, S10 e S11
 
 ## Decisões
+- Nenhuma decisão nova. A [006 — política de privacidade pública](../decisoes/006-politica-de-privacidade-publica.md) ganhou o passo do e-mail noreply no procedimento de publicação.
 
 ## Commits
+- (este commit) docs: fecha sessão 014
+- 367f6ea docs: itens da revisão da sessão 014 no BACKLOG
+- 2b6323e docs: override do Sobre alinhado à implementação
+- f310fdf fix: logo do TMDB com altura reservada e nome no lugar se a imagem falhar
+- f0ed7a6 refactor: link da política achado no teste pelo texto, sem chave só para teste
+- 8655119 fix: política de link aceita só os caminhos que o app monta
+- c967c0f test: remove o teste da constante de compilação da versão
+- d5e0e06 fix: versão obrigatória no MainApp, com teste da ligação até o Sobre
+- a6ce6c4 fix: caminho do logo do TMDB numa constante, com teste de que o asset é empacotado
+- 99ae068 docs: revisão da sessão 014 no log e e-mail noreply no procedimento da decisão 006
+- 8bfa8d2 docs: verificação no emulador da sessão 014
+- 017d13d add: seção de licenças no Sobre
+- a9d6466 add: seção de privacidade no Sobre com link para a política publicada
+- 158e978 refactor: tile de link externo compartilhado em core/widgets
+- eb79fbf add: cabeçalho do Sobre com versão do build e atribuição ao TMDB
+- 895bb38 refactor: título de seção compartilhado em core/widgets
+- ad00cac add: entrada Sobre no Perfil e rota /perfil/sobre
+- 951f672 add: licenças das fontes na página de licenças
+- ab6ae08 add: URL da política de privacidade num lugar só
+- ee31c5e add: política de link aceita a política de privacidade no Pages, só no caminho do repositório de suporte
+- cb7ad8c docs: publicação da política no log da sessão 014
+- aec4802 docs: base legal da busca no art. 7º, V, coerente com o art. 33, IX
+- 7832a93 docs: política 1.0 descreve só o app atual, com o login em comentários
+- fa3d0b6 docs: design da tela Sobre
+- fe7001c docs: atribuição do TMDB no log da sessão 014
+- e002154 docs: abre sessão 014
 
 ## Notas
 - **Atribuição do TMDB (investigação):**
@@ -105,4 +132,15 @@ A aba Perfil ganha uma entrada "Sobre" que empilha a tela em `/perfil/sobre`, co
 - **S7:** o logo reserva a altura pela proporção do SVG (`AppSizes.tmdbLogoAspectRatio`) e tem um `errorBuilder` com o texto "TMDB". No RED, a altura no primeiro quadro era 0, e com um `AssetBundle` que falha não aparecia nada.
 - **I1 e I2:** a mutação que tira o PNG do `pubspec.yaml` reprova o teste do asset, e a que passa `''` ao router no `main.dart` reprova o teste da ligação. O teste da ligação nasceu verde, porque cobre código que já existia.
 - **Tríade depois do tratamento da revisão:** `dart format` sem mudanças, `flutter analyze` sem issues, 738 testes passando e `gitleaks` sem vazamentos.
+- **Tríade no fechamento:**
+  - `dart format` sem mudanças (136 arquivos);
+  - `flutter analyze` sem issues;
+  - `flutter test` com 738 testes passando;
+  - `gitleaks` sem vazamentos.
+- **Pendências:**
+  - a altura reservada e o fallback "TMDB" do logo (S7) e os caminhos exatos da política de links (S2) não foram conferidos no emulador depois do tratamento da revisão. Estão cobertos por widget tests e testes de unidade;
+  - a base legal da política (art. 7º, V, e art. 33, IX) não passou por revisão jurídica, e foi para o checklist de release no BACKLOG;
+  - o commit antigo `804d1b8` do repositório de suporte ainda responde por SHA no GitHub (BACKLOG);
+  - na conta do GitHub, vale ligar "Keep my email addresses private" e "Block command line pushes that expose my email". Isso é com o usuário;
+  - S6, S8, S9, S10 e S11 da revisão estão no BACKLOG.
 
