@@ -7,7 +7,7 @@ A aba Perfil ganha uma entrada "Sobre" que empilha a tela em `/perfil/sobre`, co
 
 ## Checklist
 - [x] Investigar: termos e guia de atribuição do TMDB (logo aprovado, texto exato do aviso, formato do arquivo) antes de modelar. Sem `flutter_svg`, o logo entra como PNG em `assets/`
-- [ ] Design: consultar a `ui-ux-pro-max` (stack Flutter) sobre a tela "Sobre" e criar `pages/sobre.md`
+- [x] Design: consultar a `ui-ux-pro-max` (stack Flutter) sobre a tela "Sobre" e criar `pages/sobre.md`
 - [ ] Repositório público: preparar a cópia limpa do `docs/PRIVACIDADE.md` (sem comentários HTML nem "A REVISAR", seção 3.3 fora, vigência com data), rodar o `gitleaks` e só criar o repo, dar push e ligar o Pages depois do ok do usuário
 - [ ] `docs/PRIVACIDADE.md`: link das Issues e URL do Pages no lugar do marcador da decisão 006, versão e vigência
 - [ ] `ExternalLinkPolicy`: aceitar `cfrdlima.github.io` só com o prefixo de path `/ja-vi-esse-filme-suporte/`, sem abrir qualquer caminho dos outros hosts — RED / GREEN / REFACTOR
@@ -33,3 +33,11 @@ A aba Perfil ganha uma entrada "Sobre" que empilha a tela em `/perfil/sobre`, co
   - os termos não falam de tradução do aviso. Decidido com o usuário: a tela mostra a tradução em PT-BR como texto principal e, logo abaixo, o texto exato dos termos em inglês, que não vai para tradução no ARB;
   - o logo não pode mudar de cor nem de proporção, nem ser espelhado ou girado. A página de logos só oferece SVG (primary full, short e long, e duas alternativas);
   - sem `flutter_svg`, o logo "alt short" (273,42 × 35,52) vira PNG com o `librsvg` (via ImageMagick), em 1x, 2x e 3x, com fundo transparente e a mesma proporção. Os SVGs baixados não têm script nem referência externa.
+- **Design:** consultei a `ui-ux-pro-max`:
+  - `ux` "Back Button", "Alt Text", `back-behavior` e `nav-hierarchy`;
+  - pro-rules "Correct Brand Logos", "Touch Target Minimum", "Tap feedback" e "Semantic native controls";
+  - `icons` "arrow-square-out";
+  - stack Flutter "Use Semantics widget" e "Use Navigator 2.0 or GoRouter";
+  - as buscas por tela de configurações e por indicador de link externo no `ux` só trouxeram resultados de web, e esse trecho ficou como padrão geral.
+
+  O override `pages/sobre.md` registra a exceção ao "Vector-Only Assets" (logo em PNG a partir do SVG oficial) e põe o aviso original em inglês com `locale` `en` no `Semantics`.
