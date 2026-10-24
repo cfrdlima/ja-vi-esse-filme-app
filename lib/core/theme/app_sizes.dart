@@ -19,4 +19,8 @@ abstract final class AppSizes {
   /// Largura do logo do TMDB, menor que o nome do app como pedem os termos
   /// do TMDB (override `sobre.md`).
   static const tmdbLogoWidth = 120.0;
+
+  /// Proporção do SVG oficial do logo (273,42 × 35,52), para reservar a
+  /// altura antes de a imagem carregar.
+  static const tmdbLogoAspectRatio = 273.42 / 35.52;
 }

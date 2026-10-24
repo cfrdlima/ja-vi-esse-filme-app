@@ -32,7 +32,16 @@ class TmdbAttribution extends StatelessWidget {
           label: l10n.aboutTmdbLogoSemantics,
           image: true,
           excludeSemantics: true,
-          child: Image.asset(AppAssets.tmdbLogo, width: AppSizes.tmdbLogoWidth),
+          child: Image.asset(
+            AppAssets.tmdbLogo,
+            width: AppSizes.tmdbLogoWidth,
+            // Altura fixa pela proporção, para o texto abaixo não pular
+            // quando a imagem termina de carregar.
+            height: AppSizes.tmdbLogoWidth / AppSizes.tmdbLogoAspectRatio,
+            // A atribuição é exigida pelos termos: sem o PNG, fica o nome.
+            errorBuilder: (context, _, _) =>
+                Text('TMDB', style: Theme.of(context).textTheme.titleSmall),
+          ),
         ),
         SizedBox(height: spacing.md),
         Text(l10n.aboutTmdbNotice, style: theme.textTheme.bodyMedium),

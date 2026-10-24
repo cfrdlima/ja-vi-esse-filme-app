@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ja_vi_esse_filme/core/assets/app_assets.dart';
 import 'package:ja_vi_esse_filme/core/l10n/app_locale.dart';
@@ -93,6 +94,35 @@ void main() {
       expect((image as AssetImage).assetName, AppAssets.tmdbLogo);
     });
 
+    testWidgets('deve reservar a altura do logo antes de a imagem carregar', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        testApp(home: const AboutScreen(appVersion: '1.2.3')),
+      );
+
+      expect(
+        tester.getSize(find.byType(Image)).height,
+        closeTo(AppSizes.tmdbLogoWidth / AppSizes.tmdbLogoAspectRatio, 0.01),
+      );
+    });
+
+    testWidgets('deve mostrar o nome TMDB quando o logo não carrega', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        testApp(
+          home: DefaultAssetBundle(
+            bundle: _FailingAssetBundle(),
+            child: const AboutScreen(appVersion: '1.2.3'),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('TMDB'), findsOneWidget);
+    });
+
     testWidgets('deve mostrar o aviso de não endosso em português', (
       tester,
     ) async {
@@ -163,4 +193,11 @@ void main() {
       expect(tester.takeException(), isNull);
     });
   });
+}
+
+/// Bundle que falha em todo asset, como um PNG fora do `pubspec.yaml`.
+class _FailingAssetBundle extends CachingAssetBundle {
+  @override
+  Future<ByteData> load(String key) =>
+      Future.error(FlutterError('asset ausente: $key'));
 }
