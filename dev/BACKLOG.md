@@ -43,3 +43,11 @@ Ideias que surgiram e não estão no plano imediato. Marque **[prioritário]** o
   - a tag do `PosterHero` só é única pela dedup da grade, por haver uma grade por vez e um navigator por aba. A Estante, que repete o filme em várias seções, vai precisar de prefixo na tag ou de `HeroMode(enabled: false)`.
 - Teste de comportamento para o pôster voar já desenhado (imagem no cache), no lugar do teste que só confere `memCacheWidth == null` (revisão da sessão 012, C5)
 - Se entrar `restorationScopeId` ou `extraCodec` no router, o `Movie` reidratado do `extra` precisa passar de novo pela validação do `posterPath` (`TmdbImageUrl.isValidPath`), além do guarda por id (auditoria da sessão 012)
+- Trailers só no idioma original (francês, coreano…) não aparecem, porque o pedido usa `include_video_language=pt-BR,pt,en` e o `null` não está documentado para vídeos. Avaliar incluir o `original_language` do filme (até 5 idiomas por pedido), o que pede o idioma antes do pedido ou um segundo pedido (revisão da sessão 013, S1)
+- Vão grande entre a fileira do elenco e o título "Trailers" nos detalhes, que parece vir da altura reservada no `CastMemberCard`; conferir no emulador e no widget test (sessão 013)
+- `ExternalLinkPolicy` aceita qualquer caminho no host permitido (`www.youtube.com/redirect?q=…`). Antes de passar por ela uma URL vinda de fora (o `homepage` do TMDB, por exemplo), restringir o caminho por host ou montar a URL a partir de um molde (auditoria da sessão 013, A1)
+- Checklist de release: o `androidx.core`, que vem com o `url_launcher`, declara a permissão interna `DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION` (`signature`). O usuário não a vê, mas a ficha do Play Console pode listá-la (auditoria da sessão 013, A3)
+- Revisão da sessão 013, S5, S6 e S7:
+  - dois toques rápidos num trailer abrem o YouTube duas vezes; travar o tile enquanto o `open` está em andamento (com checagem de `mounted`);
+  - `MovieDetails._byRelevance` usa soma de pesos e tem `'pt'`/`'BR'` fixos no domínio. Comparar critério a critério e receber o idioma e o país preferidos quando houver um segundo locale;
+  - `TmdbJson.nonEmpty` não faz `trim`, então um nome de trailer só com espaços vira título em branco no lugar do tipo.

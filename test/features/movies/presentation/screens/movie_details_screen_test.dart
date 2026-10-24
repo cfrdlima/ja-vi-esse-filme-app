@@ -4,11 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ja_vi_esse_filme/core/error/failures.dart';
 import 'package:ja_vi_esse_filme/core/l10n/app_locale.dart';
+import 'package:ja_vi_esse_filme/core/links/external_link_opener.dart';
 import 'package:ja_vi_esse_filme/core/theme/app_sizes.dart';
 import 'package:ja_vi_esse_filme/core/widgets/retry_button.dart';
 import 'package:ja_vi_esse_filme/features/movies/domain/entities/cast_member.dart';
 import 'package:ja_vi_esse_filme/features/movies/domain/entities/movie.dart';
 import 'package:ja_vi_esse_filme/features/movies/domain/entities/movie_details.dart';
+import 'package:ja_vi_esse_filme/features/movies/domain/entities/trailer.dart';
 import 'package:ja_vi_esse_filme/features/movies/presentation/screens/movie_details_screen.dart';
 import 'package:ja_vi_esse_filme/features/movies/presentation/state/movie_details_notifier.dart';
 import 'package:ja_vi_esse_filme/features/movies/presentation/widgets/cast_member_card.dart';
@@ -16,9 +18,11 @@ import 'package:ja_vi_esse_filme/features/movies/presentation/widgets/movie_deta
 import 'package:ja_vi_esse_filme/features/movies/presentation/widgets/movie_poster.dart';
 import 'package:ja_vi_esse_filme/features/movies/presentation/widgets/poster_hero.dart';
 import 'package:ja_vi_esse_filme/features/movies/presentation/widgets/poster_skeleton.dart';
+import 'package:ja_vi_esse_filme/features/movies/presentation/widgets/trailer_list.dart';
 import 'package:ja_vi_esse_filme/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../helpers/fake_link_opener.dart';
 import '../../../../helpers/fake_movie_repository.dart';
 import '../../../../helpers/test_app.dart';
 
@@ -46,22 +50,34 @@ void main() {
           profilePath: i.isEven ? '/perfil-$i.jpg' : null,
         ),
     ],
+    trailers: [
+      Trailer(
+        key: 'Way9Dexny3w',
+        name: 'Trailer oficial dublado',
+        kind: TrailerKind.trailer,
+        official: true,
+        language: 'pt',
+      ),
+    ],
   );
 
   final bare = MovieDetails(id: 7, title: 'Filme Sem Nada', overview: '');
 
   Widget screen({MediaQueryData? mediaQuery, Movie? preview}) {
     final app = testApp(
-      home: ChangeNotifierProvider(
-        create: (_) {
-          final notifier = MovieDetailsNotifier(
-            repository: repository,
-            movieId: 7,
-          );
-          unawaited(notifier.load());
-          return notifier;
-        },
-        child: MovieDetailsScreen(preview: preview),
+      home: Provider<ExternalLinkOpener>.value(
+        value: FakeLinkOpener(),
+        child: ChangeNotifierProvider(
+          create: (_) {
+            final notifier = MovieDetailsNotifier(
+              repository: repository,
+              movieId: 7,
+            );
+            unawaited(notifier.load());
+            return notifier;
+          },
+          child: MovieDetailsScreen(preview: preview),
+        ),
       ),
     );
     return mediaQuery == null ? app : MediaQuery(data: mediaQuery, child: app);
@@ -322,6 +338,44 @@ void main() {
       );
     });
 
+    testWidgets('deve mostrar a seção de trailers', (tester) async {
+      await pumpWith(tester, complete);
+
+      expect(find.text(l10n.movieTrailersTitle), findsOneWidget);
+    });
+
+    testWidgets('deve mostrar os trailers do filme', (tester) async {
+      await pumpWith(tester, complete);
+
+      expect(
+        tester.widget<TrailerList>(find.byType(TrailerList)).trailers,
+        complete.trailers,
+      );
+    });
+
+    testWidgets('deve pôr os trailers depois do elenco', (tester) async {
+      await pumpWith(tester, complete);
+
+      expect(
+        tester.getTopLeft(find.text(l10n.movieTrailersTitle)).dy,
+        greaterThan(tester.getTopLeft(find.text(l10n.movieCastTitle)).dy),
+      );
+    });
+
+    testWidgets('deve marcar o título dos trailers como cabeçalho', (
+      tester,
+    ) async {
+      await pumpWith(tester, complete);
+      // Fora da tela, o nó vem marcado como escondido.
+      await tester.ensureVisible(find.text(l10n.movieTrailersTitle));
+      await tester.pump();
+
+      expect(
+        tester.getSemantics(find.text(l10n.movieTrailersTitle)),
+        matchesSemantics(label: l10n.movieTrailersTitle, isHeader: true),
+      );
+    });
+
     testWidgets('não deve vazar com fonte 1.5x numa tela de 320dp', (
       tester,
     ) async {
@@ -354,6 +408,14 @@ void main() {
       await pumpWith(tester, bare);
 
       expect(find.text(l10n.movieCastTitle), findsNothing);
+    });
+
+    testWidgets('não deve mostrar seção de trailers sem trailers', (
+      tester,
+    ) async {
+      await pumpWith(tester, bare);
+
+      expect(find.text(l10n.movieTrailersTitle), findsNothing);
     });
 
     // A lista exata de textos pega também um traço ou "desconhecido" no

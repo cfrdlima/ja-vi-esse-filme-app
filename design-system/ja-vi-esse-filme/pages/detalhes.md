@@ -14,7 +14,7 @@
 ## Estrutura
 - `Scaffold` com `AppBar` de voltar (seta padrão, com tooltip do Material) e o título do filme numa linha, com reticências. A barra inferior das abas continua visível, porque a tela é uma rota dentro da aba.
 - O conteúdo rola inteiro na vertical, com padding `md`, e a largura do texto fica limitada a **640dp** (`AppSizes.readableWidth`), centralizada no tablet.
-- Ordem de leitura: cabeçalho, gêneros, sinopse, elenco.
+- Ordem de leitura: cabeçalho, gêneros, sinopse, elenco, trailers.
 
 ## Cabeçalho
 - Linha com o pôster à esquerda (**120dp** de largura, 2:3, `w342`, raio `md`) e, à direita, numa coluna que quebra linha:
@@ -37,6 +37,16 @@
 - Cada pessoa: foto 2:3 com **96dp** de largura na fonte padrão, crescendo na mesma escala da fonte do sistema para o nome não quebrar no meio da palavra (`w185`, raio `md`, placeholder de pessoa sem `profile_path`), o nome em `bodyMedium` e o personagem em `bodySmall` `onSurfaceVariant`, cada um com até 2 linhas e reticências. O leitor de tela lê "<nome>, <personagem>" num nó só, e a foto é decorativa dentro dele.
 - A fileira é uma `Row` dentro de um `SingleChildScrollView` horizontal, e não um `ListView.builder`: são no máximo 15 itens, e assim a altura acompanha a fonte grande sem altura fixa. A última pessoa visível fica cortada na borda, o que mostra que a fileira rola.
 - Sem elenco, a seção some.
+
+## Trailers
+> Consulta à `ui-ux-pro-max` (stack Flutter) na sessão 013: `ux` "Auto-Play Video" (tocar para assistir, nunca tocar sozinho), `touch-target-size` (≥ 48dp) e `press-feedback` (ripple), `icons` "arrow-square-out" (indicador de link externo: decorativo ao lado de texto visível, e o controle tem nome acessível) e stack Flutter "Use keys for stateful items". A busca por link externo na stack Flutter não trouxe resultado; o resto desta seção é padrão geral (fallback).
+
+- Título de seção "Trailers" (cabeçalho para o leitor de tela) e uma lista vertical com até **5** vídeos, depois do elenco. A ordem vem do domínio: oficiais primeiro, depois português antes dos outros idiomas, depois Brasil antes de Portugal, e por último trailer antes de teaser. Vídeos com a mesma `key` aparecem uma vez só.
+- Cada vídeo é um `ListTile` com o ícone de play à esquerda, o nome em `bodyLarge` com até 2 linhas e reticências, o tipo e o site em `bodySmall` `onSurfaceVariant` ("Trailer · YouTube") e o ícone de link externo (`open_in_new`) à direita. O item tem `ValueKey` da `key` do vídeo e o ripple do Material, e a altura mínima é de 48dp, crescendo com a fonte.
+- Os ícones são decorativos. O leitor de tela lê o item como link: "<nome>, <tipo>. Abre no YouTube".
+- **Sem miniatura:** a imagem viria do `img.youtube.com`, um host a mais para validar e declarar na política. Fica para depois, se fizer falta.
+- Tocar abre o YouTube fora do app (decisão 009). Se nenhum app abrir o link, aparece um `SnackBar` com "Não foi possível abrir o trailer.".
+- Sem trailer, a seção some.
 
 ## Estados
 - **Carregando:** skeleton com o bloco do pôster, três linhas de texto do cabeçalho e um bloco de parágrafo, no pulso da Descobrir (parado com "reduzir movimento"). `Semantics` de "carregando". O título da `AppBar` fica vazio até o filme chegar.

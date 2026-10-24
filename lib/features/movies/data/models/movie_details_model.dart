@@ -1,9 +1,11 @@
 import '../../domain/entities/cast_member.dart';
 import '../../domain/entities/movie_details.dart';
+import '../../domain/entities/trailer.dart';
 import 'tmdb_json.dart';
 
-/// Resposta de `/movie/{id}` com `append_to_response=credits,translations`,
-/// com parse defensivo ([TmdbJson]).
+/// Resposta de `/movie/{id}` com
+/// `append_to_response=credits,translations,videos`, com parse defensivo
+/// ([TmdbJson]).
 final class MovieDetailsModel {
   const MovieDetailsModel._(this._json, this._id);
 
@@ -36,6 +38,10 @@ final class MovieDetailsModel {
         ?TmdbJson.nonEmpty(genre['name']),
     ],
     cast: _cast(),
+    trailers: [
+      for (final video in _objects(_field(_json['videos'], 'results')))
+        ?_trailer(video),
+    ],
   );
 
   // Sem tradução em pt-BR, o `overview` vem vazio; a do idioma original vem
@@ -94,6 +100,31 @@ final class MovieDetailsModel {
       character: TmdbJson.nonEmpty(json['character']) ?? '',
       profilePath: TmdbJson.imagePath(json['profile_path']),
     );
+  }
+
+  // Só o YouTube tem URL montada e validada (decisão 009); bastidores,
+  // clipes e afins não são trailer.
+  static Trailer? _trailer(Map<String, Object?> json) {
+    if (json['site'] != 'YouTube') return null;
+    final kind = switch (json['type']) {
+      'Trailer' => TrailerKind.trailer,
+      'Teaser' => TrailerKind.teaser,
+      _ => null,
+    };
+    final key = json['key'];
+    if (kind == null || key is! String) return null;
+    try {
+      return Trailer(
+        key: key,
+        name: TmdbJson.nonEmpty(json['name']) ?? '',
+        kind: kind,
+        official: json['official'] == true,
+        language: TmdbJson.nonEmpty(json['iso_639_1']) ?? '',
+        country: TmdbJson.nonEmpty(json['iso_3166_1']) ?? '',
+      );
+    } on FormatException {
+      return null;
+    }
   }
 
   static Object? _field(Object? json, String key) =>

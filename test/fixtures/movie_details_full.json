@@ -314,5 +314,88 @@
         }
       }
     ]
+  },
+  "videos": {
+    "results": [
+      {
+        "iso_639_1": "en",
+        "iso_3166_1": "US",
+        "name": "Teaser em inglês",
+        "key": "U2Qp5pL3ovA",
+        "site": "YouTube",
+        "size": 1080,
+        "type": "Teaser",
+        "official": true,
+        "published_at": "2024-02-01T15:00:00.000Z",
+        "id": "v1"
+      },
+      {
+        "iso_639_1": "pt",
+        "iso_3166_1": "BR",
+        "name": "Trailer oficial dublado",
+        "key": "Way9Dexny3w",
+        "site": "YouTube",
+        "size": 1080,
+        "type": "Trailer",
+        "official": true,
+        "published_at": "2024-02-01T15:00:00.000Z",
+        "id": "v2"
+      },
+      {
+        "iso_639_1": "en",
+        "iso_3166_1": "US",
+        "name": "Trailer no Vimeo",
+        "key": "123456789",
+        "site": "Vimeo",
+        "size": 1080,
+        "type": "Trailer",
+        "official": true,
+        "published_at": "2024-02-01T15:00:00.000Z",
+        "id": "v3"
+      },
+      {
+        "iso_639_1": "pt",
+        "iso_3166_1": "BR",
+        "name": "Bastidores",
+        "key": "aBcDeFgHiJk",
+        "site": "YouTube",
+        "size": 1080,
+        "type": "Featurette",
+        "official": true,
+        "published_at": "2024-02-01T15:00:00.000Z",
+        "id": "v4"
+      },
+      {
+        "iso_639_1": "pt",
+        "iso_3166_1": "BR",
+        "name": "Key inválida",
+        "key": "Way9Dex?y3w",
+        "site": "YouTube",
+        "size": 1080,
+        "type": "Trailer",
+        "official": true,
+        "published_at": "2024-02-01T15:00:00.000Z",
+        "id": "v5"
+      },
+      {
+        "iso_639_1": null,
+        "iso_3166_1": null,
+        "name": null,
+        "key": "_zXy-12AbC3",
+        "site": "YouTube",
+        "size": null,
+        "type": "Trailer",
+        "official": null,
+        "published_at": null,
+        "id": "v6"
+      },
+      {
+        "name": "Sem key",
+        "site": "YouTube",
+        "type": "Trailer",
+        "id": "v7"
+      },
+      "não é objeto"
+    ]
   }
 }

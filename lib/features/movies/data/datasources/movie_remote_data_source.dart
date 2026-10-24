@@ -46,11 +46,19 @@ class MovieRemoteDataSource {
     return _parsePage(json);
   }
 
-  /// Detalhes com o elenco e as traduções no mesmo pedido (decisão 008).
+  /// Detalhes com o elenco, as traduções (decisão 008) e os vídeos no mesmo
+  /// pedido.
   Future<MovieDetails> details(int id) async {
     final json = await _client.get(
       'movie/$id',
-      query: {'append_to_response': 'credits,translations'},
+      query: {
+        'append_to_response': 'credits,translations,videos',
+        // Sem este filtro, o `language=pt-BR` deixa só os vídeos em
+        // português, e a maioria dos filmes ficaria sem trailer. O `pt`
+        // sozinho só traz os de Portugal: os do Brasil pedem o `pt-BR`
+        // (conferido no emulador, sessão 013).
+        'include_video_language': 'pt-BR,pt,en',
+      },
     );
     try {
       return MovieDetailsModel.fromJson(json).toEntity();

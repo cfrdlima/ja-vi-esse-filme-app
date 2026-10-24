@@ -121,5 +121,28 @@
   "@castMemberSemantics": {
     "description": "O leitor de tela lê a pessoa do elenco e o personagem num nó só",
     "placeholders": { "name": { "type": "String" }, "character": { "type": "String" } }
-  }
+  },
+  "movieTrailersTitle": "Trailers",
+  "@movieTrailersTitle": { "description": "Título da seção de trailers nos detalhes" },
+  "trailerKindTrailer": "Trailer",
+  "@trailerKindTrailer": { "description": "Tipo de vídeo: trailer completo" },
+  "trailerKindTeaser": "Teaser",
+  "@trailerKindTeaser": { "description": "Tipo de vídeo: teaser, mais curto que o trailer" },
+  "trailerSubtitle": "{kind} · YouTube",
+  "@trailerSubtitle": {
+    "description": "Linha abaixo do nome do trailer: o tipo e onde ele abre",
+    "placeholders": { "kind": { "type": "String" } }
+  },
+  "trailerSemantics": "{name}, {kind}. Abre no YouTube",
+  "@trailerSemantics": {
+    "description": "O leitor de tela lê o trailer como link que sai do app",
+    "placeholders": { "name": { "type": "String" }, "kind": { "type": "String" } }
+  },
+  "trailerUnnamedSemantics": "{kind}. Abre no YouTube",
+  "@trailerUnnamedSemantics": {
+    "description": "Leitor de tela no trailer sem nome: o tipo já faz as vezes do nome",
+    "placeholders": { "kind": { "type": "String" } }
+  },
+  "trailerOpenFailed": "Não foi possível abrir o trailer.",
+  "@trailerOpenFailed": { "description": "Aviso quando nenhum app do aparelho abre o trailer" }
 }

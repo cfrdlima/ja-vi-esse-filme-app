@@ -283,7 +283,23 @@ void main() {
       expect(captured.url.path, '/3/movie/693134');
     });
 
-    test('deve anexar o elenco e as traduções no mesmo pedido', () async {
+    test(
+      'deve anexar o elenco, as traduções e os vídeos no mesmo pedido',
+      () async {
+        final dataSource = dataSourceRespondingWith(
+          readFixture('movie_details_full.json'),
+        );
+
+        await dataSource.details(693134);
+
+        expect(
+          captured.url.queryParameters['append_to_response'],
+          'credits,translations,videos',
+        );
+      },
+    );
+
+    test('deve pedir os vídeos do Brasil, de Portugal e em inglês', () async {
       final dataSource = dataSourceRespondingWith(
         readFixture('movie_details_full.json'),
       );
@@ -291,8 +307,8 @@ void main() {
       await dataSource.details(693134);
 
       expect(
-        captured.url.queryParameters['append_to_response'],
-        'credits,translations',
+        captured.url.queryParameters['include_video_language'],
+        'pt-BR,pt,en',
       );
     });
 

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ja_vi_esse_filme/features/movies/data/models/movie_details_model.dart';
 import 'package:ja_vi_esse_filme/features/movies/domain/entities/movie_details.dart';
+import 'package:ja_vi_esse_filme/features/movies/domain/entities/trailer.dart';
 
 import '../../../../helpers/fixtures.dart';
 
@@ -63,6 +64,46 @@ void main() {
       expect(
         (member.name, member.character, member.profilePath),
         ('Ator 0', 'Personagem 0', '/perfil-0.jpg'),
+      );
+    });
+
+    test('deve ficar só com trailer e teaser do YouTube com key válida, '
+        'na ordem de relevância', () {
+      expect(details.trailers.map((trailer) => trailer.key), [
+        'Way9Dexny3w',
+        'U2Qp5pL3ovA',
+        '_zXy-12AbC3',
+      ]);
+    });
+
+    test('deve converter nome, tipo, oficial e idioma de cada trailer', () {
+      final trailer = details.trailers.first;
+
+      expect(
+        (trailer.name, trailer.kind, trailer.official, trailer.language),
+        ('Trailer oficial dublado', TrailerKind.trailer, true, 'pt'),
+      );
+    });
+
+    test('deve converter o país de cada trailer', () {
+      expect(details.trailers.map((trailer) => trailer.country), [
+        'BR',
+        'US',
+        '',
+      ]);
+    });
+
+    test('deve converter o teaser', () {
+      expect(details.trailers[1].kind, TrailerKind.teaser);
+    });
+
+    test('deve tratar nome, oficial e idioma nulos como vazio, não oficial e '
+        'sem idioma', () {
+      final trailer = details.trailers.last;
+
+      expect(
+        (trailer.name, trailer.official, trailer.language),
+        ('', false, ''),
       );
     });
   });
@@ -147,6 +188,10 @@ void main() {
       expect(details.genres, isEmpty);
     });
 
+    test('deve tratar vídeos ausentes como sem trailers', () {
+      expect(details.trailers, isEmpty);
+    });
+
     test('deve descartar pessoa sem id, sem nome ou que não é objeto', () {
       expect(details.cast.map((member) => member.id), [55, 57]);
     });
@@ -217,5 +262,15 @@ void main() {
       () => MovieDetailsModel.fromJson(const {'title': 'Sem id'}),
       throwsFormatException,
     );
+  });
+
+  test('deve tratar vídeos fora do formato como sem trailers', () {
+    final details = parse(const {
+      'id': 1,
+      'title': 'Filme',
+      'videos': {'results': 'não é lista'},
+    });
+
+    expect(details.trailers, isEmpty);
   });
 }
