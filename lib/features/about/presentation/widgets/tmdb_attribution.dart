@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 
+import '../../../../core/assets/app_assets.dart';
 import '../../../../core/theme/app_sizes.dart';
 import '../../../../core/theme/app_theme_tokens.dart';
 import '../../../../core/widgets/section_title.dart';
@@ -32,7 +33,7 @@ class TmdbAttribution extends StatelessWidget {
           image: true,
           excludeSemantics: true,
           child: Image.asset(
-            'assets/images/tmdb_logo.png',
+            AppAssets.tmdbLogo,
             width: AppSizes.tmdbLogoWidth,
           ),
         ),

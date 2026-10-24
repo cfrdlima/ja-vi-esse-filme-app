@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:ja_vi_esse_filme/core/assets/app_assets.dart';
 import 'package:ja_vi_esse_filme/core/l10n/app_locale.dart';
 import 'package:ja_vi_esse_filme/core/theme/app_sizes.dart';
 import 'package:ja_vi_esse_filme/features/about/presentation/screens/about_screen.dart';
@@ -81,6 +82,15 @@ void main() {
       await pumpAbout(tester);
 
       expect(tester.getSize(find.byType(Image)).width, AppSizes.tmdbLogoWidth);
+    });
+
+    testWidgets('deve desenhar o logo a partir do asset do TMDB', (
+      tester,
+    ) async {
+      await pumpAbout(tester);
+
+      final image = tester.widget<Image>(find.byType(Image)).image;
+      expect((image as AssetImage).assetName, AppAssets.tmdbLogo);
     });
 
     testWidgets('deve mostrar o aviso de não endosso em português', (
