@@ -73,7 +73,7 @@ Quando o app encontra um erro inesperado, ele registra a mensagem só no log do 
 
 | Dado | Finalidade | Base legal (LGPD, art. 7º) |
 |---|---|---|
-| IP, termos de busca e filmes abertos, recebidos pelo TMDB | Buscar e exibir as informações de filmes que você pede | Legítimo interesse (inciso IX), limitado ao mínimo necessário para entregar o conteúdo pedido, e esperado por quem usa um app de filmes |
+| IP, termos de busca e filmes abertos, recebidos pelo TMDB | Buscar e exibir as informações de filmes que você pede | Execução de contrato ou de procedimentos ligados a ele, a seu pedido (inciso V): o app só envia ao TMDB o necessário para entregar o conteúdo que você pede |
 | Registros locais de erro | Diagnosticar falhas do app | Legítimo interesse (inciso IX) |
 | Cache local de pôsteres e índice com o endereço das imagens | Deixar a navegação mais rápida e gastar menos dados | Legítimo interesse (inciso IX); fica só no aparelho |
 
@@ -91,9 +91,9 @@ Ao abrir um trailer (YouTube) ou esta política (GitHub Pages), você sai do app
 
 O único terceiro que recebe dados pelo app é o **TMDB**, que fornece o conteúdo. O seu aparelho envia ao TMDB os dados da seção 3, que ele trata conforme a [política de privacidade do TMDB](https://www.themoviedb.org/privacy-policy).
 
-O TMDB processa dados em servidores de vários países, inclusive nos Estados Unidos. Por isso, os dados enviados a ele são transferidos para fora do Brasil. A transferência é necessária para entregar o conteúdo que você pede (LGPD, art. 33, IX, combinado com o art. 7º, V e IX).
+O TMDB processa dados em servidores de vários países, inclusive nos Estados Unidos. Por isso, os dados enviados a ele são transferidos para fora do Brasil. A transferência é necessária para entregar o conteúdo que você pede (LGPD, art. 33, IX, combinado com o art. 7º, V).
 
-<!-- FASE 2 (fora da publicada): no primeiro parágrafo, "que fornece o conteúdo e a conta"; no segundo, "necessária para executar o contrato da sua conta TMDB e entregar o conteúdo que você pede". -->
+<!-- FASE 2 (fora da publicada): no primeiro parágrafo, "que fornece o conteúdo e a conta"; no segundo, "necessária para executar o contrato da sua conta TMDB e entregar o conteúdo que você pede". O art. 33, IX só cobre as bases dos incisos II, V e VI do art. 7º, e por isso a busca usa o inciso V, e não o legítimo interesse (sessão 014). -->
 
 ## 7. Por quanto tempo os dados ficam guardados
 
