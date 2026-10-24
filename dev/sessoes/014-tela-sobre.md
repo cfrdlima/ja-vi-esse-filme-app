@@ -10,7 +10,7 @@ A aba Perfil ganha uma entrada "Sobre" que empilha a tela em `/perfil/sobre`, co
 - [x] Design: consultar a `ui-ux-pro-max` (stack Flutter) sobre a tela "Sobre" e criar `pages/sobre.md`
 - [x] Repositório público: preparar a cópia limpa do `docs/PRIVACIDADE.md` (sem comentários HTML nem "A REVISAR", seção 3.3 fora, vigência com data), rodar o `gitleaks` e só criar o repo, dar push e ligar o Pages depois do ok do usuário
 - [x] `docs/PRIVACIDADE.md`: link das Issues e URL do Pages no lugar do marcador da decisão 006, versão e vigência
-- [ ] `ExternalLinkPolicy`: aceitar `cfrdlima.github.io` só com o prefixo de path `/ja-vi-esse-filme-suporte/`, sem abrir qualquer caminho dos outros hosts — RED / GREEN / REFACTOR
+- [x] `ExternalLinkPolicy`: aceitar `cfrdlima.github.io` só com o prefixo de path `/ja-vi-esse-filme-suporte/`, sem abrir qualquer caminho dos outros hosts — RED / GREEN / REFACTOR
 - [ ] URL da política como constante num lugar só, aprovada pela política de link — RED / GREEN
 - [ ] Licenças das fontes (Inter e Playfair Display, OFL) no `LicenseRegistry`, registradas no `main.dart` a partir dos `.txt` dos assets — RED / GREEN
 - [ ] Rota `/perfil/sobre` empilhada (`MaterialPage` explícita, como os detalhes) e entrada "Sobre" no Perfil, alvo ≥ 48dp — RED / GREEN
@@ -53,3 +53,4 @@ A aba Perfil ganha uma entrada "Sobre" que empilha a tela em `/perfil/sobre`, co
   - `gh repo create cfrdlima/ja-vi-esse-filme-suporte --public --disable-wiki`, com push da `main`, e o Pages ligado na `main`, na raiz;
   - o repo é público, não é fork, tem Issues ligadas, wiki desligada, nenhum secret e nenhum workflow.
   - a página saiu no ar em `https://cfrdlima.github.io/ja-vi-esse-filme-suporte/` (HTTP 200, `lang="pt-BR"`), sem "A REVISAR" nem `session_id` no HTML.
+- **Host novo na política de links** (decisão 009 pede o porquê): o `cfrdlima.github.io` entra para abrir a política publicada (decisão 006). A política passou a guardar um prefixo de caminho por host: `/ja-vi-esse-filme-suporte/` no Pages, porque cada repositório da conta é um site no mesmo host, e `/` no YouTube, sem mudança. O `Uri` do Dart resolve `..` e `%2E%2E` antes da comparação (conferido num script). Com a checagem do prefixo removida, 5 testes reprovam.
