@@ -50,3 +50,11 @@ Ideias que surgiram e não estão no plano imediato. Marque **[prioritário]** o
   - dois toques rápidos num trailer abrem o YouTube duas vezes; travar o tile enquanto o `open` está em andamento (com checagem de `mounted`);
   - `MovieDetails._byRelevance` usa soma de pesos e tem `'pt'`/`'BR'` fixos no domínio. Comparar critério a critério e receber o idioma e o país preferidos quando houver um segundo locale;
   - `TmdbJson.nonEmpty` não faz `trim`, então um nome de trailer só com espaços vira título em branco no lugar do tipo.
+- Testes de fonte 2x numa tela de celular (ex.: 360x640 lógicos, `tester.view.physicalSize`), e não na tela padrão de 800x600 dos widget tests, que é larga e quase não deixa dar overflow (revisão da sessão 014, S6)
+- Aspas em `--dart-define=APP_VERSION="$(sed …)"` nos comandos do `CLAUDE.md` e do README, por robustez (auditoria da sessão 014)
+- Checklist de release, Fase 4 (auditoria da sessão 014):
+  - o comando de build do `CLAUDE.md` ainda não tem `--obfuscate --split-debug-info`. É o mesmo item da Fase 4, mas quem copiar o comando hoje gera um APK sem ofuscação;
+  - decidir entre domínio próprio (com "verified domain" no GitHub) e `cfrdlima.github.io` antes do primeiro APK público, porque cada APK congela a URL da política. Apagar a conta ou o repositório de suporte também quebra o link (complemento à decisão 006);
+  - a página publicada usa o tema padrão do Jekyll, que carrega o `anchor.min.js` do `cdnjs.cloudflare.com` (com SRI). O CDN recebe o IP de quem abre a política, e a seção 5 só cita o GitHub Pages. Trocar por um `_layouts/default.html` sem o script, ou citar o CDN na política;
+  - o commit antigo do repositório de suporte (`804d1b8`, com o e-mail `claudinei@mertins.com`) ainda responde por SHA no GitHub. Para tirá-lo antes da coleta de lixo, só pelo suporte do GitHub.
+

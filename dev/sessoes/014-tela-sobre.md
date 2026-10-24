@@ -29,7 +29,7 @@ A aba Perfil ganha uma entrada "Sobre" que empilha a tela em `/perfil/sobre`, co
 - [x] S4: `pages/sobre.md` sem o ícone na página de licenças e com a versão por `--dart-define`
 - [x] S5: tirar a `policyLinkKey` e achar o link no teste por `find.ancestor` — REFACTOR
 - [x] S7: logo com altura pela proporção e `errorBuilder` com o texto "TMDB" — RED / GREEN
-- [ ] BACKLOG: S6, S8, S9, S10 e S11
+- [x] BACKLOG: S6, S8, S9, S10 e S11
 
 ## Decisões
 
@@ -104,3 +104,5 @@ A aba Perfil ganha uma entrada "Sobre" que empilha a tela em `/perfil/sobre`, co
   - O item A1 da auditoria da sessão 013, no BACKLOG, fica resolvido e saiu de lá. Um link vindo de fora, como o `homepage` do TMDB, vai exigir um caminho novo na lista, e portanto uma decisão.
 - **S7:** o logo reserva a altura pela proporção do SVG (`AppSizes.tmdbLogoAspectRatio`) e tem um `errorBuilder` com o texto "TMDB". No RED, a altura no primeiro quadro era 0, e com um `AssetBundle` que falha não aparecia nada.
 - **I1 e I2:** a mutação que tira o PNG do `pubspec.yaml` reprova o teste do asset, e a que passa `''` ao router no `main.dart` reprova o teste da ligação. O teste da ligação nasceu verde, porque cobre código que já existia.
+- **Tríade depois do tratamento da revisão:** `dart format` sem mudanças, `flutter analyze` sem issues, 738 testes passando e `gitleaks` sem vazamentos.
+
