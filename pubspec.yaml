@@ -28,6 +28,11 @@ flutter:
   generate: true
   uses-material-design: true
 
+  # Licenças das fontes, lidas pela página de licenças (LicenseRegistry).
+  assets:
+    - assets/fonts/Inter-OFL.txt
+    - assets/fonts/PlayfairDisplay-OFL.txt
+
   # Fontes variáveis (OFL, google/fonts): o FontWeight controla o eixo wght.
   fonts:
     - family: PlayfairDisplay

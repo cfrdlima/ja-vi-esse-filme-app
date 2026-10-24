@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'core/config/app_config.dart';
 import 'core/error/error_handlers.dart';
 import 'core/l10n/app_locale.dart';
+import 'core/licenses/font_licenses.dart';
 import 'core/links/external_link_opener.dart';
 import 'core/links/url_launcher_link_opener.dart';
 import 'core/network/tmdb_client.dart';
@@ -18,6 +19,7 @@ import 'features/movies/domain/repositories/movie_repository.dart';
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   registerErrorHandlers();
+  registerFontLicenses();
   runApp(
     MainApp(
       movieRepository: _composeMovieRepository(),
