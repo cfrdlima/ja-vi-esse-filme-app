@@ -19,7 +19,8 @@ Ele é a reescrita do projeto web `cfrdlima/Ja-vi-esse-filme` (Next.js + React +
 - **Flutter** 3.44 (Dart SDK ^3.12.2, conforme o `pubspec.yaml`), Android primeiro, Material 3, tema escuro como padrão.
 - **API TMDB** (`https://api.themoviedb.org/3`), com imagens em `https://image.tmdb.org/t/p/<tamanho>`.
 - `http` como cliente HTTP, `go_router` para rotas e `provider` + `ChangeNotifier` para estado.
-- `cached_network_image` para pôsteres, `flutter_secure_storage` para a sessão TMDB e `shared_preferences` só para flags locais sem nada sensível.
+- `cached_network_image` para pôsteres e `shared_preferences` só para flags locais sem nada sensível.
+- **Conta própria no Firebase** (decisão 010): `firebase_core`, `firebase_auth` e `google_sign_in` para o login com o Google, e `cloud_firestore` para as listas. Cada pacote entra na sessão que o usar.
 - Lints: `flutter_lints` via `analysis_options.yaml`.
 - Pacote: `ja_vi_esse_filme` · branch principal: `main`.
 
@@ -43,11 +44,13 @@ dart pub outdated                                 # dependências desatualizadas
 gitleaks detect --no-banner                       # vazamento de segredo antes de commitar
 ```
 
-## Integração com o TMDB
+## Integração com o TMDB e o Firebase
 
 - **Config via `--dart-define-from-file`**: `env/*.json` é **ignorado pelo git**; versione só `env/example.json`. É lido em um único lugar (`core/config/app_config.dart`) com `String.fromEnvironment`.
 - Uma chave embutida no APK **não é segredo**, porque pode ser extraída. A decisão 001 diz quanto risco aceitamos e quando passar a usar um proxy. Nunca escreva a chave em código, teste, log ou commit.
-- **Auth do usuário** é o fluxo de sessão do TMDB (`request_token` → aprovação no navegador → `session_id`). O `session_id` fica **só** no `flutter_secure_storage` e nunca no `shared_preferences` nem em log. O logout chama `DELETE /authentication/session` e apaga o storage.
+- **O TMDB é só de leitura** (GET com o token v4). Conta e listas do usuário ficam no Firebase (decisão 010), e não na conta do TMDB.
+- **O login é opcional e só com o Google** (`google_sign_in` nativo → credencial no `FirebaseAuth`). Descobrir, Buscar e Detalhes funcionam sem conta.
+- **Os dados do usuário ficam só em `users/{uid}/…`** no Firestore, e as regras (`firestore.rules`, versionadas e testadas) só deixam o dono ler e escrever. A exclusão da conta apaga os documentos e depois a conta no Auth.
 - **Os JSONs do TMDB são o contrato.** Os models em `data/` fazem o parse defensivo (campos podem vir `null`, como `poster_path`, `release_date` vazio ou `runtime`). Entidades de `domain/` não conhecem o formato do JSON.
 - As respostas de lista são paginadas (`page`, `total_pages`, `results`). Trate paginação no repositório, não no widget.
 - Trate o **rate limit (HTTP 429)** e os erros de rede como falhas de domínio tipadas, não como exceção crua do `http`.
@@ -70,7 +73,7 @@ lib/
   main.dart             # composição: monta dependências e sobe o app
 ```
 
-- **`domain` não importa `flutter`, `http`, `shared_preferences` nem `flutter_secure_storage`.**
+- **`domain` não importa `flutter`, `http`, `shared_preferences`, `flutter_secure_storage` nem pacotes do Firebase/`google_sign_in`.**
 - Widgets não chamam `http`/storage direto. Eles falam com o estado, que chama casos de uso ou repositórios.
 - Dependências concretas são montadas em **um ponto só** (`main.dart`/`core`) e injetadas. Nos testes, troque por fakes.
 - **Não crie pastas vazias por antecipação.** A estrutura cresce com as features.
@@ -104,7 +107,7 @@ Siga o _Clean Code_ sempre que possível, sem dogma. Se um princípio brigar com
 - Toda URL externa (trailer do YouTube, site do filme) abre via `url_launcher` em modo externo, com host validado.
 - Entrada do usuário (busca, nome de lista) é validada e escapada. O tamanho máximo é definido no domínio.
 - `android:usesCleartextTraffic="false"`; só HTTPS.
-- Logs de debug nunca contêm `session_id`, chave da API, nem URL com `api_key=`.
+- Logs de debug nunca contêm chave da API, URL com `api_key=`, token de ID ou de refresh do Firebase, nem o e-mail do usuário.
 - Antes de fechar sessão que toque **auth, storage ou rede**, rode o subagente `security-auditor`.
 
 ## Fluxo de TDD (obrigatório para código novo)

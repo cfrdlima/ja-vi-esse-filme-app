@@ -10,7 +10,7 @@ App Android, em Flutter, para cinéfilos: busque filmes, veja sinopse, elenco e 
 
 ## Stack
 
-Flutter 3.44 (Material 3, tema escuro), `http`, `go_router`, `provider`, `cached_network_image` e `flutter_secure_storage`. A arquitetura é Clean Architecture por feature (`lib/features/<feature>/{domain,data,presentation}`).
+Flutter 3.44 (Material 3, tema escuro), `http`, `go_router`, `provider`, `cached_network_image` e `url_launcher`. A conta e as listas do usuário vão usar o Firebase (Auth com o Google e Firestore), conforme a decisão 010. A arquitetura é Clean Architecture por feature (`lib/features/<feature>/{domain,data,presentation}`).
 
 ## Como rodar
 
