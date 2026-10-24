@@ -8,8 +8,8 @@ A aba Perfil ganha uma entrada "Sobre" que empilha a tela em `/perfil/sobre`, co
 ## Checklist
 - [x] Investigar: termos e guia de atribuição do TMDB (logo aprovado, texto exato do aviso, formato do arquivo) antes de modelar. Sem `flutter_svg`, o logo entra como PNG em `assets/`
 - [x] Design: consultar a `ui-ux-pro-max` (stack Flutter) sobre a tela "Sobre" e criar `pages/sobre.md`
-- [ ] Repositório público: preparar a cópia limpa do `docs/PRIVACIDADE.md` (sem comentários HTML nem "A REVISAR", seção 3.3 fora, vigência com data), rodar o `gitleaks` e só criar o repo, dar push e ligar o Pages depois do ok do usuário
-- [ ] `docs/PRIVACIDADE.md`: link das Issues e URL do Pages no lugar do marcador da decisão 006, versão e vigência
+- [x] Repositório público: preparar a cópia limpa do `docs/PRIVACIDADE.md` (sem comentários HTML nem "A REVISAR", seção 3.3 fora, vigência com data), rodar o `gitleaks` e só criar o repo, dar push e ligar o Pages depois do ok do usuário
+- [x] `docs/PRIVACIDADE.md`: link das Issues e URL do Pages no lugar do marcador da decisão 006, versão e vigência
 - [ ] `ExternalLinkPolicy`: aceitar `cfrdlima.github.io` só com o prefixo de path `/ja-vi-esse-filme-suporte/`, sem abrir qualquer caminho dos outros hosts — RED / GREEN / REFACTOR
 - [ ] URL da política como constante num lugar só, aprovada pela política de link — RED / GREEN
 - [ ] Licenças das fontes (Inter e Playfair Display, OFL) no `LicenseRegistry`, registradas no `main.dart` a partir dos `.txt` dos assets — RED / GREEN
@@ -41,3 +41,15 @@ A aba Perfil ganha uma entrada "Sobre" que empilha a tela em `/perfil/sobre`, co
   - as buscas por tela de configurações e por indicador de link externo no `ux` só trouxeram resultados de web, e esse trecho ficou como padrão geral.
 
   O override `pages/sobre.md` registra a exceção ao "Vector-Only Assets" (logo em PNG a partir do SVG oficial) e põe o aviso original em inglês com `locale` `en` no `Semantics`.
+- **Política 1.0** (decidido com o usuário):
+  - a versão publicada descreve só o app atual, sem login. O texto do login (3.2, linha do `session_id`, partes das seções 6 a 9 e 11) ficou no `docs/PRIVACIDADE.md`, em comentários `FASE 2 (fora da publicada)`, e volta com a versão do app que tiver login;
+  - o nome do controlador continua na seção 1;
+  - versão 1.0, com vigência a partir de 24/10/2026;
+  - a seção 5 saiu de "site de um filme" (o app não abre esse link) e passou a citar a própria política;
+  - **base legal:** o art. 33, IX só cobre as bases dos incisos II, V e VI do art. 7º. Sem login, a busca estava só em legítimo interesse (inciso IX), o que deixava a transferência internacional sem apoio. A busca passou para o art. 7º, V, e a seção 6 cita o "art. 33, IX, combinado com o art. 7º, V". Não houve revisão jurídica: vale levar ao checklist de release.
+- **Publicação (decisão 006),** com o ok do usuário:
+  - a cópia foi gerada do `docs/PRIVACIDADE.md` tirando os comentários HTML, numa pasta nova do scratchpad, com `git init` próprio e um commit só (`index.md`, `README.md` e `_config.yml` com `lang: pt-BR`);
+  - o `gitleaks detect` rodou na pasta e no histórico, sem vazamentos;
+  - `gh repo create cfrdlima/ja-vi-esse-filme-suporte --public --disable-wiki`, com push da `main`, e o Pages ligado na `main`, na raiz;
+  - o repo é público, não é fork, tem Issues ligadas, wiki desligada, nenhum secret e nenhum workflow.
+  - a página saiu no ar em `https://cfrdlima.github.io/ja-vi-esse-filme-suporte/` (HTTP 200, `lang="pt-BR"`), sem "A REVISAR" nem `session_id` no HTML.
