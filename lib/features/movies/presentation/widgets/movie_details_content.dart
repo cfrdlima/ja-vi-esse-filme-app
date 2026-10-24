@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_sizes.dart';
 import '../../../../core/theme/app_theme_tokens.dart';
+import '../../../../core/widgets/section_title.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../domain/entities/movie.dart';
 import '../../domain/entities/movie_details.dart';
@@ -40,18 +41,18 @@ class MovieDetailsContent extends StatelessWidget {
                 _Genres(genres: details.genres),
               ],
               SizedBox(height: spacing.lg),
-              _SectionTitle(text: l10n.movieOverviewTitle),
+              SectionTitle(text: l10n.movieOverviewTitle),
               SizedBox(height: spacing.sm),
               _Overview(text: details.overview),
               if (details.cast.isNotEmpty) ...[
                 SizedBox(height: spacing.lg),
-                _SectionTitle(text: l10n.movieCastTitle),
+                SectionTitle(text: l10n.movieCastTitle),
                 SizedBox(height: spacing.sm),
                 _CastRow(details: details),
               ],
               if (details.trailers.isNotEmpty) ...[
                 SizedBox(height: spacing.lg),
-                _SectionTitle(text: l10n.movieTrailersTitle),
+                SectionTitle(text: l10n.movieTrailersTitle),
                 SizedBox(height: spacing.sm),
                 TrailerList(trailers: details.trailers),
               ],
@@ -176,18 +177,6 @@ class _Genres extends StatelessWidget {
       children: [for (final genre in genres) Chip(label: Text(genre))],
     );
   }
-}
-
-class _SectionTitle extends StatelessWidget {
-  const _SectionTitle({required this.text});
-
-  final String text;
-
-  @override
-  Widget build(BuildContext context) => Semantics(
-    header: true,
-    child: Text(text, style: Theme.of(context).textTheme.titleMedium),
-  );
 }
 
 class _Overview extends StatelessWidget {
