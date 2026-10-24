@@ -20,7 +20,8 @@ A conta do usuário deixa de ser a sessão do TMDB e passa a ser uma conta próp
 - [010 — Conta própria com login do Google no Firebase](../decisoes/010-conta-propria-com-firebase.md), que substitui a parte do `session_id` da [001](../decisoes/001-chave-tmdb-e-sessao.md)
 
 ## Commits
-- (este commit) docs: fecha sessão 015
+- (este commit) docs: achados da reauditoria da sessão 015
+- 9489b09 docs: fecha sessão 015
 - 20cf4fe chore: checklist do security-auditor com o modelo do Firebase
 - 145b279 chore: arquivos do Firebase fora do git e regras de segurança no CLAUDE.md
 - 7f70251 docs: decisão 010 e plano com os achados da auditoria
@@ -49,7 +50,7 @@ A conta do usuário deixa de ser a sessão do TMDB e passa a ser uma conta próp
   - o App Check com enforcement entra antes da loja;
   - a política não pode dizer que o token é "cifrado";
   - o login pede só a identidade básica;
-  - a cópia do TMDB guarda só o `poster_path`, com `cached_at`;
+  - a cópia do TMDB guarda só o título e o `poster_path` (nunca a imagem), com `cached_at`;
   - no `CLAUDE.md`, os testes nunca acessam o Firebase real;
   - o checklist do `security-auditor` passou para o modelo do Firebase.
 - O item "Redator de segredos (`api_key`, `session_id`, `request_token`)" da Fase 0 não mudou, porque é histórico de uma tarefa já feita.
@@ -60,3 +61,9 @@ A conta do usuário deixa de ser a sessão do TMDB e passa a ser uma conta próp
   - `gitleaks` sem vazamentos.
 
   A sessão não teve código nem UI, então não precisou de emulador.
+- **Reauditoria** dos achados aplicados: aprovada. Os achados 1, 2 e 4 a 12 estão OK. O 3 tinha um erro técnico novo (M1): o SDK do cliente não lista subcoleções, porque o `listCollections()` só existe no Admin SDK. Com o ok do usuário, foram corrigidos:
+  - M1: lista fixa de subcoleções e teste no emulador;
+  - B1: o `CLAUDE.md` passa a mandar ler a 010;
+  - B2: as regras também negam o acesso sem login;
+  - B3: este log;
+  - B4: `**/` no `.gitignore` e `GoogleService-Info.plist`.

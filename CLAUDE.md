@@ -11,7 +11,7 @@ Orientação para o Claude Code neste repositório.
 Ele é a reescrita do projeto web `cfrdlima/Ja-vi-esse-filme` (Next.js + React + Axios). **Não porte código do projeto antigo.** Use-o só como referência de produto e reimplemente cada parte com TDD e Clean Architecture.
 
 - Roadmap e o que vem a seguir: `dev/PLANO.md` (fonte da verdade).
-- Decisões: `dev/decisoes/`. Leia a **001** antes de mexer em auth, rede ou chaves.
+- Decisões: `dev/decisoes/`. Leia a **001** e a **010** antes de mexer em auth, rede ou chaves.
 - Design: `design-system/ja-vi-esse-filme/MASTER.md` (fonte da verdade, gerado pela skill `ui-ux-pro-max`). Regras de adaptação em `docs/DESIGN.md`.
 
 ## Stack

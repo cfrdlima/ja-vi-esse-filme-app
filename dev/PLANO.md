@@ -47,6 +47,7 @@ A conta deixa de ser a sessão do TMDB e passa a ser conta própria, com login d
 - [ ] Regras do Firestore (`firestore.rules`): só o dono lê e escreve `users/{uid}/…`, e o dono pode apagar todos os documentos dele. Validação de campos e tamanhos, e testes no Emulator Suite e no CI, que cobrem:
   - nenhum `match /{document=**}` com `allow`;
   - leitura de outro `uid` negada;
+  - acesso sem login negado;
   - `collectionGroup` negado.
 
   Vem antes do login e de qualquer escrita.
@@ -60,7 +61,7 @@ A conta deixa de ser a sessão do TMDB e passa a ser conta própria, com login d
 - [ ] Modelo dos dados do filme: um documento por filme (`movie_id`, assistido, quero ver, favorito, datas) e se guarda cópia do título e do `poster_path` (nunca a imagem), com `cached_at` e renovação para o limite de 6 meses dos termos do TMDB
 - [ ] Marcar como **assistido**, **quero assistir** e **favorito** nos detalhes, com atualização otimista e erro com "tentar de novo"
 - [ ] Estante: abas Assistidos, Quero assistir e Favoritos, com paginação e os 4 estados
-- [ ] Excluir a conta pelo app, na ordem da decisão 010: login recente; documentos (listando as subcoleções); `user.delete()`; `disconnect()`. Excluir também pela web, com o mecanismo decidido na sessão: página com o Firebase JS ou pedido por formulário ou e-mail, já que o Spark não tem Cloud Functions. É exigência do Google Play
+- [ ] Excluir a conta pelo app, na ordem da decisão 010: login recente; documentos das subcoleções de uma lista fixa no código, com confirmação do servidor e teste no emulador de que não sobra nada em `users/{uid}`; `user.delete()`; `disconnect()`. Excluir também pela web, com o mecanismo decidido na sessão: página com o Firebase JS ou pedido por formulário ou e-mail, já que o Spark não tem Cloud Functions. É exigência do Google Play
 - [ ] Política de privacidade 2.0: conta Google, Firestore e região, Google como operador, transferência internacional do Auth, base legal, prazo e exclusão. Não dizer que o token é "cifrado", porque ele fica em SharedPreferences, protegido só pelo sandbox. Publicada no Pages (decisão 006) antes de uma versão com login chegar ao usuário
 
 ## Fase 3 — "Já vi esse filme"
