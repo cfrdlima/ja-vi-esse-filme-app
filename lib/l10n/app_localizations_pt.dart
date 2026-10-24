@@ -250,4 +250,10 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String get aboutPrivacyPolicyOpenFailed =>
       'Não foi possível abrir a política de privacidade.';
+
+  @override
+  String get aboutLicensesTitle => 'Licenças';
+
+  @override
+  String get aboutLicensesEntry => 'Licenças de código aberto';
 }

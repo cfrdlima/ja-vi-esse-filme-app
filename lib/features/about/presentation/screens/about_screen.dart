@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_sizes.dart';
 import '../../../../core/theme/app_theme_tokens.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../widgets/licenses_section.dart';
 import '../widgets/privacy_section.dart';
 import '../widgets/tmdb_attribution.dart';
 
@@ -33,6 +34,8 @@ class AboutScreen extends StatelessWidget {
                 const TmdbAttribution(),
                 SizedBox(height: spacing.lg),
                 const PrivacySection(),
+                SizedBox(height: spacing.lg),
+                LicensesSection(appVersion: appVersion),
               ],
             ),
           ),

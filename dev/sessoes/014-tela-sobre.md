@@ -16,9 +16,9 @@ A aba Perfil ganha uma entrada "Sobre" que empilha a tela em `/perfil/sobre`, co
 - [x] Rota `/perfil/sobre` empilhada (`MaterialPage` explícita, como os detalhes) e entrada "Sobre" no Perfil, alvo ≥ 48dp — RED / GREEN
 - [x] Tela "Sobre": nome e versão do app, logo do TMDB com `Semantics`, aviso de não endosso — RED / GREEN
 - [x] Tela "Sobre": resumo da política e link que chama o abridor com a URL do Pages; falha ao abrir mostra aviso, sem exceção — RED / GREEN
-- [ ] Tela "Sobre": "Licenças" abre o `showLicensePage` e lista as fontes — RED / GREEN
+- [x] Tela "Sobre": "Licenças" abre o `showLicensePage` e lista as fontes — RED / GREEN
 - [x] Versão do app: decidir a fonte (`package_info_plus` é dependência nova; alternativa é `--dart-define`), perguntar antes e registrar com `/decisao` se entrar
-- [ ] Strings novas em ARB (decisão 004)
+- [x] Strings novas em ARB (decisão 004)
 - [ ] Tríade: `flutter analyze` limpo, `flutter test` verde e emulador (abrir a política, voltar ao app, licenças, fonte grande)
 - [ ] `/revisar`: `code-reviewer` e `security-auditor` (a sessão mexe na política de links externos e publica conteúdo)
 
@@ -72,3 +72,7 @@ A aba Perfil ganha uma entrada "Sobre" que empilha a tela em `/perfil/sobre`, co
   - a falha ao abrir vira `SnackBar`;
   - a entrelinha do resumo vem do `textTheme`, sem `height` no widget.
 - **Refactor:** o tile de trailer e o link da política repetiam o mesmo padrão: um nó de link com o toque no `Semantics`, um `ListTile`, o `open` e o `SnackBar` na falha. Os dois viraram `ExternalLinkTile` em `core/widgets/`, com testes próprios.
+- **Licenças no Sobre:**
+  - a `LicensesSection` fecha a tela, com o `ListTile` "Licenças de código aberto" que abre o `showLicensePage` com o nome do app e a versão do build (sem versão quando ela vem vazia);
+  - o teste confere a Inter e a Playfair Display na lista, e precisa de `runAsync`, porque a página lê o registro fora do quadro;
+  - a página fica sem `applicationIcon`, porque o ícone do app só chega na Fase 4.

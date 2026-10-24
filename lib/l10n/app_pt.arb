@@ -173,5 +173,9 @@
   "aboutPrivacyPolicySemantics": "Política de privacidade. Abre no navegador",
   "@aboutPrivacyPolicySemantics": { "description": "O leitor de tela lê o link da política como link que sai do app" },
   "aboutPrivacyPolicyOpenFailed": "Não foi possível abrir a política de privacidade.",
-  "@aboutPrivacyPolicyOpenFailed": { "description": "Aviso quando nenhum app do aparelho abre a política" }
+  "@aboutPrivacyPolicyOpenFailed": { "description": "Aviso quando nenhum app do aparelho abre a política" },
+  "aboutLicensesTitle": "Licenças",
+  "@aboutLicensesTitle": { "description": "Título da seção de licenças da tela Sobre" },
+  "aboutLicensesEntry": "Licenças de código aberto",
+  "@aboutLicensesEntry": { "description": "Entrada que abre a página de licenças do Flutter" }
 }

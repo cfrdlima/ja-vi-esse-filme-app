@@ -459,6 +459,18 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Não foi possível abrir a política de privacidade.'**
   String get aboutPrivacyPolicyOpenFailed;
+
+  /// Título da seção de licenças da tela Sobre
+  ///
+  /// In pt, this message translates to:
+  /// **'Licenças'**
+  String get aboutLicensesTitle;
+
+  /// Entrada que abre a página de licenças do Flutter
+  ///
+  /// In pt, this message translates to:
+  /// **'Licenças de código aberto'**
+  String get aboutLicensesEntry;
 }
 
 class _AppLocalizationsDelegate
