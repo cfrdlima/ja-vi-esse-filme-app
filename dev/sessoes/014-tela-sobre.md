@@ -26,9 +26,9 @@ A aba Perfil ganha uma entrada "Sobre" que empilha a tela em `/perfil/sobre`, co
 - [x] I2: `appVersion` obrigatório no `MainApp` e teste da ligação `main → router → Sobre` — RED / GREEN
 - [x] S2: política de link exige o caminho exato no Pages, com testes de `..%2F` e do YouTube sem caminho — RED / GREEN
 - [x] S3: remover o teste da constante `AppConfig.appVersion`
-- [ ] S4: `pages/sobre.md` sem o ícone na página de licenças e com a versão por `--dart-define`
+- [x] S4: `pages/sobre.md` sem o ícone na página de licenças e com a versão por `--dart-define`
 - [x] S5: tirar a `policyLinkKey` e achar o link no teste por `find.ancestor` — REFACTOR
-- [ ] S7: logo com altura pela proporção e `errorBuilder` com o texto "TMDB" — RED / GREEN
+- [x] S7: logo com altura pela proporção e `errorBuilder` com o texto "TMDB" — RED / GREEN
 - [ ] BACKLOG: S6, S8, S9, S10 e S11
 
 ## Decisões
@@ -102,3 +102,5 @@ A aba Perfil ganha uma entrada "Sobre" que empilha a tela em `/perfil/sobre`, co
   - Com isso, `..%2Foutro/` e outras páginas do repositório são recusados no Pages, e `/redirect?q=` no YouTube. Os três reprovaram no RED.
   - A raiz do YouTube já era recusada desde o prefixo e ganhou um teste.
   - O item A1 da auditoria da sessão 013, no BACKLOG, fica resolvido e saiu de lá. Um link vindo de fora, como o `homepage` do TMDB, vai exigir um caminho novo na lista, e portanto uma decisão.
+- **S7:** o logo reserva a altura pela proporção do SVG (`AppSizes.tmdbLogoAspectRatio`) e tem um `errorBuilder` com o texto "TMDB". No RED, a altura no primeiro quadro era 0, e com um `AssetBundle` que falha não aparecia nada.
+- **I1 e I2:** a mutação que tira o PNG do `pubspec.yaml` reprova o teste do asset, e a que passa `''` ao router no `main.dart` reprova o teste da ligação. O teste da ligação nasceu verde, porque cobre código que já existia.
