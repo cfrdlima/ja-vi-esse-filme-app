@@ -1,6 +1,6 @@
 # 001 — Chave do TMDB e sessão do usuário
 
-**Data**: 2026-10-16 · **Status**: aceita (confirmada na sessão 003, em 2026-10-16)
+**Data**: 2026-10-16 · **Status**: aceita (confirmada na sessão 003, em 2026-10-16); a parte do `session_id` foi substituída pela [010](010-conta-propria-com-firebase.md)
 
 ## Contexto
 O app consome a API do TMDB, que exige uma credencial (v3 `api_key` ou token de leitura v4). Num app mobile, qualquer valor embutido no APK pode ser extraído por engenharia reversa — `--dart-define` e ofuscação só dificultam. As ações de conta (favoritos, watchlist, listas) usam um `session_id` por usuário.
