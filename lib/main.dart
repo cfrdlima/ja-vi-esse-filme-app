@@ -43,7 +43,7 @@ class MainApp extends StatefulWidget {
   const MainApp({
     required this.movieRepository,
     required this.linkOpener,
-    this.appVersion = '',
+    required this.appVersion,
     super.key,
   });
 

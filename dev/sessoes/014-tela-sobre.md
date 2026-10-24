@@ -23,7 +23,7 @@ A aba Perfil ganha uma entrada "Sobre" que empilha a tela em `/perfil/sobre`, co
 - [x] `/revisar`: `code-reviewer` e `security-auditor` (a sessão mexe na política de links externos e publica conteúdo)
 - [x] A1: commit do repositório público refeito com o e-mail noreply, com force push e confirmação do usuário, e procedimento da decisão 006 atualizado
 - [x] I1: teste de que o asset do logo do TMDB carrega, com o caminho numa constante única (S1: `AppAssets.tmdbLogo`) — RED / GREEN
-- [ ] I2: `appVersion` obrigatório no `MainApp` e teste da ligação `main → router → Sobre` — RED / GREEN
+- [x] I2: `appVersion` obrigatório no `MainApp` e teste da ligação `main → router → Sobre` — RED / GREEN
 - [ ] S2: política de link exige o caminho exato no Pages, com testes de `..%2F` e do YouTube sem caminho — RED / GREEN
 - [ ] S3: remover o teste da constante `AppConfig.appVersion`
 - [ ] S4: `pages/sobre.md` sem o ícone na página de licenças e com a versão por `--dart-define`
