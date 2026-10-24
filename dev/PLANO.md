@@ -3,9 +3,9 @@
 > Fonte da verdade do que construir. Atualizado por `/fechar-sessao`.
 
 ## Última sessão
-**014 — Fase 1: Tela "Sobre"** (fechada em 2026-10-24) · [log](sessoes/014-tela-sobre.md)
-O Perfil leva ao Sobre (`/perfil/sobre`), com a atribuição ao TMDB (logo e aviso em PT-BR e no original), a política de privacidade 1.0 publicada em `cfrdlima.github.io/ja-vi-esse-filme-suporte/` e as licenças das fontes. A versão vem do build (`--dart-define=APP_VERSION`), e a política de links passou a aceitar só os caminhos que o app monta. São 738 testes, e a Fase 1 está completa.
-**Próximo passo:** a Fase 2 começa pelo `TmdbClient` com POST/DELETE e o tratamento do 204 com corpo vazio, que é pré-requisito do login.
+**015 — Fase 2: replanejar a conta (Firebase)** (fechada em 2026-10-24) · [log](sessoes/015-conta-firebase-plano.md)
+A conta deixa de ser a sessão do TMDB e passa a ser conta própria, com login do Google no Firebase e as listas no Firestore (decisão 010). As Fases 2 e 3, o `CLAUDE.md` e o `security-auditor` foram reescritos com os achados da auditoria. Só documentação, com 738 testes.
+**Próximo passo:** o setup do Firebase. Antes, o usuário cria o projeto (Firestore em `southamerica-east1`, modo de produção), registra o app Android com o SHA-1 de debug, liga o provedor Google e instala o `flutterfire` CLI e o `firebase-tools`. Depois vêm as regras do Firestore com testes no emulador.
 
 ## Fase 0 — Fundação
 - [x] Criar projeto (`io.github.cfrdlima.ja_vi_esse_filme`), `analysis_options.yaml`, `.gitignore` com `env/*.json` (exceto `example.json`)
