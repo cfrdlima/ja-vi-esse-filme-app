@@ -144,5 +144,9 @@
     "placeholders": { "kind": { "type": "String" } }
   },
   "trailerOpenFailed": "Não foi possível abrir o trailer.",
-  "@trailerOpenFailed": { "description": "Aviso quando nenhum app do aparelho abre o trailer" }
+  "@trailerOpenFailed": { "description": "Aviso quando nenhum app do aparelho abre o trailer" },
+  "profileAboutEntry": "Sobre o app",
+  "@profileAboutEntry": { "description": "Entrada do Perfil que abre a tela Sobre" },
+  "aboutTitle": "Sobre",
+  "@aboutTitle": { "description": "Título da tela Sobre" }
 }

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import '../../features/about/presentation/screens/about_screen.dart';
 import '../../features/movies/domain/entities/movie.dart';
 import '../../features/movies/domain/repositories/movie_repository.dart';
 import '../../features/movies/presentation/screens/discover_screen.dart';
@@ -12,6 +13,7 @@ import '../../features/movies/presentation/screens/search_screen.dart';
 import '../../features/movies/presentation/state/discover_notifier.dart';
 import '../../features/movies/presentation/state/movie_details_notifier.dart';
 import '../../features/movies/presentation/state/search_notifier.dart';
+import '../../features/profile/presentation/screens/profile_screen.dart';
 import '../../l10n/app_localizations.dart';
 import '../widgets/placeholder_screen.dart';
 import 'app_routes.dart';
@@ -51,7 +53,8 @@ GoRouter createAppRouter({required MovieRepository movieRepository}) =>
           ),
           tabBranch(
             path: AppRoutes.profile,
-            root: _placeholder((l10n) => l10n.tabProfile),
+            root: const ProfileScreen(),
+            routes: [_aboutRoute],
           ),
         ]),
       ],
@@ -92,6 +95,14 @@ GoRoute _movieDetailsRoute(MovieRepository movieRepository) => GoRoute(
       ),
     );
   },
+);
+
+/// Sub-rota do Perfil. A página é explícita pelo mesmo motivo da rota de
+/// detalhes: sem ela, o go_router 18.1.0 empilha sem transição.
+final _aboutRoute = GoRoute(
+  path: 'sobre',
+  pageBuilder: (_, state) =>
+      MaterialPage(key: state.pageKey, child: const AboutScreen()),
 );
 
 /// O id vem da URL e pode ser qualquer texto. Só dígitos em base 10 viram

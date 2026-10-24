@@ -381,6 +381,18 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Não foi possível abrir o trailer.'**
   String get trailerOpenFailed;
+
+  /// Entrada do Perfil que abre a tela Sobre
+  ///
+  /// In pt, this message translates to:
+  /// **'Sobre o app'**
+  String get profileAboutEntry;
+
+  /// Título da tela Sobre
+  ///
+  /// In pt, this message translates to:
+  /// **'Sobre'**
+  String get aboutTitle;
 }
 
 class _AppLocalizationsDelegate

@@ -205,4 +205,10 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get trailerOpenFailed => 'Não foi possível abrir o trailer.';
+
+  @override
+  String get profileAboutEntry => 'Sobre o app';
+
+  @override
+  String get aboutTitle => 'Sobre';
 }

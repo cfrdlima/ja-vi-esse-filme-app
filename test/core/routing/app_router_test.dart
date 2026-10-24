@@ -7,6 +7,7 @@ import 'package:ja_vi_esse_filme/core/l10n/app_locale.dart';
 import 'package:ja_vi_esse_filme/core/routing/app_router.dart';
 import 'package:ja_vi_esse_filme/core/routing/app_routes.dart';
 import 'package:ja_vi_esse_filme/core/theme/app_sizes.dart';
+import 'package:ja_vi_esse_filme/features/about/presentation/screens/about_screen.dart';
 import 'package:ja_vi_esse_filme/features/movies/domain/entities/movie.dart';
 import 'package:ja_vi_esse_filme/features/movies/presentation/screens/discover_screen.dart';
 import 'package:ja_vi_esse_filme/features/movies/presentation/screens/movie_details_screen.dart';
@@ -313,6 +314,72 @@ void main() {
         expect(router.state.matchedLocation, AppRoutes.discover);
       });
     }
+  });
+
+  group('tela Sobre', () {
+    final l10n = lookupAppLocalizations(AppLocale.locale);
+
+    int selectedTab(WidgetTester tester) =>
+        tester.widget<NavigationBar>(find.byType(NavigationBar)).selectedIndex;
+
+    Future<GoRouter> openAbout(WidgetTester tester) async {
+      final router = await pumpAppRouter(tester);
+      router.go(AppRoutes.about);
+      await tester.pumpAndSettle();
+      return router;
+    }
+
+    testWidgets('deve abrir o Sobre dentro da aba Perfil', (tester) async {
+      await openAbout(tester);
+
+      expect(
+        (find.byType(AboutScreen).evaluate().length, selectedTab(tester)),
+        (1, 3),
+      );
+    });
+
+    testWidgets('deve abrir o Sobre ao tocar na entrada do Perfil', (
+      tester,
+    ) async {
+      await pumpAppRouter(tester);
+      await tapDestination(tester, 'Perfil');
+
+      await tester.tap(find.text(l10n.profileAboutEntry));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(AboutScreen), findsOneWidget);
+    });
+
+    testWidgets('deve voltar ao Perfil ao voltar do Sobre', (tester) async {
+      final router = await openAbout(tester);
+
+      await router.routerDelegate.popRoute();
+      await tester.pumpAndSettle();
+
+      expect(router.state.matchedLocation, AppRoutes.profile);
+    });
+
+    testWidgets('deve avisar o Android que trata o voltar no Sobre', (
+      tester,
+    ) async {
+      final frameworkHandlesBack = recordFrameworkHandlesBack(tester);
+
+      await openAbout(tester);
+
+      expect(frameworkHandlesBack(), isTrue);
+    });
+
+    testWidgets('deve animar a entrada do Sobre', (tester) async {
+      await pumpAppRouter(tester);
+      await tapDestination(tester, 'Perfil');
+
+      await tester.tap(find.text(l10n.profileAboutEntry));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 16));
+
+      final route = ModalRoute.of(tester.element(find.byType(AboutScreen)))!;
+      expect(route.animation!.value, lessThan(1));
+    });
   });
 
   group('detalhes do filme', () {

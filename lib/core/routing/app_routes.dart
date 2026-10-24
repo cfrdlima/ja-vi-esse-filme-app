@@ -5,6 +5,7 @@ abstract final class AppRoutes {
   static const search = '/buscar';
   static const shelf = '/estante';
   static const profile = '/perfil';
+  static const about = '$profile/sobre';
 
   /// Detalhes do filme [id] dentro da aba [tabPath] ([discover] ou [search]),
   /// com a barra das abas visível e o voltar devolvendo a grade.

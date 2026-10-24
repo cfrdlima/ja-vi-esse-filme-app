@@ -13,7 +13,7 @@ A aba Perfil ganha uma entrada "Sobre" que empilha a tela em `/perfil/sobre`, co
 - [x] `ExternalLinkPolicy`: aceitar `cfrdlima.github.io` só com o prefixo de path `/ja-vi-esse-filme-suporte/`, sem abrir qualquer caminho dos outros hosts — RED / GREEN / REFACTOR
 - [x] URL da política como constante num lugar só, aprovada pela política de link — RED / GREEN
 - [x] Licenças das fontes (Inter e Playfair Display, OFL) no `LicenseRegistry`, registradas no `main.dart` a partir dos `.txt` dos assets — RED / GREEN
-- [ ] Rota `/perfil/sobre` empilhada (`MaterialPage` explícita, como os detalhes) e entrada "Sobre" no Perfil, alvo ≥ 48dp — RED / GREEN
+- [x] Rota `/perfil/sobre` empilhada (`MaterialPage` explícita, como os detalhes) e entrada "Sobre" no Perfil, alvo ≥ 48dp — RED / GREEN
 - [ ] Tela "Sobre": nome e versão do app, logo do TMDB com `Semantics`, aviso de não endosso — RED / GREEN
 - [ ] Tela "Sobre": resumo da política e link que chama o abridor com a URL do Pages; falha ao abrir mostra aviso, sem exceção — RED / GREEN
 - [ ] Tela "Sobre": "Licenças" abre o `showLicensePage` e lista as fontes — RED / GREEN
@@ -55,3 +55,8 @@ A aba Perfil ganha uma entrada "Sobre" que empilha a tela em `/perfil/sobre`, co
   - a página saiu no ar em `https://cfrdlima.github.io/ja-vi-esse-filme-suporte/` (HTTP 200, `lang="pt-BR"`), sem "A REVISAR" nem `session_id` no HTML.
 - **Host novo na política de links** (decisão 009 pede o porquê): o `cfrdlima.github.io` entra para abrir a política publicada (decisão 006). A política passou a guardar um prefixo de caminho por host: `/ja-vi-esse-filme-suporte/` no Pages, porque cada repositório da conta é um site no mesmo host, e `/` no YouTube, sem mudança. O `Uri` do Dart resolve `..` e `%2E%2E` antes da comparação (conferido num script). Com a checagem do prefixo removida, 5 testes reprovam.
 - **Licenças das fontes:** `registerFontLicenses()` (`core/licenses/`) põe a OFL da Inter e da Playfair Display no `LicenseRegistry`, lendo os `.txt` declarados como assets no `pubspec.yaml`. O `main()` chama a função logo depois dos handlers de erro, e essa ligação não tem teste (BACKLOG, `bootstrap()` testável).
+- **Rota do Sobre:**
+  - o Perfil deixou de ser placeholder e virou a `ProfileScreen` (`features/profile/`), com a entrada "Sobre o app" (`ListTile`, `context.go(AppRoutes.about)`);
+  - a `AboutScreen` (`features/about/`) entrou só com a `AppBar` "Sobre", e o conteúdo vem nos próximos itens;
+  - `/perfil/sobre` usa `MaterialPage` explícita, como os detalhes. Trocar por `builder` reprova o teste de animação;
+  - o `ListTile` expõe `hasSelectedState` na semântica, e o teste aceita isso.
