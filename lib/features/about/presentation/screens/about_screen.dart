@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_sizes.dart';
 import '../../../../core/theme/app_theme_tokens.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../widgets/privacy_section.dart';
 import '../widgets/tmdb_attribution.dart';
 
 /// Atribuição ao TMDB, política de privacidade e licenças (override
@@ -30,6 +31,8 @@ class AboutScreen extends StatelessWidget {
                 _AppIdentity(appVersion: appVersion),
                 SizedBox(height: spacing.lg),
                 const TmdbAttribution(),
+                SizedBox(height: spacing.lg),
+                const PrivacySection(),
               ],
             ),
           ),

@@ -15,7 +15,7 @@ A aba Perfil ganha uma entrada "Sobre" que empilha a tela em `/perfil/sobre`, co
 - [x] Licenças das fontes (Inter e Playfair Display, OFL) no `LicenseRegistry`, registradas no `main.dart` a partir dos `.txt` dos assets — RED / GREEN
 - [x] Rota `/perfil/sobre` empilhada (`MaterialPage` explícita, como os detalhes) e entrada "Sobre" no Perfil, alvo ≥ 48dp — RED / GREEN
 - [x] Tela "Sobre": nome e versão do app, logo do TMDB com `Semantics`, aviso de não endosso — RED / GREEN
-- [ ] Tela "Sobre": resumo da política e link que chama o abridor com a URL do Pages; falha ao abrir mostra aviso, sem exceção — RED / GREEN
+- [x] Tela "Sobre": resumo da política e link que chama o abridor com a URL do Pages; falha ao abrir mostra aviso, sem exceção — RED / GREEN
 - [ ] Tela "Sobre": "Licenças" abre o `showLicensePage` e lista as fontes — RED / GREEN
 - [x] Versão do app: decidir a fonte (`package_info_plus` é dependência nova; alternativa é `--dart-define`), perguntar antes e registrar com `/decisao` se entrar
 - [ ] Strings novas em ARB (decisão 004)
@@ -67,3 +67,8 @@ A aba Perfil ganha uma entrada "Sobre" que empilha a tela em `/perfil/sobre`, co
   - aviso em PT-BR (ARB) e o original dos termos fora do ARB (`TmdbAttribution.noticeOriginal`), com `LocaleStringAttribute` `en` para o leitor de tela.
 - **Logo:** PNGs de 120×16, 240×32 e 360×47 em `assets/images/` (1x, 2.0x e 3.0x), 8 bits, sem metadados. O arredondamento para pixel inteiro muda a proporção em até 2,5% no 1x (7,5:1 contra 7,7:1 do SVG). A tela desenha com largura 120 e altura pela proporção do arquivo da densidade.
 - **Refactor:** o `_SectionTitle` dos detalhes virou `SectionTitle` em `core/widgets/`, usado também pelo Sobre.
+- **Privacidade no Sobre:**
+  - a `PrivacySection` vem depois da atribuição ao TMDB e traz o resumo da política 1.0 (sem login, sem servidor, só o cache de pôsteres, sem anúncios nem analytics) e o link "Política de privacidade" para o `AppLinks.privacyPolicy`;
+  - a falha ao abrir vira `SnackBar`;
+  - a entrelinha do resumo vem do `textTheme`, sem `height` no widget.
+- **Refactor:** o tile de trailer e o link da política repetiam o mesmo padrão: um nó de link com o toque no `Semantics`, um `ListTile`, o `open` e o `SnackBar` na falha. Os dois viraram `ExternalLinkTile` em `core/widgets/`, com testes próprios.

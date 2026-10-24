@@ -161,5 +161,17 @@
   "aboutTmdbLogoSemantics": "Logo do TMDB",
   "@aboutTmdbLogoSemantics": { "description": "Texto alternativo do logo do TMDB" },
   "aboutTmdbNotice": "Este app usa o TMDB e as APIs do TMDB, mas não é endossado, certificado nem aprovado de outra forma pelo TMDB.",
-  "@aboutTmdbNotice": { "description": "Tradução do aviso de não endosso exigido pelos termos do TMDB; o original em inglês fica fora do ARB" }
+  "@aboutTmdbNotice": { "description": "Tradução do aviso de não endosso exigido pelos termos do TMDB; o original em inglês fica fora do ARB" },
+  "aboutPrivacyTitle": "Privacidade",
+  "@aboutPrivacyTitle": { "description": "Título da seção de privacidade da tela Sobre" },
+  "aboutPrivacySummary": "O app não tem login nem servidor próprio. As buscas vão direto ao TMDB, e o app guarda no aparelho só um cache temporário dos pôsteres. Não há anúncios nem analytics.",
+  "@aboutPrivacySummary": { "description": "Resumo da política de privacidade; acompanha a versão publicada (decisão 006)" },
+  "aboutPrivacyPolicyLink": "Política de privacidade",
+  "@aboutPrivacyPolicyLink": { "description": "Link que abre a política publicada no GitHub Pages" },
+  "aboutPrivacyPolicySubtitle": "Abre no navegador",
+  "@aboutPrivacyPolicySubtitle": { "description": "Aviso abaixo do link da política de que ele sai do app" },
+  "aboutPrivacyPolicySemantics": "Política de privacidade. Abre no navegador",
+  "@aboutPrivacyPolicySemantics": { "description": "O leitor de tela lê o link da política como link que sai do app" },
+  "aboutPrivacyPolicyOpenFailed": "Não foi possível abrir a política de privacidade.",
+  "@aboutPrivacyPolicyOpenFailed": { "description": "Aviso quando nenhum app do aparelho abre a política" }
 }

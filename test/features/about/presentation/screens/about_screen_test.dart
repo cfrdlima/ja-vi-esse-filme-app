@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:ja_vi_esse_filme/core/l10n/app_locale.dart';
 import 'package:ja_vi_esse_filme/core/theme/app_sizes.dart';
 import 'package:ja_vi_esse_filme/features/about/presentation/screens/about_screen.dart';
+import 'package:ja_vi_esse_filme/features/about/presentation/widgets/privacy_section.dart';
 import 'package:ja_vi_esse_filme/l10n/app_localizations.dart';
 
 import '../../../../helpers/test_app.dart';
@@ -112,6 +113,17 @@ void main() {
       );
       semantics.dispose();
     });
+  });
+
+  testWidgets('deve mostrar a seção de privacidade depois do TMDB', (
+    tester,
+  ) async {
+    await pumpAbout(tester);
+
+    expect(
+      tester.getTopLeft(find.byType(PrivacySection)).dy,
+      greaterThan(tester.getTopLeft(find.text(l10n.aboutTmdbNotice)).dy),
+    );
   });
 
   group('acessibilidade', () {
