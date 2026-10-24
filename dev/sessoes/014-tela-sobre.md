@@ -19,7 +19,7 @@ A aba Perfil ganha uma entrada "Sobre" que empilha a tela em `/perfil/sobre`, co
 - [x] Tela "Sobre": "Licenças" abre o `showLicensePage` e lista as fontes — RED / GREEN
 - [x] Versão do app: decidir a fonte (`package_info_plus` é dependência nova; alternativa é `--dart-define`), perguntar antes e registrar com `/decisao` se entrar
 - [x] Strings novas em ARB (decisão 004)
-- [ ] Tríade: `flutter analyze` limpo, `flutter test` verde e emulador (abrir a política, voltar ao app, licenças, fonte grande)
+- [x] Tríade: `flutter analyze` limpo, `flutter test` verde e emulador (abrir a política, voltar ao app, licenças, fonte grande)
 - [ ] `/revisar`: `code-reviewer` e `security-auditor` (a sessão mexe na política de links externos e publica conteúdo)
 
 ## Decisões
@@ -76,3 +76,11 @@ A aba Perfil ganha uma entrada "Sobre" que empilha a tela em `/perfil/sobre`, co
   - a `LicensesSection` fecha a tela, com o `ListTile` "Licenças de código aberto" que abre o `showLicensePage` com o nome do app e a versão do build (sem versão quando ela vem vazia);
   - o teste confere a Inter e a Playfair Display na lista, e precisa de `runAsync`, porque a página lê o registro fora do quadro;
   - a página fica sem `applicationIcon`, porque o ícone do app só chega na Fase 4.
+- **Emulador (Medium Phone API 36, `flutter run` com o `APP_VERSION`):**
+  - o Perfil mostra a entrada "Sobre o app", e o toque empilha o Sobre com a barra das abas visível;
+  - o Sobre aparece conforme o `pages/sobre.md`: "Versão 0.1.0", o logo do TMDB com 120dp e menor que o nome do app, o aviso em PT-BR com o original em inglês abaixo, a privacidade e as licenças;
+  - "Política de privacidade" abre o Chrome em `cfrdlima.github.io/ja-vi-esse-filme-suporte/`, com a política 1.0 renderizada. O Chrome do emulador estava no primeiro uso e pediu conta e notificações, que dispensei. O voltar devolve o app no Sobre;
+  - "Licenças de código aberto" mostra "Já Vi Esse Filme 0.1.0", e a lista tem "Inter" e "Playfair Display", com 1 licença cada (achadas no `uiautomator`);
+  - com `font_scale` 2.0, o Sobre e o Perfil quebram linha sem overflow, e o logo mantém 120dp. A escala voltou a 1.0 no fim;
+  - o log do `flutter run` não tem exceção nem overflow.
+- **Tríade antes do `/revisar`:** `dart format` sem mudanças, `flutter analyze` sem issues, 730 testes passando e `gitleaks` sem vazamentos.
