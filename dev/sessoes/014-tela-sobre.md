@@ -20,7 +20,16 @@ A aba Perfil ganha uma entrada "Sobre" que empilha a tela em `/perfil/sobre`, co
 - [x] Versão do app: decidir a fonte (`package_info_plus` é dependência nova; alternativa é `--dart-define`), perguntar antes e registrar com `/decisao` se entrar
 - [x] Strings novas em ARB (decisão 004)
 - [x] Tríade: `flutter analyze` limpo, `flutter test` verde e emulador (abrir a política, voltar ao app, licenças, fonte grande)
-- [ ] `/revisar`: `code-reviewer` e `security-auditor` (a sessão mexe na política de links externos e publica conteúdo)
+- [x] `/revisar`: `code-reviewer` e `security-auditor` (a sessão mexe na política de links externos e publica conteúdo)
+- [x] A1: commit do repositório público refeito com o e-mail noreply, com force push e confirmação do usuário, e procedimento da decisão 006 atualizado
+- [ ] I1: teste de que o asset do logo do TMDB carrega, com o caminho numa constante única (S1: `AppAssets.tmdbLogo`) — RED / GREEN
+- [ ] I2: `appVersion` obrigatório no `MainApp` e teste da ligação `main → router → Sobre` — RED / GREEN
+- [ ] S2: política de link exige o caminho exato no Pages, com testes de `..%2F` e do YouTube sem caminho — RED / GREEN
+- [ ] S3: remover o teste da constante `AppConfig.appVersion`
+- [ ] S4: `pages/sobre.md` sem o ícone na página de licenças e com a versão por `--dart-define`
+- [ ] S5: tirar a `policyLinkKey` e achar o link no teste por `find.ancestor` — REFACTOR
+- [ ] S7: logo com altura pela proporção e `errorBuilder` com o texto "TMDB" — RED / GREEN
+- [ ] BACKLOG: S6, S8, S9, S10 e S11
 
 ## Decisões
 
@@ -84,3 +93,8 @@ A aba Perfil ganha uma entrada "Sobre" que empilha a tela em `/perfil/sobre`, co
   - com `font_scale` 2.0, o Sobre e o Perfil quebram linha sem overflow, e o logo mantém 120dp. A escala voltou a 1.0 no fim;
   - o log do `flutter run` não tem exceção nem overflow.
 - **Tríade antes do `/revisar`:** `dart format` sem mudanças, `flutter analyze` sem issues, 730 testes passando e `gitleaks` sem vazamentos.
+- **Revisão (`/revisar`):** nenhum achado bloqueante. Os importantes são A1 (auditoria), I1 e I2 (código). Com o usuário, ficou decidido tratar A1, I1, I2, S1, S2, S3, S4, S5 e S7, e mandar S6, S8, S9, S10 e S11 para o BACKLOG.
+- **A1, e-mail exposto:** o commit do repositório público saiu com o e-mail da config de git deste repositório (`claudinei@mertins.com`), porque eu não conferi o autor antes do push.
+  - Com o ok do usuário, refiz o commit com o noreply e dei `push --force-with-lease`. O commit agora é `319cd42` (autor e committer noreply), o Pages refez o build nele e responde 200, e o `gitleaks` não achou nada.
+  - O SHA antigo (`804d1b8`) ainda responde em `repos/.../commits/804d1b8`, porque o GitHub guarda commits órfãos até a coleta de lixo. Para apagar antes disso, só pelo suporte do GitHub, e cópias e caches que já existam não somem.
+  - A decisão 006 ganhou o passo do e-mail noreply.

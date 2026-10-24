@@ -23,6 +23,7 @@ Opção 2.
   - o texto é copiado como conteúdo de arquivo, sem git;
   - os comentários HTML internos (`<!-- ... -->` e marcadores "A REVISAR") saem da cópia;
   - `gitleaks detect` roda no repositório público antes de cada push;
+  - os commits do repositório público usam o e-mail noreply do GitHub (`82839130+cfrdlima@users.noreply.github.com`), e não o e-mail da config de git do repositório privado (revisão da sessão 014);
   - o repositório público não recebe workflows nem secrets do privado.
 
 ## Consequências
