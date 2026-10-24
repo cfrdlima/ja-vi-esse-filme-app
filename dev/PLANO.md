@@ -43,20 +43,25 @@ O Perfil leva ao Sobre (`/perfil/sobre`), com a atribuição ao TMDB (logo e avi
 
 ## Fase 2 — Conta própria (Firebase, decisão 010)
 - [x] Replanejar a conta: conta própria com login do Google no Firebase no lugar da sessão do TMDB (decisão 010) (sessão 015)
-- [ ] Setup do Firebase. O usuário cria o projeto (Firestore em `southamerica-east1`), o app Android, o SHA-1 de debug e liga o provedor Google. Depois vêm o `flutterfire configure` e a decisão sobre versionar o `firebase_options.dart` e o `google-services.json` (chave restrita e exceção no `gitleaks`, ou gerados no CI). O `Firebase.initializeApp` entra no `main.dart` sem quebrar os handlers de erro
+- [ ] Setup do Firebase. Antes do `flutterfire configure`, o `google-services.json` e o `firebase_options.dart` já estão no `.gitignore`. O usuário cria o projeto (Firestore em `southamerica-east1`, **em modo de produção**, nunca em "modo de teste"), o app Android, o SHA-1 de debug e liga o provedor Google. Depois vêm o `flutterfire configure` e a decisão sobre versionar o `firebase_options.dart` e o `google-services.json`. Se forem versionados, a chave é restrita antes do commit (pacote, SHA-1 e só as APIs usadas) e a exceção no `.gitleaksignore` vai por fingerprint. A outra opção é gerá-los no CI. O `Firebase.initializeApp` entra no `main.dart` sem quebrar os handlers de erro
+- [ ] Regras do Firestore (`firestore.rules`): só o dono lê e escreve `users/{uid}/…`, e o dono pode apagar todos os documentos dele. Validação de campos e tamanhos, e testes no Emulator Suite e no CI, que cobrem:
+  - nenhum `match /{document=**}` com `allow`;
+  - leitura de outro `uid` negada;
+  - `collectionGroup` negado.
+
+  Vem antes do login e de qualquer escrita.
 - [ ] Domínio da conta: entidade do usuário (`uid`, nome, e-mail, foto), contrato do repositório (usuário atual em stream, entrar, sair e excluir) e falhas tipadas (login cancelado, sem rede, conta desativada). O cancelamento não é erro
-- [ ] Login com o Google: `google_sign_in` nativo e credencial no `FirebaseAuth`, injetado no `main.dart`, com fakes nos testes
+- [ ] Login com o Google: `google_sign_in` nativo (só a identidade básica, sem escopos extras) e credencial no `FirebaseAuth`, injetado no `main.dart`, com fakes nos testes. Na mesma entrega:
+  - o `data_extraction_rules.xml` (+ `fullBackupContent`), excluindo pelo menos `sharedpref` (token do Auth) e `database` (cache do Firestore) do `cloud-backup` e do `device-transfer`;
+  - o redator de segredos com JWT (`eyJ…`), `ya29.…`, `idToken`, `accessToken`, `refreshToken` e e-mail.
 - [ ] Perfil logado e deslogado: botão "Entrar com Google" (diretrizes de marca do Google), nome e foto, e os 4 estados (consultar a `ui-ux-pro-max`)
 - [ ] Login opcional: uma ação que precisa de conta leva ao login e volta para onde estava
-- [ ] Logout: sai do Google e do Firebase e limpa o cache local do Firestore
-- [ ] Regras do Firestore (`firestore.rules`): só o dono lê e escreve `users/{uid}/…`, com validação de campos e tamanhos, testes no Emulator Suite e no CI
-- [ ] Modelo dos dados do filme: um documento por filme (`movie_id`, assistido, quero ver, favorito, datas) e se guarda cópia do título e do pôster (limite de 6 meses dos termos do TMDB)
+- [ ] Logout na ordem da decisão 010: cancelar os streams; `terminate()`; `clearPersistence()`; `signOut()` do Firebase e do Google; recriar a instância. Teste: a falha ao limpar o cache não deixa a sessão aberta
+- [ ] Modelo dos dados do filme: um documento por filme (`movie_id`, assistido, quero ver, favorito, datas) e se guarda cópia do título e do `poster_path` (nunca a imagem), com `cached_at` e renovação para o limite de 6 meses dos termos do TMDB
 - [ ] Marcar como **assistido**, **quero assistir** e **favorito** nos detalhes, com atualização otimista e erro com "tentar de novo"
 - [ ] Estante: abas Assistidos, Quero assistir e Favoritos, com paginação e os 4 estados
-- [ ] Excluir a conta pelo app (com login recente) e por uma página na web, apagando os documentos e a conta no Auth (exigência do Google Play)
-- [ ] `data_extraction_rules.xml` (+ `fullBackupContent`) para o cache do Firestore e o token do Auth não irem para o backup nem para outro aparelho
-- [ ] Redator de segredos com os campos do Firebase (token de ID, token de refresh) e sem e-mail em log
-- [ ] Política de privacidade 2.0: conta Google, Firestore e região, Google como operador, transferência internacional do Auth, base legal, prazo e exclusão. Publicada no Pages (decisão 006) antes de uma versão com login chegar ao usuário
+- [ ] Excluir a conta pelo app, na ordem da decisão 010: login recente; documentos (listando as subcoleções); `user.delete()`; `disconnect()`. Excluir também pela web, com o mecanismo decidido na sessão: página com o Firebase JS ou pedido por formulário ou e-mail, já que o Spark não tem Cloud Functions. É exigência do Google Play
+- [ ] Política de privacidade 2.0: conta Google, Firestore e região, Google como operador, transferência internacional do Auth, base legal, prazo e exclusão. Não dizer que o token é "cifrado", porque ele fica em SharedPreferences, protegido só pelo sandbox. Publicada no Pages (decisão 006) antes de uma versão com login chegar ao usuário
 
 ## Fase 3 — "Já vi esse filme"
 - [ ] Nota pessoal e data em que assistiu, no documento do filme
@@ -67,6 +72,6 @@ O Perfil leva ao Sobre (`/perfil/sobre`), com a atribuição ao TMDB (logo e avi
 - [ ] Ícone, splash, nome do app
 - [ ] Crash reporting (Crashlytics ou Sentry — exige decisão de dependência); ao entrar, tirar o `debugPrint` do reporter do release (`kDebugMode`) e atualizar a política
 - [ ] Política de privacidade: nenhum marcador `A REVISAR`, vigência com data explícita, cópia publicada igual ao `docs/PRIVACIDADE.md` e permissões do manifest mesclado iguais às da política, e os números do cache de imagens (30 dias, cerca de 200) conferidos no `flutter_cache_manager` da versão em uso
-- [ ] App Check do Firebase (decisão 010)
+- [ ] App Check do Firebase com enforcement no Firestore e no Auth antes da primeira versão na loja, e o provedor de debug no desenvolvimento (decisão 010)
 - [ ] Rever a decisão 001 (proxy) antes da loja (se entrar, atualizar a política): host do proxy em `AppConfig.allowedHosts`, e atenção ao `replace(queryParameters:)`, que descarta a query da base URL
 - [ ] Build release ofuscado e assinado: pôr `--obfuscate --split-debug-info=build/symbols` no comando do `CLAUDE.md` e trocar a assinatura de debug
