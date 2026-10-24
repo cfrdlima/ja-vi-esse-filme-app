@@ -11,8 +11,6 @@ import '../../../../l10n/app_localizations.dart';
 class PrivacySection extends StatelessWidget {
   const PrivacySection({super.key});
 
-  static const policyLinkKey = ValueKey('privacy-policy-link');
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -26,7 +24,6 @@ class PrivacySection extends StatelessWidget {
         Text(l10n.aboutPrivacySummary, style: theme.textTheme.bodyMedium),
         SizedBox(height: spacing.sm),
         ExternalLinkTile(
-          key: policyLinkKey,
           url: AppLinks.privacyPolicy,
           icon: Icons.privacy_tip_outlined,
           title: l10n.aboutPrivacyPolicyLink,

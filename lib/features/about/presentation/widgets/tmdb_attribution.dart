@@ -32,10 +32,7 @@ class TmdbAttribution extends StatelessWidget {
           label: l10n.aboutTmdbLogoSemantics,
           image: true,
           excludeSemantics: true,
-          child: Image.asset(
-            AppAssets.tmdbLogo,
-            width: AppSizes.tmdbLogoWidth,
-          ),
+          child: Image.asset(AppAssets.tmdbLogo, width: AppSizes.tmdbLogoWidth),
         ),
         SizedBox(height: spacing.md),
         Text(l10n.aboutTmdbNotice, style: theme.textTheme.bodyMedium),

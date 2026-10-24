@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:ja_vi_esse_filme/core/l10n/app_locale.dart';
 import 'package:ja_vi_esse_filme/core/links/app_links.dart';
 import 'package:ja_vi_esse_filme/core/links/external_link_opener.dart';
+import 'package:ja_vi_esse_filme/core/widgets/external_link_tile.dart';
 import 'package:ja_vi_esse_filme/features/about/presentation/widgets/privacy_section.dart';
 import 'package:ja_vi_esse_filme/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
@@ -28,7 +29,10 @@ void main() {
     ),
   );
 
-  Finder policyLink() => find.byKey(PrivacySection.policyLinkKey);
+  Finder policyLink() => find.ancestor(
+    of: find.text(l10n.aboutPrivacyPolicyLink),
+    matching: find.byType(ExternalLinkTile),
+  );
 
   testWidgets('deve marcar o título da seção como cabeçalho', (tester) async {
     final semantics = tester.ensureSemantics();

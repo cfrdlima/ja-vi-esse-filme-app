@@ -27,7 +27,7 @@ A aba Perfil ganha uma entrada "Sobre" que empilha a tela em `/perfil/sobre`, co
 - [x] S2: política de link exige o caminho exato no Pages, com testes de `..%2F` e do YouTube sem caminho — RED / GREEN
 - [x] S3: remover o teste da constante `AppConfig.appVersion`
 - [ ] S4: `pages/sobre.md` sem o ícone na página de licenças e com a versão por `--dart-define`
-- [ ] S5: tirar a `policyLinkKey` e achar o link no teste por `find.ancestor` — REFACTOR
+- [x] S5: tirar a `policyLinkKey` e achar o link no teste por `find.ancestor` — REFACTOR
 - [ ] S7: logo com altura pela proporção e `errorBuilder` com o texto "TMDB" — RED / GREEN
 - [ ] BACKLOG: S6, S8, S9, S10 e S11
 
