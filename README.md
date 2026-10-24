@@ -21,8 +21,11 @@ Flutter 3.44 (Material 3, tema escuro), `http`, `go_router`, `provider`, `cached
 
 ```bash
 flutter pub get
-flutter run --dart-define-from-file=env/dev.json
+flutter run --dart-define-from-file=env/dev.json \
+  --dart-define=APP_VERSION=$(sed -n 's/^version: *\([^+]*\).*/\1/p' pubspec.yaml)
 ```
+
+O `APP_VERSION` leva a versão do `pubspec.yaml` para a tela "Sobre". Sem ele, o app roda e a tela só não mostra a versão.
 
 ## Desenvolvimento
 

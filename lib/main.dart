@@ -24,6 +24,7 @@ void main() {
     MainApp(
       movieRepository: _composeMovieRepository(),
       linkOpener: UrlLauncherLinkOpener(),
+      appVersion: AppConfig.appVersion,
     ),
   );
 }
@@ -42,11 +43,13 @@ class MainApp extends StatefulWidget {
   const MainApp({
     required this.movieRepository,
     required this.linkOpener,
+    this.appVersion = '',
     super.key,
   });
 
   final MovieRepository movieRepository;
   final ExternalLinkOpener linkOpener;
+  final String appVersion;
 
   @override
   State<MainApp> createState() => _MainAppState();
@@ -57,6 +60,7 @@ class _MainAppState extends State<MainApp> {
   // navegação.
   late final GoRouter _router = createAppRouter(
     movieRepository: widget.movieRepository,
+    appVersion: widget.appVersion,
   );
 
   @override

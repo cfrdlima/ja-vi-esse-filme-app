@@ -68,4 +68,9 @@ void main() {
   test('deve falhar ao ler o ambiente quando os defines não existem', () {
     expect(AppConfig.fromEnvironment, throwsA(isA<ConfigException>()));
   });
+
+  // Também depende de rodar sem `--dart-define=APP_VERSION`.
+  test('deve ler a versão vazia quando o build não a informa', () {
+    expect(AppConfig.appVersion, isEmpty);
+  });
 }

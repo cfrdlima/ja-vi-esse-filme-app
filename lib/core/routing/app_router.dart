@@ -22,43 +22,45 @@ import 'not_found_screen.dart';
 
 /// As dependências chegam já montadas pelo `main.dart` (ou por fakes nos
 /// testes).
-GoRouter createAppRouter({required MovieRepository movieRepository}) =>
-    GoRouter(
-      initialLocation: AppRoutes.discover,
-      errorBuilder: (context, _) =>
-          NotFoundScreen(onGoHome: () => context.go(AppRoutes.discover)),
-      routes: [
-        appShellRoute([
-          firstTabBranch(
-            path: AppRoutes.discover,
-            // O shell mantém a aba viva, então a lista e a rolagem sobrevivem à
-            // troca de aba.
-            root: ChangeNotifierProvider(
-              create: (_) => DiscoverNotifier(repository: movieRepository),
-              child: const DiscoverScreen(),
-            ),
-            routes: [_movieDetailsRoute(movieRepository)],
-          ),
-          tabBranch(
-            path: AppRoutes.search,
-            root: ChangeNotifierProvider(
-              create: (_) => SearchNotifier(repository: movieRepository),
-              child: const SearchScreen(),
-            ),
-            routes: [_movieDetailsRoute(movieRepository)],
-          ),
-          tabBranch(
-            path: AppRoutes.shelf,
-            root: _placeholder((l10n) => l10n.shelfTitle),
-          ),
-          tabBranch(
-            path: AppRoutes.profile,
-            root: const ProfileScreen(),
-            routes: [_aboutRoute],
-          ),
-        ]),
-      ],
-    );
+GoRouter createAppRouter({
+  required MovieRepository movieRepository,
+  required String appVersion,
+}) => GoRouter(
+  initialLocation: AppRoutes.discover,
+  errorBuilder: (context, _) =>
+      NotFoundScreen(onGoHome: () => context.go(AppRoutes.discover)),
+  routes: [
+    appShellRoute([
+      firstTabBranch(
+        path: AppRoutes.discover,
+        // O shell mantém a aba viva, então a lista e a rolagem sobrevivem à
+        // troca de aba.
+        root: ChangeNotifierProvider(
+          create: (_) => DiscoverNotifier(repository: movieRepository),
+          child: const DiscoverScreen(),
+        ),
+        routes: [_movieDetailsRoute(movieRepository)],
+      ),
+      tabBranch(
+        path: AppRoutes.search,
+        root: ChangeNotifierProvider(
+          create: (_) => SearchNotifier(repository: movieRepository),
+          child: const SearchScreen(),
+        ),
+        routes: [_movieDetailsRoute(movieRepository)],
+      ),
+      tabBranch(
+        path: AppRoutes.shelf,
+        root: _placeholder((l10n) => l10n.shelfTitle),
+      ),
+      tabBranch(
+        path: AppRoutes.profile,
+        root: const ProfileScreen(),
+        routes: [_aboutRoute(appVersion)],
+      ),
+    ]),
+  ],
+);
 
 /// Sub-rota de uma aba: empilha os detalhes sobre a grade, que fica viva por
 /// baixo com a rolagem.
@@ -99,10 +101,12 @@ GoRoute _movieDetailsRoute(MovieRepository movieRepository) => GoRoute(
 
 /// Sub-rota do Perfil. A página é explícita pelo mesmo motivo da rota de
 /// detalhes: sem ela, o go_router 18.1.0 empilha sem transição.
-final _aboutRoute = GoRoute(
+GoRoute _aboutRoute(String appVersion) => GoRoute(
   path: 'sobre',
-  pageBuilder: (_, state) =>
-      MaterialPage(key: state.pageKey, child: const AboutScreen()),
+  pageBuilder: (_, state) => MaterialPage(
+    key: state.pageKey,
+    child: AboutScreen(appVersion: appVersion),
+  ),
 );
 
 /// O id vem da URL e pode ser qualquer texto. Só dígitos em base 10 viram

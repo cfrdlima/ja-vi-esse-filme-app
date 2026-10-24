@@ -14,10 +14,10 @@ A aba Perfil ganha uma entrada "Sobre" que empilha a tela em `/perfil/sobre`, co
 - [x] URL da política como constante num lugar só, aprovada pela política de link — RED / GREEN
 - [x] Licenças das fontes (Inter e Playfair Display, OFL) no `LicenseRegistry`, registradas no `main.dart` a partir dos `.txt` dos assets — RED / GREEN
 - [x] Rota `/perfil/sobre` empilhada (`MaterialPage` explícita, como os detalhes) e entrada "Sobre" no Perfil, alvo ≥ 48dp — RED / GREEN
-- [ ] Tela "Sobre": nome e versão do app, logo do TMDB com `Semantics`, aviso de não endosso — RED / GREEN
+- [x] Tela "Sobre": nome e versão do app, logo do TMDB com `Semantics`, aviso de não endosso — RED / GREEN
 - [ ] Tela "Sobre": resumo da política e link que chama o abridor com a URL do Pages; falha ao abrir mostra aviso, sem exceção — RED / GREEN
 - [ ] Tela "Sobre": "Licenças" abre o `showLicensePage` e lista as fontes — RED / GREEN
-- [ ] Versão do app: decidir a fonte (`package_info_plus` é dependência nova; alternativa é `--dart-define`), perguntar antes e registrar com `/decisao` se entrar
+- [x] Versão do app: decidir a fonte (`package_info_plus` é dependência nova; alternativa é `--dart-define`), perguntar antes e registrar com `/decisao` se entrar
 - [ ] Strings novas em ARB (decisão 004)
 - [ ] Tríade: `flutter analyze` limpo, `flutter test` verde e emulador (abrir a política, voltar ao app, licenças, fonte grande)
 - [ ] `/revisar`: `code-reviewer` e `security-auditor` (a sessão mexe na política de links externos e publica conteúdo)
@@ -60,3 +60,10 @@ A aba Perfil ganha uma entrada "Sobre" que empilha a tela em `/perfil/sobre`, co
   - a `AboutScreen` (`features/about/`) entrou só com a `AppBar` "Sobre", e o conteúdo vem nos próximos itens;
   - `/perfil/sobre` usa `MaterialPage` explícita, como os detalhes. Trocar por `builder` reprova o teste de animação;
   - o `ListTile` expõe `hasSelectedState` na semântica, e o teste aceita isso.
+- **Versão do app:** decidida com o usuário, por `--dart-define=APP_VERSION`, sem dependência nova. O Flutter não passa a versão do `pubspec.yaml` como define sozinho (conferido no `flutter_tools`). O comando de run e build do `CLAUDE.md` e do README tira a versão do próprio `pubspec.yaml` com `sed`. Assim não há uma segunda cópia do número, e o `env/*.json` fica como está. O `AppConfig.appVersion` é o único leitor. Sem o define (testes, ou um `flutter run` sem ele), a linha da versão some.
+- **Cabeçalho do Sobre:**
+  - nome do app em `headlineSmall` e versão em `bodyMedium`;
+  - seção "Dados e imagens" com o logo (120dp, `Semantics` de imagem "Logo do TMDB");
+  - aviso em PT-BR (ARB) e o original dos termos fora do ARB (`TmdbAttribution.noticeOriginal`), com `LocaleStringAttribute` `en` para o leitor de tela.
+- **Logo:** PNGs de 120×16, 240×32 e 360×47 em `assets/images/` (1x, 2.0x e 3.0x), 8 bits, sem metadados. O arredondamento para pixel inteiro muda a proporção em até 2,5% no 1x (7,5:1 contra 7,7:1 do SVG). A tela desenha com largura 120 e altura pela proporção do arquivo da densidade.
+- **Refactor:** o `_SectionTitle` dos detalhes virou `SectionTitle` em `core/widgets/`, usado também pelo Sobre.

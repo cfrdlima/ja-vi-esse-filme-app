@@ -24,9 +24,11 @@ Future<GoRouter> pumpAppRouter(
   WidgetTester tester, {
   TextScaler textScaler = TextScaler.noScaling,
   List<Movie> movies = const [],
+  String appVersion = '',
 }) async {
   final router = createAppRouter(
     movieRepository: StubMovieRepository(movies: movies),
+    appVersion: appVersion,
   );
   addTearDown(router.dispose);
   await tester.pumpWidget(
@@ -348,6 +350,15 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byType(AboutScreen), findsOneWidget);
+    });
+
+    testWidgets('deve mostrar no Sobre a versão do build', (tester) async {
+      final router = await pumpAppRouter(tester, appVersion: '9.9.9');
+
+      router.go(AppRoutes.about);
+      await tester.pumpAndSettle();
+
+      expect(find.text(l10n.aboutVersion('9.9.9')), findsOneWidget);
     });
 
     testWidgets('deve voltar ao Perfil ao voltar do Sobre', (tester) async {

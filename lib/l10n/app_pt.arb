@@ -148,5 +148,18 @@
   "profileAboutEntry": "Sobre o app",
   "@profileAboutEntry": { "description": "Entrada do Perfil que abre a tela Sobre" },
   "aboutTitle": "Sobre",
-  "@aboutTitle": { "description": "Título da tela Sobre" }
+  "@aboutTitle": { "description": "Título da tela Sobre" },
+  "appName": "Já Vi Esse Filme",
+  "@appName": { "description": "Nome do app, a marca mais destacada da tela Sobre" },
+  "aboutVersion": "Versão {version}",
+  "@aboutVersion": {
+    "description": "Versão do app na tela Sobre",
+    "placeholders": { "version": { "type": "String" } }
+  },
+  "aboutTmdbTitle": "Dados e imagens",
+  "@aboutTmdbTitle": { "description": "Título da seção de atribuição ao TMDB" },
+  "aboutTmdbLogoSemantics": "Logo do TMDB",
+  "@aboutTmdbLogoSemantics": { "description": "Texto alternativo do logo do TMDB" },
+  "aboutTmdbNotice": "Este app usa o TMDB e as APIs do TMDB, mas não é endossado, certificado nem aprovado de outra forma pelo TMDB.",
+  "@aboutTmdbNotice": { "description": "Tradução do aviso de não endosso exigido pelos termos do TMDB; o original em inglês fica fora do ARB" }
 }

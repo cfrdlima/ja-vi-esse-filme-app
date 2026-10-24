@@ -393,6 +393,36 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Sobre'**
   String get aboutTitle;
+
+  /// Nome do app, a marca mais destacada da tela Sobre
+  ///
+  /// In pt, this message translates to:
+  /// **'Já Vi Esse Filme'**
+  String get appName;
+
+  /// Versão do app na tela Sobre
+  ///
+  /// In pt, this message translates to:
+  /// **'Versão {version}'**
+  String aboutVersion(String version);
+
+  /// Título da seção de atribuição ao TMDB
+  ///
+  /// In pt, this message translates to:
+  /// **'Dados e imagens'**
+  String get aboutTmdbTitle;
+
+  /// Texto alternativo do logo do TMDB
+  ///
+  /// In pt, this message translates to:
+  /// **'Logo do TMDB'**
+  String get aboutTmdbLogoSemantics;
+
+  /// Tradução do aviso de não endosso exigido pelos termos do TMDB; o original em inglês fica fora do ARB
+  ///
+  /// In pt, this message translates to:
+  /// **'Este app usa o TMDB e as APIs do TMDB, mas não é endossado, certificado nem aprovado de outra forma pelo TMDB.'**
+  String get aboutTmdbNotice;
 }
 
 class _AppLocalizationsDelegate

@@ -28,8 +28,10 @@ flutter:
   generate: true
   uses-material-design: true
 
-  # Licenças das fontes, lidas pela página de licenças (LicenseRegistry).
   assets:
+    # Logo oficial do TMDB, rasterizado do SVG em 1x, 2x e 3x (sessão 014).
+    - assets/images/tmdb_logo.png
+    # Licenças das fontes, lidas pela página de licenças (LicenseRegistry).
     - assets/fonts/Inter-OFL.txt
     - assets/fonts/PlayfairDisplay-OFL.txt
 

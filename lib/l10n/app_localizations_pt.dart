@@ -211,4 +211,22 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get aboutTitle => 'Sobre';
+
+  @override
+  String get appName => 'Já Vi Esse Filme';
+
+  @override
+  String aboutVersion(String version) {
+    return 'Versão $version';
+  }
+
+  @override
+  String get aboutTmdbTitle => 'Dados e imagens';
+
+  @override
+  String get aboutTmdbLogoSemantics => 'Logo do TMDB';
+
+  @override
+  String get aboutTmdbNotice =>
+      'Este app usa o TMDB e as APIs do TMDB, mas não é endossado, certificado nem aprovado de outra forma pelo TMDB.';
 }
