@@ -4,25 +4,27 @@
 /// recebe o token Bearer, e um host de link externo nela mandaria o token
 /// para fora do TMDB (decisões 001 e 006).
 final class ExternalLinkPolicy {
-  const ExternalLinkPolicy._(this._pathPrefixByHost);
+  const ExternalLinkPolicy._(this._pathsByHost);
 
-  /// No `cfrdlima.github.io`, cada repositório da conta é um site; o prefixo
-  /// limita o link ao repositório de suporte (decisão 006).
+  /// Só os caminhos que o app monta: o trailer (`/watch`) e a política
+  /// publicada. Um prefixo deixaria passar `/redirect?q=` no YouTube e
+  /// `..%2F` no Pages, onde cada repositório da conta é um site no mesmo
+  /// host (revisão da sessão 014).
   static const app = ExternalLinkPolicy._({
-    'www.youtube.com': '/',
-    'cfrdlima.github.io': '/ja-vi-esse-filme-suporte/',
+    'www.youtube.com': {'/watch'},
+    'cfrdlima.github.io': {'/ja-vi-esse-filme-suporte/'},
   });
 
-  final Map<String, String> _pathPrefixByHost;
+  final Map<String, Set<String>> _pathsByHost;
 
   /// Host comparado por igualdade, sem `endsWith`: `evil.www.youtube.com`
   /// não passa. O [Uri] já põe o host em minúsculas e resolve `..` no
-  /// caminho, então o prefixo não é contornado por `/suporte/../outro/`.
+  /// caminho antes da comparação.
   bool allows(Uri url) {
-    final pathPrefix = _pathPrefixByHost[url.host];
+    final paths = _pathsByHost[url.host];
     return url.scheme == 'https' &&
-        pathPrefix != null &&
-        url.path.startsWith(pathPrefix) &&
+        paths != null &&
+        paths.contains(url.path) &&
         url.userInfo.isEmpty &&
         !url.hasPort;
   }

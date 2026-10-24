@@ -60,6 +60,19 @@ void main() {
       'https://cfrdlima.github.io/ja-vi-esse-filme-suporte/%2E%2E/outro/',
     ),
     (
+      'com barra codificada dentro do repositório no Pages',
+      'https://cfrdlima.github.io/ja-vi-esse-filme-suporte/..%2Foutro/',
+    ),
+    (
+      'de outra página do repositório no Pages',
+      'https://cfrdlima.github.io/ja-vi-esse-filme-suporte/outra.html',
+    ),
+    ('da raiz do YouTube', 'https://www.youtube.com'),
+    (
+      'de redirecionamento do YouTube',
+      'https://www.youtube.com/redirect?q=https://evil.com',
+    ),
+    (
       'de outra conta no Pages',
       'https://evil.github.io/ja-vi-esse-filme-suporte/',
     ),
