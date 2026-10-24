@@ -30,6 +30,6 @@ A aba Perfil ganha uma entrada "Sobre" que empilha a tela em `/perfil/sobre`, co
 - **Atribuição do TMDB (investigação):**
   - os termos de uso (§3) pedem o logo do TMDB, menos destacado que a marca do app, e deixam claro que o logo não implica endosso;
   - o aviso obrigatório é "This [application] uses TMDB and the TMDB APIs but is not endorsed, certified, or otherwise approved by TMDB." O FAQ traz uma versão curta ("This product uses the TMDB API but is not endorsed or certified by TMDB") e diz que a atribuição fica numa seção "About" ou "Credits";
-  - os termos não falam de tradução do aviso;
+  - os termos não falam de tradução do aviso. Decidido com o usuário: a tela mostra a tradução em PT-BR como texto principal e, logo abaixo, o texto exato dos termos em inglês, que não vai para tradução no ARB;
   - o logo não pode mudar de cor nem de proporção, nem ser espelhado ou girado. A página de logos só oferece SVG (primary full, short e long, e duas alternativas);
   - sem `flutter_svg`, o logo "alt short" (273,42 × 35,52) vira PNG com o `librsvg` (via ImageMagick), em 1x, 2x e 3x, com fundo transparente e a mesma proporção. Os SVGs baixados não têm script nem referência externa.
