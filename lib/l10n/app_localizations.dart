@@ -381,6 +381,96 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Não foi possível abrir o trailer.'**
   String get trailerOpenFailed;
+
+  /// Entrada do Perfil que abre a tela Sobre
+  ///
+  /// In pt, this message translates to:
+  /// **'Sobre o app'**
+  String get profileAboutEntry;
+
+  /// Título da tela Sobre
+  ///
+  /// In pt, this message translates to:
+  /// **'Sobre'**
+  String get aboutTitle;
+
+  /// Nome do app, a marca mais destacada da tela Sobre
+  ///
+  /// In pt, this message translates to:
+  /// **'Já Vi Esse Filme'**
+  String get appName;
+
+  /// Versão do app na tela Sobre
+  ///
+  /// In pt, this message translates to:
+  /// **'Versão {version}'**
+  String aboutVersion(String version);
+
+  /// Título da seção de atribuição ao TMDB
+  ///
+  /// In pt, this message translates to:
+  /// **'Dados e imagens'**
+  String get aboutTmdbTitle;
+
+  /// Texto alternativo do logo do TMDB
+  ///
+  /// In pt, this message translates to:
+  /// **'Logo do TMDB'**
+  String get aboutTmdbLogoSemantics;
+
+  /// Tradução do aviso de não endosso exigido pelos termos do TMDB; o original em inglês fica fora do ARB
+  ///
+  /// In pt, this message translates to:
+  /// **'Este app usa o TMDB e as APIs do TMDB, mas não é endossado, certificado nem aprovado de outra forma pelo TMDB.'**
+  String get aboutTmdbNotice;
+
+  /// Título da seção de privacidade da tela Sobre
+  ///
+  /// In pt, this message translates to:
+  /// **'Privacidade'**
+  String get aboutPrivacyTitle;
+
+  /// Resumo da política de privacidade; acompanha a versão publicada (decisão 006)
+  ///
+  /// In pt, this message translates to:
+  /// **'O app não tem login nem servidor próprio. As buscas vão direto ao TMDB, e o app guarda no aparelho só um cache temporário dos pôsteres. Não há anúncios nem analytics.'**
+  String get aboutPrivacySummary;
+
+  /// Link que abre a política publicada no GitHub Pages
+  ///
+  /// In pt, this message translates to:
+  /// **'Política de privacidade'**
+  String get aboutPrivacyPolicyLink;
+
+  /// Aviso abaixo do link da política de que ele sai do app
+  ///
+  /// In pt, this message translates to:
+  /// **'Abre no navegador'**
+  String get aboutPrivacyPolicySubtitle;
+
+  /// O leitor de tela lê o link da política como link que sai do app
+  ///
+  /// In pt, this message translates to:
+  /// **'Política de privacidade. Abre no navegador'**
+  String get aboutPrivacyPolicySemantics;
+
+  /// Aviso quando nenhum app do aparelho abre a política
+  ///
+  /// In pt, this message translates to:
+  /// **'Não foi possível abrir a política de privacidade.'**
+  String get aboutPrivacyPolicyOpenFailed;
+
+  /// Título da seção de licenças da tela Sobre
+  ///
+  /// In pt, this message translates to:
+  /// **'Licenças'**
+  String get aboutLicensesTitle;
+
+  /// Entrada que abre a página de licenças do Flutter
+  ///
+  /// In pt, this message translates to:
+  /// **'Licenças de código aberto'**
+  String get aboutLicensesEntry;
 }
 
 class _AppLocalizationsDelegate

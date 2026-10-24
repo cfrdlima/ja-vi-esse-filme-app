@@ -9,10 +9,12 @@ import 'helpers/fake_link_opener.dart';
 import 'helpers/stub_movie_repository.dart';
 
 void main() {
-  MainApp app({ExternalLinkOpener? linkOpener}) => MainApp(
-    movieRepository: StubMovieRepository(),
-    linkOpener: linkOpener ?? FakeLinkOpener(),
-  );
+  MainApp app({ExternalLinkOpener? linkOpener, String appVersion = ''}) =>
+      MainApp(
+        movieRepository: StubMovieRepository(),
+        linkOpener: linkOpener ?? FakeLinkOpener(),
+        appVersion: appVersion,
+      );
 
   testWidgets('o app deve usar o tema escuro do design system', (tester) async {
     await tester.pumpWidget(app());
@@ -62,5 +64,19 @@ void main() {
 
     final context = tester.element(find.byType(Scaffold).first);
     expect(context.read<ExternalLinkOpener>(), same(opener));
+  });
+
+  testWidgets('o Sobre deve mostrar a versão recebida pelo app', (
+    tester,
+  ) async {
+    await tester.pumpWidget(app(appVersion: '9.9.9'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Perfil'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Sobre o app'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Versão 9.9.9'), findsOneWidget);
   });
 }

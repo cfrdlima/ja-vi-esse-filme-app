@@ -30,6 +30,11 @@ class AppConfig {
     return AppConfig.parse(tmdbReadToken: token, tmdbBaseUrl: baseUrl);
   }
 
+  /// Versão do app para a tela Sobre, passada no build com
+  /// `--dart-define=APP_VERSION=...` a partir do `pubspec.yaml`. Vazia quando
+  /// o build não a informa, e aí a tela não mostra a versão.
+  static const appVersion = String.fromEnvironment('APP_VERSION');
+
   /// O token vai no header de toda requisição para este host. Um proxy
   /// (decisão 001) entra aqui quando existir.
   static const allowedHosts = {'api.themoviedb.org'};

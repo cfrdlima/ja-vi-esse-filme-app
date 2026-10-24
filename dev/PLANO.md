@@ -3,9 +3,9 @@
 > Fonte da verdade do que construir. Atualizado por `/fechar-sessao`.
 
 ## Última sessão
-**013 — Fase 1: Trailers** (fechada em 2026-10-23) · [log](sessoes/013-trailers.md)
-Os detalhes mostram até 5 trailers do YouTube, na ordem oficial, Brasil, Portugal e outros idiomas, e o toque abre o app do YouTube por uma URL montada e validada pelo app (`url_launcher`, decisão 009). O emulador revelou que o filtro `pt` não trazia os vídeos do Brasil, e por isso o pedido usa `pt-BR,pt,en`. São 676 testes.
-**Próximo passo:** a sessão 014, com a tela "Sobre", que reaproveita a `ExternalLinkPolicy` para o link da política (decisão 006). Antes dela, criar o repositório público de suporte e publicar a política.
+**014 — Fase 1: Tela "Sobre"** (fechada em 2026-10-24) · [log](sessoes/014-tela-sobre.md)
+O Perfil leva ao Sobre (`/perfil/sobre`), com a atribuição ao TMDB (logo e aviso em PT-BR e no original), a política de privacidade 1.0 publicada em `cfrdlima.github.io/ja-vi-esse-filme-suporte/` e as licenças das fontes. A versão vem do build (`--dart-define=APP_VERSION`), e a política de links passou a aceitar só os caminhos que o app monta. São 738 testes, e a Fase 1 está completa.
+**Próximo passo:** a Fase 2 começa pelo `TmdbClient` com POST/DELETE e o tratamento do 204 com corpo vazio, que é pré-requisito do login.
 
 ## Fase 0 — Fundação
 - [x] Criar projeto (`io.github.cfrdlima.ja_vi_esse_filme`), `analysis_options.yaml`, `.gitignore` com `env/*.json` (exceto `example.json`)
@@ -39,7 +39,7 @@ Os detalhes mostram até 5 trailers do YouTube, na ordem oficial, Brasil, Portug
 - [x] Detalhes do filme: sinopse, gêneros, duração, nota, elenco (sessão 011)
 - [x] Hero do pôster entre a grade e os detalhes, com tag única por navigator de aba (sessão 012)
 - [x] Trailers (abrir YouTube externo com host validado) (sessão 013)
-- [ ] Tela "Sobre" com atribuição ao TMDB, política de privacidade e licenças das fontes (`LicenseRegistry`). Antes dela, criar o repositório público de suporte e publicar a política seguindo o procedimento da decisão 006. O link vai só para o Pages e exige aprovar o `url_launcher`
+- [x] Tela "Sobre" com atribuição ao TMDB, política de privacidade e licenças das fontes (`LicenseRegistry`). Antes dela, criar o repositório público de suporte e publicar a política seguindo o procedimento da decisão 006. O link vai só para o Pages e exige aprovar o `url_launcher` (sessão 014)
 
 ## Fase 2 — Conta TMDB
 - [ ] `TmdbClient` com POST/DELETE e tratamento do 204 com corpo vazio (pré-requisito do login)

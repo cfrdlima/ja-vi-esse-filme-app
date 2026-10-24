@@ -205,4 +205,55 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get trailerOpenFailed => 'Não foi possível abrir o trailer.';
+
+  @override
+  String get profileAboutEntry => 'Sobre o app';
+
+  @override
+  String get aboutTitle => 'Sobre';
+
+  @override
+  String get appName => 'Já Vi Esse Filme';
+
+  @override
+  String aboutVersion(String version) {
+    return 'Versão $version';
+  }
+
+  @override
+  String get aboutTmdbTitle => 'Dados e imagens';
+
+  @override
+  String get aboutTmdbLogoSemantics => 'Logo do TMDB';
+
+  @override
+  String get aboutTmdbNotice =>
+      'Este app usa o TMDB e as APIs do TMDB, mas não é endossado, certificado nem aprovado de outra forma pelo TMDB.';
+
+  @override
+  String get aboutPrivacyTitle => 'Privacidade';
+
+  @override
+  String get aboutPrivacySummary =>
+      'O app não tem login nem servidor próprio. As buscas vão direto ao TMDB, e o app guarda no aparelho só um cache temporário dos pôsteres. Não há anúncios nem analytics.';
+
+  @override
+  String get aboutPrivacyPolicyLink => 'Política de privacidade';
+
+  @override
+  String get aboutPrivacyPolicySubtitle => 'Abre no navegador';
+
+  @override
+  String get aboutPrivacyPolicySemantics =>
+      'Política de privacidade. Abre no navegador';
+
+  @override
+  String get aboutPrivacyPolicyOpenFailed =>
+      'Não foi possível abrir a política de privacidade.';
+
+  @override
+  String get aboutLicensesTitle => 'Licenças';
+
+  @override
+  String get aboutLicensesEntry => 'Licenças de código aberto';
 }

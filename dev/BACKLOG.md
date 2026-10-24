@@ -45,9 +45,17 @@ Ideias que surgiram e não estão no plano imediato. Marque **[prioritário]** o
 - Se entrar `restorationScopeId` ou `extraCodec` no router, o `Movie` reidratado do `extra` precisa passar de novo pela validação do `posterPath` (`TmdbImageUrl.isValidPath`), além do guarda por id (auditoria da sessão 012)
 - Trailers só no idioma original (francês, coreano…) não aparecem, porque o pedido usa `include_video_language=pt-BR,pt,en` e o `null` não está documentado para vídeos. Avaliar incluir o `original_language` do filme (até 5 idiomas por pedido), o que pede o idioma antes do pedido ou um segundo pedido (revisão da sessão 013, S1)
 - Vão grande entre a fileira do elenco e o título "Trailers" nos detalhes, que parece vir da altura reservada no `CastMemberCard`; conferir no emulador e no widget test (sessão 013)
-- `ExternalLinkPolicy` aceita qualquer caminho no host permitido (`www.youtube.com/redirect?q=…`). Antes de passar por ela uma URL vinda de fora (o `homepage` do TMDB, por exemplo), restringir o caminho por host ou montar a URL a partir de um molde (auditoria da sessão 013, A1)
 - Checklist de release: o `androidx.core`, que vem com o `url_launcher`, declara a permissão interna `DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION` (`signature`). O usuário não a vê, mas a ficha do Play Console pode listá-la (auditoria da sessão 013, A3)
 - Revisão da sessão 013, S5, S6 e S7:
   - dois toques rápidos num trailer abrem o YouTube duas vezes; travar o tile enquanto o `open` está em andamento (com checagem de `mounted`);
   - `MovieDetails._byRelevance` usa soma de pesos e tem `'pt'`/`'BR'` fixos no domínio. Comparar critério a critério e receber o idioma e o país preferidos quando houver um segundo locale;
   - `TmdbJson.nonEmpty` não faz `trim`, então um nome de trailer só com espaços vira título em branco no lugar do tipo.
+- Testes de fonte 2x numa tela de celular (ex.: 360x640 lógicos, `tester.view.physicalSize`), e não na tela padrão de 800x600 dos widget tests, que é larga e quase não deixa dar overflow (revisão da sessão 014, S6)
+- Aspas em `--dart-define=APP_VERSION="$(sed …)"` nos comandos do `CLAUDE.md` e do README, por robustez (auditoria da sessão 014)
+- Checklist de release, Fase 4 (auditoria da sessão 014):
+  - o comando de build do `CLAUDE.md` ainda não tem `--obfuscate --split-debug-info`. É o mesmo item da Fase 4, mas quem copiar o comando hoje gera um APK sem ofuscação;
+  - decidir entre domínio próprio (com "verified domain" no GitHub) e `cfrdlima.github.io` antes do primeiro APK público, porque cada APK congela a URL da política. Apagar a conta ou o repositório de suporte também quebra o link (complemento à decisão 006);
+  - a página publicada usa o tema padrão do Jekyll, que carrega o `anchor.min.js` do `cdnjs.cloudflare.com` (com SRI). O CDN recebe o IP de quem abre a política, e a seção 5 só cita o GitHub Pages. Trocar por um `_layouts/default.html` sem o script, ou citar o CDN na política;
+  - revisão jurídica da base legal da política 1.0: a busca no art. 7º, V, e a transferência internacional no art. 33, IX, combinado com o art. 7º, V (sessão 014);
+  - o commit antigo do repositório de suporte (`804d1b8`, com o e-mail `claudinei@mertins.com`) ainda responde por SHA no GitHub. Para tirá-lo antes da coleta de lixo, só pelo suporte do GitHub.
+

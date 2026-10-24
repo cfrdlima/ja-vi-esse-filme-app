@@ -35,8 +35,10 @@ flutter test --plain-name "descricao"             # um teste pelo nome
 flutter test --coverage                           # cobertura em coverage/lcov.info
 flutter analyze                                   # lint, deve ficar sem issues
 dart format lib/ test/                            # formatação (o hook já roda após cada edição)
-flutter run --dart-define-from-file=env/dev.json  # roda com a config local
-flutter build apk --dart-define-from-file=env/prod.json
+flutter run --dart-define-from-file=env/dev.json \
+  --dart-define=APP_VERSION=$(sed -n 's/^version: *\([^+]*\).*/\1/p' pubspec.yaml)  # roda com a config local
+flutter build apk --dart-define-from-file=env/prod.json \
+  --dart-define=APP_VERSION=$(sed -n 's/^version: *\([^+]*\).*/\1/p' pubspec.yaml)
 dart pub outdated                                 # dependências desatualizadas
 gitleaks detect --no-banner                       # vazamento de segredo antes de commitar
 ```

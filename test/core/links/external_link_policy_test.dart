@@ -10,6 +10,14 @@ void main() {
     expect(policy.allows(url), isTrue);
   });
 
+  test('deve permitir a política de privacidade no GitHub Pages', () {
+    final url = Uri.parse(
+      'https://cfrdlima.github.io/ja-vi-esse-filme-suporte/',
+    );
+
+    expect(policy.allows(url), isTrue);
+  });
+
   test('deve comparar o host sem diferenciar maiúsculas', () {
     final url = Uri.parse('https://WWW.YouTube.com/watch?v=Way9Dexny3w');
 
@@ -36,6 +44,37 @@ void main() {
     (
       'com barra invertida antes da arroba',
       r'https://evil.com\@www.youtube.com/',
+    ),
+    ('de outro repositório no Pages', 'https://cfrdlima.github.io/outro/'),
+    ('da raiz do Pages', 'https://cfrdlima.github.io/'),
+    (
+      'de repositório que só começa igual no Pages',
+      'https://cfrdlima.github.io/ja-vi-esse-filme-suporte-evil/',
+    ),
+    (
+      'que sai do repositório com ponto-ponto',
+      'https://cfrdlima.github.io/ja-vi-esse-filme-suporte/../outro/',
+    ),
+    (
+      'que sai do repositório com ponto-ponto codificado',
+      'https://cfrdlima.github.io/ja-vi-esse-filme-suporte/%2E%2E/outro/',
+    ),
+    (
+      'com barra codificada dentro do repositório no Pages',
+      'https://cfrdlima.github.io/ja-vi-esse-filme-suporte/..%2Foutro/',
+    ),
+    (
+      'de outra página do repositório no Pages',
+      'https://cfrdlima.github.io/ja-vi-esse-filme-suporte/outra.html',
+    ),
+    ('da raiz do YouTube', 'https://www.youtube.com'),
+    (
+      'de redirecionamento do YouTube',
+      'https://www.youtube.com/redirect?q=https://evil.com',
+    ),
+    (
+      'de outra conta no Pages',
+      'https://evil.github.io/ja-vi-esse-filme-suporte/',
     ),
   ]) {
     test('deve recusar a URL $reason', () {

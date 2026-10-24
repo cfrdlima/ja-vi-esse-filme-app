@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'core/config/app_config.dart';
 import 'core/error/error_handlers.dart';
 import 'core/l10n/app_locale.dart';
+import 'core/licenses/font_licenses.dart';
 import 'core/links/external_link_opener.dart';
 import 'core/links/url_launcher_link_opener.dart';
 import 'core/network/tmdb_client.dart';
@@ -18,10 +19,12 @@ import 'features/movies/domain/repositories/movie_repository.dart';
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   registerErrorHandlers();
+  registerFontLicenses();
   runApp(
     MainApp(
       movieRepository: _composeMovieRepository(),
       linkOpener: UrlLauncherLinkOpener(),
+      appVersion: AppConfig.appVersion,
     ),
   );
 }
@@ -40,11 +43,13 @@ class MainApp extends StatefulWidget {
   const MainApp({
     required this.movieRepository,
     required this.linkOpener,
+    required this.appVersion,
     super.key,
   });
 
   final MovieRepository movieRepository;
   final ExternalLinkOpener linkOpener;
+  final String appVersion;
 
   @override
   State<MainApp> createState() => _MainAppState();
@@ -55,6 +60,7 @@ class _MainAppState extends State<MainApp> {
   // navegação.
   late final GoRouter _router = createAppRouter(
     movieRepository: widget.movieRepository,
+    appVersion: widget.appVersion,
   );
 
   @override
