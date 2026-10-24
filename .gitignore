@@ -49,6 +49,9 @@ env/*.json
 !env/example.json
 .env*
 android/key.properties
+# Firebase: fora do git até a sessão do setup decidir (decisão 010)
+android/app/google-services.json
+lib/firebase_options.dart
 *.jks
 *.keystore
 

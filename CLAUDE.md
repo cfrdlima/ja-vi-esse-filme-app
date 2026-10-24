@@ -57,6 +57,7 @@ gitleaks detect --no-banner                       # vazamento de segredo antes d
 - Idioma das requisições: `language=pt-BR`, com fallback para o texto original quando a sinopse vier vazia.
 - **Atribuição obrigatória ao TMDB** (logo e aviso de que o app não é endossado) na tela "Sobre". É requisito dos termos da API.
 - Nos testes, **nunca** acesse o TMDB real. Use `MockClient` (`package:http/testing.dart`) com fixtures JSON em `test/fixtures/`.
+- Nos testes, **nunca** acesse o projeto Firebase real. Use fakes dos contratos do domínio ou o Emulator Suite.
 
 ## Estrutura do código (Clean Architecture por feature)
 
@@ -104,10 +105,12 @@ Siga o _Clean Code_ sempre que possível, sem dogma. Se um princípio brigar com
 ## Segurança (não negociável)
 
 - Nunca leia, imprima ou commite `env/*.json` (exceto `example.json`), `android/key.properties`, `*.jks` ou `*.keystore`.
+- O `android/app/google-services.json` e o `lib/firebase_options.dart` ficam fora do git até a sessão do setup decidir se entram (decisão 010). Se entrarem, a chave já está restrita no Google Cloud antes do commit.
+- O Firestore nunca roda em "modo de teste". As regras negam tudo por padrão, e só o dono acessa `users/{uid}/…`.
 - Toda URL externa (trailer do YouTube, site do filme) abre via `url_launcher` em modo externo, com host validado.
 - Entrada do usuário (busca, nome de lista) é validada e escapada. O tamanho máximo é definido no domínio.
 - `android:usesCleartextTraffic="false"`; só HTTPS.
-- Logs de debug nunca contêm chave da API, URL com `api_key=`, token de ID ou de refresh do Firebase, nem o e-mail do usuário.
+- Logs de debug nunca contêm chave da API, URL com `api_key=`, tokens do Google ou do Firebase (ID, acesso ou refresh), o e-mail do usuário, nem o `uid` junto com dados pessoais.
 - Antes de fechar sessão que toque **auth, storage ou rede**, rode o subagente `security-auditor`.
 
 ## Fluxo de TDD (obrigatório para código novo)
