@@ -318,6 +318,7 @@ void main() {
 
     test('deve ignorar um segundo logout enquanto o primeiro não termina', () {
       repository.signOutGate = Completer<void>();
+      addTearDown(() => repository.signOutGate?.complete());
       unawaited(notifier.signOut());
 
       unawaited(notifier.signOut());
