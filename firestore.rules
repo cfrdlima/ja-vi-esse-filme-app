@@ -35,11 +35,42 @@ service cloud.firestore {
         && (!('favoriteAt' in movie) || movie.favoriteAt is timestamp);
     }
 
+    // As datas são do servidor (decisão 013): o cliente não escolhe quando
+    // marcou nem quando copiou do TMDB. Uma data só entra como request.time
+    // ou fica igual à salva. Na criação, resource é null.
+    function isServerTimeOrKept(field) {
+      let movie = request.resource.data;
+      return !(field in movie)
+        || movie[field] == request.time
+        || (resource != null
+          && field in resource.data
+          && movie[field] == resource.data[field]);
+    }
+
+    // Mudar a cópia do TMDB renova o cachedAt, que conta o prazo de 6 meses
+    // dos termos do TMDB (§1.C).
+    function isCopyRenewedOrKept() {
+      let movie = request.resource.data;
+      return movie.cachedAt == request.time
+        || (resource != null
+          && movie.cachedAt == resource.data.cachedAt
+          && movie.title == resource.data.title
+          && movie.get('posterPath', null) == resource.data.get('posterPath', null));
+    }
+
+    function hasServerTimes() {
+      return isServerTimeOrKept('watchedAt')
+        && isServerTimeOrKept('watchlistAt')
+        && isServerTimeOrKept('favoriteAt')
+        && isCopyRenewedOrKept();
+    }
+
     match /users/{uid}/movies/{movieId} {
       allow read, delete: if isOwner(uid);
       allow create, update: if isOwner(uid)
         && isTmdbId(movieId)
-        && isValidMovie(request.resource.data);
+        && isValidMovie(request.resource.data)
+        && hasServerTimes();
     }
   }
 }
