@@ -12,12 +12,30 @@ class CloudFirestoreShelfGateway implements ShelfGateway {
 
   // Pelo `doc(uid)`, e não por um caminho montado em texto: o `AppUser` já
   // recusa `uid` com barra (sessão 019).
+  CollectionReference<Map<String, dynamic>> _movies(String uid) =>
+      _firestore.collection('users').doc(uid).collection('movies');
+
   DocumentReference<Map<String, dynamic>> _movie(String uid, int movieId) =>
-      _firestore
-          .collection('users')
-          .doc(uid)
-          .collection('movies')
-          .doc('$movieId');
+      _movies(uid).doc('$movieId');
+
+  /// Só o `orderBy`, sem `where`: o Firestore deixa de fora o documento sem
+  /// o campo ordenado, e o `isNotEqualTo: null` da 7.1.0 é ignorado em
+  /// silêncio (sessão 023).
+  @override
+  Stream<List<ShelfDocument>> watchShelf(
+    String uid,
+    String orderField,
+    int limit,
+  ) => _movies(uid)
+      .orderBy(orderField, descending: true)
+      .limit(limit)
+      .snapshots()
+      .map(
+        (query) => [
+          for (final document in query.docs)
+            (id: document.id, fields: _fieldsOf(document)),
+        ],
+      );
 
   @override
   Stream<Map<String, Object?>> watchMovie(String uid, int movieId) =>

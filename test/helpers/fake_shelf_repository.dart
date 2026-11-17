@@ -4,6 +4,7 @@ import 'package:ja_vi_esse_filme/features/shelf/domain/entities/movie_copy.dart'
 import 'package:ja_vi_esse_filme/features/shelf/domain/entities/shelf_entry.dart';
 import 'package:ja_vi_esse_filme/features/shelf/domain/entities/shelf_mark.dart';
 import 'package:ja_vi_esse_filme/features/shelf/domain/entities/shelf_movie.dart';
+import 'package:ja_vi_esse_filme/features/shelf/domain/entities/shelf_page.dart';
 import 'package:ja_vi_esse_filme/features/shelf/domain/repositories/shelf_repository.dart';
 
 /// Uma escrita que o teste completa quando quiser, como o Firestore offline,
@@ -59,6 +60,30 @@ class FakeShelfRepository implements ShelfRepository {
     return controller.stream;
   }
 
+  final List<StreamController<ShelfPage>> _shelves = [];
+
+  /// A marca e o limite de cada `watchShelf`, em ordem.
+  final List<({ShelfMark mark, int limit})> shelfCalls = [];
+
+  /// Quantos streams do `watchShelf` ainda têm alguém ouvindo.
+  int get activeShelves => _shelves.where((s) => s.hasListener).length;
+
+  /// Alimenta o último `watchShelf`.
+  void emitShelf(ShelfPage page) => _shelves.last.add(page);
+
+  void emitShelfError(Object error) => _shelves.last.addError(error);
+
+  /// Encerra o último `watchShelf`, como o `closeStreams()` do logout.
+  void endShelf() => unawaited(_shelves.last.close());
+
+  @override
+  Stream<ShelfPage> watchShelf(ShelfMark mark, {required int limit}) {
+    shelfCalls.add((mark: mark, limit: limit));
+    final controller = StreamController<ShelfPage>();
+    _shelves.add(controller);
+    return controller.stream;
+  }
+
   @override
   Future<void> addMark(MovieCopy copy, ShelfMark mark) {
     final write = FakeShelfWrite._(mark, movie: null, copy: copy);
@@ -95,7 +120,7 @@ class FakeShelfRepository implements ShelfRepository {
 
   // Sem `await`: o `close()` de um stream sem ouvinte nunca completa.
   void close() {
-    for (final watch in _watches) {
+    for (final watch in [..._watches, ..._shelves]) {
       unawaited(watch.close());
     }
   }
