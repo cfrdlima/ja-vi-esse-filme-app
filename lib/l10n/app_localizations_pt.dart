@@ -223,6 +223,9 @@ class AppLocalizationsPt extends AppLocalizations {
   String get signInWithGoogle => 'Entrar com o Google';
 
   @override
+  String get signingInWithGoogle => 'Entrando com o Google';
+
+  @override
   String get aboutTitle => 'Sobre';
 
   @override

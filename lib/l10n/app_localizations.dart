@@ -412,6 +412,12 @@ abstract class AppLocalizations {
   /// **'Entrar com o Google'**
   String get signInWithGoogle;
 
+  /// Rótulo do leitor de tela para o botão de login enquanto o seletor de contas está aberto
+  ///
+  /// In pt, this message translates to:
+  /// **'Entrando com o Google'**
+  String get signingInWithGoogle;
+
   /// Título da tela Sobre
   ///
   /// In pt, this message translates to:

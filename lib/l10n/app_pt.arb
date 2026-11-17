@@ -155,6 +155,8 @@
   "@profileAccountLoading": { "description": "Anúncio do leitor de tela enquanto o Perfil espera o estado da conta" },
   "signInWithGoogle": "Entrar com o Google",
   "@signInWithGoogle": { "description": "Texto do botão de login, traduzido de \"Sign in with Google\" como as diretrizes de marca do Google permitem" },
+  "signingInWithGoogle": "Entrando com o Google",
+  "@signingInWithGoogle": { "description": "Rótulo do leitor de tela para o botão de login enquanto o seletor de contas está aberto" },
   "aboutTitle": "Sobre",
   "@aboutTitle": { "description": "Título da tela Sobre" },
   "appName": "Já Vi Esse Filme",

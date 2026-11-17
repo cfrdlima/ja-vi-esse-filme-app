@@ -9,7 +9,11 @@ import '../../../../l10n/app_localizations.dart';
 /// (override `perfil.md`). Os PNGs prontos do Google trazem o texto em inglês
 /// na imagem; por isso o botão é nosso, com o texto traduzido.
 class GoogleSignInButton extends StatelessWidget {
-  const GoogleSignInButton({required this.onPressed, super.key});
+  const GoogleSignInButton({required VoidCallback this.onPressed, super.key});
+
+  /// Enquanto o seletor de contas está aberto: desabilitado, com o indicador
+  /// no lugar do "G" e o mesmo texto, para o botão não mudar de largura.
+  const GoogleSignInButton.loading({super.key}) : onPressed = null;
 
   static const _logoAsset = 'assets/images/google_g_logo.png';
 
@@ -19,16 +23,28 @@ class GoogleSignInButton extends StatelessWidget {
   static const _logoGap = 10.0;
   static const _textTrailing = 12.0;
   static const _minHeight = 48.0;
+  static const _progressStroke = 2.0;
+  static const _disabledOpacity = 0.38;
 
-  final VoidCallback onPressed;
+  /// `null` só no [GoogleSignInButton.loading].
+  final VoidCallback? onPressed;
+
+  bool get _loading => onPressed == null;
 
   @override
   Widget build(BuildContext context) {
-    return OutlinedButton(
+    final l10n = AppLocalizations.of(context);
+    final button = OutlinedButton(
       onPressed: onPressed,
       style: OutlinedButton.styleFrom(
         backgroundColor: AppColors.googleButtonFill,
+        // Desabilitado, o fundo continua o da marca, e só o texto perde a
+        // opacidade, como o Material faz (override `perfil.md`).
+        disabledBackgroundColor: AppColors.googleButtonFill,
         foregroundColor: AppColors.googleButtonText,
+        disabledForegroundColor: AppColors.googleButtonText.withValues(
+          alpha: _disabledOpacity,
+        ),
         side: const BorderSide(color: AppColors.googleButtonStroke),
         shape: const StadiumBorder(),
         minimumSize: const Size(0, _minHeight),
@@ -41,17 +57,26 @@ class GoogleSignInButton extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Image(
-            image: AssetImage(_logoAsset),
-            width: _logoSize,
-            height: _logoSize,
-            fit: BoxFit.contain,
-            excludeFromSemantics: true,
-          ),
+          if (_loading)
+            const SizedBox.square(
+              dimension: _logoSize,
+              child: CircularProgressIndicator(
+                strokeWidth: _progressStroke,
+                color: AppColors.googleButtonText,
+              ),
+            )
+          else
+            const Image(
+              image: AssetImage(_logoAsset),
+              width: _logoSize,
+              height: _logoSize,
+              fit: BoxFit.contain,
+              excludeFromSemantics: true,
+            ),
           const SizedBox(width: _logoGap),
           Flexible(
             child: Text(
-              AppLocalizations.of(context).signInWithGoogle,
+              l10n.signInWithGoogle,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
               textAlign: TextAlign.center,
@@ -59,6 +84,14 @@ class GoogleSignInButton extends StatelessWidget {
           ),
         ],
       ),
+    );
+    if (!_loading) return button;
+    return Semantics(
+      label: l10n.signingInWithGoogle,
+      excludeSemantics: true,
+      button: true,
+      enabled: false,
+      child: button,
     );
   }
 }
