@@ -131,6 +131,15 @@ void main() {
       );
     });
 
+    test('deve dizer que a falha foi no login', () async {
+      final signingIn = notifier.signIn();
+
+      repository.failSignIn(const NetworkFailure());
+      await signingIn;
+
+      expect(notifier.state, isA<SessionSignInFailed>());
+    });
+
     test(
       'deve tratar exceção fora das falhas tipadas como inesperada',
       () async {
@@ -265,6 +274,14 @@ void main() {
       await pumpEventQueue();
 
       expect(notifier.state, isA<SessionFailed>());
+    });
+
+    test('deve dizer que a falha foi no logout', () async {
+      repository.signOutError = const UnexpectedFailure('cache');
+
+      await notifier.signOut();
+
+      expect(notifier.state, isA<SessionSignOutFailed>());
     });
   });
 }

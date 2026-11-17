@@ -44,20 +44,20 @@ class SessionNotifier extends ChangeNotifier {
         SignInCancelled() => _reconcile(const SessionSignedOut()),
       });
     } on Failure catch (failure) {
-      _emit(_reconcile(SessionFailed(failure)));
+      _emit(_reconcile(SessionSignInFailed(failure)));
     } on Exception {
       // O repositório só lança Failure; outra exceção não pode deixar a tela
       // entrando para sempre.
       _emit(
         _reconcile(
-          const SessionFailed(
+          const SessionSignInFailed(
             UnexpectedFailure('exceção fora das falhas tipadas'),
           ),
         ),
       );
     } on Error {
       // Um bug continua subindo, mas sem deixar a tela presa em "entrando".
-      _emit(const SessionFailed(UnexpectedFailure('erro no login')));
+      _emit(const SessionSignInFailed(UnexpectedFailure('erro no login')));
       rethrow;
     } finally {
       _signingIn = false;
@@ -71,7 +71,7 @@ class SessionNotifier extends ChangeNotifier {
     try {
       await _repository.signOut();
     } on Failure catch (failure) {
-      _emit(SessionFailed(failure));
+      _emit(SessionSignOutFailed(failure));
     }
   }
 
@@ -85,8 +85,8 @@ class SessionNotifier extends ChangeNotifier {
 
   // Durante o login, quem decide o estado é o resultado dele: um SignedOut que
   // chegue no meio não pode esconder o "entrando". O estado fica guardado para
-  // o fim dele. Uma falha já significa
-  // sessão fechada, e o SignedOut que vem depois dela não a esconde.
+  // o fim dele. Depois de uma falha, o SignedOut que vem em seguida não a
+  // esconde: a pessoa precisa ver o erro e o "tentar de novo".
   void _onAuthState(AuthState authState) {
     if (_signingIn) {
       _arrivedDuringSignIn = authState;
@@ -103,7 +103,7 @@ class SessionNotifier extends ChangeNotifier {
   void _onAuthError(Object error) {
     if (_signingIn) return;
     _emit(
-      SessionFailed(
+      SessionSignInFailed(
         error is Failure
             ? error
             : const UnexpectedFailure('erro fora das falhas tipadas'),
