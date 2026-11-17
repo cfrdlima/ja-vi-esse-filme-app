@@ -1,0 +1,7 @@
+rules_version = '2';
+
+// Nega tudo por padrão (decisão 010). Só o que tiver match explícito abre.
+service cloud.firestore {
+  match /databases/{database}/documents {
+  }
+}
