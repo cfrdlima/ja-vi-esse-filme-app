@@ -7,22 +7,22 @@ Definir e implementar o documento do filme do usuário em `users/{uid}/movies/{m
 
 ## Checklist
 ### Preparação
-- [ ] Conferir nos termos do TMDB o limite de cache (6 meses) e o que pode ser guardado (texto e caminho da imagem, nunca os bytes)
-- [ ] Conferir a versão do `cloud_firestore` no pub.dev (compatível com `firebase_core` ^5.2.0, minSdk 24, publicada há mais de duas semanas)
-- [ ] Decidir com o usuário: cópia do título e do `poster_path` (sim/não), quais datas (`updatedAt` do servidor, `watchedAt`), e o que acontece quando as três marcas ficam falsas (apaga o documento ou guarda). Registrar com `/decisao`
-- [ ] Nome da feature (proposta: `lib/features/shelf`, a Estante)
+- [x] Conferir nos termos do TMDB o limite de cache (6 meses) e o que pode ser guardado. **Feito:** §1.C proíbe cache por mais de 6 meses e não proíbe texto nem caminho
+- [x] Conferir a versão do `cloud_firestore` no pub.dev. **Feito:** 7.1.0 (2026-10-23, `firebase_core` ^5.1.0); a 7.2.0 tem 1 dia
+- [x] Decidir com o usuário cópia, datas e documento sem marcas. **Feito:** decisão 013
+- [x] Nome da feature: `lib/features/shelf`
 
 ### Regras do Firestore (RED/GREEN/REFACTOR, `firestore/test`)
 - [ ] Documento válido com o formato novo é aceito
 - [ ] Chave fora da lista e chave obrigatória ausente negadas (formato novo)
 - [ ] Tipos errados negados (bool, timestamp, string)
-- [ ] `updatedAt` só aceito igual a `request.time`
-- [ ] Título e `poster_path` com tamanho máximo (se a cópia entrar), `poster_path` só no formato `/xxx.jpg`
-- [ ] `cached_at` só igual a `request.time` (se a cópia entrar)
+- [ ] Cada `<marca>At` ausente, igual ao salvo ou igual a `request.time`; nenhuma marca é negado
+- [ ] `title` com tamanho máximo, `posterPath` opcional só no formato `/xxx.jpg`
+- [ ] `cachedAt` só igual a `request.time`
 
 ### Domínio (RED/GREEN/REFACTOR)
 - [ ] Entidade do filme do usuário (`movieId`, marcas, datas, cópia opcional), com `movieId` ≥ 1
-- [ ] Regra de "cópia vencida" (mais de 6 meses desde o `cachedAt`), se a cópia entrar
+- [ ] Regra de "cópia vencida" (mais de 6 meses desde o `cachedAt`)
 - [ ] Contrato do repositório: observar um filme, salvar as marcas, com falhas tipadas (sem rede, permissão negada, inesperada)
 
 ### Data (RED/GREEN/REFACTOR)
@@ -39,6 +39,7 @@ Definir e implementar o documento do filme do usuário em `users/{uid}/movies/{m
 - [ ] `/fechar-sessao`
 
 ## Decisões
+- [013 — Documento do filme do usuário no Firestore](../decisoes/013-documento-do-filme-no-firestore.md): cópia de `title` e `posterPath` com `cachedAt` (6 meses); marcas como timestamps `watchedAt`/`watchlistAt`/`favoriteAt`; sem marcas, o documento é apagado; feature `shelf`; `cloud_firestore` 7.1.0; gateway fino, sem `fake_cloud_firestore`.
 
 ## Commits
 - `docs: abre a sessão 021`
