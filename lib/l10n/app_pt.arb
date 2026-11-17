@@ -151,6 +151,8 @@
   "@trailerOpenFailed": { "description": "Aviso quando nenhum app do aparelho abre o trailer" },
   "profileAboutEntry": "Sobre o app",
   "@profileAboutEntry": { "description": "Entrada do Perfil que abre a tela Sobre" },
+  "profileAccountLoading": "Carregando a conta",
+  "@profileAccountLoading": { "description": "Anúncio do leitor de tela enquanto o Perfil espera o estado da conta" },
   "aboutTitle": "Sobre",
   "@aboutTitle": { "description": "Título da tela Sobre" },
   "appName": "Já Vi Esse Filme",

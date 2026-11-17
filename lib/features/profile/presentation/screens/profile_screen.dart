@@ -3,8 +3,9 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/routing/app_routes.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../widgets/account_section.dart';
 
-/// Aba Perfil. Até a conta TMDB (Fase 2), só leva à tela Sobre.
+/// Aba Perfil: o bloco da conta e a entrada da tela Sobre.
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
@@ -15,6 +16,7 @@ class ProfileScreen extends StatelessWidget {
       appBar: AppBar(title: Text(l10n.tabProfile)),
       body: ListView(
         children: [
+          const AccountSection(),
           ListTile(
             leading: const Icon(Icons.info_outline),
             title: Text(

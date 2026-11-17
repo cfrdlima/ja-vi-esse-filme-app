@@ -80,6 +80,9 @@ void main() {
   testWidgets('o Sobre deve mostrar a versão recebida pelo app', (
     tester,
   ) async {
+    // Já deslogada: a conta carregando pulsaria o skeleton do Perfil para
+    // sempre, e o `pumpAndSettle` não terminaria.
+    authRepository.emit(const SignedOut());
     await tester.pumpWidget(app(appVersion: '9.9.9'));
     await tester.pumpAndSettle();
 

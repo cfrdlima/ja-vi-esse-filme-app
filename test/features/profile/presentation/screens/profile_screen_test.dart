@@ -1,21 +1,33 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ja_vi_esse_filme/core/l10n/app_locale.dart';
+import 'package:ja_vi_esse_filme/features/auth/presentation/state/session_notifier.dart';
 import 'package:ja_vi_esse_filme/features/profile/presentation/screens/profile_screen.dart';
 import 'package:ja_vi_esse_filme/l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
 
+import '../../../../helpers/fake_auth_repository.dart';
 import '../../../../helpers/test_app.dart';
 
 void main() {
   final l10n = lookupAppLocalizations(AppLocale.locale);
 
+  late FakeAuthRepository repository;
+
+  setUp(() => repository = FakeAuthRepository());
+
+  tearDown(() => repository.close());
+
   Future<void> pumpProfile(
     WidgetTester tester, {
     TextScaler textScaler = TextScaler.noScaling,
   }) => tester.pumpWidget(
-    MediaQuery(
-      data: MediaQueryData(textScaler: textScaler),
-      child: testApp(home: const ProfileScreen()),
+    ChangeNotifierProvider(
+      create: (_) => SessionNotifier(repository: repository),
+      child: MediaQuery(
+        data: MediaQueryData(textScaler: textScaler),
+        child: testApp(home: const ProfileScreen()),
+      ),
     ),
   );
 
@@ -75,5 +87,13 @@ void main() {
     await pumpProfile(tester, textScaler: const TextScaler.linear(2));
 
     expect(tester.takeException(), isNull);
+  });
+
+  group('carregando', () {
+    testWidgets('deve anunciar que a conta está carregando', (tester) async {
+      await pumpProfile(tester);
+
+      expect(find.bySemanticsLabel(l10n.profileAccountLoading), findsOneWidget);
+    });
   });
 }

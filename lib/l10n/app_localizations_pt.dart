@@ -217,6 +217,9 @@ class AppLocalizationsPt extends AppLocalizations {
   String get profileAboutEntry => 'Sobre o app';
 
   @override
+  String get profileAccountLoading => 'Carregando a conta';
+
+  @override
   String get aboutTitle => 'Sobre';
 
   @override

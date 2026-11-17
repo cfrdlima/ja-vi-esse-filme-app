@@ -400,6 +400,12 @@ abstract class AppLocalizations {
   /// **'Sobre o app'**
   String get profileAboutEntry;
 
+  /// Anúncio do leitor de tela enquanto o Perfil espera o estado da conta
+  ///
+  /// In pt, this message translates to:
+  /// **'Carregando a conta'**
+  String get profileAccountLoading;
+
   /// Título da tela Sobre
   ///
   /// In pt, this message translates to:

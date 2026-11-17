@@ -23,4 +23,7 @@ abstract final class AppSizes {
   /// Proporção do SVG oficial do logo (273,42 × 35,52), para reservar a
   /// altura antes de a imagem carregar.
   static const tmdbLogoAspectRatio = 273.42 / 35.52;
+
+  /// Avatar da conta no Perfil (override `perfil.md`).
+  static const profileAvatar = 72.0;
 }
