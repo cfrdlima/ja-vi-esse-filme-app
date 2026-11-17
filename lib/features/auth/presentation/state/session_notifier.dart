@@ -13,7 +13,10 @@ import 'session_state.dart';
 /// flag guardada no aparelho (sessão 018, `security-auditor`).
 class SessionNotifier extends ChangeNotifier {
   SessionNotifier({required this._repository}) {
-    _subscription = _repository.authStateChanges.listen(_onAuthState);
+    _subscription = _repository.authStateChanges.listen(
+      _onAuthState,
+      onError: _onAuthError,
+    );
   }
 
   final AuthRepository _repository;
@@ -71,6 +74,18 @@ class SessionNotifier extends ChangeNotifier {
       SignedOut() => const SessionSignedOut(),
       SignedIn(:final user) => SessionSignedIn(user),
     });
+  }
+
+  // Sem isso, um erro no stream deixaria a tela carregando para sempre.
+  void _onAuthError(Object error) {
+    if (_signingIn) return;
+    _emit(
+      SessionFailed(
+        error is Failure
+            ? error
+            : const UnexpectedFailure('erro fora das falhas tipadas'),
+      ),
+    );
   }
 
   void _emit(SessionState state) {

@@ -20,6 +20,8 @@ class _FakeFirebaseAuthGateway implements FirebaseAuthGateway {
 
   void emit(AppUser? user) => _users.add(user);
 
+  void emitError(Object error) => _users.addError(error);
+
   Future<void> close() => _users.close();
 
   @override
@@ -97,6 +99,24 @@ void main() {
 
       expect(await states, const SignedOut());
     });
+    test('deve traduzir um erro do stream em Failure', () async {
+      final states = repository.authStateChanges.first;
+
+      firebase.emitError(FirebaseAuthException(code: 'network-request-failed'));
+
+      await expectLater(states, throwsA(isA<NetworkFailure>()));
+    });
+
+    test(
+      'deve traduzir um erro desconhecido do stream em UnexpectedFailure',
+      () async {
+        final states = repository.authStateChanges.first;
+
+        firebase.emitError(ArgumentError('uid inválido'));
+
+        await expectLater(states, throwsA(isA<UnexpectedFailure>()));
+      },
+    );
   });
 
   group('signIn', () {

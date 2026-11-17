@@ -14,9 +14,10 @@ final class FirebaseAuthRepository implements AuthRepository {
   final GoogleAccountGateway _google;
 
   @override
-  Stream<AuthState> get authStateChanges => _firebase.authStateChanges().map(
-    (user) => user == null ? const SignedOut() : SignedIn(user),
-  );
+  Stream<AuthState> get authStateChanges => _firebase
+      .authStateChanges()
+      .map((user) => user == null ? const SignedOut() : SignedIn(user))
+      .handleError(_rethrowAsFailure);
 
   @override
   Future<SignInOutcome> signIn() async {
@@ -81,6 +82,10 @@ final class FirebaseAuthRepository implements AuthRepository {
   Future<void> deleteAccount() async =>
       throw const UnexpectedFailure('auth: exclusão ainda não disponível');
 }
+
+// No stream, o erro também chega já traduzido, como nos outros métodos.
+Never _rethrowAsFailure(Object error) =>
+    throw error is Failure ? error : _toFailure(error);
 
 // Só o código vai para a falha: a `message`, o `email` e a `credential` da
 // `FirebaseAuthException` e a `description` da `GoogleSignInException` podem

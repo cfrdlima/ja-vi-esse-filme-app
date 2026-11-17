@@ -60,6 +60,20 @@ void main() {
     expect(notified, 1);
   });
 
+  test('deve mostrar a falha quando o stream da conta dá erro', () async {
+    repository.emitError(const NetworkFailure());
+    await pumpEventQueue();
+
+    expect(
+      notifier.state,
+      isA<SessionFailed>().having(
+        (s) => s.failure,
+        'failure',
+        isA<NetworkFailure>(),
+      ),
+    );
+  });
+
   test('deve parar de ouvir a conta no dispose', () async {
     final other = FakeAuthRepository();
     addTearDown(other.close);

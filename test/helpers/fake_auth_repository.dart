@@ -17,6 +17,8 @@ class FakeAuthRepository implements AuthRepository {
 
   void emit(AuthState state) => _states.add(state);
 
+  void emitError(Object error) => _states.addError(error);
+
   Future<void> close() => _states.close();
 
   @override
