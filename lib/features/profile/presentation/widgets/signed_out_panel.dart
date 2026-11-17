@@ -8,9 +8,13 @@ import '../../../../l10n/app_localizations.dart';
 /// ação de entrar (override `perfil.md`). A [action] é o botão do Google,
 /// pronto ou entrando, conforme o estado da sessão.
 class SignedOutPanel extends StatelessWidget {
-  const SignedOutPanel({required this.action, super.key});
+  const SignedOutPanel({required this.action, this.error, super.key});
 
   final Widget action;
+
+  /// Mensagem da falha no login, acima do botão. O próprio botão serve de
+  /// "tentar de novo", porque a ação é a mesma.
+  final String? error;
 
   @override
   Widget build(BuildContext context) {
@@ -39,6 +43,19 @@ class SignedOutPanel extends StatelessWidget {
           textAlign: TextAlign.center,
         ),
         SizedBox(height: spacing.lg),
+        if (error case final error?) ...[
+          Semantics(
+            liveRegion: true,
+            child: Text(
+              error,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.error,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          SizedBox(height: spacing.md),
+        ],
         action,
       ],
     );

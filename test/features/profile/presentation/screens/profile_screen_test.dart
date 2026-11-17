@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:ja_vi_esse_filme/core/error/failures.dart';
 import 'package:ja_vi_esse_filme/core/l10n/app_locale.dart';
 import 'package:ja_vi_esse_filme/features/auth/domain/entities/auth_state.dart';
 import 'package:ja_vi_esse_filme/features/auth/presentation/state/session_notifier.dart';
@@ -142,6 +143,31 @@ void main() {
 
       expect(find.bySemanticsLabel(l10n.signingInWithGoogle), findsOneWidget);
       semantics.dispose();
+    });
+  });
+
+  group('falha no login', () {
+    Future<void> pumpFailedSignIn(WidgetTester tester) async {
+      repository.emit(const SignedOut());
+      await pumpProfile(tester);
+      await tester.pump();
+      await tester.tap(find.text(l10n.signInWithGoogle));
+      repository.failSignIn(const NetworkFailure());
+      await tester.pump();
+    }
+
+    testWidgets('deve mostrar a mensagem da falha', (tester) async {
+      await pumpFailedSignIn(tester);
+
+      expect(find.text(l10n.failureNetwork), findsOneWidget);
+    });
+
+    testWidgets('deve tentar de novo pelo botão do Google', (tester) async {
+      await pumpFailedSignIn(tester);
+
+      await tester.tap(find.text(l10n.signInWithGoogle));
+
+      expect(repository.pendingSignIns, 1);
     });
   });
 }

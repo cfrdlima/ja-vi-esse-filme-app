@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../core/l10n/failure_message.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../auth/presentation/state/session_notifier.dart';
 import '../../../auth/presentation/state/session_state.dart';
 import '../../../auth/presentation/widgets/google_sign_in_button.dart';
@@ -18,15 +20,18 @@ class AccountSection extends StatelessWidget {
     final state = context.select<SessionNotifier, SessionState>(
       (notifier) => notifier.state,
     );
+    final signInButton = GoogleSignInButton(
+      onPressed: () => unawaited(context.read<SessionNotifier>().signIn()),
+    );
     return switch (state) {
       SessionLoading() => const AccountSkeleton(),
-      SessionSignedOut() => SignedOutPanel(
-        action: GoogleSignInButton(
-          onPressed: () => unawaited(context.read<SessionNotifier>().signIn()),
-        ),
-      ),
+      SessionSignedOut() => SignedOutPanel(action: signInButton),
       SessionSigningIn() => const SignedOutPanel(
         action: GoogleSignInButton.loading(),
+      ),
+      SessionSignInFailed(:final failure) => SignedOutPanel(
+        error: failureMessage(AppLocalizations.of(context), failure),
+        action: signInButton,
       ),
       _ => const SizedBox.shrink(),
     };
