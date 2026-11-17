@@ -7,9 +7,9 @@ Trocar o placeholder da aba Estante por três abas (**Assistidos**, **Quero assi
 
 ## Checklist
 ### Preparação
-- [ ] Conferir no Context7 o `cloud_firestore` 7.1.0: `where(isNotEqualTo: null)` + `orderBy` no mesmo campo (descendente), `limit`, `startAfterDocument` e `snapshots()` com `hasPendingWrites`
-- [ ] Decidir com o usuário: paginação (stream com `limit` crescente ou páginas com cursor), ordem, o que a aba mostra sem conta e onde a renovação da cópia acontece
-- [ ] Consultar a `ui-ux-pro-max` (stack Flutter) para a Estante e gerar o override `pages/estante.md`
+- [x] Conferir no Context7 o `cloud_firestore` 7.1.0: `where(isNotEqualTo: null)` + `orderBy` no mesmo campo (descendente), `limit`, `startAfterDocument` e `snapshots()` com `hasPendingWrites`. **Feito:** o `isNotEqualTo: null` é ignorado em silêncio (ver "Notas"); a consulta usa só o `orderBy`
+- [x] Decidir com o usuário: paginação (stream com `limit` crescente ou páginas com cursor), ordem, o que a aba mostra sem conta e onde a renovação da cópia acontece. **Decidido:** stream com `limit` crescente de 20 em 20; mais recente primeiro; sem conta, convite com "Entrar com Google"; renovação da cópia vencida nesta sessão
+- [x] Consultar a `ui-ux-pro-max` (stack Flutter) para a Estante e gerar o override `pages/estante.md`. **Feito:** nada de `TabBar` na stack Flutter (fallback declarado)
 
 ### Domínio (RED/GREEN/REFACTOR)
 - [ ] `MovieCopy`/`ShelfMovie` dizem se a cópia está vencida (6 meses desde o `cachedAt`, com relógio injetado)
@@ -47,3 +47,4 @@ Trocar o placeholder da aba Estante por três abas (**Assistidos**, **Quero assi
 ## Commits
 
 ## Notas
+- **`where(isNotEqualTo: null)` no `cloud_firestore` 7.1.0** (código do pacote no pub-cache, `query.dart`): o `where` só põe a condição `!=` quando `isNotEqualTo != null`, então passar `null` **não filtra nada** e a consulta traz todos os documentos. O `!= null` sai com `isNull: false`. A decisão 013 cita `where('<marca>At', '!=', null)`; o `orderBy('<marca>At', descending: true)` sozinho já basta, porque o Firestore deixa fora do resultado o documento sem o campo ordenado, e evita o `!=`. **A conferir no emulador:** se uma marca offline (`serverTimestamp()` pendente) aparece na consulta local e em que posição.
