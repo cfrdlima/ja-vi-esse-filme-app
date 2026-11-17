@@ -25,4 +25,12 @@ final class SignInCompleted extends SignInOutcome {
 /// A pessoa fechou o seletor de contas do Google.
 final class SignInCancelled extends SignInOutcome {
   const SignInCancelled();
+
+  // Igual por tipo: uma instância criada sem `const` (num `map` do stream,
+  // por exemplo) não quebra o `distinct()` nem o `emits` dos testes.
+  @override
+  bool operator ==(Object other) => other is SignInCancelled;
+
+  @override
+  int get hashCode => (SignInCancelled).hashCode;
 }

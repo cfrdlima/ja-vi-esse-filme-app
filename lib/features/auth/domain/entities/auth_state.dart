@@ -10,6 +10,14 @@ sealed class AuthState {
 /// Ninguém logado. Descobrir, Buscar e Detalhes funcionam assim (decisão 010).
 final class SignedOut extends AuthState {
   const SignedOut();
+
+  // Igual por tipo: uma instância criada sem `const` (num `map` do stream,
+  // por exemplo) não quebra o `distinct()` nem o `emits` dos testes.
+  @override
+  bool operator ==(Object other) => other is SignedOut;
+
+  @override
+  int get hashCode => (SignedOut).hashCode;
 }
 
 final class SignedIn extends AuthState {

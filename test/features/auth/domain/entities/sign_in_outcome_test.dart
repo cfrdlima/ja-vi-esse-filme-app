@@ -23,4 +23,21 @@ void main() {
       isNot(contains('ana@example.com')),
     );
   });
+
+  // O tear-off cria instâncias novas, sem `const`, como um `map` do stream
+  // faria.
+  test('deve considerar iguais dois logins cancelados criados sem const', () {
+    const make = SignInCancelled.new;
+
+    expect(make(), make());
+  });
+
+  test(
+    'deve dar o mesmo hashCode a dois logins cancelados criados sem const',
+    () {
+      const make = SignInCancelled.new;
+
+      expect(make().hashCode, make().hashCode);
+    },
+  );
 }

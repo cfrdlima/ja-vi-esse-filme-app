@@ -20,4 +20,21 @@ void main() {
   test('deve esconder os dados do usuário no toString do estado logado', () {
     expect(SignedIn(ana()).toString(), isNot(contains('ana@example.com')));
   });
+
+  // O tear-off cria instâncias novas, sem `const`, como um `map` do stream
+  // faria.
+  test('deve considerar iguais dois estados deslogados criados sem const', () {
+    const make = SignedOut.new;
+
+    expect(make(), make());
+  });
+
+  test(
+    'deve dar o mesmo hashCode a dois estados deslogados criados sem const',
+    () {
+      const make = SignedOut.new;
+
+      expect(make().hashCode, make().hashCode);
+    },
+  );
 }
