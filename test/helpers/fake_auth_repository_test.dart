@@ -23,4 +23,17 @@ void main() {
 
     expect(result, throwsUnimplementedError);
   });
+
+  test('não deve emitir SignedOut de novo quando a conta já saiu', () async {
+    repository.emit(const SignedOut());
+    final emitted = <AuthState>[];
+    final subscription = repository.authStateChanges.listen(emitted.add);
+    addTearDown(subscription.cancel);
+    await pumpEventQueue();
+
+    await repository.signOut();
+    await pumpEventQueue();
+
+    expect(emitted, hasLength(1));
+  });
 }

@@ -57,12 +57,13 @@ class FakeAuthRepository implements AuthRepository {
   void failSignIn(Object error) =>
       _pendingSignIns.removeAt(0).completeError(error);
 
-  /// Como o contrato manda: emite [SignedOut] antes de a falha subir.
+  /// Como o contrato manda: emite [SignedOut] antes de a falha subir. Como
+  /// o Firebase, não emite de novo quando a conta já saiu.
   @override
   Future<void> signOut() async {
     signOutCalls++;
     await signOutGate?.future;
-    emit(const SignedOut());
+    if (_current is! SignedOut) emit(const SignedOut());
     if (signOutError case final error?) throw error;
   }
 
