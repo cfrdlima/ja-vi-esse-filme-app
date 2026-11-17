@@ -1,8 +1,10 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 
+import 'core/bootstrap/app_bootstrap.dart';
 import 'core/config/app_config.dart';
 import 'core/error/error_handlers.dart';
 import 'core/l10n/app_locale.dart';
@@ -15,18 +17,27 @@ import 'core/theme/app_theme.dart';
 import 'features/movies/data/datasources/movie_remote_data_source.dart';
 import 'features/movies/data/repositories/tmdb_movie_repository.dart';
 import 'features/movies/domain/repositories/movie_repository.dart';
+import 'firebase_options.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   registerErrorHandlers();
   registerFontLicenses();
-  runApp(
-    MainApp(
-      movieRepository: _composeMovieRepository(),
-      linkOpener: UrlLauncherLinkOpener(),
-      appVersion: AppConfig.appVersion,
+  await bootstrapApp(
+    initialize: _initializeFirebase,
+    run: () => runApp(
+      MainApp(
+        movieRepository: _composeMovieRepository(),
+        linkOpener: UrlLauncherLinkOpener(),
+        appVersion: AppConfig.appVersion,
+      ),
     ),
+    report: logUnhandledError,
   );
+}
+
+Future<void> _initializeFirebase() async {
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 }
 
 // Único ponto que monta as dependências concretas (CLAUDE.md). O
