@@ -28,7 +28,7 @@ Versionar o `firestore.rules` com tudo negado por padrão e só o dono acessando
 
 ### Entrega
 - [x] CI: job `firestore-rules` com Node, Java e `firebase-tools` fixados, rodando os testes no emulador
-- [ ] Publicar as regras no projeto (`firebase deploy --only firestore:rules`), com confirmação do usuário
+- [x] Publicar as regras no projeto (`firebase deploy --only firestore:rules`), com confirmação do usuário. **Feito** com a `firebase-tools` 15.34.2 local, `--project ja-vi-esse-filme` e `--account` da conta do projeto. A leitura sem login via REST no projeto real dá `PERMISSION_DENIED`, tanto em `users/alice/movies/550` quanto fora de `users`
 - [x] `CLAUDE.md` (comandos) e `README.md` com como rodar os testes das regras
 - [x] Tríade: `flutter analyze`, `flutter test`, testes das regras, `gitleaks`. **Feito:** format ok, analyze limpo, 741 testes Flutter, 25 testes das regras e gitleaks git sem vazamento (336 commits)
 - [x] `security-auditor` (a sessão toca as regras de acesso). **Aprovado**, sem achado crítico ou alto. M2, B1 e B2 corrigidos na sessão; M1 e B3 registrados (ver Notas)
@@ -52,4 +52,4 @@ Versionar o `firestore.rules` com tudo negado por padrão e só o dono acessando
   - (baixo, B2) As regras não exigiam o provedor Google. **Corrigido** (`798d105`) com `sign_in_provider == 'google.com'` no `isOwner`, em RED/GREEN.
   - (baixo, B3) O jar do emulador vem do cache do CI. Risco aceito e registrado na decisão 012.
   - (info) Deploy sempre com `--project ja-vi-esse-filme` explícito e sem `.firebaserc` (decisão 012).
-
+- A conta padrão da CLI nesta máquina não enxerga o projeto. O usuário rodou o `firebase login:add` num terminal próprio, porque o `!` do Claude Code não é interativo, e o deploy foi feito com `--account`, sem trocar a conta padrão.
