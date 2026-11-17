@@ -1,6 +1,6 @@
 # Sessão 022 — Fase 2: Marcar nos detalhes, login opcional e logout completo
 
-**Data**: 2026-11-17 · **Branch**: `feature/022-marcar-nos-detalhes` · **Status**: aberta
+**Data**: 2026-11-17 · **Branch**: `feature/022-marcar-nos-detalhes` · **Status**: fechada
 
 ## Objetivo
 Pôr nos Detalhes as marcas **Assistido**, **Quero assistir** e **Favorito**, ligadas ao `ShelfRepository`, com a marca aparecendo na hora pelo `watchMovie` e erro com "tentar de novo". Marcar sem conta abre o login numa folha nos próprios Detalhes e aplica a marca depois. Na mesma entrega, o logout completo da decisão 010 (portão do `security-auditor` da 021), porque o "Marcar" liga o cache do Firestore no aparelho.
@@ -62,9 +62,10 @@ Pôr nos Detalhes as marcas **Assistido**, **Quero assistir** e **Favorito**, li
 - [x] Emulador: marcar, desmarcar, offline, login pela folha, logout. **Feito com o Maestro** 2.10 (fluxos fora do repositório), no Android 16 (API 36) contra o projeto real: folha sem conta abre e fecha sem marcar; cancelar o seletor do Google deixa a folha aberta; login pela folha aplica a marca; marcar, desmarcar e reabrir mantêm as marcas; marcas feitas em modo avião sincronizam ao voltar a rede (logout sem aviso); depois do logout (`terminate` + `clearPersistence`), o novo login lê as marcas do servidor; logout com marca pendente mostra "Saindo" e depois o aviso, "Ficar na conta" mantém a conta, "Sair mesmo assim" sai e a marca offline não chega ao servidor. A fonte grande ficou só nos widget tests
 - [x] `PLANO.md` e `docs/PRIVACIDADE.md` se o texto mudar. **Feito:** só o item da política 2.0 no `PLANO.md`; o `docs/PRIVACIDADE.md` muda quando a 2.0 for escrita
 - [x] `/revisar` (`code-reviewer` e `security-auditor`: auth, storage, rede). **Feito:** os achados estão em "Achados aceitos do `/revisar`"
-- [ ] `/fechar-sessao`
+- [x] `/fechar-sessao`. **Feito:** format sem mudança (202 arquivos), analyze limpo, 1167 testes verdes; `gitleaks` só no CI (não instalado na máquina)
 
 ## Decisões
+- Nenhuma decisão nova. Segue as decisões [010](../decisoes/010-conta-propria-com-firebase.md), [012](../decisoes/012-testes-das-regras-do-firestore.md) e [013](../decisoes/013-documento-do-filme-no-firestore.md)
 
 ## Commits
 - `f4ac302` docs: abre a sessão 022
@@ -81,6 +82,8 @@ Pôr nos Detalhes as marcas **Assistido**, **Quero assistir** e **Favorito**, li
 - `142aa1c` fix: marcas mostram a recusa depois da confirmação local, param no fim do stream e ignoram escritas antigas
 - `1b2d543` fix: closeStreams conta só streams ouvidos e não trava com quem ouve pausado
 - `9afa61f` fix: limpa no início do app o cache de uma conta que já saiu
+- `46bff09` docs: achados do /revisar no log da sessão 022, no override dos Detalhes e na política 2.0 do plano, e tamanhos do Saindo em AppSizes
+- `22312f6` docs: verificação no emulador com o Maestro e deploy das regras da 021 no log da sessão 022
 
 ## Notas
 - **`terminate()` e `clearPersistence()` no `cloud_firestore` 7.1.0** (Context7 e código do pacote no pub-cache):
@@ -95,3 +98,4 @@ Pôr nos Detalhes as marcas **Assistido**, **Quero assistir** e **Favorito**, li
 - **`/revisar`:** o `code-reviewer` achou 1 bloqueante, 5 importantes e 6 sugestões; o `security-auditor`, 0 bloqueantes, 2 importantes e 4 sugestões (um sem ação). Consolidados em 15, todos aceitos pelo usuário.
 - **Bug no emulador: regras do Firestore desatualizadas no projeto real.** A primeira marca deu `PERMISSION_DENIED` ("Algo deu errado" com "tentar de novo"). As regras publicadas eram da sessão 017; as da 021 (formato da decisão 013) nunca tinham sido publicadas. Com a confirmação do usuário, `firebase deploy --only firestore:rules --project ja-vi-esse-filme --account <conta do projeto>` depois dos 77 testes das regras verdes (JDK 21). O "tentar de novo" da escrita recusada funcionou no aparelho depois do deploy. **Lição:** toda sessão que muda `firestore.rules` publica as regras antes de fechar.
 - **Detalhe visual (sem ação):** o contorno do "Sair mesmo assim" usa a cor de contorno do tema, e o texto, a cor de erro.
+- **Pendente:** a guarda depois do `closeStreams` ficou só no notifier, não no repositório (achado 4); a fonte grande foi verificada só nos widget tests; os fluxos do Maestro ficaram fora do repositório (ver backlog).
