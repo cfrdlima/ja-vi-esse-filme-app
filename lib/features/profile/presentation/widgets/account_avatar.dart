@@ -1,11 +1,12 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_sizes.dart';
 import '../../../auth/domain/entities/app_user.dart';
 
 /// Foto da conta Google, ou um placeholder desenhado (override `perfil.md`).
-/// É decorativa: o nome escrito está ao lado.
+/// É decorativa: o nome escrito está ao lado. A foto fica só no cache em
+/// memória (`NetworkImage`), nunca no disco: é dado pessoal, e uma sessão que
+/// fecha com o app fechado não deixaria quem a apagasse.
 class AccountAvatar extends StatelessWidget {
   const AccountAvatar({required this.user, super.key});
 
@@ -35,13 +36,15 @@ class AccountAvatar extends StatelessWidget {
         dimension: size,
         child: ClipOval(
           child: switch (photoUrl) {
-            final url? => CachedNetworkImage(
-              imageUrl: url,
+            // Sem `cacheWidth`: a chave no cache é a da URL, e o logout
+            // consegue tirá-la (`NetworkImage(url).evict()`).
+            final url? => Image.network(
+              url,
               fit: BoxFit.cover,
-              memCacheWidth: (size * MediaQuery.devicePixelRatioOf(context))
-                  .round(),
-              placeholder: (_, _) => placeholder,
-              errorWidget: (_, _, _) => placeholder,
+              excludeFromSemantics: true,
+              frameBuilder: (_, child, frame, _) =>
+                  frame == null ? placeholder : child,
+              errorBuilder: (_, _, _) => placeholder,
             ),
             null => placeholder,
           },

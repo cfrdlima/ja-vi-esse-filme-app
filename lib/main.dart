@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -76,8 +75,8 @@ AuthRepository composeAuthRepository({
   required AuthRepository Function() connect,
 }) => firebaseAvailable ? connect() : const UnavailableAuthRepository();
 
-void _evictCachedImage(String url) =>
-    unawaited(CachedNetworkImage.evictFromCache(url));
+// A foto da conta só fica no cache em memória (ver `AccountAvatar`).
+void _evictCachedImage(String url) => unawaited(NetworkImage(url).evict());
 
 AuthRepository _connectFirebaseAuth() => FirebaseAuthRepository(
   firebase: FirebaseAuthSdkGateway(FirebaseAuth.instance),

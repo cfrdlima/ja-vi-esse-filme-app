@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ja_vi_esse_filme/features/auth/domain/entities/app_user.dart';
@@ -40,7 +39,13 @@ void main() {
         userWithPhoto('https://lh3.googleusercontent.com/a/foto=s96-c'),
       );
 
-      expect(find.byType(CachedNetworkImage), findsOneWidget);
+      // Só em memória (NetworkImage): a foto não fica gravada no aparelho.
+      expect(
+        find.image(
+          const NetworkImage('https://lh3.googleusercontent.com/a/foto=s96-c'),
+        ),
+        findsOneWidget,
+      );
     });
 
     for (final url in [
@@ -53,7 +58,7 @@ void main() {
       testWidgets('não deve carregar a foto de $url', (tester) async {
         await pumpAvatar(tester, userWithPhoto(url));
 
-        expect(find.byType(CachedNetworkImage), findsNothing);
+        expect(find.byType(Image), findsNothing);
       });
     }
   });
