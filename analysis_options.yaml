@@ -5,6 +5,9 @@ analyzer:
     - build/**
     - android/**
     - ios/**
+    # Pacotes npm dos testes das regras (decisão 012); a firebase-tools traz
+    # templates Dart que não compilam fora de um projeto de Functions.
+    - firestore/node_modules/**
   language:
     strict-casts: true
     strict-inference: true
