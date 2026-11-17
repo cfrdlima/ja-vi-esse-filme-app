@@ -1,6 +1,6 @@
 # Sessão 018 — Fase 2: domínio da conta
 
-**Data**: 2026-11-17 · **Branch**: `feature/018-dominio-conta` · **Status**: aberta
+**Data**: 2026-11-17 · **Branch**: `feature/018-dominio-conta` · **Status**: fechada
 
 ## Objetivo
 Criar o domínio da conta em `lib/features/auth/domain/`, em Dart puro: a entidade do usuário (`uid`, nome, e-mail, foto), o contrato do repositório (usuário atual em stream, entrar, sair e excluir) e as falhas tipadas (sem rede, conta desativada, login recente exigido). O cancelamento do login é um resultado, e não um erro. Tudo com fakes, sem Firebase nem `google_sign_in`.
@@ -30,7 +30,7 @@ Criar o domínio da conta em `lib/features/auth/domain/`, em Dart puro: a entida
 ### Entrega
 - [x] Tríade: format sem mudança, analyze limpo, 768 testes (760 antes dos achados), gitleaks 8.30.1 sem vazamento
 - [x] `/revisar` (`code-reviewer`; `security-auditor`, porque é auth). **Feito:** nada bloqueante; o `security-auditor` aprovou o fechamento. Achados aceitos abaixo
-- [ ] `/fechar-sessao`
+- [x] `/fechar-sessao`. **Feito:** format sem mudança, analyze limpo, 768 testes e gitleaks sem vazamento
 
 ### Achados aceitos do `/revisar`
 - [x] Contrato do `deleteAccount`: ordem completa da decisão 010, com a `RecentLoginRequiredFailure` antes de apagar qualquer documento, `disconnect()`, limpeza local e `SignedOut` no fim
@@ -57,6 +57,8 @@ Nenhuma nova. As escolhas (falhas em `Failure` e estado selado no stream) seguem
 - `650d777` test: desigualdade do AppUser campo a campo
 - `4acbcb6` add: SignedOut e SignInCancelled iguais por tipo
 - `4b02a1d` test: pureza do domain por lista branca e com todas as URIs da diretiva
+- `46df870` docs: achados do /revisar na sessão 018
+- `docs: fecha sessão 018` (este fechamento)
 
 ## Notas
 - **Fake adiado:** não há precedente de fake com teste próprio em `test/helpers/`, e o formato dele (stream controlado, pedidos pendentes como no `FakeMovieRepository`) depende do que os testes do estado vão pedir. Criá-lo agora seria antecipação.
