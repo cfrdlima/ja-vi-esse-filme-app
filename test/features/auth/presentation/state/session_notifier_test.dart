@@ -309,20 +309,23 @@ void main() {
     });
 
     // A conta saiu por fora, mas o cache dela continua no aparelho.
-    test('deve limpar o aparelho quando a conta cai durante a espera', () async {
-      repository
-        ..synced = false
-        ..syncGate = Completer<void>();
-      unawaited(notifier.signOut());
-      await pumpEventQueue();
+    test(
+      'deve limpar o aparelho quando a conta cai durante a espera',
+      () async {
+        repository
+          ..synced = false
+          ..syncGate = Completer<void>();
+        unawaited(notifier.signOut());
+        await pumpEventQueue();
 
-      repository.emit(const SignedOut());
-      await pumpEventQueue();
-      repository.syncGate!.complete();
-      await pumpEventQueue();
+        repository.emit(const SignedOut());
+        await pumpEventQueue();
+        repository.syncGate!.complete();
+        await pumpEventQueue();
 
-      expect(repository.signOutCalls, 1);
-    });
+        expect(repository.signOutCalls, 1);
+      },
+    );
 
     // A espera fica pendente: completá-la no fim rodaria o logout com o
     // fake já fechado.

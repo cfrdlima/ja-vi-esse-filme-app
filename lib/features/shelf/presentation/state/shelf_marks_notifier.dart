@@ -49,6 +49,16 @@ class ShelfMarksNotifier extends ChangeNotifier {
   /// Marca pedida no login, posta quando a Estante da conta chega.
   ShelfMark? _queued;
 
+  /// A última escrita pedida em cada marca: a falha de uma escrita antiga
+  /// não mexe na tela. Não dá para usar o [_optimistic], porque ele some
+  /// quando o Firestore confirma no aparelho, antes de o servidor responder.
+  final Map<ShelfMark, int> _latestWrite = {};
+  int _writeCount = 0;
+
+  /// Muda a cada assinatura: a falha de uma escrita da conta anterior não
+  /// cai na conta nova.
+  int _generation = 0;
+
   ShelfFailedWrite? _failedWrite;
   bool _disposed = false;
 
@@ -68,6 +78,7 @@ class ShelfMarksNotifier extends ChangeNotifier {
   /// deslogada, entrou, e a marca entra sem outro toque. Uma marca que a
   /// conta já tinha fica como está.
   void queueMark(ShelfMark mark) {
+    if (_disposed) return;
     _queued = mark;
     _applyQueued();
   }
@@ -104,10 +115,23 @@ class ShelfMarksNotifier extends ChangeNotifier {
     _emit(const ShelfMarksLoading());
     _watchSubscription = _shelf
         .watchMovie(_copy.movieId)
-        .listen(_onEntry, onError: _onWatchError);
+        .listen(_onEntry, onError: _onWatchError, onDone: _onWatchDone);
+  }
+
+  // O stream só acaba no logout, que fecha a Estante antes de a conta sair
+  // (decisão 010). Sem as marcas lidas, um toque nessa janela não escreve,
+  // e o Firestore não reabre com o cache da conta.
+  void _onWatchDone() {
+    _watchSubscription = null;
+    _confirmed = null;
+    _optimistic.clear();
+    _failedWrite = null;
+    _emit(const ShelfMarksLoading());
   }
 
   void _stopWatching() {
+    _generation++;
+    _latestWrite.clear();
     unawaited(_watchSubscription?.cancel());
     _watchSubscription = null;
     _confirmed = null;
@@ -142,7 +166,7 @@ class ShelfMarksNotifier extends ChangeNotifier {
 
   void _write(ShelfMark mark, {required bool marked}) {
     final entry = _confirmed;
-    if (entry == null) return;
+    if (_disposed || entry == null) return;
     final Future<void> write;
     if (marked) {
       write = _shelf.addMark(_copy, mark);
@@ -153,22 +177,34 @@ class ShelfMarksNotifier extends ChangeNotifier {
       // a marca a caminho; espera a Estante alcançar.
       return;
     }
+    final id = ++_writeCount;
+    _latestWrite[mark] = id;
     _optimistic[mark] = marked;
     _failedWrite = null;
     _emitReady();
-    unawaited(_watchWrite(write, mark, marked: marked));
+    unawaited(
+      _watchWrite(write, (
+        mark: mark,
+        id: id,
+        generation: _generation,
+      ), marked: marked),
+    );
   }
 
   Future<void> _watchWrite(
     Future<void> write,
-    ShelfMark mark, {
+    ({ShelfMark mark, int id, int generation}) request, {
     required bool marked,
   }) async {
+    final mark = request.mark;
     try {
       await write;
     } on Exception catch (error) {
-      // Uma escrita nova na mesma marca já substituiu esta.
-      if (_optimistic[mark] != marked) return;
+      // Outra conta, ou uma escrita nova na mesma marca, já substituiu esta.
+      if (request.generation != _generation ||
+          _latestWrite[mark] != request.id) {
+        return;
+      }
       _optimistic.remove(mark);
       _failedWrite = ShelfFailedWrite(
         mark: mark,
@@ -177,7 +213,8 @@ class ShelfMarksNotifier extends ChangeNotifier {
             ? error
             : const UnexpectedFailure('exceção fora das falhas na Estante'),
       );
-      _emitReady();
+      // Com a leitura em erro, o erro dela continua na tela.
+      if (_state is ShelfMarksReady) _emitReady();
     }
   }
 

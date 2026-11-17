@@ -48,6 +48,9 @@ class FakeShelfRepository implements ShelfRepository {
 
   void emitError(Object error) => _watches.last.addError(error);
 
+  /// Encerra o último stream, como o `closeStreams()` do logout.
+  void endWatch() => unawaited(_watches.last.close());
+
   @override
   Stream<ShelfEntry> watchMovie(int movieId) {
     watchedMovieIds.add(movieId);

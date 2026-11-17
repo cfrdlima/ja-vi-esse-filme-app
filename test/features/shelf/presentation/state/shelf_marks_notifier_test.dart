@@ -406,6 +406,49 @@ void main() {
       expect(readyMarks(), isEmpty);
     });
 
+    // O Firestore confirma no aparelho antes de o servidor responder.
+    test(
+      'deve mostrar a recusa que chega depois da confirmação local',
+      () async {
+        await readyWith({});
+        notifier.toggle(ShelfMark.watched);
+        await emitEntry(OnShelf(movieWith({ShelfMark.watched})));
+
+        shelf.writes.single.fail(const RateLimitFailure());
+        await pumpEventQueue();
+
+        expect(failedWrite()?.mark, ShelfMark.watched);
+      },
+    );
+
+    test(
+      'deve manter o erro de leitura quando uma escrita falha depois',
+      () async {
+        await readyWith({});
+        notifier.toggle(ShelfMark.watched);
+        shelf.emitError(const NetworkFailure());
+        await pumpEventQueue();
+
+        shelf.writes.single.fail(const RateLimitFailure());
+        await pumpEventQueue();
+
+        expect(notifier.state, isA<ShelfMarksError>());
+      },
+    );
+
+    test('deve ignorar a falha de uma escrita da conta anterior', () async {
+      await readyWith({});
+      notifier.toggle(ShelfMark.watched);
+      await signInAs(bia);
+      await emitEntry(const NotOnShelf());
+      notifier.toggle(ShelfMark.watched);
+
+      shelf.writes.first.fail(const RateLimitFailure());
+      await pumpEventQueue();
+
+      expect(readyMarks(), {ShelfMark.watched});
+    });
+
     test('deve não desmarcar o que a Estante ainda não confirmou', () async {
       await readyWith({});
       notifier.toggle(ShelfMark.watched);
@@ -422,6 +465,57 @@ void main() {
       notifier.toggle(ShelfMark.watched);
 
       expect(shelf.writes, isEmpty);
+    });
+  });
+
+  group('fim do stream', () {
+    test('deve voltar a carregar quando a Estante encerra o stream', () async {
+      await signInAs(ana);
+      await emitEntry(const NotOnShelf());
+
+      shelf.endWatch();
+      await pumpEventQueue();
+
+      expect(notifier.state, isA<ShelfMarksLoading>());
+    });
+
+    // No logout, a Estante fecha antes de a conta sair: uma marca nessa
+    // janela reabriria o Firestore com o cache da conta.
+    test(
+      'deve ignorar o toque depois que a Estante encerra o stream',
+      () async {
+        await signInAs(ana);
+        await emitEntry(const NotOnShelf());
+        shelf.endWatch();
+        await pumpEventQueue();
+
+        notifier.toggle(ShelfMark.watched);
+
+        expect(shelf.writes, isEmpty);
+      },
+    );
+  });
+
+  group('depois do dispose', () {
+    test('deve ignorar a marca pedida', () async {
+      final otherShelf = FakeShelfRepository();
+      final otherAccount = StreamController<AuthState>.broadcast();
+      addTearDown(otherAccount.close);
+      final other = ShelfMarksNotifier(
+        shelf: otherShelf,
+        account: otherAccount.stream,
+        copy: copy,
+      );
+      otherAccount.add(SignedIn(ana));
+      await pumpEventQueue();
+      otherShelf.emit(const NotOnShelf());
+      await pumpEventQueue();
+
+      other
+        ..dispose()
+        ..queueMark(ShelfMark.watched);
+
+      expect(otherShelf.writes, isEmpty);
     });
   });
 

@@ -48,13 +48,15 @@ class ShelfMarksBar extends StatelessWidget {
   }
 
   // O notifier é lido antes da folha: o contexto pode sumir enquanto ela
-  // está aberta.
+  // está aberta. Se os Detalhes saíram, a marca não entra (o notifier também
+  // ignora o pedido depois do dispose).
   static Future<void> _signInThenMark(
     BuildContext context,
     ShelfMark mark,
   ) async {
     final notifier = context.read<ShelfMarksNotifier>();
-    if (await showSignInSheet(context)) notifier.queueMark(mark);
+    final signedIn = await showSignInSheet(context);
+    if (signedIn && context.mounted) notifier.queueMark(mark);
   }
 }
 
