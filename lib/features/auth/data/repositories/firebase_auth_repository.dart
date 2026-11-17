@@ -1,3 +1,6 @@
+import 'package:google_sign_in/google_sign_in.dart';
+
+import '../../../../core/error/failures.dart';
 import '../../domain/entities/auth_state.dart';
 import '../../domain/entities/sign_in_outcome.dart';
 import '../../domain/repositories/auth_repository.dart';
@@ -16,8 +19,20 @@ final class FirebaseAuthRepository implements AuthRepository {
 
   @override
   Future<SignInOutcome> signIn() async {
-    final idToken = await _google.authenticate();
-    final user = await _firebase.signInWithGoogleIdToken(idToken!);
+    if (_firebase.currentUser case final user?) return SignInCompleted(user);
+
+    final String? idToken;
+    try {
+      idToken = await _google.authenticate();
+    } on GoogleSignInException catch (e) {
+      if (e.code == GoogleSignInExceptionCode.canceled) {
+        return const SignInCancelled();
+      }
+      rethrow;
+    }
+    if (idToken == null) throw const UnexpectedFailure('google: sem idToken');
+
+    final user = await _firebase.signInWithGoogleIdToken(idToken);
     return SignInCompleted(user);
   }
 

@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:ja_vi_esse_filme/core/error/failures.dart';
 import 'package:ja_vi_esse_filme/features/auth/data/gateways/auth_gateways.dart';
 import 'package:ja_vi_esse_filme/features/auth/data/repositories/firebase_auth_repository.dart';
 import 'package:ja_vi_esse_filme/features/auth/domain/entities/app_user.dart';
@@ -36,9 +38,15 @@ class _FakeFirebaseAuthGateway implements FirebaseAuthGateway {
 
 class _FakeGoogleAccountGateway implements GoogleAccountGateway {
   String? idToken = 'id-token-do-google';
+  Object? authenticateError;
+  var authenticateCalls = 0;
 
   @override
-  Future<String?> authenticate() async => idToken;
+  Future<String?> authenticate() async {
+    authenticateCalls++;
+    if (authenticateError case final error?) throw error;
+    return idToken;
+  }
 
   @override
   Future<void> signOut() => throw UnimplementedError();
@@ -89,5 +97,40 @@ void main() {
 
       expect(firebase.receivedIdToken, 'id-token-do-google');
     });
+
+    test('deve devolver quem já está logado sem abrir o seletor', () async {
+      firebase.currentUser = AppUser(uid: 'outro');
+
+      await repository.signIn();
+
+      expect(google.authenticateCalls, 0);
+    });
+
+    test('deve devolver o usuário que já está logado', () async {
+      final bia = AppUser(uid: 'outro');
+      firebase.currentUser = bia;
+
+      expect(await repository.signIn(), SignInCompleted(bia));
+    });
+
+    test('deve devolver SignInCancelled quando o seletor é fechado', () async {
+      google.authenticateError = const GoogleSignInException(
+        code: GoogleSignInExceptionCode.canceled,
+      );
+
+      expect(await repository.signIn(), const SignInCancelled());
+    });
+
+    test(
+      'deve falhar com UnexpectedFailure se o Google não mandar o idToken',
+      () async {
+        google.idToken = null;
+
+        await expectLater(
+          repository.signIn(),
+          throwsA(isA<UnexpectedFailure>()),
+        );
+      },
+    );
   });
 }
