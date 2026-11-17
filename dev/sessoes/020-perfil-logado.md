@@ -36,20 +36,20 @@ Ligar a aba Perfil ao `SessionNotifier`: deslogado com o botão "Entrar com o Go
 - [x] Strings novas no ARB (decisão 004)
 
 ### Achados aceitos do `/revisar`
-- [ ] (4) Fake só emite `SignedOut` se a conta não estiver deslogada, como o Firebase
-- [ ] (1) Bloqueante: "Tentar de novo" depois da falha no logout volta a deslogado
-- [ ] (2) `signIn` ignorado durante um logout em andamento; o logout não mostra a falha se um login começou no meio
-- [ ] (3a) A foto não fica no `imageCache` depois do logout (sem `memCacheWidth` ou com limpeza)
-- [ ] (3b) `CacheManager` próprio da foto, esvaziado em todo `SessionSignedOut`, inclusive ao abrir o app deslogado (resolve também o S7)
-- [ ] (5) Teste do avatar com erro no download mostra o placeholder
-- [ ] (S1) Borda do botão do Google desbota quando desabilitado
-- [ ] (S2) `AppSizes.minTouchTarget` no lugar do `_minHeight`
-- [ ] (S3) Comentário do `SignedInPanel`
-- [ ] (S4) `signOutGate` completado no `tearDown`
-- [ ] (S5) `matchesSemantics` com papel de botão no teste do botão do Google
-- [ ] (S6) Prova por mutação dos testes de guarda do `AccountPhotoCleaner`
-- [ ] (6) Portão de release no `PLANO.md`: política 2.0 publicada antes de qualquer APK com login, com a lista do `security-auditor`
-- [ ] (S8, S9, S10) Backlog/log: host da foto `lh3`–`lh6` exato; reproduzir o voltar no seletor; `uid` no logcat como risco aceito
+- [x] (4) Fake só emite `SignedOut` se a conta não estiver deslogada, como o Firebase
+- [x] (1) Bloqueante: "Tentar de novo" depois da falha no logout volta a deslogado
+- [x] (2) `signIn` ignorado durante um logout em andamento. Com essa guarda, um login não começa no meio de um logout, e a segunda metade do item deixa de ser necessária. O retorno de "ocupado" no "Sair" foi para o backlog
+- [x] (3a) A foto não fica no `imageCache` depois do logout. **Feito:** sem `cacheWidth`, a chave é a da URL, e o logout faz `NetworkImage(url).evict()`
+- [x] (3b) Foto da conta sem disco. **Mudou, com o ok do usuário:** o `CacheManager` próprio exigiria o `flutter_cache_manager` como dependência direta. A foto passou a ficar só em memória (`Image.network`), e não sobra nada no disco quando a sessão fecha com o app fechado
+- [x] (5) Teste do avatar com erro no download mostra o placeholder
+- [x] (S1) Borda do botão do Google desbota quando desabilitado
+- [x] (S2) `AppSizes.minTouchTarget` no lugar do `_minHeight`
+- [x] (S3) Comentário do `SignedInPanel`. **Feito:** o painel recebe `onSignOut` e desenha o "Sair"; o `_SignOutButton` saiu
+- [x] (S4) `signOutGate` completado no `tearDown`
+- [x] (S5) `matchesSemantics` com papel de botão no teste do botão do Google
+- [x] (S6) Prova por mutação dos testes de guarda do `AccountPhotoCleaner`. **Feito:** sem o `previous != current`, caem "sessão continua aberta" e "erro no stream"; sem a foto do usuário novo, cai "conta troca". O S7 também entrou: só apaga quando a conta sai ou troca
+- [x] (6) Portão de release no `PLANO.md`: política 2.0 publicada antes de qualquer APK com login, com a lista do `security-auditor`
+- [x] (S8, S9, S10) Backlog/log: host da foto `lh3`–`lh6` exato; reproduzir o voltar no seletor; `uid` no logcat como risco aceito
 
 ### Entrega
 - [x] Verificação no emulador (Pixel_9_Pro) com conta real: entrar e sair, screenshot, log sem e-mail nem token. **Feito:** logado (foto do Google carregada), sair, deslogado, entrando, cancelar tocando fora (volta a deslogado sem erro), entrar de novo, e fonte 2x do sistema sem overflow. No `flutter run` e no logcat do processo do app: 0 e-mail, 0 JWT, 0 `ya29.`, 0 `idToken`, 0 URL de foto
@@ -79,3 +79,9 @@ Ligar a aba Perfil ao `SessionNotifier`: deslogado com o botão "Entrar com o Go
 - **Emulador, voltar no seletor:** um `KEYCODE_BACK` no seletor de contas terminou **logado** (`GetCredentialResponse returned from framework` no log). O comportamento é do Credential Manager, e não do app, que só refletiu o Firebase. Tocar fora do seletor cancela certo. Fica para o `/revisar` avaliar.
 - **`uid` no logcat:** 4 linhas `Notifying … listeners about user (<uid>)` vêm do SDK nativo do FirebaseAuth, só com o `uid`, sem dado pessoal na linha. Não são do app.
 - **Cache da foto em memória:** o `evictFromCache` tira a entrada do disco e a do `imageCache` com a chave da URL. A cópia redimensionada (`memCacheWidth`) pode ficar na memória até o app fechar.
+- **`/revisar`:** o `code-reviewer` achou 1 bloqueante, 4 importantes e 8 sugestões; o `security-auditor` não achou bloqueante e trouxe 3 importantes e 5 sugestões. Os aceitos estão no checklist; os adiados estão no `BACKLOG.md`.
+- **Bloqueante do `/revisar` escondido pelo fake:** o fake emitia `SignedOut` a cada logout, e o Firebase não emite de novo com a conta já fora. Com o fake corrigido, o teste do "tentar de novo" ficou RED, e o `SessionNotifier` passou a emitir o deslogado quando o logout dá certo.
+- **`uid` no logcat:** risco aceito (`security-auditor`, S4). Vem do SDK nativo, só com o `uid`, e nenhum log do app concatena o `uid` com dado pessoal.
+- **Política 1.0 desatualizada:** ela diz "não tem login". Ficou registrado no `PLANO.md` como portão de release, com o conteúdo que a 2.0 precisa ter.
+- **Commit com mensagem maior que o conteúdo:** o `761b8a5` cita o plano e o backlog, mas só tem o `perfil.md`; os dois entraram no `4959033`. Não reescrevi o histórico.
+- **Emulador de novo, depois do `/revisar`:** o Pixel_9_Pro foi reiniciado (agora `emulator-5554`). O Perfil logado carrega a foto pelo `Image.network`, e o log do `flutter run` tem 0 e-mail, 0 JWT e 0 URL de foto.
