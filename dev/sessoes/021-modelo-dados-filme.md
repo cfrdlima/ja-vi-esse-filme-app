@@ -13,28 +13,28 @@ Definir e implementar o documento do filme do usuário em `users/{uid}/movies/{m
 - [x] Nome da feature: `lib/features/shelf`
 
 ### Regras do Firestore (RED/GREEN/REFACTOR, `firestore/test`)
-- [ ] Documento válido com o formato novo é aceito
-- [ ] Chave fora da lista e chave obrigatória ausente negadas (formato novo)
-- [ ] Tipos errados negados (bool, timestamp, string)
-- [ ] Cada `<marca>At` ausente, igual ao salvo ou igual a `request.time`; nenhuma marca é negado
-- [ ] `title` com tamanho máximo, `posterPath` opcional só no formato `/xxx.jpg`
-- [ ] `cachedAt` só igual a `request.time`
+- [x] Documento válido com o formato novo é aceito
+- [x] Chave fora da lista e chave obrigatória ausente negadas (formato novo)
+- [x] Tipos errados negados (bool, timestamp, string)
+- [x] Cada `<marca>At` ausente, igual ao salvo ou igual a `request.time`; nenhuma marca é negado
+- [x] `title` com tamanho máximo, `posterPath` opcional só no formato `/xxx.jpg`
+- [x] `cachedAt` só igual a `request.time`, e mudar `title` ou `posterPath` exige renovar
 
 ### Domínio (RED/GREEN/REFACTOR)
-- [ ] Entidade do filme do usuário (`movieId`, marcas, datas, cópia opcional), com `movieId` ≥ 1
-- [ ] Regra de "cópia vencida" (mais de 6 meses desde o `cachedAt`)
-- [ ] Contrato do repositório: observar um filme, salvar as marcas, com falhas tipadas (sem rede, permissão negada, inesperada)
+- [x] Entidade do filme do usuário. **Feito:** `MovieCopy` (id ≥ 1, título cortado em 300 unidades UTF-16 sem partir emoji, pôster fora do formato descartado), `ShelfMark`, `ShelfMovie` (pelo menos uma marca, `marksWithout`) e `ShelfEntry` (`NotOnShelf`/`OnShelf`)
+- [x] Regra de "cópia vencida". **Feito:** 180 dias, sempre abaixo dos 6 meses e sem conta de calendário
+- [x] Contrato do repositório: `watchMovie`, `addMark` e `removeMark`. **Mudou:** sem falha de "permissão negada", porque `permission-denied` com o dono logado é bug e vira `UnexpectedFailure`. Entrou a `SignInRequiredFailure`, que o login opcional vai usar
 
 ### Data (RED/GREEN/REFACTOR)
-- [ ] Model: mapa do Firestore para a entidade com parse defensivo (campo ausente, tipo errado)
-- [ ] Model: entidade para o mapa de escrita (`serverTimestamp` nas datas do servidor)
-- [ ] Gateway fino sobre o `cloud_firestore` e o caminho `collection('users').doc(uid).collection('movies').doc('$id')`
-- [ ] Repositório: tradução das `FirebaseException` sem `message` para as falhas do domínio
-- [ ] Fake do repositório em `test/helpers/`
+- [x] Model: documento para `ShelfEntry` com parse defensivo (marca que não é data ignorada, `cachedAt` ilegível conta como vencido, sem `title` dá `FormatException`)
+- [x] Model: `markFields` e `unmarkFields` com `FieldWrite` (`SetField`, `ServerTime`, `DeleteField`), sem o `FieldValue` do SDK
+- [x] Gateway fino sobre o `cloud_firestore` e o caminho `collection('users').doc(uid).collection('movies').doc('$id')`. **Feito:** sem teste de unidade, porque é só fachada do SDK
+- [x] Repositório: tradução das `FirebaseException` só pelo `code`, `not-found` ao desmarcar conta como sucesso, e o `uid` lido na hora da chamada
+- [ ] ~~Fake do repositório em `test/helpers/`~~ **Adiado** para o "Marcar", com o formato que os testes do estado pedirem (como o do auth na 019)
 
 ### Entrega
-- [ ] `PLANO.md`: nova ordem (login opcional junto com "Marcar"; logout completo depois do Firestore entrar)
-- [ ] Tríade: format, analyze limpo, `flutter test` verde, `npm test` das regras verde
+- [x] `PLANO.md`: nova ordem (login opcional junto com "Marcar"; logout completo depois do Firestore entrar), e a cópia do TMDB no conteúdo da política 2.0
+- [x] Tríade: format, analyze limpo, `flutter test` verde, `npm test` das regras verde. **Feito:** format sem mudança (184 arquivos), analyze limpo, 1000 testes verdes, 72 testes das regras verdes, `flutter build apk --debug` compilando com o plugin nativo
 - [ ] `/revisar` (`code-reviewer` e `security-auditor`: regras e storage)
 - [ ] `/fechar-sessao`
 
@@ -46,3 +46,10 @@ Definir e implementar o documento do filme do usuário em `users/{uid}/movies/{m
 
 ## Notas
 - Na abertura, com o usuário: o "Login opcional" e o "Logout" do plano dependem de coisas que ainda não existem (nenhuma ação pede conta, e o `cloud_firestore` não está no app). O modelo de dados vem antes; o login opcional entra com "Marcar", e o logout completo depois.
+- **Regras:** o JDK padrão da máquina é o 17; os testes rodam com `JAVA_HOME=/usr/lib/jvm/java-21-openjdk`.
+- **`size()` das regras conta unidades UTF-16** (testado: 300 `é` passam, 151 emojis não). O domínio corta o `title` em 300 unidades, como o `String.length` do Dart, sem partir um par substituto.
+- **`posterPath` nas regras:** `^/[A-Za-z0-9_-]{1,64}[.](jpg|png)$`. Um caminho fora desse formato vai sem `posterPath` (placeholder), e não bloqueia a marca.
+- **Transitivas do `cloud_firestore`:** o `pub add` resolveu a `cloud_firestore_platform_interface` 8.2.0 e a `cloud_firestore_web` 5.9.0, que saíram em 2026-11-16. O `flutter pub downgrade` dos dois voltou para a 8.1.0 e a 5.8.0, de 2026-10-23, junto com a 7.1.0. A 7.1.0 fica fixada sem `^` no `pubspec.yaml`.
+- **Data pendente offline:** o `snapshots()` público da 7.1.0 não aceita o `ServerTimestampBehavior.estimate`. O gateway troca o `null` pela hora local só com `hasPendingWrites`, e a decisão 013 foi corrigida.
+- **Gateway sem teste de unidade:** a conversão `Timestamp` → `DateTime`, o `null` pendente e o `FieldWrite` → `FieldValue` ficam sem cobertura até um teste de integração com o emulador (backlog) ou a verificação no aparelho na sessão do "Marcar".
+- **`uid` lido na chamada:** um `watchMovie` aberto continua no `uid` de quando foi assinado. O estado do "Marcar" precisa reassinar quando a conta muda, e o logout precisa cancelar o stream.
