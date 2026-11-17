@@ -25,10 +25,15 @@ final _keyValue = RegExp(
 
 final _bearer = RegExp(r'\b(Bearer)\s+\S+', caseSensitive: false);
 
-/// Mascara segredos do TMDB antes de o texto ir para log ou crash reporter.
+// Token sem nome de campo por perto: JWT (o `idToken` do Google e do Firebase
+// começa por `eyJ`, o `{"` em base64url) e o access token do Google (`ya29.`).
+final _bareToken = RegExp(r'\beyJ[\w-]+\.[\w-]+\.[\w-]*|\bya29\.[\w-]+');
+
+/// Mascara segredos do TMDB, do Firebase e do Google antes de o texto ir para log ou crash reporter.
 /// É a segunda barreira: rede e storage já não devem deixar o segredo chegar.
 String redactSecrets(String text) => text
     .replaceAllMapped(_jsonField, (m) => '${m[1]}***"')
     .replaceAllMapped(_escapedJsonField, (m) => '${m[1]}***${m[2]}')
     .replaceAllMapped(_keyValue, (m) => '${m[1]}${m[2]}***')
-    .replaceAllMapped(_bearer, (m) => '${m[1]} ***');
+    .replaceAllMapped(_bearer, (m) => '${m[1]} ***')
+    .replaceAll(_bareToken, '***');

@@ -116,6 +116,20 @@ void main() {
 
       expect(text, '/callback?id_token=***&state=1');
     });
+
+    test('deve mascarar JWT solto no texto', () {
+      final text = redactSecrets(
+        'token inválido: eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiIxIn0.c2ln-_x fim',
+      );
+
+      expect(text, 'token inválido: *** fim');
+    });
+
+    test('deve mascarar access token do Google solto no texto', () {
+      final text = redactSecrets('falhou com ya29.a0AfH6SM-x_y9 agora');
+
+      expect(text, 'falhou com *** agora');
+    });
   });
 
   test('deve manter texto sem segredo como está', () {
