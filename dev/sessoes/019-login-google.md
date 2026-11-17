@@ -50,13 +50,13 @@ Entrar com o Google pelo `google_sign_in` nativo, só com a identidade básica e
 - [ ] `/fechar-sessao`
 
 ### Achados aceitos do `/revisar`
-- [ ] Bloqueante (1): sem o Firebase (falha no `initializeApp`), a composição não pode derrubar o app. O `FirebaseAuth.instance` lança `no-app`, e o `runApp` nunca roda. Teste da composição
-- [ ] RED/GREEN (2): um erro no `authStateChanges` vira `Failure` no repositório e `SessionFailed` no notifier, sem ficar preso em `SessionLoading`
-- [ ] RED/GREEN (3): `currentUser` dentro do `try` no `signIn`. A exceção ali vira `Failure`, e o notifier não fica preso em "entrando"
-- [ ] RED/GREEN (4): o último `AuthState` recebido durante o login é reconciliado no fim (um `SignedIn` no meio, seguido de falha ou cancelamento, termina logado)
-- [ ] RED/GREEN (5): a falha diz qual operação falhou (login ou logout), com o doc alinhado. Depois de uma falha no logout, o "tentar de novo" não faz login
-- [ ] Guarda (6): o erro do Firebase vence o do Google quando o app sai do Google em silêncio
-- [ ] Guarda (7): um login que completa depois do `dispose` não lança nem avisa ouvintes
+- [x] Bloqueante (1): sem o Firebase (falha no `initializeApp`), a composição não pode derrubar o app. **Feito:** o `UnavailableAuthRepository` emite `SignedOut`, o login e a exclusão falham com `UnexpectedFailure` e o logout conclui. O `composeAuthRepository` (`@visibleForTesting`, no `main.dart`) só chama o `connect` com o `Firebase.apps` não vazio, e um teste prova que, sem Firebase, ele nem toca no SDK
+- [x] RED/GREEN (2): um erro no `authStateChanges` vira `Failure` no repositório (`handleError`) e falha no notifier (`onError`), sem ficar preso em `SessionLoading`
+- [x] RED/GREEN (3): `currentUser` dentro do `try` no `signIn`. A exceção ali vira `Failure`. Um `Error` no notifier sai do "entrando" para a falha e continua subindo
+- [x] RED/GREEN (4): o último `AuthState` recebido durante o login é reconciliado no fim (um `SignedIn` no meio, seguido de falha ou cancelamento, termina logado)
+- [x] RED/GREEN (5): o `SessionFailed` ficou selado, com o `SessionSignInFailed` (também para o erro do stream, porque tentar de novo é entrar) e o `SessionSignOutFailed`. O doc diz que, se o `signOut` do Firebase falhar, a sessão pode continuar aberta
+- [x] Guarda (6): o erro do Firebase vence o do Google quando o app sai do Google em silêncio. Prova por mutação: sem o `try`, o teste falha
+- [x] Guarda (7): um login que termina depois do `dispose` não lança, e um `signIn` depois do `dispose` não chama a conta. Prova por mutação nas duas guardas `_disposed`
 
 ## Decisões
 Nenhuma nova. As dependências `firebase_auth` e `google_sign_in` já estão na decisão 010 e no `CLAUDE.md`. Os adaptadores finos, sem pacote de mock, foram combinados na abertura.
@@ -79,6 +79,15 @@ Nenhuma nova. As dependências `firebase_auth` e `google_sign_in` já estão na 
 - `d24d905` add: SessionNotifier conduz o login com entrando, cancelado e falha
 - `827ce54` add: SessionNotifier faz o logout e mantém a falha visível
 - `1703565` add: main.dart monta a conta e expõe o SessionNotifier ao app
+- `1dfcded` docs: progresso da sessão 019
+- `50f67ea` docs: achados do /revisar na sessão 019
+- `2ba9997` fix: app sobe com a conta indisponível quando o Firebase falha
+- `180b41c` fix: erro no stream da conta vira Failure e SessionFailed
+- `ea92494` fix: login não fica preso em entrando com erro no usuário atual ou bug
+- `c188886` fix: login reconcilia o estado da conta que chegou no meio
+- `6e876bf` fix: falha da sessão diz se foi no login ou no logout
+- `54c5d60` test: erro do Firebase vence o do Google ao sair em silêncio
+- `08fbb23` test: SessionNotifier ignora login depois do dispose
 
 ## Notas
 - **Achados do `/revisar` adiados** (com o ok do usuário), para a sessão do Perfil ou para o `BACKLOG.md`:
