@@ -150,6 +150,23 @@ void main() {
       },
     );
 
+    test('deve sair do "entrando" mesmo quando um bug sobe do login', () async {
+      final signingIn = notifier.signIn();
+
+      repository.failSignIn(StateError('bug'));
+      await signingIn.then<void>((_) {}, onError: (Object _) {});
+
+      expect(notifier.state, isA<SessionFailed>());
+    });
+
+    test('deve deixar o bug do login subir', () async {
+      final signingIn = notifier.signIn();
+
+      repository.failSignIn(StateError('bug'));
+
+      await expectLater(signingIn, throwsStateError);
+    });
+
     test('deve limpar a falha ao tentar de novo', () async {
       final firstTry = notifier.signIn();
       repository.failSignIn(const NetworkFailure());

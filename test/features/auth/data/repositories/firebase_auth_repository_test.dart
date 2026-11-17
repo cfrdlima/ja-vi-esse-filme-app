@@ -27,8 +27,14 @@ class _FakeFirebaseAuthGateway implements FirebaseAuthGateway {
   @override
   Stream<AppUser?> authStateChanges() => _users.stream;
 
+  AppUser? signedInUser;
+  Object? currentUserError;
+
   @override
-  AppUser? currentUser;
+  AppUser? get currentUser {
+    if (currentUserError case final error?) throw error;
+    return signedInUser;
+  }
 
   @override
   Future<AppUser> signInWithGoogleIdToken(String idToken) async {
@@ -133,7 +139,7 @@ void main() {
     });
 
     test('deve devolver quem já está logado sem abrir o seletor', () async {
-      firebase.currentUser = AppUser(uid: 'outro');
+      firebase.signedInUser = AppUser(uid: 'outro');
 
       await repository.signIn();
 
@@ -142,7 +148,7 @@ void main() {
 
     test('deve devolver o usuário que já está logado', () async {
       final bia = AppUser(uid: 'outro');
-      firebase.currentUser = bia;
+      firebase.signedInUser = bia;
 
       expect(await repository.signIn(), SignInCompleted(bia));
     });
@@ -251,6 +257,12 @@ void main() {
       );
 
       expect('$failure', isNot(contains('ana@example.com')));
+    });
+
+    test('deve traduzir um erro ao ler o usuário atual', () async {
+      firebase.currentUserError = ArgumentError('uid inválido');
+
+      await expectLater(repository.signIn(), throwsA(isA<UnexpectedFailure>()));
     });
 
     test('deve sair do Google se o Firebase recusar a credencial', () async {

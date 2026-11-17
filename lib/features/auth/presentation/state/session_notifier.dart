@@ -42,12 +42,16 @@ class SessionNotifier extends ChangeNotifier {
       _emit(SessionFailed(failure));
     } on Exception {
       // O repositório só lança Failure; outra exceção não pode deixar a tela
-      // entrando para sempre. `Error` (bug) continua subindo.
+      // entrando para sempre.
       _emit(
         const SessionFailed(
           UnexpectedFailure('exceção fora das falhas tipadas'),
         ),
       );
+    } on Error {
+      // Um bug continua subindo, mas sem deixar a tela presa em "entrando".
+      _emit(const SessionFailed(UnexpectedFailure('erro no login')));
+      rethrow;
     } finally {
       _signingIn = false;
     }

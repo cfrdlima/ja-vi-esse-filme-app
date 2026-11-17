@@ -21,8 +21,8 @@ final class FirebaseAuthRepository implements AuthRepository {
 
   @override
   Future<SignInOutcome> signIn() async {
-    if (_firebase.currentUser case final user?) return SignInCompleted(user);
     try {
+      if (_firebase.currentUser case final user?) return SignInCompleted(user);
       return await _signInWithGoogle();
     } on Failure {
       rethrow;
