@@ -12,15 +12,15 @@ Trocar o placeholder da aba Estante por três abas (**Assistidos**, **Quero assi
 - [x] Consultar a `ui-ux-pro-max` (stack Flutter) para a Estante e gerar o override `pages/estante.md`. **Feito:** nada de `TabBar` na stack Flutter (fallback declarado)
 
 ### Domínio (RED/GREEN/REFACTOR)
-- [ ] `MovieCopy`/`ShelfMovie` dizem se a cópia está vencida (6 meses desde o `cachedAt`, com relógio injetado)
-- [ ] Contrato da página da Estante: `watchShelf(mark, ...)` com os filmes da marca, mais recentes primeiro, e se há mais
-- [ ] `renewCopy(MovieCopy)` no contrato: regrava só `title`, `posterPath` e `cachedAt`
+- [x] `MovieCopy`/`ShelfMovie` dizem se a cópia está vencida (6 meses desde o `cachedAt`, com relógio injetado). **Já existia:** `ShelfMovie.isCopyExpired` (sessão 021). **Também:** `ExpiredCopyRenewer` (uma por vez, uma vez por filme, para no 429 e sem rede, não espera a escrita) e `MovieCopySource`
+- [x] Contrato da página da Estante: `watchShelf(mark, ...)` com os filmes da marca, mais recentes primeiro, e se há mais. **Feito:** `ShelfPage` e `watchShelf(mark, limit:)`
+- [x] `renewCopy(MovieCopy)` no contrato: regrava só `title`, `posterPath` e `cachedAt`
 
 ### Data (RED/GREEN/REFACTOR)
-- [ ] Gateway: consulta por marca com `where`/`orderBy`/`limit` e cursor; datas pendentes estimadas, como no `watchMovie`
-- [ ] Repositório: traduz a página para entidades, falhas tipadas, `SignInRequiredFailure` sem conta; `closeStreams()` encerra também os streams da Estante
-- [ ] `renewCopy` no repositório e no gateway (`update` só da cópia)
-- [ ] Regras: testes no emulador da consulta por marca do dono (lista permitida), de outro `uid` negada e do `renewCopy` mantendo as marcas. Se `firestore.rules` mudar, publicar antes de fechar
+- [x] Gateway: consulta por marca com `where`/`orderBy`/`limit` e cursor; datas pendentes estimadas, como no `watchMovie`. **Mudou:** só `orderBy` + `limit`, sem `where` nem cursor
+- [x] Repositório: traduz a página para entidades, falhas tipadas, `SignInRequiredFailure` sem conta; `closeStreams()` encerra também os streams da Estante. **Também:** o documento ilegível é pulado e conta para o `hasMore`
+- [x] `renewCopy` no repositório e no gateway (`update` só da cópia). **Também:** `TmdbMovieCopySource` sobre o `MovieRepository.details`
+- [x] Regras: testes no emulador da consulta por marca do dono (lista permitida), de outro `uid` negada e do `renewCopy` mantendo as marcas. Se `firestore.rules` mudar, publicar antes de fechar. **Feito:** 3 testes novos (80 verdes); o emulador confirma que o `orderBy` deixa fora o filme sem a marca; o `renewCopy` já tinha teste; as regras não mudaram
 
 ### Estado (RED/GREEN/REFACTOR)
 - [ ] Notifier por aba: carregando, vazio, erro com "tentar de novo", sucesso; próxima página ao chegar ao fim
