@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ja_vi_esse_filme/core/links/external_link_opener.dart';
 import 'package:ja_vi_esse_filme/core/theme/app_theme_tokens.dart';
+import 'package:ja_vi_esse_filme/features/auth/data/repositories/unavailable_auth_repository.dart';
 import 'package:ja_vi_esse_filme/features/auth/domain/entities/auth_state.dart';
 import 'package:ja_vi_esse_filme/features/auth/presentation/state/session_notifier.dart';
 import 'package:ja_vi_esse_filme/features/auth/presentation/state/session_state.dart';
@@ -111,5 +112,28 @@ void main() {
     await tester.pumpWidget(const SizedBox());
 
     expect(authRepository.hasListener, isFalse);
+  });
+
+  group('composeAuthRepository', () {
+    test('deve usar a conta indisponível quando o Firebase não subiu', () {
+      final repository = composeAuthRepository(
+        firebaseAvailable: false,
+        connect: () => throw StateError('não deveria tocar no Firebase'),
+      );
+
+      expect(repository, isA<UnavailableAuthRepository>());
+    });
+
+    test('deve conectar ao Firebase quando ele subiu', () {
+      final connected = FakeAuthRepository();
+      addTearDown(connected.close);
+
+      final repository = composeAuthRepository(
+        firebaseAvailable: true,
+        connect: () => connected,
+      );
+
+      expect(repository, same(connected));
+    });
   });
 }

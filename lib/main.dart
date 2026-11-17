@@ -19,6 +19,7 @@ import 'core/theme/app_theme.dart';
 import 'features/auth/data/gateways/firebase_auth_sdk_gateway.dart';
 import 'features/auth/data/gateways/google_sign_in_sdk_gateway.dart';
 import 'features/auth/data/repositories/firebase_auth_repository.dart';
+import 'features/auth/data/repositories/unavailable_auth_repository.dart';
 import 'features/auth/domain/repositories/auth_repository.dart';
 import 'features/auth/presentation/state/session_notifier.dart';
 import 'features/movies/data/datasources/movie_remote_data_source.dart';
@@ -35,7 +36,10 @@ Future<void> main() async {
     run: () => runApp(
       MainApp(
         movieRepository: _composeMovieRepository(),
-        authRepository: _composeAuthRepository(),
+        authRepository: composeAuthRepository(
+          firebaseAvailable: Firebase.apps.isNotEmpty,
+          connect: _connectFirebaseAuth,
+        ),
         linkOpener: UrlLauncherLinkOpener(),
         appVersion: AppConfig.appVersion,
       ),
@@ -58,9 +62,16 @@ MovieRepository _composeMovieRepository() {
   return TmdbMovieRepository(remote: MovieRemoteDataSource(client: client));
 }
 
-// Só depois do `Firebase.initializeApp`: o `FirebaseAuth.instance` exige o
-// app padrão já criado.
-AuthRepository _composeAuthRepository() => FirebaseAuthRepository(
+/// Sem o Firebase (o `bootstrapApp` sobe o app mesmo com falha no
+/// `initializeApp`), [connect] não é chamado: o `FirebaseAuth.instance`
+/// lançaria `no-app` e derrubaria o app inteiro.
+@visibleForTesting
+AuthRepository composeAuthRepository({
+  required bool firebaseAvailable,
+  required AuthRepository Function() connect,
+}) => firebaseAvailable ? connect() : const UnavailableAuthRepository();
+
+AuthRepository _connectFirebaseAuth() => FirebaseAuthRepository(
   firebase: FirebaseAuthSdkGateway(FirebaseAuth.instance),
   google: GoogleSignInSdkGateway(GoogleSignIn.instance),
 );
