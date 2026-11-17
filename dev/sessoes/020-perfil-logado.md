@@ -12,11 +12,11 @@ Ligar a aba Perfil ao `SessionNotifier`: deslogado com o botão "Entrar com o Go
 - [ ] Asset oficial do "G" em PNG (sem `flutter_svg`), declarado no `pubspec.yaml`. Copiados para `assets/` (`google_g_logo.png`, `GoogleSans-Medium.ttf` e `GoogleSans-OFL.txt`); o `pubspec.yaml` e o `LicenseRegistry` entram no ciclo do botão
 
 ### Pendências da 019 (RED/GREEN/REFACTOR por comportamento)
-- [ ] `FakeAuthRepository` reemite o estado atual ao assinar (S14)
-- [ ] `deleteAccount` do fake como `async` (S15)
-- [ ] `SessionNotifier.signOut` ignora a chamada com login em andamento (S11)
-- [ ] `SessionNotifier.signOut` ignora a chamada dupla (S11)
-- [ ] `SessionNotifier.signOut` trata `Exception` não tipada como `UnexpectedFailure` (S11)
+- [x] `FakeAuthRepository` reemite o estado atual ao assinar (S14)
+- [x] `deleteAccount` do fake como `async` (S15)
+- [x] `SessionNotifier.signOut` ignora a chamada com login em andamento (S11)
+- [x] `SessionNotifier.signOut` ignora a chamada dupla (S11)
+- [x] `SessionNotifier.signOut` trata `Exception` não tipada como `UnexpectedFailure` (S11)
 
 ### UI (RED/GREEN/REFACTOR por estado)
 - [ ] Carregando: skeleton do cabeçalho, sem spinner solto
@@ -39,7 +39,15 @@ Ligar a aba Perfil ao `SessionNotifier`: deslogado com o botão "Entrar com o Go
 - Com o usuário, na abertura: o botão usa a **Google Sans recortada** (Latin, `wght=500`, 52 KB, OFL sem Reserved Font Name), feita com o `fonttools` fora do app; a foto da conta **sai do cache no logout** nesta sessão; a foto só carrega de **`https` em `googleusercontent.com`**. São assets e regras de UI, sem dependência nova, então não viram arquivo em `dev/decisoes/`.
 
 ## Commits
+- `ef3b3fb` docs: abre a sessão 020
+- `a452108` docs: override de design do Perfil
+- `c6264d3` test: FakeAuthRepository reemite o estado atual e falha o deleteAccount pelo future
+- `61be28b` add: SessionNotifier ignora o logout durante um login
+- `0ec4836` add: SessionNotifier ignora um segundo logout em andamento
+- `01d2ba6` add: SessionNotifier mostra a falha do logout com exceção não tipada
 
 ## Notas
 - Riscos levantados na abertura: a política 2.0 precisa estar publicada antes de uma versão com o botão chegar ao usuário; a foto da conta fica no cache de imagens (dado pessoal, entra na política 2.0, e a limpeza no logout é decidida nesta sessão ou no item do logout); validar ou não o host da foto (`lh3.googleusercontent.com`); o logo do Google tem de ser o arquivo oficial.
 - Fora do escopo: "login leva para onde estava" e a limpeza do Firestore no logout (itens próprios do plano).
+- No ciclo da S15, o GREEN foi aplicado no mesmo passo em que o teste foi reescrito. O RED foi confirmado depois, voltando a linha por um instante (`UnimplementedError` lançado na chamada).
+- Um `signIn` durante um logout em andamento ainda não é barrado. Fica para avaliar no `/revisar`.
