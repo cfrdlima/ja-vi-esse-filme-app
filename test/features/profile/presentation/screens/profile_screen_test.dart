@@ -26,11 +26,15 @@ void main() {
   Future<void> pumpProfile(
     WidgetTester tester, {
     TextScaler textScaler = TextScaler.noScaling,
+    bool disableAnimations = false,
   }) => tester.pumpWidget(
     ChangeNotifierProvider(
       create: (_) => SessionNotifier(repository: repository),
       child: MediaQuery(
-        data: MediaQueryData(textScaler: textScaler),
+        data: MediaQueryData(
+          textScaler: textScaler,
+          disableAnimations: disableAnimations,
+        ),
         child: testApp(home: const ProfileScreen()),
       ),
     ),
@@ -139,7 +143,9 @@ void main() {
     testWidgets('deve mostrar o botão do Google entrando', (tester) async {
       final semantics = tester.ensureSemantics();
       await pumpProfile(tester);
-      await tester.pump();
+      // Espera a transição do carregando: no começo do fade, o bloco ainda
+      // está fora da árvore semântica.
+      await tester.pumpAndSettle();
 
       await tester.tap(find.text(l10n.signInWithGoogle));
       await tester.pump();
@@ -336,5 +342,18 @@ void main() {
         });
       });
     }
+  });
+
+  testWidgets('deve trocar de estado sem animação com reduzir movimento', (
+    tester,
+  ) async {
+    repository.emit(const SignedOut());
+    await pumpProfile(tester, disableAnimations: true);
+    await tester.pump();
+
+    expect(
+      tester.widget<AnimatedSwitcher>(find.byType(AnimatedSwitcher)).duration,
+      Duration.zero,
+    );
   });
 }

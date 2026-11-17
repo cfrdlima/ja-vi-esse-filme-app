@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../core/l10n/failure_message.dart';
+import '../../../../core/theme/app_motion.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../auth/presentation/state/session_notifier.dart';
 import '../../../auth/presentation/state/session_state.dart';
@@ -25,7 +26,7 @@ class AccountSection extends StatelessWidget {
     final signInButton = GoogleSignInButton(
       onPressed: () => unawaited(context.read<SessionNotifier>().signIn()),
     );
-    return switch (state) {
+    final panel = switch (state) {
       SessionLoading() => const AccountSkeleton(),
       SessionSignedOut() => SignedOutPanel(action: signInButton),
       SessionSigningIn() => const SignedOutPanel(
@@ -44,7 +45,26 @@ class AccountSection extends StatelessWidget {
         onRetry: () => unawaited(context.read<SessionNotifier>().signOut()),
       ),
     };
+    // A troca de estado não é instantânea (MASTER.md §7), exceto com o
+    // "reduzir movimento" ligado.
+    return AnimatedSwitcher(
+      duration: MediaQuery.disableAnimationsOf(context)
+          ? Duration.zero
+          : AppMotion.medium,
+      child: KeyedSubtree(key: ValueKey(_layoutOf(state)), child: panel),
+    );
   }
+
+  // Deslogado, entrando e falha no login têm o mesmo layout: só o botão e a
+  // mensagem mudam, sem refazer a transição do bloco inteiro.
+  static String _layoutOf(SessionState state) => switch (state) {
+    SessionLoading() => 'loading',
+    SessionSignedOut() ||
+    SessionSigningIn() ||
+    SessionSignInFailed() => 'signedOut',
+    SessionSignedIn() => 'signedIn',
+    SessionSignOutFailed() => 'signOutFailed',
+  };
 }
 
 class _SignOutButton extends StatelessWidget {
