@@ -283,6 +283,66 @@ void main() {
 
       expect(notifier.state, isA<SessionSignOutFailed>());
     });
+
+    test(
+      'deve voltar a deslogado quando o logout dá certo depois de uma falha',
+      () async {
+        repository.signOutError = const UnexpectedFailure('cache');
+        await notifier.signOut();
+        repository.signOutError = null;
+
+        await notifier.signOut();
+        await pumpEventQueue();
+
+        expect(notifier.state, isA<SessionSignedOut>());
+      },
+    );
+
+    test('deve ignorar o login enquanto um logout não termina', () {
+      repository.signOutGate = Completer<void>();
+      addTearDown(() => repository.signOutGate?.complete());
+      unawaited(notifier.signOut());
+
+      unawaited(notifier.signIn());
+
+      expect(repository.pendingSignIns, 0);
+    });
+
+    test('deve ignorar o logout enquanto um login não termina', () async {
+      unawaited(notifier.signIn());
+
+      await notifier.signOut();
+
+      expect(repository.signOutCalls, 0);
+    });
+
+    test('deve ignorar um segundo logout enquanto o primeiro não termina', () {
+      repository.signOutGate = Completer<void>();
+      addTearDown(() => repository.signOutGate?.complete());
+      unawaited(notifier.signOut());
+
+      unawaited(notifier.signOut());
+
+      expect(repository.signOutCalls, 1);
+    });
+
+    test(
+      'deve mostrar a falha do logout quando sobe exceção não tipada',
+      () async {
+        repository.signOutError = Exception('fora do contrato');
+
+        await notifier.signOut();
+
+        expect(
+          notifier.state,
+          isA<SessionSignOutFailed>().having(
+            (state) => state.failure,
+            'failure',
+            isA<UnexpectedFailure>(),
+          ),
+        );
+      },
+    );
   });
 
   test('deve ignorar um login que termina depois do dispose', () async {

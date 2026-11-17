@@ -15,4 +15,7 @@ Stream<LicenseEntry> _fontLicenses() async* {
   yield LicenseEntryWithLineBreaks(const [
     'Playfair Display',
   ], await rootBundle.loadString('assets/fonts/PlayfairDisplay-OFL.txt'));
+  yield LicenseEntryWithLineBreaks(const [
+    'Google Sans',
+  ], await rootBundle.loadString('assets/fonts/GoogleSans-OFL.txt'));
 }

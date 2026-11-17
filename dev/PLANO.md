@@ -3,9 +3,9 @@
 > Fonte da verdade do que construir. Atualizado por `/fechar-sessao`.
 
 ## Última sessão
-**019 — Fase 2: login com o Google** (fechada em 2026-11-17) · [log](sessoes/019-login-google.md)
-O login com o Google funciona de ponta a ponta: o `google_sign_in` nativo, sem escopos extras, passa a credencial ao `FirebaseAuth`, por trás de adaptadores finos. O `FirebaseAuthRepository` traduz os erros só pelo código, o `SessionNotifier` cobre carregando, deslogado, entrando, logado e falha de login ou de logout, e o app sobe mesmo sem Firebase. Entraram também as pendências da 018: o `uid` validado, o redator com JWT e e-mail, a mensagem genérica neutra e as regras de backup.
-**Próximo passo:** o Perfil logado e deslogado, com o botão "Entrar com Google" sobre o `SessionNotifier`. Os achados adiados da 019 (fake com reemissão, guardas do `signOut`) estão no `BACKLOG.md`.
+**020 — Fase 2: Perfil logado e deslogado** (fechada em 2026-11-17) · [log](sessoes/020-perfil-logado.md)
+O Perfil segue o `SessionNotifier` em 6 estados, com o botão "Entrar com o Google" nas diretrizes de marca (G oficial, Google Sans recortada), o avatar com host validado e só em memória, e a foto apagada no logout. O `/revisar` pegou e corrigiu o "tentar de novo" preso na falha do logout e o login no meio de um logout.
+**Próximo passo:** login opcional (uma ação que precisa de conta leva ao login e volta). Antes de qualquer APK com login, a política 2.0 precisa estar publicada (portão no item da política).
 
 ## Fase 0 — Fundação
 - [x] Criar projeto (`io.github.cfrdlima.ja_vi_esse_filme`), `analysis_options.yaml`, `.gitignore` com `env/*.json` (exceto `example.json`)
@@ -61,14 +61,14 @@ O login com o Google funciona de ponta a ponta: o `google_sign_in` nativo, sem e
   - a tradução dos erros do SDK sem `e.message`, `e.email` nem `e.credential` (pendências da sessão 018).
 
   (sessão 019)
-- [ ] Perfil logado e deslogado: botão "Entrar com Google" (diretrizes de marca do Google), nome e foto, e os 4 estados (consultar a `ui-ux-pro-max`)
+- [x] Perfil logado e deslogado: botão "Entrar com Google" (diretrizes de marca do Google), nome e foto, e os 4 estados (consultar a `ui-ux-pro-max`) (sessão 020)
 - [ ] Login opcional: uma ação que precisa de conta leva ao login e volta para onde estava
 - [ ] Logout na ordem da decisão 010: cancelar os streams; `terminate()`; `clearPersistence()`; `signOut()` do Firebase e do Google; recriar a instância. Teste: a falha ao limpar o cache não deixa a sessão aberta
 - [ ] Modelo dos dados do filme: um documento por filme (`movie_id`, assistido, quero ver, favorito, datas) e se guarda cópia do título e do `poster_path` (nunca a imagem), com `cached_at` e renovação para o limite de 6 meses dos termos do TMDB
 - [ ] Marcar como **assistido**, **quero assistir** e **favorito** nos detalhes, com atualização otimista e erro com "tentar de novo"
 - [ ] Estante: abas Assistidos, Quero assistir e Favoritos, com paginação e os 4 estados
 - [ ] Excluir a conta pelo app, na ordem da decisão 010: login recente; documentos das subcoleções de uma lista fixa no código, com confirmação do servidor e teste no emulador de que não sobra nada em `users/{uid}`; `user.delete()`; `disconnect()`. Excluir também pela web, com o mecanismo decidido na sessão: página com o Firebase JS ou pedido por formulário ou e-mail, já que o Spark não tem Cloud Functions. É exigência do Google Play
-- [ ] Política de privacidade 2.0: conta Google, Firestore e região, Google como operador, transferência internacional do Auth, base legal, prazo e exclusão. Não dizer que o token é "cifrado", porque ele fica em SharedPreferences, protegido só pelo sandbox. Publicada no Pages (decisão 006) antes de uma versão com login chegar ao usuário
+- [ ] Política de privacidade 2.0: conta Google, Firestore e região, Google como operador, transferência internacional do Auth, base legal, prazo e exclusão. **Portão de release (sessão 020): o botão de login já está no Perfil, então nenhum APK sai do ambiente de desenvolvimento antes da 2.0 publicada.** Conteúdo pedido pelo `security-auditor` da 020: dados da conta (nome, e-mail, foto e `uid`) e a finalidade; a foto só no cache em memória, baixada direto do `googleusercontent.com`, com o Google recebendo IP e user-agent; a conta no Firebase nasce no primeiro login, ao escolher a conta no seletor; o SDK do FirebaseAuth registra o `uid` no logcat local, sem envio pelo app; nada vai para backup nem para outro aparelho. Não dizer que o token é "cifrado", porque ele fica em SharedPreferences, protegido só pelo sandbox. Publicada no Pages (decisão 006) antes de uma versão com login chegar ao usuário
 
 ## Fase 3 — "Já vi esse filme"
 - [ ] Nota pessoal e data em que assistiu, no documento do filme

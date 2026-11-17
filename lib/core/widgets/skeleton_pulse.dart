@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/app_motion.dart';
+import '../theme/app_motion.dart';
 
 /// Pulso de opacidade dos skeletons (override `descobrir.md`). Um controller
 /// só serve a tela inteira; com o "reduzir movimento" ligado, fica parado.

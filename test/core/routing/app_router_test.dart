@@ -8,6 +8,8 @@ import 'package:ja_vi_esse_filme/core/routing/app_router.dart';
 import 'package:ja_vi_esse_filme/core/routing/app_routes.dart';
 import 'package:ja_vi_esse_filme/core/theme/app_sizes.dart';
 import 'package:ja_vi_esse_filme/features/about/presentation/screens/about_screen.dart';
+import 'package:ja_vi_esse_filme/features/auth/domain/entities/auth_state.dart';
+import 'package:ja_vi_esse_filme/features/auth/presentation/state/session_notifier.dart';
 import 'package:ja_vi_esse_filme/features/movies/domain/entities/movie.dart';
 import 'package:ja_vi_esse_filme/features/movies/presentation/screens/discover_screen.dart';
 import 'package:ja_vi_esse_filme/features/movies/presentation/screens/movie_details_screen.dart';
@@ -15,8 +17,10 @@ import 'package:ja_vi_esse_filme/features/movies/presentation/screens/search_scr
 import 'package:ja_vi_esse_filme/features/movies/presentation/state/search_notifier.dart';
 import 'package:ja_vi_esse_filme/features/movies/presentation/widgets/movie_poster.dart';
 import 'package:ja_vi_esse_filme/l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
 
 import '../../helpers/back_navigation.dart';
+import '../../helpers/fake_auth_repository.dart';
 import '../../helpers/stub_movie_repository.dart';
 import '../../helpers/test_app.dart';
 
@@ -31,12 +35,19 @@ Future<GoRouter> pumpAppRouter(
     appVersion: appVersion,
   );
   addTearDown(router.dispose);
+  // Já deslogada: a conta carregando pulsaria o skeleton para sempre, e o
+  // `pumpAndSettle` não terminaria.
+  final account = FakeAuthRepository()..emit(const SignedOut());
+  addTearDown(account.close);
   await tester.pumpWidget(
-    testRouterApp(
-      routerConfig: router,
-      builder: (context, child) => MediaQuery(
-        data: MediaQuery.of(context).copyWith(textScaler: textScaler),
-        child: child!,
+    ChangeNotifierProvider(
+      create: (_) => SessionNotifier(repository: account),
+      child: testRouterApp(
+        routerConfig: router,
+        builder: (context, child) => MediaQuery(
+          data: MediaQuery.of(context).copyWith(textScaler: textScaler),
+          child: child!,
+        ),
       ),
     ),
   );

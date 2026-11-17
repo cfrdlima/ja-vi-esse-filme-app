@@ -19,6 +19,10 @@ class SessionNotifier extends ChangeNotifier {
     );
   }
 
+  static const _untypedException = UnexpectedFailure(
+    'exceção fora das falhas tipadas',
+  );
+
   final AuthRepository _repository;
   late final StreamSubscription<AuthState> _subscription;
 
@@ -26,15 +30,18 @@ class SessionNotifier extends ChangeNotifier {
   SessionState get state => _state;
 
   bool _signingIn = false;
+  bool _signingOut = false;
 
   /// O último estado da conta que chegou durante o login, guardado para o
   /// fim dele. `null` quando não chegou nenhum.
   AuthState? _arrivedDuringSignIn;
   bool _disposed = false;
 
-  /// Abre o login do Google. Serve também para "tentar de novo".
+  /// Abre o login do Google. Serve também para "tentar de novo". Com um
+  /// logout em andamento, não faz nada: o Firebase sai antes do Google, e o
+  /// seletor abriria com a limpeza ainda rodando.
   Future<void> signIn() async {
-    if (_disposed || _signingIn) return;
+    if (_disposed || _signingIn || _signingOut) return;
     _signingIn = true;
     _arrivedDuringSignIn = null;
     _emit(const SessionSigningIn());
@@ -48,13 +55,7 @@ class SessionNotifier extends ChangeNotifier {
     } on Exception {
       // O repositório só lança Failure; outra exceção não pode deixar a tela
       // entrando para sempre.
-      _emit(
-        _reconcile(
-          const SessionSignInFailed(
-            UnexpectedFailure('exceção fora das falhas tipadas'),
-          ),
-        ),
-      );
+      _emit(_reconcile(const SessionSignInFailed(_untypedException)));
     } on Error {
       // Um bug continua subindo, mas sem deixar a tela presa em "entrando".
       _emit(const SessionSignInFailed(UnexpectedFailure('erro no login')));
@@ -64,14 +65,25 @@ class SessionNotifier extends ChangeNotifier {
     }
   }
 
-  /// Encerra a sessão. O deslogado chega pelo stream da conta; uma falha na
-  /// limpeza fica visível, porque o usuário precisa saber.
+  /// Encerra a sessão. Uma falha na limpeza fica visível, porque o usuário
+  /// precisa saber. Com um login em andamento, não faz nada: o resultado dele
+  /// ainda vai decidir o estado.
   Future<void> signOut() async {
-    if (_disposed) return;
+    if (_disposed || _signingIn || _signingOut) return;
+    _signingOut = true;
     try {
       await _repository.signOut();
+      // Não espera o stream: depois de uma falha, o Firebase já saiu na
+      // primeira tentativa e não emite SignedOut de novo, e a tela ficaria
+      // presa no erro.
+      _emit(const SessionSignedOut());
     } on Failure catch (failure) {
       _emit(SessionSignOutFailed(failure));
+    } on Exception {
+      // Mesmo motivo do signIn: a tela precisa ver o erro e o "tentar de novo".
+      _emit(const SessionSignOutFailed(_untypedException));
+    } finally {
+      _signingOut = false;
     }
   }
 

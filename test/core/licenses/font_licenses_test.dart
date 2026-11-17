@@ -31,4 +31,13 @@ void main() {
       contains('Copyright 2017 The Playfair Display Project Authors'),
     );
   });
+
+  test('deve registrar a licença da Google Sans', () async {
+    registerFontLicenses();
+
+    expect(
+      await licenseTextOf('Google Sans'),
+      contains('Copyright 2025 The Google Sans Project Authors'),
+    );
+  });
 }

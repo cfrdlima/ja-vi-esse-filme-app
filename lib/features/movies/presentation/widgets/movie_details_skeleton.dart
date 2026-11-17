@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_sizes.dart';
 import '../../../../core/theme/app_theme_tokens.dart';
+import '../../../../core/widgets/skeleton_pulse.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../domain/entities/movie.dart';
 import 'movie_poster.dart';
 import 'poster_hero.dart';
 import 'poster_skeleton.dart';
-import 'skeleton_pulse.dart';
 
 /// Carregando dos detalhes: o pôster, as linhas do cabeçalho e um bloco de
 /// parágrafo, no lugar em que o conteúdo vai aparecer. Com o [preview] vindo

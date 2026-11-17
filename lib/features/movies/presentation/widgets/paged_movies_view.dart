@@ -6,6 +6,7 @@ import '../../../../core/l10n/failure_message.dart';
 import '../../../../core/theme/app_sizes.dart';
 import '../../../../core/theme/app_theme_tokens.dart';
 import '../../../../core/widgets/retry_button.dart';
+import '../../../../core/widgets/skeleton_pulse.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../domain/entities/movie.dart';
 import '../state/paged_movies_notifier.dart';
@@ -13,7 +14,6 @@ import '../state/paged_movies_state.dart';
 import 'movie_poster.dart';
 import 'poster_hero.dart';
 import 'poster_skeleton.dart';
-import 'skeleton_pulse.dart';
 
 /// Os 4 estados de uma lista paginada de filmes, com paginação infinita. O
 /// vazio muda de tela para tela e vem em [empty].

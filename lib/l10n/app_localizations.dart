@@ -400,6 +400,48 @@ abstract class AppLocalizations {
   /// **'Sobre o app'**
   String get profileAboutEntry;
 
+  /// Anúncio do leitor de tela enquanto o Perfil espera o estado da conta
+  ///
+  /// In pt, this message translates to:
+  /// **'Carregando a conta'**
+  String get profileAccountLoading;
+
+  /// Título do Perfil sem conta, acima do botão Entrar com o Google
+  ///
+  /// In pt, this message translates to:
+  /// **'Entre para guardar seus filmes'**
+  String get profileSignedOutTitle;
+
+  /// Texto de apoio do Perfil sem conta: o que a conta guarda e que o login é opcional
+  ///
+  /// In pt, this message translates to:
+  /// **'Com a conta, o que você já viu, quer ver e favoritou fica guardado e aparece em qualquer aparelho. Descobrir e Buscar continuam funcionando sem conta.'**
+  String get profileSignedOutBody;
+
+  /// Nome mostrado no Perfil quando a conta Google não tem nome público
+  ///
+  /// In pt, this message translates to:
+  /// **'Sua conta'**
+  String get profileUnnamedAccount;
+
+  /// Botão do Perfil que encerra a sessão da conta
+  ///
+  /// In pt, this message translates to:
+  /// **'Sair'**
+  String get profileSignOut;
+
+  /// Texto do botão de login, traduzido de "Sign in with Google" como as diretrizes de marca do Google permitem
+  ///
+  /// In pt, this message translates to:
+  /// **'Entrar com o Google'**
+  String get signInWithGoogle;
+
+  /// Rótulo do leitor de tela para o botão de login enquanto o seletor de contas está aberto
+  ///
+  /// In pt, this message translates to:
+  /// **'Entrando com o Google'**
+  String get signingInWithGoogle;
+
   /// Título da tela Sobre
   ///
   /// In pt, this message translates to:

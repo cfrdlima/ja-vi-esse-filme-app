@@ -77,3 +77,7 @@ Ideias que surgiram e não estão no plano imediato. Marque **[prioritário]** o
     - e-mail de teste em `@example.com` no `secret_redactor_test.dart` (S17).
   - **Manifest (`security-auditor`):** `USE_BIOMETRIC` e `USE_FINGERPRINT` vêm do `androidx.credentials`. Se as passkeys nunca forem usadas, avaliar `tools:node="remove"` testado no aparelho.
 - O emulador `Pixel_9` está com 96% do `/data` usado e não instala o app. Usar o `Pixel_9_Pro` ou liberar espaço (sessão 019)
+- Achados adiados do `/revisar` da sessão 020 (Perfil):
+  - host da foto da conta com igualdade exata (`lh3` a `lh6.googleusercontent.com`) no lugar do `endsWith`, recusando porta e `userInfo`, como na decisão 009. Não há exploração, porque só o dono da conta muda a foto (`security-auditor`, S1);
+  - reproduzir o voltar no seletor do Credential Manager, que terminou logado na sessão 020, apertando o voltar antes de qualquer toque e testando com duas contas (`security-auditor`, S3);
+  - "Sair" sem retorno de "ocupado": um `SessionSigningOut`, com o "Sair" e o botão do Google em `.loading()` durante o logout. Hoje o `signIn` é só ignorado nessa janela (`code-reviewer`, S4).

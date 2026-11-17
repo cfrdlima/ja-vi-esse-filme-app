@@ -7,6 +7,16 @@ abstract final class AppTypography {
   static const headingFamily = 'PlayfairDisplay';
   static const bodyFamily = 'Inter';
 
+  /// Só para o botão "Entrar com o Google": Google Sans Medium 14/20, como
+  /// pedem as diretrizes de marca do Google (override `perfil.md`). O arquivo
+  /// é um recorte Latin com `wght=500` fixo.
+  static const googleButton = TextStyle(
+    fontFamily: 'GoogleSans',
+    fontWeight: FontWeight.w500,
+    fontSize: 14,
+    height: 20 / 14,
+  );
+
   // O MASTER.md não herda o letterSpacing do M3 (0,25–0,5), que deixa a
   // Inter aberta demais; só os labels ganham um leve respiro.
   static const _labelLetterSpacing = 0.1;

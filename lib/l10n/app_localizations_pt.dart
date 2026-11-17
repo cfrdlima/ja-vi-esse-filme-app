@@ -217,6 +217,28 @@ class AppLocalizationsPt extends AppLocalizations {
   String get profileAboutEntry => 'Sobre o app';
 
   @override
+  String get profileAccountLoading => 'Carregando a conta';
+
+  @override
+  String get profileSignedOutTitle => 'Entre para guardar seus filmes';
+
+  @override
+  String get profileSignedOutBody =>
+      'Com a conta, o que você já viu, quer ver e favoritou fica guardado e aparece em qualquer aparelho. Descobrir e Buscar continuam funcionando sem conta.';
+
+  @override
+  String get profileUnnamedAccount => 'Sua conta';
+
+  @override
+  String get profileSignOut => 'Sair';
+
+  @override
+  String get signInWithGoogle => 'Entrar com o Google';
+
+  @override
+  String get signingInWithGoogle => 'Entrando com o Google';
+
+  @override
   String get aboutTitle => 'Sobre';
 
   @override
