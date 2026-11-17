@@ -40,7 +40,7 @@ Esta decisão complementa a 010 e não substitui nenhuma.
 ## Consequências
 - As regras provisórias da sessão 017 (três bools) e os testes delas são reescritos para o formato novo.
 - Cada aba da Estante consulta com `where('<marca>At', '!=', null)` e `orderBy('<marca>At')` no mesmo campo, o que só precisa do índice simples criado pelo Firestore. Não há `firestore.indexes.json` por enquanto.
-- Escrita offline: o `serverTimestamp()` fica pendente até a sincronização, e a leitura local vê o campo como `null`. O model trata esse caso como "marcado, com data estimada" (`ServerTimestampBehavior.estimate`), e nunca como desmarcado.
+- Escrita offline: o `serverTimestamp()` fica pendente até a sincronização, e a leitura local vê o campo como `null`. O `snapshots()` público do `cloud_firestore` 7.1.0 não aceita o `ServerTimestampBehavior.estimate`. Por isso o gateway troca o `null` pela hora local, e só quando o snapshot tem `hasPendingWrites`. O filme aparece como "marcado, com data estimada", e nunca como desmarcado.
 - A política de privacidade 2.0 declara a cópia do título e do pôster (caminho, sem imagem) no Firestore, com o prazo de 6 meses.
 - A exclusão da conta já cobre o documento (subcoleção `movies` na lista fixa da decisão 010).
 - Se a licença do TMDB acabar (§1.D), as cópias precisam ser apagadas. Os campos `title`, `posterPath` e `cachedAt` são removidos de todos os documentos pelo console ou pelo Admin SDK, com a conta do dono do projeto, sem depender do app.
