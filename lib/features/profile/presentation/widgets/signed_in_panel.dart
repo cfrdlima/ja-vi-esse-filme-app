@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_theme_tokens.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../auth/domain/entities/app_user.dart';
+import 'account_avatar.dart';
 
 /// Bloco da conta logada: nome, e-mail e a ação de sair (override
 /// `perfil.md`).
@@ -22,21 +23,34 @@ class SignedInPanel extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          user.displayName ?? l10n.profileUnnamedAccount,
-          style: theme.textTheme.titleLarge,
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-        ),
-        if (user.email case final email?)
-          Text(
-            email,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
+        Row(
+          children: [
+            AccountAvatar(user: user),
+            SizedBox(width: spacing.md),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    user.displayName ?? l10n.profileUnnamedAccount,
+                    style: theme.textTheme.titleLarge,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  if (user.email case final email?)
+                    Text(
+                      email,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                ],
+              ),
             ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
+          ],
+        ),
         SizedBox(height: spacing.lg),
         action,
       ],

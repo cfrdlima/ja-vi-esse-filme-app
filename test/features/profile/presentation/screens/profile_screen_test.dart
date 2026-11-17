@@ -7,6 +7,7 @@ import 'package:ja_vi_esse_filme/features/auth/domain/entities/app_user.dart';
 import 'package:ja_vi_esse_filme/features/auth/domain/entities/auth_state.dart';
 import 'package:ja_vi_esse_filme/features/auth/presentation/state/session_notifier.dart';
 import 'package:ja_vi_esse_filme/features/profile/presentation/screens/profile_screen.dart';
+import 'package:ja_vi_esse_filme/features/profile/presentation/widgets/account_avatar.dart';
 import 'package:ja_vi_esse_filme/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
@@ -198,6 +199,12 @@ void main() {
       await pumpSignedIn(tester, AppUser(uid: 'abc123'));
 
       expect(find.text(l10n.profileUnnamedAccount), findsOneWidget);
+    });
+
+    testWidgets('deve mostrar o avatar da conta', (tester) async {
+      await pumpSignedIn(tester, ana);
+
+      expect(find.byType(AccountAvatar), findsOneWidget);
     });
 
     testWidgets('deve mostrar o e-mail da conta', (tester) async {
