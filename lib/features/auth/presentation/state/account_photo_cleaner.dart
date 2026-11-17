@@ -15,12 +15,16 @@ class AccountPhotoCleaner {
   /// A foto da conta logada por último, até a sessão fechar.
   String? _photoUrl;
 
+  // Só quando a conta sai (deslogado) ou troca (outro usuário). Um erro no
+  // stream ou uma falha não fecham a sessão, e a foto continua em uso.
   void _onSessionChanged() {
-    final previous = _photoUrl;
-    _photoUrl = switch (_session.state) {
+    final current = switch (_session.state) {
+      SessionSignedOut() => null,
       SessionSignedIn(:final user) => user.photoUrl,
-      _ => null,
+      _ => _photoUrl,
     };
-    if (previous != null && previous != _photoUrl) _evict(previous);
+    final previous = _photoUrl;
+    _photoUrl = current;
+    if (previous != null && previous != current) _evict(previous);
   }
 }

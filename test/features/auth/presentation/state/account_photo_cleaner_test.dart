@@ -66,4 +66,13 @@ void main() {
 
     expect(evicted, isEmpty);
   });
+
+  test('não deve apagar a foto quando o stream da conta dá erro', () async {
+    await emit(SignedIn(ana));
+
+    repository.emitError(StateError('stream'));
+    await pumpEventQueue();
+
+    expect(evicted, isEmpty);
+  });
 }
