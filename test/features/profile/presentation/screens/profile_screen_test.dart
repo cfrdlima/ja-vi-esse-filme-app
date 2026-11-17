@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ja_vi_esse_filme/core/error/failures.dart';
 import 'package:ja_vi_esse_filme/core/l10n/app_locale.dart';
+import 'package:ja_vi_esse_filme/features/auth/domain/entities/app_user.dart';
 import 'package:ja_vi_esse_filme/features/auth/domain/entities/auth_state.dart';
 import 'package:ja_vi_esse_filme/features/auth/presentation/state/session_notifier.dart';
 import 'package:ja_vi_esse_filme/features/profile/presentation/screens/profile_screen.dart';
@@ -168,6 +169,48 @@ void main() {
       await tester.tap(find.text(l10n.signInWithGoogle));
 
       expect(repository.pendingSignIns, 1);
+    });
+  });
+
+  group('logado', () {
+    final ana = AppUser(
+      uid: 'abc123',
+      displayName: 'Ana Souza',
+      email: 'ana@example.com',
+    );
+
+    Future<void> pumpSignedIn(WidgetTester tester, AppUser user) async {
+      repository.emit(SignedIn(user));
+      await pumpProfile(tester);
+      await tester.pump();
+    }
+
+    testWidgets('deve mostrar o nome da conta', (tester) async {
+      await pumpSignedIn(tester, ana);
+
+      expect(find.text('Ana Souza'), findsOneWidget);
+    });
+
+    testWidgets('deve mostrar Sua conta quando a conta não tem nome', (
+      tester,
+    ) async {
+      await pumpSignedIn(tester, AppUser(uid: 'abc123'));
+
+      expect(find.text(l10n.profileUnnamedAccount), findsOneWidget);
+    });
+
+    testWidgets('deve mostrar o e-mail da conta', (tester) async {
+      await pumpSignedIn(tester, ana);
+
+      expect(find.text('ana@example.com'), findsOneWidget);
+    });
+
+    testWidgets('deve pedir o logout ao tocar em Sair', (tester) async {
+      await pumpSignedIn(tester, ana);
+
+      await tester.tap(find.text(l10n.profileSignOut));
+
+      expect(repository.signOutCalls, 1);
     });
   });
 }

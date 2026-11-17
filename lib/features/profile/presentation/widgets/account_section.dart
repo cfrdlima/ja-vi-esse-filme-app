@@ -9,6 +9,7 @@ import '../../../auth/presentation/state/session_notifier.dart';
 import '../../../auth/presentation/state/session_state.dart';
 import '../../../auth/presentation/widgets/google_sign_in_button.dart';
 import 'account_skeleton.dart';
+import 'signed_in_panel.dart';
 import 'signed_out_panel.dart';
 
 /// Bloco da conta no Perfil, que segue o estado da sessão.
@@ -33,7 +34,24 @@ class AccountSection extends StatelessWidget {
         error: failureMessage(AppLocalizations.of(context), failure),
         action: signInButton,
       ),
+      SessionSignedIn(:final user) => SignedInPanel(
+        user: user,
+        action: const _SignOutButton(),
+      ),
       _ => const SizedBox.shrink(),
     };
+  }
+}
+
+class _SignOutButton extends StatelessWidget {
+  const _SignOutButton();
+
+  @override
+  Widget build(BuildContext context) {
+    return OutlinedButton.icon(
+      onPressed: () => unawaited(context.read<SessionNotifier>().signOut()),
+      icon: const Icon(Icons.logout),
+      label: Text(AppLocalizations.of(context).profileSignOut),
+    );
   }
 }

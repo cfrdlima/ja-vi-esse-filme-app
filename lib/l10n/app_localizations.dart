@@ -418,6 +418,18 @@ abstract class AppLocalizations {
   /// **'Com a conta, o que você já viu, quer ver e favoritou fica guardado e aparece em qualquer aparelho. Descobrir e Buscar continuam funcionando sem conta.'**
   String get profileSignedOutBody;
 
+  /// Nome mostrado no Perfil quando a conta Google não tem nome público
+  ///
+  /// In pt, this message translates to:
+  /// **'Sua conta'**
+  String get profileUnnamedAccount;
+
+  /// Botão do Perfil que encerra a sessão da conta
+  ///
+  /// In pt, this message translates to:
+  /// **'Sair'**
+  String get profileSignOut;
+
   /// Texto do botão de login, traduzido de "Sign in with Google" como as diretrizes de marca do Google permitem
   ///
   /// In pt, this message translates to:

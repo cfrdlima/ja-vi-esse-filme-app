@@ -227,6 +227,12 @@ class AppLocalizationsPt extends AppLocalizations {
       'Com a conta, o que você já viu, quer ver e favoritou fica guardado e aparece em qualquer aparelho. Descobrir e Buscar continuam funcionando sem conta.';
 
   @override
+  String get profileUnnamedAccount => 'Sua conta';
+
+  @override
+  String get profileSignOut => 'Sair';
+
+  @override
   String get signInWithGoogle => 'Entrar com o Google';
 
   @override
