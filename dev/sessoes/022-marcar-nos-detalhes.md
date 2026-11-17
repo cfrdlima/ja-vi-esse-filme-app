@@ -40,11 +40,28 @@ Pôr nos Detalhes as marcas **Assistido**, **Quero assistir** e **Favorito**, li
 ### Composição
 - [x] `main.dart`: `ShelfRepository` montado com o `currentUid` do Firebase Auth, e fallback sem Firebase (`UnavailableShelfRepository`, tudo `SignInRequiredFailure`). **Também:** `MovieCopy.canCopy`, e as marcas somem sem título
 
+### Achados aceitos do `/revisar` (todos, com o usuário)
+- [x] (1, bloqueante) "Sair mesmo assim" emite `SessionSigningOut`; "Ficar na conta" não faz nada durante a saída. **Feito:** `confirmSignOut` emite `SessionSigningOut`; `_runSignOut()` sem guard (achado 14 junto)
+- [x] (2) Recusa do servidor depois da confirmação local aparece com "tentar de novo" (id por escrita). **Feito:** id por escrita (`_latestWrite`) no lugar do valor otimista
+- [x] (3) Falha de escrita não apaga o erro de leitura nem cai na conta nova. **Feito:** só emite pronto com a tela pronta, e a geração da assinatura descarta falhas da conta anterior
+- [x] (4) Fim do stream das marcas volta a carregar e para de aceitar toques; `FirestoreShelfRepository` recusa escritas e leituras depois do `closeStreams()` até a conta mudar. **Mudou:** o notifier volta a carregar no `onDone` e ignora toques; a guarda no repositório **não entrou**: ele não sabe quando a mesma conta entra de novo, e recusar o `uid` depois do `closeStreams()` travaria quem sai e entra com a mesma conta. Sem um sinal da conta, a guarda fica só no notifier, que é por onde a UI escreve
+- [x] (5) Limpar o cache do Firestore no boot quando o primeiro estado da conta é deslogado. **Feito:** `clearStaleAccountCache` (só o `clearPersistence`, com o primeiro estado deslogado), montado no `main.dart`
+- [x] (6) Evento da conta durante a espera do sync não é sobrescrito pela pergunta. **Feito:** depois da espera, segue só se o estado ainda for "saindo"; se a conta caiu por fora, limpa o aparelho mesmo assim
+- [x] (7) Política 2.0 no `PLANO.md`: logout sem apagamento seguro, marcas offline apagadas com aviso, cache que fica se a limpeza falhar. **Feito:** no item da política 2.0
+- [x] (8) Testes do `_OpenWatch` que falham se o código quebrar (watch sem `listen`, `onDone` da origem). **Feito:** `openStreamCount` (`@visibleForTesting`), stream sem ouvinte, cancelado, encerrado pelo Firestore e pausado
+- [x] (9) Esperar o servidor de novo logo antes do `clear()`. **Feito:** duas conferências seguidas; a segunda pega as marcas feitas durante a primeira espera
+- [x] (10) `_OpenWatch` registrado no `onListen` e sem esperar o `close()`. **Feito**
+- [x] (11) `mounted` depois da folha de login e guard de `_disposed` no notifier. **Feito**
+- [x] (12) Override `detalhes.md`: por que desmarcar logo depois de marcar é ignorado. **Feito:** e a recusa depois da confirmação local
+- [x] (13) Doc comments do `composeShelfRepository` e do `composeAuthRepository`. **Feito**
+- [x] (14) `_runSignOut()` sem guard no lugar do liga-desliga do `_signingOut`. **Feito:** junto com o 1
+- [x] (15) Tamanhos do `SignOutButton` em `AppSizes`. **Feito:** `AppSizes.buttonProgress` e `buttonProgressStroke`
+
 ### Entrega
-- [ ] Tríade: format, analyze limpo, `flutter test` verde (e `npm test` das regras se mudarem)
+- [x] Tríade: format, analyze limpo, `flutter test` verde (e `npm test` das regras se mudarem). **Feito:** format sem mudança (202 arquivos), analyze limpo, 1167 testes verdes; as regras não mudaram
 - [ ] Emulador: marcar, desmarcar, offline, login pela folha, logout
-- [ ] `PLANO.md` e `docs/PRIVACIDADE.md` se o texto mudar
-- [ ] `/revisar` (`code-reviewer` e `security-auditor`: auth, storage, rede)
+- [x] `PLANO.md` e `docs/PRIVACIDADE.md` se o texto mudar. **Feito:** só o item da política 2.0 no `PLANO.md`; o `docs/PRIVACIDADE.md` muda quando a 2.0 for escrita
+- [x] `/revisar` (`code-reviewer` e `security-auditor`: auth, storage, rede). **Feito:** os achados estão em "Achados aceitos do `/revisar`"
 - [ ] `/fechar-sessao`
 
 ## Decisões
@@ -59,6 +76,11 @@ Pôr nos Detalhes as marcas **Assistido**, **Quero assistir** e **Favorito**, li
 - `6413a43` add: FirestoreAccountCache fecha os streams, termina e limpa o cache, nessa ordem
 - `c979526` add: logout limpa o cache do Firestore antes de sair, e syncPendingChanges espera 5 s as escritas
 - `4a7aa00` add: Perfil pergunta antes de sair quando sobram marcas sem sincronizar (inclui o fluxo do `SessionNotifier`)
+- `b7464e1` docs: progresso da sessão 022 e estados do logout no override do Perfil
+- `08b3ab4` fix: logout confirmado mostra saindo, ignora o cancelar e não ressuscita a conta que caiu na espera
+- `142aa1c` fix: marcas mostram a recusa depois da confirmação local, param no fim do stream e ignoram escritas antigas
+- `1b2d543` fix: closeStreams conta só streams ouvidos e não trava com quem ouve pausado
+- `9afa61f` fix: limpa no início do app o cache de uma conta que já saiu
 
 ## Notas
 - **`terminate()` e `clearPersistence()` no `cloud_firestore` 7.1.0** (Context7 e código do pacote no pub-cache):
@@ -68,5 +90,6 @@ Pôr nos Detalhes as marcas **Assistido**, **Quero assistir** e **Favorito**, li
   - **as escritas pendentes se perdem:** o `terminate` não as cancela, e o `clearPersistence` apaga as escritas pendentes junto com o cache. Uma marca feita offline e ainda não sincronizada some no logout;
   - **o `clearPersistence` não apaga de forma segura** ("does not attempt to securely overwrite"). A política 2.0 não pode dizer que o cache é apagado de forma irrecuperável, só que é removido do app.
 - **Política 2.0, do que esta sessão mudou:** sair da conta remove do app o cache do Firestore, mas o `clearPersistence` não sobrescreve os arquivos (não dizer "apagado de forma irrecuperável"); as marcas feitas offline que não chegaram ao servidor são apagadas no logout, e o app avisa antes.
-- **Janela aceita no logout:** entre o `terminate()` e o `SignedOut` do Firebase, a conta ainda parece aberta. Um "tentar de novo" das marcas ou um toque numa marca nessa janela abre uma instância nova do Firestore com o mesmo `uid`, e o cache volta a ter dados. Dura o tempo de dois `signOut()`; fica para o `/revisar` dizer se precisa de guarda.
+- **Janela aceita no logout:** entre o `terminate()` e o `SignedOut` do Firebase, a conta ainda parece aberta. Um "tentar de novo" das marcas ou um toque numa marca nessa janela abre uma instância nova do Firestore com o mesmo `uid`, e o cache volta a ter dados. Dura o tempo de dois `signOut()`. **Depois do `/revisar`:** o notifier para de aceitar toques quando o stream acaba, e o início do app limpa o cache que sobrar.
 - **Testes:** os notifiers dos widget tests nascem dentro do `testWidgets`; assinados no `setUp`, os streams entregam fora da zona do teste, e o `pump` não os vê. O skeleton das marcas pulsa sem parar, então os testes dos Detalhes começam deslogados.
+- **`/revisar`:** o `code-reviewer` achou 1 bloqueante, 5 importantes e 6 sugestões; o `security-auditor`, 0 bloqueantes, 2 importantes e 4 sugestões (um sem ação). Consolidados em 15, todos aceitos pelo usuário.

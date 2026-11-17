@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/theme/app_sizes.dart';
 import '../../../../core/theme/app_theme_tokens.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../auth/domain/entities/app_user.dart';
@@ -65,9 +66,6 @@ class SignOutButton extends StatelessWidget {
 
   const SignOutButton.loading({super.key}) : onPressed = null;
 
-  static const _progressSize = 18.0;
-  static const _progressStroke = 2.0;
-
   /// `null` só no [SignOutButton.loading].
   final VoidCallback? onPressed;
 
@@ -79,8 +77,10 @@ class SignOutButton extends StatelessWidget {
       onPressed: onPressed,
       icon: loading
           ? const SizedBox.square(
-              dimension: _progressSize,
-              child: CircularProgressIndicator(strokeWidth: _progressStroke),
+              dimension: AppSizes.buttonProgress,
+              child: CircularProgressIndicator(
+                strokeWidth: AppSizes.buttonProgressStroke,
+              ),
             )
           : const Icon(Icons.logout),
       label: Text(loading ? l10n.profileSigningOut : l10n.profileSignOut),

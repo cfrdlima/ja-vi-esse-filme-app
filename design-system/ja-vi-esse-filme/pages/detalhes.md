@@ -74,6 +74,8 @@
 - **Layout:** `Wrap` com espaçamento `sm`, que quebra linha com fonte grande. Alvo de toque ≥ 48dp (`MaterialTapTargetSize.padded`).
 - **Leitor de tela:** cada chip é um botão de alternar com o nome da marca e "selecionado" quando ligado (o `FilterChip` já expõe o `selected`). O ícone é decorativo.
 - **Toque:** liga ou desliga na hora (otimista). Não há indicador de "salvando": offline, a confirmação pode levar horas, e a marca já vale no aparelho.
+- **Desmarcar logo depois de marcar** é ignorado até a Estante mostrar a marca, porque o desmarcar precisa do documento lido. O Firestore confirma no aparelho em milissegundos, mesmo offline, então na prática o segundo toque já encontra a marca (`/revisar` da sessão 022).
+- **Recusa do servidor:** o Firestore primeiro confirma a marca no aparelho e só depois o servidor responde. Uma recusa que chega depois da confirmação local também mostra a mensagem com "tentar de novo".
 
 ### Estados das marcas
 - **Carregando:** três blocos no formato dos chips, no pulso do skeleton, com `Semantics` "Carregando suas marcas". Ocupam o mesmo espaço dos chips, para a tela não pular.

@@ -34,4 +34,8 @@ abstract final class AppSizes {
   /// ícone e texto curto (override `detalhes.md`, "Marcas").
   static const markSkeletonWidth = 112.0;
   static const markSkeletonHeight = 32.0;
+
+  /// Indicador no lugar do ícone de um botão com texto, como o "Saindo".
+  static const buttonProgress = 18.0;
+  static const buttonProgressStroke = 2.0;
 }
