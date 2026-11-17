@@ -284,4 +284,26 @@ void main() {
       expect(notifier.state, isA<SessionSignOutFailed>());
     });
   });
+
+  test('deve ignorar um login que termina depois do dispose', () async {
+    final other = FakeAuthRepository();
+    addTearDown(other.close);
+    final disposed = SessionNotifier(repository: other);
+    final signingIn = disposed.signIn();
+    disposed.dispose();
+
+    other.completeSignIn(SignInCompleted(ana));
+
+    await expectLater(signingIn, completes);
+  });
+
+  test('não deve pedir login à conta depois do dispose', () async {
+    final other = FakeAuthRepository();
+    addTearDown(other.close);
+    final disposed = SessionNotifier(repository: other)..dispose();
+
+    await disposed.signIn();
+
+    expect(other.pendingSignIns, 0);
+  });
 }
