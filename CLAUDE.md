@@ -42,6 +42,7 @@ flutter build apk --dart-define-from-file=env/prod.json \
   --dart-define=APP_VERSION=$(sed -n 's/^version: *\([^+]*\).*/\1/p' pubspec.yaml)
 dart pub outdated                                 # dependências desatualizadas
 gitleaks detect --no-banner                       # vazamento de segredo antes de commitar
+(cd firestore && npm ci --ignore-scripts && npm test)  # regras do Firestore no emulador (Node 22, JDK 21)
 ```
 
 ## Integração com o TMDB e o Firebase
@@ -50,7 +51,7 @@ gitleaks detect --no-banner                       # vazamento de segredo antes d
 - Uma chave embutida no APK **não é segredo**, porque pode ser extraída. A decisão 001 diz quanto risco aceitamos e quando passar a usar um proxy. Nunca escreva a chave em código, teste, log ou commit.
 - **O TMDB é só de leitura** (GET com o token v4). Conta e listas do usuário ficam no Firebase (decisão 010), e não na conta do TMDB.
 - **O login é opcional e só com o Google** (`google_sign_in` nativo → credencial no `FirebaseAuth`). Descobrir, Buscar e Detalhes funcionam sem conta.
-- **Os dados do usuário ficam só em `users/{uid}/…`** no Firestore, e as regras (`firestore.rules`, versionadas e testadas) só deixam o dono ler e escrever. A exclusão da conta apaga os documentos e depois a conta no Auth.
+- **Os dados do usuário ficam só em `users/{uid}/…`** no Firestore, e as regras (`firestore.rules`, versionadas e testadas em `firestore/test`, decisão 012) só deixam o dono ler e escrever. Toda coleção ou campo novo entra nas regras e nos testes delas no mesmo ciclo de TDD. A exclusão da conta apaga os documentos e depois a conta no Auth.
 - **Os JSONs do TMDB são o contrato.** Os models em `data/` fazem o parse defensivo (campos podem vir `null`, como `poster_path`, `release_date` vazio ou `runtime`). Entidades de `domain/` não conhecem o formato do JSON.
 - As respostas de lista são paginadas (`page`, `total_pages`, `results`). Trate paginação no repositório, não no widget.
 - Trate o **rate limit (HTTP 429)** e os erros de rede como falhas de domínio tipadas, não como exceção crua do `http`.
