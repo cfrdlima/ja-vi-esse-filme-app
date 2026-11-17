@@ -1,6 +1,6 @@
 # Sessão 020 — Fase 2: Perfil logado e deslogado
 
-**Data**: 2026-11-17 · **Branch**: `feature/020-perfil-logado` · **Status**: aberta
+**Data**: 2026-11-17 · **Branch**: `feature/020-perfil-logado` · **Status**: fechada
 
 ## Objetivo
 Ligar a aba Perfil ao `SessionNotifier`: deslogado com o botão "Entrar com o Google" (diretrizes de marca do Google), entrando, logado com nome, foto e "Sair", e as falhas de login e de logout com "tentar de novo", seguindo os 4 estados e a `ui-ux-pro-max`. Na mesma entrega, as pendências da 019 que servem ao estado (S14, S15 e S11 do `BACKLOG.md`).
@@ -53,11 +53,12 @@ Ligar a aba Perfil ao `SessionNotifier`: deslogado com o botão "Entrar com o Go
 
 ### Entrega
 - [x] Verificação no emulador (Pixel_9_Pro) com conta real: entrar e sair, screenshot, log sem e-mail nem token. **Feito:** logado (foto do Google carregada), sair, deslogado, entrando, cancelar tocando fora (volta a deslogado sem erro), entrar de novo, e fonte 2x do sistema sem overflow. No `flutter run` e no logcat do processo do app: 0 e-mail, 0 JWT, 0 `ya29.`, 0 `idToken`, 0 URL de foto
-- [ ] Tríade: format, analyze limpo, testes verdes
-- [ ] `/revisar` (`code-reviewer` e `security-auditor`: auth e foto da conta)
-- [ ] `/fechar-sessao`
+- [x] Tríade: format, analyze limpo, testes verdes. **Feito:** format sem mudança (170 arquivos), analyze limpo, 935 testes verdes. O `gitleaks` não está instalado aqui e fica para o CI do PR
+- [x] `/revisar` (`code-reviewer` e `security-auditor`: auth e foto da conta). **Feito:** os achados aceitos estão em "Achados aceitos do `/revisar`"
+- [x] `/fechar-sessao`
 
 ## Decisões
+Nenhuma nova em `dev/decisoes/`. As escolhas abaixo seguem a [decisão 010](../decisoes/010-conta-propria-com-firebase.md) (o logout limpa o aparelho) e a [009](../decisoes/009-url-launcher-e-links-externos.md) (host validado).
 - Com o usuário, na abertura: o botão usa a **Google Sans recortada** (Latin, `wght=500`, 52 KB, OFL sem Reserved Font Name), feita com o `fonttools` fora do app; a foto da conta **sai do cache no logout** nesta sessão; a foto só carrega de **`https` em `googleusercontent.com`**. São assets e regras de UI, sem dependência nova, então não viram arquivo em `dev/decisoes/`.
 
 ## Commits
@@ -67,6 +68,35 @@ Ligar a aba Perfil ao `SessionNotifier`: deslogado com o botão "Entrar com o Go
 - `61be28b` add: SessionNotifier ignora o logout durante um login
 - `0ec4836` add: SessionNotifier ignora um segundo logout em andamento
 - `01d2ba6` add: SessionNotifier mostra a falha do logout com exceção não tipada
+- `5a199b3` docs: progresso da sessão 020
+- `4c5503d` refactor: SkeletonPulse vai para core/widgets
+- `f42810b` add: Perfil mostra o skeleton da conta enquanto ela carrega
+- `064c756` add: botão Entrar com o Google com o G oficial e a Google Sans
+- `050b419` add: botão do Google com estado entrando e guardas de acessibilidade
+- `11eabd7` add: Perfil deslogado convida a entrar com o Google
+- `7094c9a` add: Perfil mostra o botão do Google entrando durante o login
+- `b6792ee` add: Perfil mostra a falha do login e tenta de novo pelo botão
+- `3876bcb` add: Perfil logado mostra nome, e-mail e Sair
+- `007e90c` add: Perfil mostra a falha do logout com Tentar de novo
+- `42dc25a` add: avatar da conta com host da foto validado e placeholder desenhado
+- `6148142` add: logout tira a foto da conta do cache de imagens
+- `f85be8b` test: Perfil cabe com fonte 2x e mantém Sobre, alvo e contraste em todos os estados
+- `7f9cecf` add: Perfil com largura de leitura, divisor e transição entre estados
+- `6eda4cc` docs: progresso da sessão 020
+- `2bdd67f` docs: achados do /revisar na sessão 020
+- `850bb8f` test: FakeAuthRepository não reemite SignedOut com a conta já fora
+- `363da79` fix: tentar sair de novo depois de uma falha volta a deslogado
+- `55ae93e` fix: SessionNotifier ignora o login durante um logout
+- `17f88d7` test: completa o signOutGate pendente no tearDown
+- `38560ab` fix: foto da conta fica só no cache em memória
+- `9f11d31` test: avatar mostra a inicial quando a foto não baixa
+- `0456eee` fix: foto da conta só sai do cache quando a conta sai ou troca
+- `163be9f` refactor: alvo de toque como token, borda do botão desabilitado e Sair dentro do painel logado
+- `6193386` test: semântica completa do botão do Google, pronto e entrando
+- `761b8a5` docs: avatar em memória no override, portão da política 2.0 e backlog da 020
+- `4959033` docs: portão da política 2.0 no plano e achados adiados da 020 no backlog
+- `e0afcb5` docs: achados do /revisar resolvidos na sessão 020
+- `docs: fecha sessão 020` (este fechamento)
 
 ## Notas
 - Riscos levantados na abertura: a política 2.0 precisa estar publicada antes de uma versão com o botão chegar ao usuário; a foto da conta fica no cache de imagens (dado pessoal, entra na política 2.0, e a limpeza no logout é decidida nesta sessão ou no item do logout); validar ou não o host da foto (`lh3.googleusercontent.com`); o logo do Google tem de ser o arquivo oficial.
@@ -85,3 +115,7 @@ Ligar a aba Perfil ao `SessionNotifier`: deslogado com o botão "Entrar com o Go
 - **Política 1.0 desatualizada:** ela diz "não tem login". Ficou registrado no `PLANO.md` como portão de release, com o conteúdo que a 2.0 precisa ter.
 - **Commit com mensagem maior que o conteúdo:** o `761b8a5` cita o plano e o backlog, mas só tem o `perfil.md`; os dois entraram no `4959033`. Não reescrevi o histórico.
 - **Emulador de novo, depois do `/revisar`:** o Pixel_9_Pro foi reiniciado (agora `emulator-5554`). O Perfil logado carrega a foto pelo `Image.network`, e o log do `flutter run` tem 0 e-mail, 0 JWT e 0 URL de foto.
+- **Pendências para as próximas sessões:**
+  - política 2.0 publicada antes de qualquer APK com login (portão no `PLANO.md`);
+  - `gitleaks` só no CI;
+  - backlog da 020: host da foto exato, voltar no seletor do Google, "Sair" com retorno de "ocupado".
