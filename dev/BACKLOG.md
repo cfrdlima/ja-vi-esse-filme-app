@@ -60,3 +60,5 @@ Ideias que surgiram e não estão no plano imediato. Marque **[prioritário]** o
   - o commit antigo do repositório de suporte (`804d1b8`, com o e-mail `claudinei@mertins.com`) ainda responde por SHA no GitHub. Para tirá-lo antes da coleta de lixo, só pelo suporte do GitHub.
 - Instalar o `gitleaks` na máquina (`sudo dnf install gitleaks`). Na sessão 016 foi usado o binário do CI, com checksum conferido, numa pasta temporária
 - A "Browser key (auto created by Firebase)" existe no Google Cloud e o app não a usa. Restringir ou apagar quando houver página web com o Firebase JS (exclusão de conta, decisão 010) (sessão 016)
+- Subir para o `@firebase/rules-unit-testing` 6.x (e o `firebase` 13.x) quando a máquina e o CI usarem Node ≥ 24.12 (decisão 012, sessão 017)
+- O `CLAUDE.md` cita `gitleaks detect`, que está obsoleto na 8.x. Trocar por `gitleaks git --redact --no-banner .`, que é o que o CI roda (sessão 017)

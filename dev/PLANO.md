@@ -3,9 +3,9 @@
 > Fonte da verdade do que construir. Atualizado por `/fechar-sessao`.
 
 ## Última sessão
-**016 — Fase 2: setup do Firebase** (fechada em 2026-11-17) · [log](sessoes/016-setup-firebase.md)
-O app está ligado ao projeto Firebase `ja-vi-esse-filme` (plano Spark, Firestore em `southamerica-east1`) com o `firebase_core` e um bootstrap testado que não deixa tela branca se a inicialização falhar. Os arquivos do Firebase foram versionados com a chave restrita (decisão 011), com 741 testes.
-**Próximo passo:** as regras do Firestore (`firestore.rules`) com testes no Emulator Suite e no CI. Antes, o usuário liga a proteção contra enumeração de e-mail no Auth.
+**017 — Fase 2: regras do Firestore** (fechada em 2026-11-17) · [log](sessoes/017-regras-firestore.md)
+O `firestore.rules` nega tudo e só deixa o dono, logado pelo Google, em `users/{uid}/movies/{movieId}`, com id numérico e campos booleanos provisórios. Os 40 testes no emulador rodam no CI (decisão 012), e as regras foram publicadas no projeto.
+**Próximo passo:** o domínio da conta (entidade do usuário, contrato do repositório e falhas tipadas), em Dart puro e com fakes.
 
 ## Fase 0 — Fundação
 - [x] Criar projeto (`io.github.cfrdlima.ja_vi_esse_filme`), `analysis_options.yaml`, `.gitignore` com `env/*.json` (exceto `example.json`)
@@ -44,13 +44,13 @@ O app está ligado ao projeto Firebase `ja-vi-esse-filme` (plano Spark, Firestor
 ## Fase 2 — Conta própria (Firebase, decisão 010)
 - [x] Replanejar a conta: conta própria com login do Google no Firebase no lugar da sessão do TMDB (decisão 010) (sessão 015)
 - [x] Setup do Firebase. Antes do `flutterfire configure`, o `google-services.json` e o `firebase_options.dart` já estão no `.gitignore`. O usuário cria o projeto (Firestore em `southamerica-east1`, **em modo de produção**, nunca em "modo de teste"), o app Android, o SHA-1 de debug e liga o provedor Google. Depois vêm o `flutterfire configure` e a decisão sobre versionar o `firebase_options.dart` e o `google-services.json`. Se forem versionados, a chave é restrita antes do commit (pacote, SHA-1 e só as APIs usadas) e a exceção no `.gitleaksignore` vai por fingerprint. A outra opção é gerá-los no CI. O `Firebase.initializeApp` entra no `main.dart` sem quebrar os handlers de erro
-- [ ] Regras do Firestore (`firestore.rules`): só o dono lê e escreve `users/{uid}/…`, e o dono pode apagar todos os documentos dele. Validação de campos e tamanhos, e testes no Emulator Suite e no CI, que cobrem:
+- [x] Regras do Firestore (`firestore.rules`): só o dono lê e escreve `users/{uid}/…`, e o dono pode apagar todos os documentos dele. Validação de campos e tamanhos, e testes no Emulator Suite e no CI, que cobrem:
   - nenhum `match /{document=**}` com `allow`;
   - leitura de outro `uid` negada;
   - acesso sem login negado;
   - `collectionGroup` negado.
 
-  Vem antes do login e de qualquer escrita.
+  Vem antes do login e de qualquer escrita. (sessão 017)
 - [ ] Domínio da conta: entidade do usuário (`uid`, nome, e-mail, foto), contrato do repositório (usuário atual em stream, entrar, sair e excluir) e falhas tipadas (login cancelado, sem rede, conta desativada). O cancelamento não é erro
 - [ ] Login com o Google: `google_sign_in` nativo (só a identidade básica, sem escopos extras) e credencial no `FirebaseAuth`, injetado no `main.dart`, com fakes nos testes. Na mesma entrega:
   - o `data_extraction_rules.xml` (+ `fullBackupContent`), excluindo pelo menos `sharedpref` (token do Auth) e `database` (cache do Firestore) do `cloud-backup` e do `device-transfer`;
