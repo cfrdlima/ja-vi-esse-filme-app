@@ -1,3 +1,4 @@
+import assert from 'node:assert/strict';
 import { after, before, beforeEach, describe, test } from 'node:test';
 import { assertFails, assertSucceeds } from '@firebase/rules-unit-testing';
 import {
@@ -7,6 +8,8 @@ import {
   doc,
   getDoc,
   getDocs,
+  limit,
+  orderBy,
   query,
   serverTimestamp,
   setDoc,
@@ -100,6 +103,33 @@ describe('users/{uid}/movies/{movieId}', () => {
 
   test('deve deixar o dono listar os próprios filmes', async () => {
     await assertSucceeds(getDocs(ownerMovies(ownerDb())));
+  });
+
+  // A consulta de cada aba da Estante (sessão 023).
+  function shelfTab(db) {
+    return query(ownerMovies(db), orderBy('watchedAt', 'desc'), limit(20));
+  }
+
+  test('deve deixar o dono consultar uma aba da Estante', async () => {
+    await assertSucceeds(getDocs(shelfTab(ownerDb())));
+  });
+
+  test('deve negar a aba da Estante de outro usuário', async () => {
+    const db = googleContext(testEnv, OTHER_UID).firestore();
+
+    await assertFails(getDocs(shelfTab(db)));
+  });
+
+  test('deve deixar fora da aba o filme sem a marca da aba', async () => {
+    const db = ownerDb();
+    await setDoc(doc(ownerMovies(db), '13'), validMovie());
+    const favoriteOnly = { ...validMovie(), favoriteAt: serverTimestamp() };
+    delete favoriteOnly.watchedAt;
+    await setDoc(doc(ownerMovies(db), '550'), favoriteOnly);
+
+    const result = await getDocs(shelfTab(db));
+
+    assert.deepEqual(result.docs.map((d) => d.id), ['13']);
   });
 
   test('deve negar a listagem dos filmes de outro usuário', async () => {
