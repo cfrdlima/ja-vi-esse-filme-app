@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:ja_vi_esse_filme/core/error/failures.dart';
@@ -15,6 +16,7 @@ class _FakeFirebaseAuthGateway implements FirebaseAuthGateway {
   /// Usuário que o login devolve.
   AppUser signInResult = AppUser(uid: 'abc123', displayName: 'Ana');
   String? receivedIdToken;
+  Object? signInError;
 
   void emit(AppUser? user) => _users.add(user);
 
@@ -29,6 +31,7 @@ class _FakeFirebaseAuthGateway implements FirebaseAuthGateway {
   @override
   Future<AppUser> signInWithGoogleIdToken(String idToken) async {
     receivedIdToken = idToken;
+    if (signInError case final error?) throw error;
     return signInResult;
   }
 
@@ -40,6 +43,7 @@ class _FakeGoogleAccountGateway implements GoogleAccountGateway {
   String? idToken = 'id-token-do-google';
   Object? authenticateError;
   var authenticateCalls = 0;
+  var signOutCalls = 0;
 
   @override
   Future<String?> authenticate() async {
@@ -49,7 +53,7 @@ class _FakeGoogleAccountGateway implements GoogleAccountGateway {
   }
 
   @override
-  Future<void> signOut() => throw UnimplementedError();
+  Future<void> signOut() async => signOutCalls++;
 }
 
 void main() {
@@ -132,5 +136,99 @@ void main() {
         );
       },
     );
+  });
+
+  group('signIn traduz os erros', () {
+    Future<Object?> failureFromFirebase(String code) async {
+      firebase.signInError = FirebaseAuthException(code: code);
+      try {
+        await repository.signIn();
+      } on Object catch (e) {
+        return e;
+      }
+      return null;
+    }
+
+    test('deve traduzir user-disabled em AccountDisabledFailure', () async {
+      expect(
+        await failureFromFirebase('user-disabled'),
+        isA<AccountDisabledFailure>(),
+      );
+    });
+
+    test('deve traduzir network-request-failed em NetworkFailure', () async {
+      expect(
+        await failureFromFirebase('network-request-failed'),
+        isA<NetworkFailure>(),
+      );
+    });
+
+    test('deve traduzir too-many-requests em RateLimitFailure', () async {
+      expect(
+        await failureFromFirebase('too-many-requests'),
+        isA<RateLimitFailure>(),
+      );
+    });
+
+    test(
+      'deve traduzir outro código do Firebase em UnexpectedFailure',
+      () async {
+        expect(
+          await failureFromFirebase('invalid-credential'),
+          isA<UnexpectedFailure>(),
+        );
+      },
+    );
+
+    test('deve traduzir outro código do Google em UnexpectedFailure', () async {
+      google.authenticateError = const GoogleSignInException(
+        code: GoogleSignInExceptionCode.clientConfigurationError,
+      );
+
+      await expectLater(repository.signIn(), throwsA(isA<UnexpectedFailure>()));
+    });
+
+    test('deve traduzir erro desconhecido em UnexpectedFailure', () async {
+      firebase.signInError = StateError('canal fechado');
+
+      await expectLater(repository.signIn(), throwsA(isA<UnexpectedFailure>()));
+    });
+
+    test('deve esconder a mensagem e o e-mail do erro do Firebase', () async {
+      firebase.signInError = FirebaseAuthException(
+        code: 'account-exists-with-different-credential',
+        message: 'conta ana@example.com já existe',
+        email: 'ana@example.com',
+      );
+
+      final failure = await repository.signIn().then<Object?>(
+        (_) => null,
+        onError: (Object e) => e,
+      );
+
+      expect('$failure', isNot(contains('ana@example.com')));
+    });
+
+    test('deve esconder a descrição do erro do Google', () async {
+      google.authenticateError = const GoogleSignInException(
+        code: GoogleSignInExceptionCode.unknownError,
+        description: 'falhou para ana@example.com',
+      );
+
+      final failure = await repository.signIn().then<Object?>(
+        (_) => null,
+        onError: (Object e) => e,
+      );
+
+      expect('$failure', isNot(contains('ana@example.com')));
+    });
+
+    test('deve sair do Google se o Firebase recusar a credencial', () async {
+      firebase.signInError = FirebaseAuthException(code: 'invalid-credential');
+
+      await repository.signIn().then<void>((_) {}, onError: (Object _) {});
+
+      expect(google.signOutCalls, 1);
+    });
   });
 }
