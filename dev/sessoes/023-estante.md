@@ -23,9 +23,9 @@ Trocar o placeholder da aba Estante por três abas (**Assistidos**, **Quero assi
 - [x] Regras: testes no emulador da consulta por marca do dono (lista permitida), de outro `uid` negada e do `renewCopy` mantendo as marcas. Se `firestore.rules` mudar, publicar antes de fechar. **Feito:** 3 testes novos (80 verdes); o emulador confirma que o `orderBy` deixa fora o filme sem a marca; o `renewCopy` já tinha teste; as regras não mudaram
 
 ### Estado (RED/GREEN/REFACTOR)
-- [ ] Notifier por aba: carregando, vazio, erro com "tentar de novo", sucesso; próxima página ao chegar ao fim
-- [ ] Reassina quando a conta muda; deslogado; para no fim do stream (logout)
-- [ ] Cópia vencida: não mostra o título/pôster como atuais e pede a renovação ao TMDB (falha da renovação não derruba a aba)
+- [x] Notifier por aba: carregando, vazio, erro com "tentar de novo", sucesso; próxima página ao chegar ao fim. **Feito:** `ShelfTabNotifier`; o erro com filmes na tela vai para o rodapé
+- [x] Reassina quando a conta muda; deslogado; para no fim do stream (logout)
+- [x] Cópia vencida: não mostra o título/pôster como atuais e pede a renovação ao TMDB (falha da renovação não derruba a aba). **Feito:** um `ExpiredCopyRenewer` por conta; o "não mostrar como atual" fica na UI
 
 ### UI (RED/GREEN/REFACTOR, widget tests)
 - [ ] Tela da Estante com `TabBar` das três abas, grade de pôsteres (placeholder sem `posterPath`), skeleton, vazio por aba, erro com "tentar de novo", strings no ARB, `Semantics`, alvo ≥ 48dp, fonte grande
@@ -48,3 +48,4 @@ Trocar o placeholder da aba Estante por três abas (**Assistidos**, **Quero assi
 
 ## Notas
 - **`where(isNotEqualTo: null)` no `cloud_firestore` 7.1.0** (código do pacote no pub-cache, `query.dart`): o `where` só põe a condição `!=` quando `isNotEqualTo != null`, então passar `null` **não filtra nada** e a consulta traz todos os documentos. O `!= null` sai com `isNull: false`. A decisão 013 cita `where('<marca>At', '!=', null)`; o `orderBy('<marca>At', descending: true)` sozinho já basta, porque o Firestore deixa fora do resultado o documento sem o campo ordenado, e evita o `!=`. **A conferir no emulador:** se uma marca offline (`serverTimestamp()` pendente) aparece na consulta local e em que posição.
+- **Erro no stream da consulta (`cloud_firestore_platform_interface` 8.1.0, `method_channel_query.dart`):** no Android, o nativo manda o erro e o `endOfStream`, mas o `Query.snapshots()` do Dart ouve o canal sem `onDone`, e o stream público não acaba. Depois de um erro, o listener nativo morreu, e o "tentar de novo" assina outra vez. O `onDone` da aba só chega pelo `closeStreams()` do logout.
