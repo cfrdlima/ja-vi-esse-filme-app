@@ -18,6 +18,9 @@ class _FakeShelfGateway implements ShelfGateway {
   Map<String, FieldWrite>? lastFields;
   Object? failure;
 
+  /// Falha só no `update`, para o `delete` seguinte poder dar certo.
+  Object? updateFailure;
+
   @override
   Stream<Map<String, Object?>> watchMovie(String uid, int movieId) {
     calls.add('watch $uid $movieId');
@@ -36,7 +39,10 @@ class _FakeShelfGateway implements ShelfGateway {
     String uid,
     int movieId,
     Map<String, FieldWrite> fields,
-  ) => _record('update $uid $movieId', fields);
+  ) async {
+    await _record('update $uid $movieId', fields);
+    if (updateFailure case final Object error) throw error;
+  }
 
   @override
   Future<void> deleteMovie(String uid, int movieId) =>
@@ -123,6 +129,10 @@ void main() {
       gateway.documents.add({'watchedAt': watchedAt});
     });
 
+    test('deve emitir UnexpectedFailure com um movieId fora das regras', () {
+      expect(repository.watchMovie(0), emitsError(isA<UnexpectedFailure>()));
+    });
+
     test('deve traduzir o erro do Firestore no stream', () {
       final entries = repository.watchMovie(550);
 
@@ -132,13 +142,27 @@ void main() {
   });
 
   group('addMark', () {
-    test('deve mesclar a marca e a cópia no filme do usuário', () async {
+    test('deve mesclar no filme do usuário logado', () async {
       await repository.addMark(copy, ShelfMark.watched);
 
       expect(gateway.calls, ['merge alice 550']);
+    });
+
+    test('deve mesclar a marca e a cópia do model', () async {
+      await repository.addMark(copy, ShelfMark.watched);
+
       expect(
         gateway.lastFields,
         ShelfMovieModel.markFields(copy, ShelfMark.watched),
+      );
+    });
+
+    test('não deve tratar o not-found do addMark como sucesso', () async {
+      gateway.failure = _firestoreError('not-found');
+
+      await expectLater(
+        repository.addMark(copy, ShelfMark.watched),
+        throwsA(isA<UnexpectedFailure>()),
       );
     });
 
@@ -157,17 +181,39 @@ void main() {
   });
 
   group('removeMark', () {
-    test('deve tirar só a marca quando sobra outra', () async {
+    test('deve atualizar o filme quando sobra outra marca', () async {
       final movie = movieWith({ShelfMark.watched, ShelfMark.favorite});
 
       await repository.removeMark(movie, ShelfMark.favorite);
 
       expect(gateway.calls, ['update alice 550']);
+    });
+
+    test('deve tirar só o campo da marca', () async {
+      final movie = movieWith({ShelfMark.watched, ShelfMark.favorite});
+
+      await repository.removeMark(movie, ShelfMark.favorite);
+
       expect(
         gateway.lastFields,
         ShelfMovieModel.unmarkFields(ShelfMark.favorite),
       );
     });
+
+    // O aparelho achava que sobrava outra marca, mas no servidor ela já
+    // tinha saído: as regras negam o documento sem marcas, e o delete
+    // termina o que o desmarcar queria.
+    test(
+      'deve apagar o filme quando as regras negam tirar a última marca',
+      () async {
+        gateway.updateFailure = _firestoreError('permission-denied');
+        final movie = movieWith({ShelfMark.watched, ShelfMark.favorite});
+
+        await repository.removeMark(movie, ShelfMark.favorite);
+
+        expect(gateway.calls, ['update alice 550', 'delete alice 550']);
+      },
+    );
 
     test('deve apagar o documento ao tirar a única marca', () async {
       await repository.removeMark(
@@ -237,7 +283,7 @@ void main() {
     test(
       'deve traduzir uma exceção fora do SDK como UnexpectedFailure',
       () async {
-        gateway.failure = StateError('estado');
+        gateway.failure = Exception('fora do SDK');
 
         await expectLater(
           repository.addMark(copy, ShelfMark.watched),
@@ -245,5 +291,15 @@ void main() {
         );
       },
     );
+
+    // Um Error é bug: sobe como está, para o relatório de erros ver.
+    test('deve deixar um Error subir sem virar falha', () async {
+      gateway.failure = StateError('bug');
+
+      await expectLater(
+        repository.addMark(copy, ShelfMark.watched),
+        throwsStateError,
+      );
+    });
   });
 }

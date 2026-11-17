@@ -25,6 +25,11 @@ class FirestoreShelfRepository implements ShelfRepository {
   Stream<ShelfEntry> watchMovie(int movieId) {
     final uid = _currentUid();
     if (uid == null) return Stream.error(const SignInRequiredFailure());
+    // O model monta um `MovieCopy`, que lançaria `ArgumentError` cru no
+    // stream; um id fora das regras nunca tem documento.
+    if (movieId < 1 || movieId > MovieCopy.maxMovieId) {
+      return Stream.error(const UnexpectedFailure('movieId fora das regras'));
+    }
     return _gateway
         .watchMovie(uid, movieId)
         .transform(
@@ -56,27 +61,49 @@ class FirestoreShelfRepository implements ShelfRepository {
   @override
   Future<void> removeMark(ShelfMovie movie, ShelfMark mark) => _write((uid) {
     final movieId = movie.copy.movieId;
-    if (movie.marksWithout(mark).isEmpty) {
-      return _gateway.deleteMovie(uid, movieId);
-    }
-    return _gateway.updateMovie(
-      uid,
-      movieId,
-      ShelfMovieModel.unmarkFields(mark),
-    );
+    if (movie.marksWithout(mark).isEmpty) return _delete(uid, movieId);
+    return _unmark(uid, movieId, mark);
   });
 
+  /// O [movie] do aparelho pode estar velho (decisão 013, corrida aceita).
+  /// Se no servidor a [mark] já era a única, as regras negam o documento sem
+  /// marcas, e o delete termina o que o desmarcar queria.
+  Future<void> _unmark(String uid, int movieId, ShelfMark mark) async {
+    try {
+      await _gateway.updateMovie(
+        uid,
+        movieId,
+        ShelfMovieModel.unmarkFields(mark),
+      );
+    } on FirebaseException catch (e) {
+      switch (e.code) {
+        case 'not-found':
+          return;
+        case 'permission-denied':
+          return _delete(uid, movieId);
+        default:
+          rethrow;
+      }
+    }
+  }
+
+  /// Um documento que já sumiu (outro aparelho tirou a última marca) é o
+  /// que o desmarcar queria.
+  Future<void> _delete(String uid, int movieId) async {
+    try {
+      await _gateway.deleteMovie(uid, movieId);
+    } on FirebaseException catch (e) {
+      if (e.code != 'not-found') rethrow;
+    }
+  }
+
+  /// Um `Error` é bug e sobe como está, para o relatório de erros.
   Future<void> _write(Future<void> Function(String uid) write) async {
     final uid = _currentUid();
     if (uid == null) throw const SignInRequiredFailure();
     try {
       await write(uid);
-    } on FirebaseException catch (e) {
-      // O documento já sumiu (outro aparelho tirou a última marca): o filme
-      // já está fora da Estante, que é o que o desmarcar queria.
-      if (e.code == 'not-found') return;
-      throw _toFailure(e);
-    } on Object catch (error) {
+    } on Exception catch (error) {
       throw _toFailure(error);
     }
   }
