@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -21,6 +24,7 @@ import 'features/auth/data/gateways/google_sign_in_sdk_gateway.dart';
 import 'features/auth/data/repositories/firebase_auth_repository.dart';
 import 'features/auth/data/repositories/unavailable_auth_repository.dart';
 import 'features/auth/domain/repositories/auth_repository.dart';
+import 'features/auth/presentation/state/account_photo_cleaner.dart';
 import 'features/auth/presentation/state/session_notifier.dart';
 import 'features/movies/data/datasources/movie_remote_data_source.dart';
 import 'features/movies/data/repositories/tmdb_movie_repository.dart';
@@ -42,6 +46,7 @@ Future<void> main() async {
         ),
         linkOpener: UrlLauncherLinkOpener(),
         appVersion: AppConfig.appVersion,
+        evictPhoto: _evictCachedImage,
       ),
     ),
     report: logUnhandledError,
@@ -71,6 +76,9 @@ AuthRepository composeAuthRepository({
   required AuthRepository Function() connect,
 }) => firebaseAvailable ? connect() : const UnavailableAuthRepository();
 
+void _evictCachedImage(String url) =>
+    unawaited(CachedNetworkImage.evictFromCache(url));
+
 AuthRepository _connectFirebaseAuth() => FirebaseAuthRepository(
   firebase: FirebaseAuthSdkGateway(FirebaseAuth.instance),
   google: GoogleSignInSdkGateway(GoogleSignIn.instance),
@@ -82,6 +90,7 @@ class MainApp extends StatefulWidget {
     required this.authRepository,
     required this.linkOpener,
     required this.appVersion,
+    required this.evictPhoto,
     super.key,
   });
 
@@ -89,6 +98,9 @@ class MainApp extends StatefulWidget {
   final AuthRepository authRepository;
   final ExternalLinkOpener linkOpener;
   final String appVersion;
+
+  /// Tira uma imagem do cache. Serve para apagar a foto da conta no logout.
+  final void Function(String url) evictPhoto;
 
   @override
   State<MainApp> createState() => _MainAppState();
@@ -117,7 +129,12 @@ class _MainAppState extends State<MainApp> {
         // Não preguiçoso: a sessão passa a ouvir a conta desde o início, e
         // não só quando a primeira tela a pedir.
         ChangeNotifierProvider(
-          create: (_) => SessionNotifier(repository: widget.authRepository),
+          create: (_) {
+            final session = SessionNotifier(repository: widget.authRepository);
+            // Ouve a sessão enquanto ela existir; some junto no dispose dela.
+            AccountPhotoCleaner(session: session, evict: widget.evictPhoto);
+            return session;
+          },
           lazy: false,
         ),
       ],

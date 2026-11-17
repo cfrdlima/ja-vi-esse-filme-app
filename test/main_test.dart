@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:ja_vi_esse_filme/core/links/external_link_opener.dart';
 import 'package:ja_vi_esse_filme/core/theme/app_theme_tokens.dart';
 import 'package:ja_vi_esse_filme/features/auth/data/repositories/unavailable_auth_repository.dart';
+import 'package:ja_vi_esse_filme/features/auth/domain/entities/app_user.dart';
 import 'package:ja_vi_esse_filme/features/auth/domain/entities/auth_state.dart';
 import 'package:ja_vi_esse_filme/features/auth/presentation/state/session_notifier.dart';
 import 'package:ja_vi_esse_filme/features/auth/presentation/state/session_state.dart';
@@ -15,8 +16,12 @@ import 'helpers/stub_movie_repository.dart';
 
 void main() {
   late FakeAuthRepository authRepository;
+  late List<String> evictedPhotos;
 
-  setUp(() => authRepository = FakeAuthRepository());
+  setUp(() {
+    authRepository = FakeAuthRepository();
+    evictedPhotos = [];
+  });
   tearDown(() => authRepository.close());
 
   MainApp app({ExternalLinkOpener? linkOpener, String appVersion = ''}) =>
@@ -25,6 +30,7 @@ void main() {
         authRepository: authRepository,
         linkOpener: linkOpener ?? FakeLinkOpener(),
         appVersion: appVersion,
+        evictPhoto: evictedPhotos.add,
       );
 
   testWidgets('o app deve usar o tema escuro do design system', (tester) async {
@@ -104,6 +110,18 @@ void main() {
 
     final context = tester.element(find.byType(Scaffold).first);
     expect(context.read<SessionNotifier>().state, isA<SessionSignedOut>());
+  });
+
+  testWidgets('o logout deve tirar a foto da conta do cache', (tester) async {
+    const photo = 'https://lh3.googleusercontent.com/a/ana';
+    await tester.pumpWidget(app());
+    authRepository.emit(SignedIn(AppUser(uid: 'ana1', photoUrl: photo)));
+    await tester.pump();
+
+    authRepository.emit(const SignedOut());
+    await tester.pump();
+
+    expect(evictedPhotos, [photo]);
   });
 
   testWidgets('a sessão deve parar de ouvir a conta quando o app sai', (
