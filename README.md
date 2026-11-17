@@ -35,7 +35,15 @@ flutter test      # todos os testes
 dart format lib/ test/
 ```
 
-O [CI](.github/workflows/ci.yml) roda em push na `main` e em pull requests, com o Flutter 3.47.3. Ele confere o `dart format`, o `flutter analyze --fatal-infos` e o `flutter test` e roda o `gitleaks` em todo o histórico. Não usa nenhum secret: os testes rodam sem `env/*.json`.
+As regras do Firestore (`firestore.rules`) têm testes próprios no Emulator Suite, em `firestore/` (decisão 012). Pedem Node 22 e um JDK 21 ou mais no `JAVA_HOME`:
+
+```bash
+cd firestore
+npm ci --ignore-scripts
+npm test          # sobe o emulador com o projeto demo- e roda os testes
+```
+
+O [CI](.github/workflows/ci.yml) roda em push na `main` e em pull requests, com o Flutter 3.47.3. Ele confere o `dart format`, o `flutter analyze --fatal-infos` e o `flutter test`, roda os testes das regras do Firestore no emulador e o `gitleaks` em todo o histórico. Não usa nenhum secret: os testes rodam sem `env/*.json`.
 
 Convenções, TDD e regras de segurança: [`CLAUDE.md`](CLAUDE.md). Design: [`design-system/ja-vi-esse-filme/MASTER.md`](design-system/ja-vi-esse-filme/MASTER.md) e [`docs/DESIGN.md`](docs/DESIGN.md). Decisões: [`dev/decisoes/`](dev/decisoes/).
 

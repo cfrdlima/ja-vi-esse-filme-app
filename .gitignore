@@ -56,3 +56,8 @@ android/key.properties
 
 # Cache do Python (scripts da skill ui-ux-pro-max)
 __pycache__/
+
+# Testes das regras do Firestore (decisão 012)
+node_modules/
+firestore-debug.log
+firebase-debug.log

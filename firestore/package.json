@@ -1,0 +1,17 @@
+{
+  "name": "ja-vi-esse-filme-firestore-rules",
+  "private": true,
+  "description": "Testes das regras do Firestore no Emulator Suite (decisão 012).",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "test": "firebase emulators:exec --config ../firebase.json --project demo-ja-vi-esse-filme --only firestore \"node --test --test-concurrency=1 'test/**/*.test.js'\""
+  },
+  "devDependencies": {
+    "@firebase/rules-unit-testing": "5.0.2",
+    "firebase": "12.19.0",
+    "firebase-tools": "15.34.2"
+  }
+}
