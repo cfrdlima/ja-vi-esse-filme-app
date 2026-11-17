@@ -1,0 +1,8 @@
+# Chave Android do Firebase, restrita no Google Cloud ao pacote e ao SHA-1
+# e só a Identity Toolkit, Token Service e Cloud Firestore (decisão 011).
+# Uma chave nova exige a mesma restrição antes do commit e fingerprints novos.
+bee97e1dd4d26ec0dc3938b25d30d161740c0256:android/app/google-services.json:gcp-api-key:31
+bee97e1dd4d26ec0dc3938b25d30d161740c0256:lib/firebase_options.dart:gcp-api-key:56
+# Mesmas ocorrências no formato do modo dir (sem commit).
+android/app/google-services.json:gcp-api-key:31
+lib/firebase_options.dart:gcp-api-key:56

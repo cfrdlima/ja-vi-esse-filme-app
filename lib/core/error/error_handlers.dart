@@ -7,7 +7,7 @@ import 'secret_redactor.dart';
 typedef ErrorReporter = void Function(Object error, StackTrace? stack);
 
 /// Captura erros do framework e erros assíncronos que escapariam da zona raiz.
-void registerErrorHandlers({ErrorReporter report = _logError}) {
+void registerErrorHandlers({ErrorReporter report = logUnhandledError}) {
   FlutterError.onError = (details) {
     // Em release, o console padrão também imprime no logcat, sem passar pelo
     // report. O report fica como o único caminho do erro fora do debug.
@@ -24,7 +24,7 @@ void registerErrorHandlers({ErrorReporter report = _logError}) {
 // Fase 4 assumir. A mensagem passa pelo redator porque algumas exceções levam
 // dados da requisição (a ClientException do http inclui a URI); rede e storage
 // já convertem as suas em falhas tipadas, e o redator é a segunda barreira.
-void _logError(Object error, StackTrace? stack) {
+void logUnhandledError(Object error, StackTrace? stack) {
   debugPrint(redactSecrets('Erro não tratado: $error'));
   if (stack != null) debugPrint(redactSecrets(stack.toString()));
 }
