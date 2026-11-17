@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "548091210069",
+    "project_id": "ja-vi-esse-filme",
+    "storage_bucket": "ja-vi-esse-filme.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:548091210069:android:81f569535b48105ec227dc",
+        "android_client_info": {
+          "package_name": "io.github.cfrdlima.ja_vi_esse_filme"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "548091210069-bm8o1qanbbmr8j9d4r3ilml1ca31b6kf.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "io.github.cfrdlima.ja_vi_esse_filme",
+            "certificate_hash": "68349c401bc5b9cb027a606d302eb0ddca00a234"
+          }
+        },
+        {
+          "client_id": "548091210069-j58mm214lkvjhka592ovd2cjm72tc1k1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA0Xc7qNozvrdy_zspCVvo9vMJGhgSSW58"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "548091210069-j58mm214lkvjhka592ovd2cjm72tc1k1.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
