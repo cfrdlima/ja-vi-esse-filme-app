@@ -32,6 +32,13 @@ void main() {
     );
   });
 
+  test('deve pedir para entrar antes de uma ação que precisa de conta', () {
+    expect(
+      failureMessage(l10n, const SignInRequiredFailure()),
+      l10n.failureSignInRequired,
+    );
+  });
+
   test('deve usar a mensagem genérica nas outras falhas', () {
     const others = <Failure>[
       UnauthorizedFailure(),

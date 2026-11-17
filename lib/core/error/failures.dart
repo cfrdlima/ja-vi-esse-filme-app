@@ -46,6 +46,12 @@ final class RecentLoginRequiredFailure extends Failure {
   const RecentLoginRequiredFailure();
 }
 
+/// Ação que precisa de conta (marcar um filme, por exemplo) sem ninguém
+/// logado. A UI leva ao login e volta (decisão 010).
+final class SignInRequiredFailure extends Failure {
+  const SignInRequiredFailure();
+}
+
 /// Qualquer outra resposta que o app não sabe tratar (status inesperado ou
 /// corpo que não é o JSON esperado).
 final class UnexpectedFailure extends Failure {

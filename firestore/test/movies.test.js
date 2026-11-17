@@ -8,6 +8,7 @@ import {
   getDoc,
   getDocs,
   query,
+  serverTimestamp,
   setDoc,
   updateDoc,
   where,
@@ -115,7 +116,7 @@ describe('users/{uid}/movies/{movieId}', () => {
 
   test('deve negar a consulta filtrada nos filmes de outro usuário', async () => {
     const db = googleContext(testEnv, OTHER_UID).firestore();
-    const favorites = query(ownerMovies(db), where('favorite', '==', true));
+    const favorites = query(ownerMovies(db), where('favoriteAt', '!=', null));
 
     await assertFails(getDocs(favorites));
   });
@@ -138,14 +139,14 @@ describe('users/{uid}/movies/{movieId}', () => {
     await seedOwnerMovie();
     const db = googleContext(testEnv, OTHER_UID).firestore();
 
-    await assertFails(updateDoc(ownerMovie(db), { favorite: true }));
+    await assertFails(updateDoc(ownerMovie(db), { favoriteAt: serverTimestamp() }));
   });
 
   test('deve negar a atualização sem login', async () => {
     await seedOwnerMovie();
     const db = testEnv.unauthenticatedContext().firestore();
 
-    await assertFails(updateDoc(ownerMovie(db), { favorite: true }));
+    await assertFails(updateDoc(ownerMovie(db), { favoriteAt: serverTimestamp() }));
   });
 
   test('deve negar a consulta collectionGroup de movies sem login', async () => {

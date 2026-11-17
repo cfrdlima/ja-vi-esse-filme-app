@@ -81,3 +81,5 @@ Ideias que surgiram e não estão no plano imediato. Marque **[prioritário]** o
   - host da foto da conta com igualdade exata (`lh3` a `lh6.googleusercontent.com`) no lugar do `endsWith`, recusando porta e `userInfo`, como na decisão 009. Não há exploração, porque só o dono da conta muda a foto (`security-auditor`, S1);
   - reproduzir o voltar no seletor do Credential Manager, que terminou logado na sessão 020, apertando o voltar antes de qualquer toque e testando com duas contas (`security-auditor`, S3);
   - "Sair" sem retorno de "ocupado": um `SessionSigningOut`, com o "Sair" e o botão do Google em `.loading()` durante o logout. Hoje o `signIn` é só ignorado nessa janela (`code-reviewer`, S4).
+- Teste de integração do `CloudFirestoreShelfGateway` contra o emulador do Firestore (`integration_test`): o caminho `users/{uid}/movies/{id}`, o `merge` e o `hasPendingWrites` de verdade. As conversões já têm teste no `FirestoreFields` (sessão 021)
+- Mensagem própria para a cota do Spark esgotada: o `resource-exhausted` vira `RateLimitFailure`, e o "espere um pouco" promete uma volta rápida que só vem no reset diário (`code-reviewer` da 021, S7)

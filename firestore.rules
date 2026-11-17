@@ -18,23 +18,67 @@ service cloud.firestore {
       return id.matches('^[1-9][0-9]{0,9}$');
     }
 
-    // Provisório até a sessão do modelo de dados do filme (PLANO, Fase 2).
-    // Chaves fixas e tipos fechados limitam o tamanho do documento, a única
-    // barreira contra abuso da cota do Spark até o App Check (decisão 010).
+    // Caminho de imagem do TMDB, como "/pB8BM7pdSp6B6Ih7QZ4DrQ3PmJK.jpg".
+    // Só o caminho, nunca uma URL: o host vem do app (TmdbImageUrl).
+    function isTmdbImagePath(path) {
+      return path is string && path.matches('^/[A-Za-z0-9_-]{1,64}[.](jpg|png)$');
+    }
+
+    // Formato da decisão 013. Chaves fixas e tipos fechados limitam o
+    // tamanho do documento, a única barreira contra abuso da cota do Spark
+    // até o App Check (decisão 010). Sem nenhuma marca, o documento é
+    // apagado, e não gravado.
     function isValidMovie(movie) {
-      let fields = ['watched', 'watchlist', 'favorite'];
-      return movie.keys().hasOnly(fields)
-        && movie.keys().hasAll(fields)
-        && movie.watched is bool
-        && movie.watchlist is bool
-        && movie.favorite is bool;
+      let marks = ['watchedAt', 'watchlistAt', 'favoriteAt'];
+      return movie.keys().hasOnly(marks.concat(['title', 'posterPath', 'cachedAt']))
+        && movie.keys().hasAll(['title', 'cachedAt'])
+        && movie.keys().hasAny(marks)
+        && movie.title is string
+        && movie.title.trim().size() >= 1
+        && movie.title.size() <= 300
+        && (!('posterPath' in movie) || isTmdbImagePath(movie.posterPath))
+        && movie.cachedAt is timestamp
+        && (!('watchedAt' in movie) || movie.watchedAt is timestamp)
+        && (!('watchlistAt' in movie) || movie.watchlistAt is timestamp)
+        && (!('favoriteAt' in movie) || movie.favoriteAt is timestamp);
+    }
+
+    // As datas são do servidor (decisão 013): o cliente não escolhe quando
+    // marcou nem quando copiou do TMDB. Uma data só entra como request.time
+    // ou fica igual à salva. Na criação, resource é null.
+    function isServerTimeOrKept(field) {
+      let movie = request.resource.data;
+      return !(field in movie)
+        || movie[field] == request.time
+        || (resource != null
+          && field in resource.data
+          && movie[field] == resource.data[field]);
+    }
+
+    // Mudar a cópia do TMDB renova o cachedAt, que conta o prazo de 6 meses
+    // dos termos do TMDB (§1.C).
+    function isCopyRenewedOrKept() {
+      let movie = request.resource.data;
+      return movie.cachedAt == request.time
+        || (resource != null
+          && movie.cachedAt == resource.data.cachedAt
+          && movie.title == resource.data.title
+          && movie.get('posterPath', null) == resource.data.get('posterPath', null));
+    }
+
+    function hasServerTimes() {
+      return isServerTimeOrKept('watchedAt')
+        && isServerTimeOrKept('watchlistAt')
+        && isServerTimeOrKept('favoriteAt')
+        && isCopyRenewedOrKept();
     }
 
     match /users/{uid}/movies/{movieId} {
       allow read, delete: if isOwner(uid);
       allow create, update: if isOwner(uid)
         && isTmdbId(movieId)
-        && isValidMovie(request.resource.data);
+        && isValidMovie(request.resource.data)
+        && hasServerTimes();
     }
   }
 }

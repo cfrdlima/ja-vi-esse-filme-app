@@ -109,6 +109,10 @@ class AppLocalizationsPt extends AppLocalizations {
       'Por segurança, entre de novo com o Google para continuar.';
 
   @override
+  String get failureSignInRequired =>
+      'Entre com o Google para guardar seus filmes.';
+
+  @override
   String get failureGeneric => 'Algo deu errado. Tente de novo em instantes.';
 
   @override

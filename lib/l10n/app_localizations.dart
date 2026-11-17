@@ -262,6 +262,12 @@ abstract class AppLocalizations {
   /// **'Por segurança, entre de novo com o Google para continuar.'**
   String get failureRecentLoginRequired;
 
+  /// Ação que precisa de conta, como marcar um filme, sem ninguém logado
+  ///
+  /// In pt, this message translates to:
+  /// **'Entre com o Google para guardar seus filmes.'**
+  String get failureSignInRequired;
+
   /// Qualquer outra falha do TMDB (401, 404, 5xx, resposta inesperada) ou da conta. Neutra: não cita o TMDB
   ///
   /// In pt, this message translates to:
