@@ -6,7 +6,7 @@
 > - `ux` "ARIA Labels": todo controle tem nome acessível (botão do Google, "Sair", "Tentar de novo");
 > - `ux` "Loading Indicators" e "Loading States": skeleton estável no carregando, e retorno de "ocupado" no botão enquanto o seletor está aberto, sem congelar a tela;
 > - pro-rules "Correct Brand Logos", "Touch Target Minimum" e "Semantic native controls";
-> - stack Flutter "Use pub.dev packages": `cached_network_image` para a foto.
+> - stack Flutter "Use pub.dev packages": a sugestão era o `cached_network_image` para a foto, mas no `/revisar` da sessão 020 a foto da conta passou a ficar só em memória (ver Avatar).
 > A busca por avatar e placeholder na stack Flutter não trouxe nada específico. O layout abaixo é padrão geral (fallback).
 > Botão do Google: [diretrizes de marca](https://developers.google.com/identity/branding-guidelines), conferidas na sessão 020.
 
@@ -44,11 +44,11 @@ Não há estado "vazio": sem conta, o deslogado é o vazio, e ele já chama para
 - Ripple do Material dentro da pílula. O leitor de tela lê "Entrar com o Google, botão". O "G" é decorativo (`excludeSemantics`), porque o texto já diz a marca.
 
 ## Avatar
-- `CircleAvatar` de 72dp com a foto pelo `cached_network_image`, com `memCacheWidth` no tamanho físico.
+- Círculo de 72dp com a foto pelo `Image.network`, **só no cache em memória**, sem disco e sem `cacheWidth`. A foto é dado pessoal, e uma sessão que fecha com o app fechado (token revogado, conta desativada) não deixaria quem a apagasse do disco. Ela baixa de novo a cada abertura do app, o que é barato (`=s96`).
 - **Host validado:** a foto só carrega com `https` e o host `googleusercontent.com` ou um subdomínio dele. Fora disso, sem foto ou com erro no download, aparece o placeholder.
 - Placeholder desenhado: a inicial do nome em `titleLarge` sobre `secondaryContainer`, ou o ícone `person` quando não há nome. Nunca uma imagem quebrada.
 - A foto é decorativa ao lado do nome escrito (`excludeSemantics`). O leitor de tela lê o nome e o e-mail.
-- **Logout:** a entrada da foto sai do cache de disco e da memória quando a sessão fecha (decisão 010: o logout limpa o aparelho).
+- **Logout e troca de conta:** a foto sai do cache em memória (`NetworkImage(url).evict()`), seguindo a decisão 010 (o logout limpa o aparelho). Um erro no stream ou uma falha não apagam a foto, porque a sessão continua aberta.
 
 ## Fonte grande
 - O nome quebra em até 2 linhas com reticências, e o e-mail fica em 1 linha com reticências no fim.
