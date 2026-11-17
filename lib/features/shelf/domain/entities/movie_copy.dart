@@ -3,14 +3,17 @@
 /// Firestore aceitam, para que a marca não seja recusada por um título longo
 /// ou um pôster estranho.
 final class MovieCopy {
-  /// Recusa com [ArgumentError] o [movieId] menor que 1 e o [title] vazio.
+  /// Recusa com [ArgumentError] o [movieId] fora de 1 a [maxMovieId] e o
+  /// [title] vazio.
   /// Corta o título em [maxTitleLength] e descarta o pôster fora do formato.
   factory MovieCopy({
     required int movieId,
     required String title,
     String? posterPath,
   }) {
-    if (movieId < 1) throw ArgumentError('deve ser 1 ou mais', 'movieId');
+    if (movieId < 1 || movieId > maxMovieId) {
+      throw ArgumentError('deve ser de 1 a $maxMovieId', 'movieId');
+    }
     final trimmed = title.trim();
     if (trimmed.isEmpty) throw ArgumentError('não pode ser vazio', 'title');
     return MovieCopy._(
@@ -25,6 +28,9 @@ final class MovieCopy {
     required this.title,
     required this.posterPath,
   });
+
+  /// O id do documento nas regras tem até 10 dígitos (`isTmdbId`).
+  static const maxMovieId = 9999999999;
 
   /// O mesmo limite das regras, que contam unidades UTF-16 como o
   /// `String.length`.

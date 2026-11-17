@@ -20,6 +20,22 @@ void main() {
       expect(() => MovieCopy(movieId: 0, title: 'Filme'), throwsArgumentError);
     });
 
+    test(
+      'deve recusar um movieId com mais de 10 dígitos, o limite das regras',
+      () {
+        expect(
+          () => MovieCopy(movieId: 10000000000, title: 'Filme'),
+          throwsArgumentError,
+        );
+      },
+    );
+
+    test('deve aceitar o maior movieId com 10 dígitos', () {
+      final copy = MovieCopy(movieId: MovieCopy.maxMovieId, title: 'Filme');
+
+      expect(copy.movieId, 9999999999);
+    });
+
     test('deve tirar os espaços das pontas do título', () {
       final copy = MovieCopy(movieId: 1, title: '  Filme  ');
 
