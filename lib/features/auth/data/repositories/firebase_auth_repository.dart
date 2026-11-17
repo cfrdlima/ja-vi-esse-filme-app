@@ -4,11 +4,7 @@ import '../../domain/repositories/auth_repository.dart';
 import '../gateways/auth_gateways.dart';
 
 final class FirebaseAuthRepository implements AuthRepository {
-  FirebaseAuthRepository({
-    required FirebaseAuthGateway firebase,
-    required GoogleAccountGateway google,
-  }) : _firebase = firebase,
-       _google = google;
+  FirebaseAuthRepository({required this._firebase, required this._google});
 
   final FirebaseAuthGateway _firebase;
   final GoogleAccountGateway _google;
@@ -19,7 +15,11 @@ final class FirebaseAuthRepository implements AuthRepository {
   );
 
   @override
-  Future<SignInOutcome> signIn() => throw UnimplementedError();
+  Future<SignInOutcome> signIn() async {
+    final idToken = await _google.authenticate();
+    final user = await _firebase.signInWithGoogleIdToken(idToken!);
+    return SignInCompleted(user);
+  }
 
   @override
   Future<void> signOut() => throw UnimplementedError();
