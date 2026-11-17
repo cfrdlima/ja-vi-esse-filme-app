@@ -1,7 +1,11 @@
 import { after, before, describe, test } from 'node:test';
 import { assertFails } from '@firebase/rules-unit-testing';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
-import { OWNER_UID, createTestEnvironment } from './environment.js';
+import {
+  OWNER_UID,
+  createTestEnvironment,
+  googleContext,
+} from './environment.js';
 
 describe('caminhos fora de users/{uid}/movies', () => {
   let testEnv;
@@ -15,7 +19,7 @@ describe('caminhos fora de users/{uid}/movies', () => {
   });
 
   function ownerDb() {
-    return testEnv.authenticatedContext(OWNER_UID).firestore();
+    return googleContext(testEnv, OWNER_UID).firestore();
   }
 
   test('deve negar a escrita numa coleção da raiz', async () => {

@@ -17,6 +17,7 @@ import {
   OTHER_UID,
   OWNER_UID,
   createTestEnvironment,
+  googleContext,
   validMovie,
 } from './environment.js';
 
@@ -36,7 +37,7 @@ describe('users/{uid}/movies/{movieId}', () => {
   });
 
   function ownerDb() {
-    return testEnv.authenticatedContext(OWNER_UID).firestore();
+    return googleContext(testEnv, OWNER_UID).firestore();
   }
 
   function ownerMovie(db) {
@@ -71,13 +72,13 @@ describe('users/{uid}/movies/{movieId}', () => {
   });
 
   test('deve negar a leitura do filme de outro usuário', async () => {
-    const db = testEnv.authenticatedContext(OTHER_UID).firestore();
+    const db = googleContext(testEnv, OTHER_UID).firestore();
 
     await assertFails(getDoc(ownerMovie(db)));
   });
 
   test('deve negar a escrita no filme de outro usuário', async () => {
-    const db = testEnv.authenticatedContext(OTHER_UID).firestore();
+    const db = googleContext(testEnv, OTHER_UID).firestore();
 
     await assertFails(setDoc(ownerMovie(db), validMovie()));
   });
@@ -101,7 +102,7 @@ describe('users/{uid}/movies/{movieId}', () => {
   });
 
   test('deve negar a listagem dos filmes de outro usuário', async () => {
-    const db = testEnv.authenticatedContext(OTHER_UID).firestore();
+    const db = googleContext(testEnv, OTHER_UID).firestore();
 
     await assertFails(getDocs(ownerMovies(db)));
   });
@@ -113,7 +114,7 @@ describe('users/{uid}/movies/{movieId}', () => {
   });
 
   test('deve negar a consulta filtrada nos filmes de outro usuário', async () => {
-    const db = testEnv.authenticatedContext(OTHER_UID).firestore();
+    const db = googleContext(testEnv, OTHER_UID).firestore();
     const favorites = query(ownerMovies(db), where('favorite', '==', true));
 
     await assertFails(getDocs(favorites));
@@ -121,7 +122,7 @@ describe('users/{uid}/movies/{movieId}', () => {
 
   test('deve negar a exclusão do filme de outro usuário', async () => {
     await seedOwnerMovie();
-    const db = testEnv.authenticatedContext(OTHER_UID).firestore();
+    const db = googleContext(testEnv, OTHER_UID).firestore();
 
     await assertFails(deleteDoc(ownerMovie(db)));
   });
@@ -135,7 +136,7 @@ describe('users/{uid}/movies/{movieId}', () => {
 
   test('deve negar a atualização do filme de outro usuário', async () => {
     await seedOwnerMovie();
-    const db = testEnv.authenticatedContext(OTHER_UID).firestore();
+    const db = googleContext(testEnv, OTHER_UID).firestore();
 
     await assertFails(updateDoc(ownerMovie(db), { favorite: true }));
   });
@@ -151,5 +152,25 @@ describe('users/{uid}/movies/{movieId}', () => {
     const db = testEnv.unauthenticatedContext().firestore();
 
     await assertFails(getDocs(collectionGroup(db, 'movies')));
+  });
+
+  function ownerDbSignedInWith(provider) {
+    return testEnv
+      .authenticatedContext(OWNER_UID, {
+        firebase: { sign_in_provider: provider },
+      })
+      .firestore();
+  }
+
+  test('deve negar a escrita do dono entrando como anônimo', async () => {
+    const db = ownerDbSignedInWith('anonymous');
+
+    await assertFails(setDoc(ownerMovie(db), validMovie()));
+  });
+
+  test('deve negar a leitura do dono entrando com e-mail e senha', async () => {
+    const db = ownerDbSignedInWith('password');
+
+    await assertFails(getDoc(ownerMovie(db)));
   });
 });

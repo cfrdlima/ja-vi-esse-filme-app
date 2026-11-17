@@ -5,8 +5,12 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    // Só o Google está ligado no Auth (decisão 010). Exigir o provedor aqui
+    // impede que ligar outro (anônimo, e-mail) abra escrita a qualquer um.
     function isOwner(uid) {
-      return request.auth != null && request.auth.uid == uid;
+      return request.auth != null
+        && request.auth.uid == uid
+        && request.auth.token.firebase.sign_in_provider == 'google.com';
     }
 
     // Id do TMDB: inteiro positivo, sem zero à esquerda, com até 10 dígitos.

@@ -5,6 +5,7 @@ import {
   MOVIE_ID,
   OWNER_UID,
   createTestEnvironment,
+  googleContext,
   validMovie,
 } from './environment.js';
 
@@ -24,7 +25,7 @@ describe('validação do documento do filme', () => {
   });
 
   function movieRef(movieId) {
-    const db = testEnv.authenticatedContext(OWNER_UID).firestore();
+    const db = googleContext(testEnv, OWNER_UID).firestore();
     return doc(db, 'users', OWNER_UID, 'movies', movieId);
   }
 

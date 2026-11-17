@@ -11,6 +11,13 @@ export function createTestEnvironment() {
   });
 }
 
+// O Auth só tem o provedor Google ligado; as regras também exigem isso.
+export function googleContext(testEnv, uid) {
+  return testEnv.authenticatedContext(uid, {
+    firebase: { sign_in_provider: 'google.com' },
+  });
+}
+
 export const OWNER_UID = 'alice';
 export const OTHER_UID = 'bob';
 export const MOVIE_ID = '550';
