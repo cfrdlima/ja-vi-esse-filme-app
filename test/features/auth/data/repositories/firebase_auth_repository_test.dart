@@ -35,8 +35,14 @@ class _FakeFirebaseAuthGateway implements FirebaseAuthGateway {
     return signInResult;
   }
 
+  Object? signOutError;
+  var signOutCalls = 0;
+
   @override
-  Future<void> signOut() => throw UnimplementedError();
+  Future<void> signOut() async {
+    signOutCalls++;
+    if (signOutError case final error?) throw error;
+  }
 }
 
 class _FakeGoogleAccountGateway implements GoogleAccountGateway {
@@ -44,6 +50,7 @@ class _FakeGoogleAccountGateway implements GoogleAccountGateway {
   Object? authenticateError;
   var authenticateCalls = 0;
   var signOutCalls = 0;
+  Object? signOutError;
 
   @override
   Future<String?> authenticate() async {
@@ -53,7 +60,10 @@ class _FakeGoogleAccountGateway implements GoogleAccountGateway {
   }
 
   @override
-  Future<void> signOut() async => signOutCalls++;
+  Future<void> signOut() async {
+    signOutCalls++;
+    if (signOutError case final error?) throw error;
+  }
 }
 
 void main() {
@@ -230,5 +240,81 @@ void main() {
 
       expect(google.signOutCalls, 1);
     });
+  });
+
+  group('signOut', () {
+    test('deve sair do Firebase', () async {
+      await repository.signOut();
+
+      expect(firebase.signOutCalls, 1);
+    });
+
+    test('deve sair do Google', () async {
+      await repository.signOut();
+
+      expect(google.signOutCalls, 1);
+    });
+
+    test('deve sair do Google mesmo se o Firebase falhar', () async {
+      firebase.signOutError = FirebaseAuthException(code: 'internal-error');
+
+      await repository.signOut().then<void>((_) {}, onError: (Object _) {});
+
+      expect(google.signOutCalls, 1);
+    });
+
+    test('deve sair do Firebase mesmo se o Google falhar', () async {
+      google.signOutError = const GoogleSignInException(
+        code: GoogleSignInExceptionCode.unknownError,
+      );
+
+      await repository.signOut().then<void>((_) {}, onError: (Object _) {});
+
+      expect(firebase.signOutCalls, 1);
+    });
+
+    test('deve subir a falha do Google como Failure', () async {
+      google.signOutError = const GoogleSignInException(
+        code: GoogleSignInExceptionCode.unknownError,
+      );
+
+      await expectLater(
+        repository.signOut(),
+        throwsA(isA<UnexpectedFailure>()),
+      );
+    });
+
+    test('deve subir a falha do Firebase como Failure', () async {
+      firebase.signOutError = FirebaseAuthException(code: 'internal-error');
+
+      await expectLater(
+        repository.signOut(),
+        throwsA(isA<UnexpectedFailure>()),
+      );
+    });
+  });
+
+  group('deleteAccount', () {
+    test(
+      'deve falhar com UnexpectedFailure enquanto a exclusão não existe',
+      () async {
+        await expectLater(
+          repository.deleteAccount(),
+          throwsA(isA<UnexpectedFailure>()),
+        );
+      },
+    );
+
+    test(
+      'não deve sair de nenhuma conta enquanto a exclusão não existe',
+      () async {
+        await repository.deleteAccount().then<void>(
+          (_) {},
+          onError: (Object _) {},
+        );
+
+        expect([firebase.signOutCalls, google.signOutCalls], [0, 0]);
+      },
+    );
   });
 }

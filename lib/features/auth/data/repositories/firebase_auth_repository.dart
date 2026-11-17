@@ -61,10 +61,25 @@ final class FirebaseAuthRepository implements AuthRepository {
   }
 
   @override
-  Future<void> signOut() => throw UnimplementedError();
+  Future<void> signOut() async {
+    // Os dois rodam sempre, para a sessão nunca ficar aberta pela metade. A
+    // primeira falha sobe depois, já traduzida.
+    Object? firstError;
+    for (final signOutOf in [_firebase.signOut, _google.signOut]) {
+      try {
+        await signOutOf();
+      } on Object catch (error) {
+        firstError ??= error;
+      }
+    }
+    if (firstError != null) throw _toFailure(firstError);
+  }
 
+  // Apagar só o Auth deixaria os documentos órfãos em `users/{uid}`. A
+  // exclusão completa é um item próprio do `dev/PLANO.md`.
   @override
-  Future<void> deleteAccount() => throw UnimplementedError();
+  Future<void> deleteAccount() async =>
+      throw const UnexpectedFailure('auth: exclusão ainda não disponível');
 }
 
 // Só o código vai para a falha: a `message`, o `email` e a `credential` da
