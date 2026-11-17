@@ -247,4 +247,94 @@ void main() {
       expect(repository.signOutCalls, 2);
     });
   });
+
+  group('em todos os estados', () {
+    final ana = AppUser(
+      uid: 'abc123',
+      displayName: 'Ana Carolina de Souza Albuquerque',
+      email: 'ana.carolina.albuquerque@example.com',
+    );
+
+    // Com fonte 2x, o botão pode ficar abaixo da dobra.
+    Future<void> tapVisible(WidgetTester tester, Finder finder) async {
+      await tester.ensureVisible(finder);
+      await tester.pump();
+      await tester.tap(finder);
+    }
+
+    // Cada um leva a tela a um estado da sessão, depois do pumpProfile.
+    final states = <String, Future<void> Function(WidgetTester)>{
+      'carregando': (_) async {},
+      'deslogado': (tester) async {
+        repository.emit(const SignedOut());
+        await tester.pump();
+      },
+      'entrando': (tester) async {
+        repository.emit(const SignedOut());
+        await tester.pump();
+        await tapVisible(tester, find.text(l10n.signInWithGoogle));
+        await tester.pump();
+      },
+      'falha no login': (tester) async {
+        repository.emit(const SignedOut());
+        await tester.pump();
+        await tapVisible(tester, find.text(l10n.signInWithGoogle));
+        repository.failSignIn(const NetworkFailure());
+        await tester.pump();
+      },
+      'logado': (tester) async {
+        repository.emit(SignedIn(ana));
+        await tester.pump();
+      },
+      'falha no logout': (tester) async {
+        repository
+          ..emit(SignedIn(ana))
+          ..signOutError = const NetworkFailure();
+        await tester.pump();
+        await tapVisible(tester, find.text(l10n.profileSignOut));
+        await tester.pump();
+      },
+    };
+
+    for (final MapEntry(key: name, value: reach) in states.entries) {
+      group(name, () {
+        testWidgets('deve mostrar a entrada Sobre o app', (tester) async {
+          await pumpProfile(tester);
+          await reach(tester);
+
+          expect(find.text(l10n.profileAboutEntry), findsOneWidget);
+        });
+
+        testWidgets('deve caber com fonte 2x numa tela de celular', (
+          tester,
+        ) async {
+          tester.view.physicalSize = const Size(360, 640);
+          tester.view.devicePixelRatio = 1;
+          addTearDown(tester.view.reset);
+          await pumpProfile(tester, textScaler: const TextScaler.linear(2));
+          await reach(tester);
+
+          expect(tester.takeException(), isNull);
+        });
+
+        testWidgets('deve ter alvo de toque de 48dp', (tester) async {
+          final semantics = tester.ensureSemantics();
+          await pumpProfile(tester);
+          await reach(tester);
+
+          await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
+          semantics.dispose();
+        });
+
+        testWidgets('deve ter contraste AA nos textos', (tester) async {
+          final semantics = tester.ensureSemantics();
+          await pumpProfile(tester);
+          await reach(tester);
+
+          await expectLater(tester, meetsGuideline(textContrastGuideline));
+          semantics.dispose();
+        });
+      });
+    }
+  });
 }
