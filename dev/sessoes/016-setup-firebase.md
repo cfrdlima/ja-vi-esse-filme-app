@@ -30,7 +30,7 @@ Ligar o app ao projeto Firebase `ja-vi-esse-filme`. A sessão roda o `flutterfir
 - [x] REFACTOR, mantendo o verde
 - [x] `firebase_core` no `pubspec`, com `Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform)` depois do `registerErrorHandlers()`
 - [ ] Tríade: `flutter analyze`, `flutter test`, `gitleaks` e o app subindo no emulador
-- [ ] `security-auditor` (a sessão toca config e chaves)
+- [x] `security-auditor` (a sessão toca config e chaves). **Aprovado**, sem achado crítico, alto ou médio
 - [ ] `/fechar-sessao`
 
 ## Decisões
@@ -42,6 +42,12 @@ Ligar o app ao projeto Firebase `ja-vi-esse-filme`. A sessão roda o `flutterfir
 - `f81304e` chore: ignora no gitleaks a chave restrita do Firebase
 
 ## Notas
+- Achados do `security-auditor`, que viram pré-requisito da sessão do `firebase_auth` e das regras:
+  - (baixo) A restrição de app Android da chave pode ser forjada por quem extrai a chave do APK. Por isso só o provedor Google fica ativo no Auth (conferido pelo usuário), e falta ligar a proteção contra enumeração de e-mail. Os limites de tamanho e quantidade entram nas regras, e o App Check vem antes se houver abuso.
+  - (baixo) Falta o `data_extraction_rules.xml`, já previsto no plano: exclui `sharedpref` e `database` do `cloud-backup` e do `device-transfer`. Bloqueia a entrada do `firebase_auth`.
+  - (info) O `redactSecrets` ainda não cobre JWT, `ya29.`, `idToken`, `refreshToken` nem e-mail, também previsto no plano antes do `firebase_auth`.
+  - (info) O `gitleaks dir .` acusa a chave compilada nos `.dill` de `build/` e `.dart_tool/`. Na verificação local, use o `gitleaks git` ou rode depois de um `flutter clean`. Nunca adicione esses fingerprints.
+  - (info) O `// ignore_for_file: type=lint` do `firebase_options.dart` vem do gerador do FlutterFire. Não foi colocado para fazer o lint passar.
 - No emulador, o `FirebaseApp initialization successful` apareceu no logcat, sem erro reportado pelo bootstrap. Sem o `env/dev.json`, o app para no splash com `ConfigException: TMDB_BASE_URL ausente`, lançada ao montar o repositório antes do `runApp`. Isso já acontecia antes desta sessão, não vem do Firebase e já está no `BACKLOG.md` (sessão 008).
 - **Integrar esta branch com merge commit**, nunca squash ou rebase: o `.gitleaksignore` usa o hash `bee97e1` (decisão 011).
 - O `gitleaks` não está instalado na máquina. Na sessão foi usado o binário 8.30.1 do CI, com checksum conferido, numa pasta temporária.
