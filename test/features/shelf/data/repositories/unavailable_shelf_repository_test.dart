@@ -35,4 +35,8 @@ void main() {
       throwsA(isA<SignInRequiredFailure>()),
     );
   });
+
+  test('deve concluir o fechamento, porque não há stream aberto', () async {
+    await expectLater(repository.closeStreams(), completes);
+  });
 }

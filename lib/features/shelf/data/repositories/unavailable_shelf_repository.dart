@@ -22,4 +22,8 @@ final class UnavailableShelfRepository implements ShelfRepository {
   @override
   Future<void> removeMark(ShelfMovie movie, ShelfMark mark) async =>
       throw const SignInRequiredFailure();
+
+  /// O [watchMovie] daqui já nasce com erro: não há stream para fechar.
+  @override
+  Future<void> closeStreams() async {}
 }

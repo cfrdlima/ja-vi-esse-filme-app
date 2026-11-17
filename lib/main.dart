@@ -20,6 +20,7 @@ import 'core/network/tmdb_client.dart';
 import 'core/routing/app_router.dart';
 import 'core/theme/app_theme.dart';
 import 'features/auth/data/gateways/firebase_auth_sdk_gateway.dart';
+import 'features/auth/data/gateways/firestore_account_cache.dart';
 import 'features/auth/data/gateways/google_sign_in_sdk_gateway.dart';
 import 'features/auth/data/repositories/firebase_auth_repository.dart';
 import 'features/auth/data/repositories/unavailable_auth_repository.dart';
@@ -41,22 +42,26 @@ Future<void> main() async {
   registerFontLicenses();
   await bootstrapApp(
     initialize: _initializeFirebase,
-    run: () => runApp(
-      MainApp(
-        movieRepository: _composeMovieRepository(),
-        authRepository: composeAuthRepository(
-          firebaseAvailable: Firebase.apps.isNotEmpty,
-          connect: _connectFirebaseAuth,
+    run: () {
+      final firebaseAvailable = Firebase.apps.isNotEmpty;
+      final shelfRepository = composeShelfRepository(
+        firebaseAvailable: firebaseAvailable,
+        connect: _connectFirestoreShelf,
+      );
+      runApp(
+        MainApp(
+          movieRepository: _composeMovieRepository(),
+          authRepository: composeAuthRepository(
+            firebaseAvailable: firebaseAvailable,
+            connect: () => _connectFirebaseAuth(shelfRepository),
+          ),
+          shelfRepository: shelfRepository,
+          linkOpener: UrlLauncherLinkOpener(),
+          appVersion: AppConfig.appVersion,
+          evictPhoto: _evictCachedImage,
         ),
-        shelfRepository: composeShelfRepository(
-          firebaseAvailable: Firebase.apps.isNotEmpty,
-          connect: _connectFirestoreShelf,
-        ),
-        linkOpener: UrlLauncherLinkOpener(),
-        appVersion: AppConfig.appVersion,
-        evictPhoto: _evictCachedImage,
-      ),
-    ),
+      );
+    },
     report: logUnhandledError,
   );
 }
@@ -93,10 +98,21 @@ AuthRepository composeAuthRepository({
 // A foto da conta só fica no cache em memória (ver `AccountAvatar`).
 void _evictCachedImage(String url) => unawaited(NetworkImage(url).evict());
 
-AuthRepository _connectFirebaseAuth() => FirebaseAuthRepository(
-  firebase: FirebaseAuthSdkGateway(FirebaseAuth.instance),
-  google: GoogleSignInSdkGateway(GoogleSignIn.instance),
-);
+// O logout fecha os streams da Estante antes de limpar o cache do
+// Firestore (decisão 010).
+AuthRepository _connectFirebaseAuth(ShelfRepository shelf) {
+  final firestore = FirebaseFirestore.instance;
+  return FirebaseAuthRepository(
+    firebase: FirebaseAuthSdkGateway(FirebaseAuth.instance),
+    google: GoogleSignInSdkGateway(GoogleSignIn.instance),
+    cache: FirestoreAccountCache(
+      closeStreams: shelf.closeStreams,
+      terminate: firestore.terminate,
+      clearPersistence: firestore.clearPersistence,
+      waitForPendingWrites: firestore.waitForPendingWrites,
+    ),
+  );
+}
 
 // O `uid` é lido a cada chamada, e não guardado: a conta pode mudar
 // (decisão 013).

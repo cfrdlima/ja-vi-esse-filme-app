@@ -55,9 +55,9 @@ class FirestoreShelfRepository implements ShelfRepository {
 
   final Set<_OpenWatch> _openWatches = {};
 
-  /// Encerra os streams do [watchMovie] ainda abertos: quem ouve recebe o
-  /// fim, e o Firestore deixa de ser ouvido. O logout chama isso antes do
-  /// `terminate()` (decisão 010).
+  /// Além do contrato, o Firestore deixa de ser ouvido antes do
+  /// `terminate()`.
+  @override
   Future<void> closeStreams() async {
     final open = [..._openWatches];
     _openWatches.clear();

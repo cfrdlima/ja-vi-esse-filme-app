@@ -67,6 +67,16 @@ class FakeAuthRepository implements AuthRepository {
     if (signOutError case final error?) throw error;
   }
 
+  /// O que o [syncPendingChanges] responde.
+  var synced = true;
+  var syncCalls = 0;
+
+  @override
+  Future<bool> syncPendingChanges() async {
+    syncCalls++;
+    return synced;
+  }
+
   @override
   Future<void> deleteAccount() async => throw UnimplementedError();
 }

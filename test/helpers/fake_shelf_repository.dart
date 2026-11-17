@@ -70,6 +70,14 @@ class FakeShelfRepository implements ShelfRepository {
     return write._completer.future;
   }
 
+  var closeStreamsCalls = 0;
+
+  @override
+  Future<void> closeStreams() async {
+    closeStreamsCalls++;
+    close();
+  }
+
   // Sem `await`: o `close()` de um stream sem ouvinte nunca completa.
   void close() {
     for (final watch in _watches) {

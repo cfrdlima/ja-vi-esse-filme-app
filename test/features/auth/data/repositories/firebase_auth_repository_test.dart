@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:fake_async/fake_async.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -74,8 +75,37 @@ class _FakeGoogleAccountGateway implements GoogleAccountGateway {
   }
 }
 
+class _FakeAccountCache implements AccountCacheGateway {
+  _FakeAccountCache(this._firebase);
+
+  final _FakeFirebaseAuthGateway _firebase;
+  Object? clearError;
+  var clearCalls = 0;
+
+  /// Quantos logouts do Firebase já tinham rodado quando o cache foi limpo.
+  int? firebaseSignOutsWhenCleared;
+
+  /// Pendente até o teste completar; nulo completa na hora.
+  Completer<void>? pendingWrites;
+  Object? waitError;
+
+  @override
+  Future<void> clear() async {
+    clearCalls++;
+    firebaseSignOutsWhenCleared = _firebase.signOutCalls;
+    if (clearError case final Object error) throw error;
+  }
+
+  @override
+  Future<void> waitForPendingWrites() async {
+    if (waitError case final Object error) throw error;
+    await pendingWrites?.future;
+  }
+}
+
 void main() {
   late _FakeFirebaseAuthGateway firebase;
+  late _FakeAccountCache cache;
   late _FakeGoogleAccountGateway google;
   late FirebaseAuthRepository repository;
 
@@ -84,7 +114,12 @@ void main() {
   setUp(() {
     firebase = _FakeFirebaseAuthGateway();
     google = _FakeGoogleAccountGateway();
-    repository = FirebaseAuthRepository(firebase: firebase, google: google);
+    cache = _FakeAccountCache(firebase);
+    repository = FirebaseAuthRepository(
+      firebase: firebase,
+      google: google,
+      cache: cache,
+    );
   });
 
   tearDown(() => firebase.close());
@@ -290,6 +325,53 @@ void main() {
   });
 
   group('signOut', () {
+    test('deve limpar o cache antes de sair do Firebase', () async {
+      await repository.signOut();
+
+      expect(cache.firebaseSignOutsWhenCleared, 0);
+    });
+
+    test('deve sair do Firebase mesmo se a limpeza falhar', () async {
+      cache.clearError = FirebaseException(
+        plugin: 'cloud_firestore',
+        code: 'failed-precondition',
+      );
+
+      await repository.signOut().then<void>((_) {}, onError: (Object _) {});
+
+      expect(firebase.signOutCalls, 1);
+    });
+
+    test('deve sair do Google mesmo se a limpeza falhar', () async {
+      cache.clearError = FirebaseException(
+        plugin: 'cloud_firestore',
+        code: 'failed-precondition',
+      );
+
+      await repository.signOut().then<void>((_) {}, onError: (Object _) {});
+
+      expect(google.signOutCalls, 1);
+    });
+
+    test('deve subir a falha da limpeza só com o código', () async {
+      cache.clearError = FirebaseException(
+        plugin: 'cloud_firestore',
+        code: 'failed-precondition',
+        message: 'users/abc123/movies/550',
+      );
+
+      await expectLater(
+        repository.signOut(),
+        throwsA(
+          isA<UnexpectedFailure>().having(
+            (f) => f.reason,
+            'reason',
+            'cloud_firestore: failed-precondition',
+          ),
+        ),
+      );
+    });
+
     test('deve sair do Firebase', () async {
       await repository.signOut();
 
@@ -338,6 +420,46 @@ void main() {
         repository.signOut(),
         throwsA(isA<UnexpectedFailure>()),
       );
+    });
+  });
+
+  group('syncPendingChanges', () {
+    test('deve confirmar quando as escritas chegam ao servidor', () async {
+      expect(await repository.syncPendingChanges(), isTrue);
+    });
+
+    test('deve desistir depois de 5 s sem o servidor', () {
+      fakeAsync((async) {
+        cache.pendingWrites = Completer<void>();
+        bool? synced;
+        unawaited(repository.syncPendingChanges().then((v) => synced = v));
+
+        async.elapse(const Duration(seconds: 5));
+
+        expect(synced, isFalse);
+      });
+    });
+
+    test('deve esperar até os 5 s antes de desistir', () {
+      fakeAsync((async) {
+        cache.pendingWrites = Completer<void>();
+        bool? synced;
+        unawaited(repository.syncPendingChanges().then((v) => synced = v));
+
+        async.elapse(const Duration(milliseconds: 4999));
+
+        expect(synced, isNull);
+      });
+    });
+
+    // Sem saber se chegou, a pessoa decide: sair perdendo ou ficar.
+    test('deve tratar a espera que falha como não sincronizado', () async {
+      cache.waitError = FirebaseException(
+        plugin: 'cloud_firestore',
+        code: 'unavailable',
+      );
+
+      expect(await repository.syncPendingChanges(), isFalse);
     });
   });
 
