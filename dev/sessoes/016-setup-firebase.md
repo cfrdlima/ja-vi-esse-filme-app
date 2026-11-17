@@ -1,6 +1,6 @@
 # Sessão 016 — Fase 2: setup do Firebase
 
-**Data**: 2026-11-16 · **Branch**: `feature/016-setup-firebase` · **Status**: aberta
+**Data**: 2026-11-16 · **Branch**: `feature/016-setup-firebase` · **Status**: fechada
 
 ## Objetivo
 Ligar o app ao projeto Firebase `ja-vi-esse-filme`. A sessão roda o `flutterfire configure` só para Android, decide se o `firebase_options.dart` e o `google-services.json` entram no git (decisão 011) e chama o `Firebase.initializeApp` no `main.dart` sem quebrar os handlers de erro. Entra só o `firebase_core`. Auth, Firestore e regras ficam para as próximas sessões.
@@ -31,7 +31,7 @@ Ligar o app ao projeto Firebase `ja-vi-esse-filme`. A sessão roda o `flutterfir
 - [x] `firebase_core` no `pubspec`, com `Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform)` depois do `registerErrorHandlers()`
 - [x] Tríade: `flutter analyze`, `flutter test`, `gitleaks` e o app subindo no emulador. **Feito:** analyze limpo, 741 testes, gitleaks git sem vazamento, e no emulador o Descobrir carrega os filmes com `FirebaseApp initialization successful` no logcat
 - [x] `security-auditor` (a sessão toca config e chaves). **Aprovado**, sem achado crítico, alto ou médio
-- [ ] `/fechar-sessao`
+- [x] `/fechar-sessao`
 
 ## Decisões
 - [011 — Arquivos do Firebase versionados com chave restrita, e plano Spark](../decisoes/011-arquivos-firebase-versionados-e-spark.md)
@@ -40,8 +40,15 @@ Ligar o app ao projeto Firebase `ja-vi-esse-filme`. A sessão roda o `flutterfir
 - `8823c30` docs: decisão 011 e pré-requisitos da sessão 016
 - `bee97e1` chore: configura o Firebase no Android com firebase_core
 - `f81304e` chore: ignora no gitleaks a chave restrita do Firebase
+- `4cafe22` docs: integração por merge commit e progresso da sessão 016
+- `ebcd42b` add: bootstrap inicializa o Firebase antes do runApp
+- `996d722` docs: progresso da sessão 016 no bootstrap
+- `f6f9ee0` docs: achados do security-auditor na sessão 016
+- `2e19aaf` docs: tríade verde da sessão 016
 
 ## Notas
+- **Pendente no console (usuário):** ligar a proteção contra enumeração de e-mail em Authentication > Configurações (achado baixo do `security-auditor`).
+- Fora do escopo, na mesma conversa: o site web antigo (`cfrdlima/Ja-vi-esse-filme`) voltou a funcionar. A chave v3 do TMDB, escrita no código e pública, tinha sido invalidada (401). As chamadas passaram por um proxy no servidor do Next (`/api/tmdb`, PR #2 daquele repositório), com `TMDB_API_KEY` na Vercel e o Node 26.x. O token v4 deste app continuou válido.
 - Achados do `security-auditor`, que viram pré-requisito da sessão do `firebase_auth` e das regras:
   - (baixo) A restrição de app Android da chave pode ser forjada por quem extrai a chave do APK. Por isso só o provedor Google fica ativo no Auth (conferido pelo usuário), e falta ligar a proteção contra enumeração de e-mail. Os limites de tamanho e quantidade entram nas regras, e o App Check vem antes se houver abuso.
   - (baixo) Falta o `data_extraction_rules.xml`, já previsto no plano: exclui `sharedpref` e `database` do `cloud-backup` e do `device-transfer`. Bloqueia a entrada do `firebase_auth`.

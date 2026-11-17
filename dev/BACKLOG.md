@@ -58,4 +58,6 @@ Ideias que surgiram e não estão no plano imediato. Marque **[prioritário]** o
   - a página publicada usa o tema padrão do Jekyll, que carrega o `anchor.min.js` do `cdnjs.cloudflare.com` (com SRI). O CDN recebe o IP de quem abre a política, e a seção 5 só cita o GitHub Pages. Trocar por um `_layouts/default.html` sem o script, ou citar o CDN na política;
   - revisão jurídica da base legal da política 1.0: a busca no art. 7º, V, e a transferência internacional no art. 33, IX, combinado com o art. 7º, V (sessão 014);
   - o commit antigo do repositório de suporte (`804d1b8`, com o e-mail `claudinei@mertins.com`) ainda responde por SHA no GitHub. Para tirá-lo antes da coleta de lixo, só pelo suporte do GitHub.
-
+- Alinhar a versão do Flutter: a máquina principal está no 3.47.3, o CI fixa o 3.44.5 e o `CLAUDE.md` e a decisão 003 citam o 3.44. Ao subir o CI, conferir o minSdk e o targetSdk do Flutter novo (sessão 016)
+- Instalar o `gitleaks` na máquina (`sudo dnf install gitleaks`). Na sessão 016 foi usado o binário do CI, com checksum conferido, numa pasta temporária
+- A "Browser key (auto created by Firebase)" existe no Google Cloud e o app não a usa. Restringir ou apagar quando houver página web com o Firebase JS (exclusão de conta, decisão 010) (sessão 016)
