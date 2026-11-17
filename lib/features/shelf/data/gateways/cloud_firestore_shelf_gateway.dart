@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import 'firestore_fields.dart';
 import 'shelf_gateway.dart';
 
 /// O [ShelfGateway] sobre o `cloud_firestore`. Fino de propósito: a regra
@@ -27,43 +28,28 @@ class CloudFirestoreShelfGateway implements ShelfGateway {
     String uid,
     int movieId,
     Map<String, FieldWrite> fields,
-  ) => _movie(uid, movieId).set(_toSdk(fields), SetOptions(merge: true));
+  ) => _movie(
+    uid,
+    movieId,
+  ).set(FirestoreFields.write(fields), SetOptions(merge: true));
 
   @override
   Future<void> updateMovie(
     String uid,
     int movieId,
     Map<String, FieldWrite> fields,
-  ) => _movie(uid, movieId).update(_toSdk(fields));
+  ) => _movie(uid, movieId).update(FirestoreFields.write(fields));
 
   @override
   Future<void> deleteMovie(String uid, int movieId) =>
       _movie(uid, movieId).delete();
 
-  /// Uma data do servidor ainda pendente chega como `null`, e o `snapshots()`
-  /// público não aceita o `ServerTimestampBehavior.estimate`. Com escrita
-  /// pendente, o `null` vira a hora local; as regras nunca deixam um `null`
-  /// gravado de verdade.
   static Map<String, Object?> _fieldsOf(
     DocumentSnapshot<Map<String, dynamic>> snapshot,
-  ) {
-    final pending = snapshot.metadata.hasPendingWrites;
-    return {
-      for (final MapEntry(:key, :value) in (snapshot.data() ?? {}).entries)
-        key: switch (value) {
-          final Timestamp at => at.toDate().toUtc(),
-          null when pending => DateTime.now().toUtc(),
-          _ => value,
-        },
-    };
-  }
-
-  static Map<String, Object> _toSdk(Map<String, FieldWrite> fields) => {
-    for (final MapEntry(:key, :value) in fields.entries)
-      key: switch (value) {
-        SetField(:final value) => value,
-        ServerTime() => FieldValue.serverTimestamp(),
-        DeleteField() => FieldValue.delete(),
-      },
-  };
+  ) => FirestoreFields.read(
+    snapshot.data(),
+    pendingAt: snapshot.metadata.hasPendingWrites
+        ? DateTime.now().toUtc()
+        : null,
+  );
 }
