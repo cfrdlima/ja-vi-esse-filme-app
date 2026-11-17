@@ -17,3 +17,4 @@ Opção 1. O minSdk 24 é o mínimo oficial do Flutter 3.44, cobre praticamente 
 - A cada upgrade do Flutter, conferir no changelog se `minSdkVersion`/`targetSdkVersion` mudaram e atualizar esta decisão.
 - Antes do release (Fase 4), conferir se o `targetSdk` atende a exigência vigente da Play Store.
 - Abaixo do Android 7.0 o app não instala.
+- 2026-11-17 (sessão 016): o CI subiu do Flutter 3.44.5 para o 3.47.3, a mesma versão da máquina principal. O 3.47.3 mantém o minSdk 24, o targetSdk 36 e o compileSdk 36, então a decisão continua valendo.

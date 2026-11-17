@@ -47,6 +47,7 @@ Ligar o app ao projeto Firebase `ja-vi-esse-filme`. A sessão roda o `flutterfir
 - `2e19aaf` docs: tríade verde da sessão 016
 
 ## Notas
+- Depois do fechamento, o CI do PR #12 falhou no `pub get --enforce-lockfile`: o `firebase_core` foi adicionado com o Flutter 3.47.3 da máquina, e o lock ficou com `intl`, `matcher`, `meta`, `test_api` e `vector_math` do SDK novo, enquanto o CI fixava o 3.44.5. O CI subiu para o 3.47.3 (decisão 003 atualizada).
 - **Pendente no console (usuário):** ligar a proteção contra enumeração de e-mail em Authentication > Configurações (achado baixo do `security-auditor`).
 - Fora do escopo, na mesma conversa: o site web antigo (`cfrdlima/Ja-vi-esse-filme`) voltou a funcionar. A chave v3 do TMDB, escrita no código e pública, tinha sido invalidada (401). As chamadas passaram por um proxy no servidor do Next (`/api/tmdb`, PR #2 daquele repositório), com `TMDB_API_KEY` na Vercel e o Node 26.x. O token v4 deste app continuou válido.
 - Achados do `security-auditor`, que viram pré-requisito da sessão do `firebase_auth` e das regras:
