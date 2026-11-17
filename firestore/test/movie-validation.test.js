@@ -176,6 +176,27 @@ describe('validação do documento do filme', () => {
     await assertSucceeds(setDoc(movieRef(MOVIE_ID), movie));
   });
 
+  // O size() das regras conta unidades UTF-16, como o String.length do
+  // Dart: 'é' vale 1, e um emoji fora do BMP vale 2. O domínio corta o title
+  // em 300 unidades sem partir um emoji ao meio.
+  test('deve aceitar um title com 300 caracteres acentuados', async () => {
+    const movie = { ...validMovie(), title: 'é'.repeat(300) };
+
+    await assertSucceeds(setDoc(movieRef(MOVIE_ID), movie));
+  });
+
+  test('deve aceitar um title com 150 emojis', async () => {
+    const movie = { ...validMovie(), title: '🎬'.repeat(150) };
+
+    await assertSucceeds(setDoc(movieRef(MOVIE_ID), movie));
+  });
+
+  test('deve negar um title com 151 emojis', async () => {
+    const movie = { ...validMovie(), title: '🎬'.repeat(151) };
+
+    await assertFails(setDoc(movieRef(MOVIE_ID), movie));
+  });
+
   test('deve negar um title com mais de 300 caracteres', async () => {
     const movie = { ...validMovie(), title: 'a'.repeat(301) };
 
