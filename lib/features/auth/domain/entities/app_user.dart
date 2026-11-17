@@ -29,4 +29,9 @@ final class AppUser {
 
   @override
   int get hashCode => Object.hash(uid, displayName, email, photoUrl);
+
+  // Sem nenhum campo: nome, e-mail, foto e `uid` não vão para log nem para
+  // relatório de erro (CLAUDE.md, segurança).
+  @override
+  String toString() => 'AppUser(dados ocultos)';
 }

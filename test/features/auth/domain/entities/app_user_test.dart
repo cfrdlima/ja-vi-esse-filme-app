@@ -58,4 +58,23 @@ void main() {
       );
     });
   });
+
+  test('deve esconder uid, nome, e-mail e foto no toString', () {
+    final text = AppUser(
+      uid: 'abc123',
+      displayName: 'Ana',
+      email: 'ana@example.com',
+      photoUrl: 'https://lh3.googleusercontent.com/a/foto',
+    ).toString();
+
+    expect(
+      text,
+      allOf(
+        isNot(contains('abc123')),
+        isNot(contains('Ana')),
+        isNot(contains('ana@example.com')),
+        isNot(contains('googleusercontent')),
+      ),
+    );
+  });
 }
