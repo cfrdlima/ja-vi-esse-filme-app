@@ -32,6 +32,24 @@ Definir e implementar o documento do filme do usuário em `users/{uid}/movies/{m
 - [x] Repositório: tradução das `FirebaseException` só pelo `code`, `not-found` ao desmarcar conta como sucesso, e o `uid` lido na hora da chamada
 - [ ] ~~Fake do repositório em `test/helpers/`~~ **Adiado** para o "Marcar", com o formato que os testes do estado pedirem (como o do auth na 019)
 
+### Achados aceitos do `/revisar`
+- [x] (1) Corrida do `removeMark` aceita na 013; `permission-denied` no `update` (a marca era a última no servidor) cai para o `delete`. **Mudou:** na consolidação eu tinha proposto tratar o `permission-denied` como "o filme já está fora", mas isso deixaria a marca no servidor. O certo é cair para o `delete`
+- [x] (2) Contrato: offline o future fica pendente; a UI segue o `watchMovie` e não espera a escrita; lista de falhas corrigida
+- [x] (3) Regras: merge real do `markFields` na criação e sobre documento com pôster; `posterPath: deleteField()` sem renovar o `cachedAt` negado. **Feito:** os 4 testes passaram de primeira (guardas, sem RED)
+- [x] (4) Gateway: conversões em `FirestoreFields.read`/`write`, com a hora da data pendente injetada (`pendingAt`) e 8 testes. Só a chamada ao SDK fica sem teste
+- [x] (6) Política: texto do prazo de 6 meses fiel ao que o app garante, e limpeza das cópias paradas pelo Admin SDK registrada
+- [x] (S1) `not-found` como sucesso só no `removeMark`
+- [x] (S2) `on Exception` no lugar do `on Object`, sem engolir `Error`
+- [x] (S3) `watchMovie` com `movieId` inválido emite `UnexpectedFailure`, e não `ArgumentError` cru
+- [x] (S4) `MovieCopy` recusa id com mais de 10 dígitos
+- [x] (S5) Regra recusa `title` só com espaços
+- [x] (S6) Registrar na 013 que remarcar renova a data, e o `renewCopy` futuro
+- [x] (S8) Teste do `cachedAt` que não é data sem a string gigante
+- [x] (S9) Uma asserção por teste no repositório
+- [x] (S10) Registrar na 013 que o lock segura as transitivas
+- [x] (5, 7, S11) `PLANO.md`: App Check antes de qualquer APK com login, `localhost` fora do Auth e alerta de uso; logout na mesma sessão do "Marcar"; conteúdo da política 2.0
+- [x] (S7) Backlog: mensagem própria para a cota do Spark esgotada
+
 ### Entrega
 - [x] `PLANO.md`: nova ordem (login opcional junto com "Marcar"; logout completo depois do Firestore entrar), e a cópia do TMDB no conteúdo da política 2.0
 - [x] Tríade: format, analyze limpo, `flutter test` verde, `npm test` das regras verde. **Feito:** format sem mudança (184 arquivos), analyze limpo, 1000 testes verdes, 72 testes das regras verdes, `flutter build apk --debug` compilando com o plugin nativo
@@ -53,3 +71,5 @@ Definir e implementar o documento do filme do usuário em `users/{uid}/movies/{m
 - **Data pendente offline:** o `snapshots()` público da 7.1.0 não aceita o `ServerTimestampBehavior.estimate`. O gateway troca o `null` pela hora local só com `hasPendingWrites`, e a decisão 013 foi corrigida.
 - **Gateway sem teste de unidade:** a conversão `Timestamp` → `DateTime`, o `null` pendente e o `FieldWrite` → `FieldValue` ficam sem cobertura até um teste de integração com o emulador (backlog) ou a verificação no aparelho na sessão do "Marcar".
 - **`uid` lido na chamada:** um `watchMovie` aberto continua no `uid` de quando foi assinado. O estado do "Marcar" precisa reassinar quando a conta muda, e o logout precisa cancelar o stream.
+- **`/revisar`:** o `code-reviewer` achou 0 bloqueantes, 4 importantes e 10 sugestões; o `security-auditor`, 0 bloqueantes, 3 importantes e 3 sugestões. Todos entraram, como mudança ou como registro (decisão 013, `PLANO.md` e `BACKLOG.md`).
+- **Portões novos no `PLANO.md`:** App Check antes de qualquer APK com login, e o logout completo na mesma sessão do "Marcar".
