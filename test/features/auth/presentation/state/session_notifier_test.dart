@@ -284,6 +284,20 @@ void main() {
       expect(notifier.state, isA<SessionSignOutFailed>());
     });
 
+    test(
+      'deve voltar a deslogado quando o logout dá certo depois de uma falha',
+      () async {
+        repository.signOutError = const UnexpectedFailure('cache');
+        await notifier.signOut();
+        repository.signOutError = null;
+
+        await notifier.signOut();
+        await pumpEventQueue();
+
+        expect(notifier.state, isA<SessionSignedOut>());
+      },
+    );
+
     test('deve ignorar o logout enquanto um login não termina', () async {
       unawaited(notifier.signIn());
 

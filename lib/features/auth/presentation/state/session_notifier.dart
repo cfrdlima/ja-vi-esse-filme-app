@@ -63,14 +63,18 @@ class SessionNotifier extends ChangeNotifier {
     }
   }
 
-  /// Encerra a sessão. O deslogado chega pelo stream da conta; uma falha na
-  /// limpeza fica visível, porque o usuário precisa saber. Com um login em
-  /// andamento, não faz nada: o resultado dele ainda vai decidir o estado.
+  /// Encerra a sessão. Uma falha na limpeza fica visível, porque o usuário
+  /// precisa saber. Com um login em andamento, não faz nada: o resultado dele
+  /// ainda vai decidir o estado.
   Future<void> signOut() async {
     if (_disposed || _signingIn || _signingOut) return;
     _signingOut = true;
     try {
       await _repository.signOut();
+      // Não espera o stream: depois de uma falha, o Firebase já saiu na
+      // primeira tentativa e não emite SignedOut de novo, e a tela ficaria
+      // presa no erro.
+      _emit(const SessionSignedOut());
     } on Failure catch (failure) {
       _emit(SessionSignOutFailed(failure));
     } on Exception {
