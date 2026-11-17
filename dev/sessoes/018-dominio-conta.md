@@ -29,8 +29,16 @@ Criar o domínio da conta em `lib/features/auth/domain/`, em Dart puro: a entida
 
 ### Entrega
 - [x] Tríade: format sem mudança, analyze limpo, 760 testes, gitleaks 8.30.1 sem vazamento
-- [ ] `/revisar` (`code-reviewer`; `security-auditor`, porque é auth)
+- [x] `/revisar` (`code-reviewer`; `security-auditor`, porque é auth). **Feito:** nada bloqueante; o `security-auditor` aprovou o fechamento. Achados aceitos abaixo
 - [ ] `/fechar-sessao`
+
+### Achados aceitos do `/revisar`
+- [ ] Contrato do `deleteAccount`: ordem completa da decisão 010, com a `RecentLoginRequiredFailure` antes de apagar qualquer documento, `disconnect()`, limpeza local e `SignedOut` no fim
+- [ ] Contrato do `signOut`: falha é `Failure` (nunca a exceção do SDK), logout do Firebase e do Google sempre executados e `SignedOut` emitido antes da falha subir
+- [ ] Contrato: stream broadcast com várias assinaturas; `signIn` lista a `UnexpectedFailure` e define o caso de já haver alguém logado
+- [ ] Guarda: desigualdade do `AppUser` por campo (`uid`, nome, e-mail), com prova por mutação
+- [ ] RED/GREEN: `SignedOut` e `SignInCancelled` iguais mesmo sem `const` (`==` por tipo de volta)
+- [ ] Teste de pureza: separador portátil, exige arquivos lidos, lista branca de imports, todas as URIs da diretiva (condicional, raw, várias linhas) e comentário de por que fica fora do espelho, com prova por mutação
 
 ## Decisões
 Nenhuma nova. As escolhas (falhas em `Failure` e estado selado no stream) seguem o `CLAUDE.md` e a decisão 010.
