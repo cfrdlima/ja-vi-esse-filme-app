@@ -18,6 +18,12 @@ service cloud.firestore {
       return id.matches('^[1-9][0-9]{0,9}$');
     }
 
+    // Caminho de imagem do TMDB, como "/pB8BM7pdSp6B6Ih7QZ4DrQ3PmJK.jpg".
+    // Só o caminho, nunca uma URL: o host vem do app (TmdbImageUrl).
+    function isTmdbImagePath(path) {
+      return path is string && path.matches('^/[A-Za-z0-9_-]{1,64}[.](jpg|png)$');
+    }
+
     // Formato da decisão 013. Chaves fixas e tipos fechados limitam o
     // tamanho do documento, a única barreira contra abuso da cota do Spark
     // até o App Check (decisão 010). Sem nenhuma marca, o documento é
@@ -28,7 +34,9 @@ service cloud.firestore {
         && movie.keys().hasAll(['title', 'cachedAt'])
         && movie.keys().hasAny(marks)
         && movie.title is string
-        && (!('posterPath' in movie) || movie.posterPath is string)
+        && movie.title.size() >= 1
+        && movie.title.size() <= 300
+        && (!('posterPath' in movie) || isTmdbImagePath(movie.posterPath))
         && movie.cachedAt is timestamp
         && (!('watchedAt' in movie) || movie.watchedAt is timestamp)
         && (!('watchlistAt' in movie) || movie.watchlistAt is timestamp)

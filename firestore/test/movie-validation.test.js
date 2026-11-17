@@ -169,4 +169,45 @@ describe('validação do documento do filme', () => {
 
     await assertFails(updateDoc(movieRef(MOVIE_ID), { favoriteAt: 'x' }));
   });
+
+  test('deve aceitar um title com 300 caracteres', async () => {
+    const movie = { ...validMovie(), title: 'a'.repeat(300) };
+
+    await assertSucceeds(setDoc(movieRef(MOVIE_ID), movie));
+  });
+
+  test('deve negar um title com mais de 300 caracteres', async () => {
+    const movie = { ...validMovie(), title: 'a'.repeat(301) };
+
+    await assertFails(setDoc(movieRef(MOVIE_ID), movie));
+  });
+
+  test('deve negar um title vazio', async () => {
+    const movie = { ...validMovie(), title: '' };
+
+    await assertFails(setDoc(movieRef(MOVIE_ID), movie));
+  });
+
+  for (const posterPath of ['/a1_B-c.png', '/' + 'a'.repeat(64) + '.jpg']) {
+    test(`deve aceitar o posterPath ${posterPath.slice(0, 12)}`, async () => {
+      const movie = { ...validMovie(), posterPath };
+
+      await assertSucceeds(setDoc(movieRef(MOVIE_ID), movie));
+    });
+  }
+
+  for (const posterPath of [
+    'sem-barra.jpg',
+    '/../segredo.jpg',
+    '/a.svg',
+    '/a.jpg?x=1',
+    'https://example.com/a.jpg',
+    '/' + 'a'.repeat(65) + '.jpg',
+  ]) {
+    test(`deve negar o posterPath ${posterPath.slice(0, 20)}`, async () => {
+      const movie = { ...validMovie(), posterPath };
+
+      await assertFails(setDoc(movieRef(MOVIE_ID), movie));
+    });
+  }
 });
