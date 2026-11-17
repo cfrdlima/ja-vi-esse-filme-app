@@ -1,0 +1,44 @@
+# Sessão 020 — Fase 2: Perfil logado e deslogado
+
+**Data**: 2026-11-17 · **Branch**: `feature/020-perfil-logado` · **Status**: aberta
+
+## Objetivo
+Ligar a aba Perfil ao `SessionNotifier`: deslogado com o botão "Entrar com o Google" (diretrizes de marca do Google), entrando, logado com nome, foto e "Sair", e as falhas de login e de logout com "tentar de novo", seguindo os 4 estados e a `ui-ux-pro-max`. Na mesma entrega, as pendências da 019 que servem ao estado (S14, S15 e S11 do `BACKLOG.md`).
+
+## Checklist
+### Preparação
+- [ ] Consultar a `ui-ux-pro-max` (stack Flutter) para a tela de perfil e gerar o override `design-system/ja-vi-esse-filme/pages/perfil.md`
+- [ ] Conferir as diretrizes de marca do Google para o botão (logo "G" oficial, cores, texto "Entrar com o Google", margens)
+- [ ] Asset oficial do "G" em PNG (sem `flutter_svg`), declarado no `pubspec.yaml`
+
+### Pendências da 019 (RED/GREEN/REFACTOR por comportamento)
+- [ ] `FakeAuthRepository` reemite o estado atual ao assinar (S14)
+- [ ] `deleteAccount` do fake como `async` (S15)
+- [ ] `SessionNotifier.signOut` ignora a chamada com login em andamento (S11)
+- [ ] `SessionNotifier.signOut` ignora a chamada dupla (S11)
+- [ ] `SessionNotifier.signOut` trata `Exception` não tipada como `UnexpectedFailure` (S11)
+
+### UI (RED/GREEN/REFACTOR por estado)
+- [ ] Carregando: skeleton do cabeçalho, sem spinner solto
+- [ ] Deslogado: texto sobre o que a conta oferece e o botão "Entrar com o Google" (≥ 48dp, `Semantics`)
+- [ ] Entrando: botão desabilitado com indicador e rótulo acessível
+- [ ] Logado: avatar (`cached_network_image`) com placeholder desenhado sem foto ou com erro, nome com fallback e botão "Sair"
+- [ ] Falha no login: mensagem do `failureMessage` e "Tentar de novo" chamando o `signIn`
+- [ ] Falha no logout: mensagem e "Tentar de novo" chamando o `signOut`
+- [ ] Entrada "Sobre" presente em todos os estados
+- [ ] Fonte 2x em 360x640 sem overflow, em cada estado
+- [ ] Strings novas no ARB (decisão 004)
+
+### Entrega
+- [ ] Verificação no emulador (Pixel_9_Pro) com conta real: entrar e sair, screenshot, log sem e-mail nem token
+- [ ] Tríade: format, analyze limpo, testes verdes
+- [ ] `/revisar` (`code-reviewer` e `security-auditor`: auth e foto da conta)
+- [ ] `/fechar-sessao`
+
+## Decisões
+
+## Commits
+
+## Notas
+- Riscos levantados na abertura: a política 2.0 precisa estar publicada antes de uma versão com o botão chegar ao usuário; a foto da conta fica no cache de imagens (dado pessoal, entra na política 2.0, e a limpeza no logout é decidida nesta sessão ou no item do logout); validar ou não o host da foto (`lh3.googleusercontent.com`); o logo do Google tem de ser o arquivo oficial.
+- Fora do escopo: "login leva para onde estava" e a limpeza do Firestore no logout (itens próprios do plano).
