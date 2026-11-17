@@ -49,6 +49,15 @@ Entrar com o Google pelo `google_sign_in` nativo, só com a identidade básica e
 - [ ] `/revisar` (`code-reviewer` e `security-auditor`, porque toca auth, storage e manifest)
 - [ ] `/fechar-sessao`
 
+### Achados aceitos do `/revisar`
+- [ ] Bloqueante (1): sem o Firebase (falha no `initializeApp`), a composição não pode derrubar o app. O `FirebaseAuth.instance` lança `no-app`, e o `runApp` nunca roda. Teste da composição
+- [ ] RED/GREEN (2): um erro no `authStateChanges` vira `Failure` no repositório e `SessionFailed` no notifier, sem ficar preso em `SessionLoading`
+- [ ] RED/GREEN (3): `currentUser` dentro do `try` no `signIn`. A exceção ali vira `Failure`, e o notifier não fica preso em "entrando"
+- [ ] RED/GREEN (4): o último `AuthState` recebido durante o login é reconciliado no fim (um `SignedIn` no meio, seguido de falha ou cancelamento, termina logado)
+- [ ] RED/GREEN (5): a falha diz qual operação falhou (login ou logout), com o doc alinhado. Depois de uma falha no logout, o "tentar de novo" não faz login
+- [ ] Guarda (6): o erro do Firebase vence o do Google quando o app sai do Google em silêncio
+- [ ] Guarda (7): um login que completa depois do `dispose` não lança nem avisa ouvintes
+
 ## Decisões
 Nenhuma nova. As dependências `firebase_auth` e `google_sign_in` já estão na decisão 010 e no `CLAUDE.md`. Os adaptadores finos, sem pacote de mock, foram combinados na abertura.
 
@@ -72,6 +81,18 @@ Nenhuma nova. As dependências `firebase_auth` e `google_sign_in` já estão na 
 - `1703565` add: main.dart monta a conta e expõe o SessionNotifier ao app
 
 ## Notas
+- **Achados do `/revisar` adiados** (com o ok do usuário), para a sessão do Perfil ou para o `BACKLOG.md`:
+  - (8) teste da primeira falha no `signOut`, com as duas falhando;
+  - (9) sair do Google quando o `idToken` vem nulo;
+  - (10) tentar de novo o `initialize()` do Google depois de uma falha;
+  - (11) guardas do `signOut` no notifier (login em andamento, chamada dupla, `Exception`);
+  - (12) regex de e-mail (`pacote@7.1.0`, `logo@2x.png`, `%40`);
+  - (13) nomes com prefixo camelCase (`googleAccessToken`);
+  - (14) fake reemitindo o estado ao assinar;
+  - (15) `deleteAccount` do fake como `Future`;
+  - (16) `uid` com IDs reservados do Firestore (`.`, `..`, `__x__`);
+  - (17) e-mail de teste em `@example.com`.
+- **Fora do escopo, segundo o `security-auditor`:** `USE_BIOMETRIC` e `USE_FINGERPRINT` vêm do `androidx.credentials` (avaliar `tools:node="remove"`); a política 2.0 precisa estar publicada antes do botão de login; o App Check fica na Fase 4.
 - **O `toString` do `GoogleSignInAuthentication` imprime o `idToken`.** O adaptador lê só o `.idToken` e nunca registra esse objeto. Qualquer log futuro perto do login precisa passar pelo `redactSecrets`, que agora mascara JWT.
 - **O `requires-recent-login` ainda não é traduzido:** nenhum teste do login pede isso. Ele entra com o `deleteAccount` (item da exclusão).
 - **Cache do Firestore no logout:** o `cloud_firestore` ainda não entrou. O `terminate()`, o `clearPersistence()` e a recriação da instância ficam para o item do logout, junto do teste de que a falha ao limpar não deixa a sessão aberta.
