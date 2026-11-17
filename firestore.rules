@@ -3,5 +3,8 @@ rules_version = '2';
 // Nega tudo por padrão (decisão 010). Só o que tiver match explícito abre.
 service cloud.firestore {
   match /databases/{database}/documents {
+    match /users/{uid}/movies/{movieId} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
   }
 }
