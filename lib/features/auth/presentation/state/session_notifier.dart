@@ -26,26 +26,33 @@ class SessionNotifier extends ChangeNotifier {
   SessionState get state => _state;
 
   bool _signingIn = false;
+
+  /// O último estado da conta que chegou durante o login, guardado para o
+  /// fim dele. `null` quando não chegou nenhum.
+  AuthState? _arrivedDuringSignIn;
   bool _disposed = false;
 
   /// Abre o login do Google. Serve também para "tentar de novo".
   Future<void> signIn() async {
     if (_disposed || _signingIn) return;
     _signingIn = true;
+    _arrivedDuringSignIn = null;
     _emit(const SessionSigningIn());
     try {
       _emit(switch (await _repository.signIn()) {
         SignInCompleted(:final user) => SessionSignedIn(user),
-        SignInCancelled() => const SessionSignedOut(),
+        SignInCancelled() => _reconcile(const SessionSignedOut()),
       });
     } on Failure catch (failure) {
-      _emit(SessionFailed(failure));
+      _emit(_reconcile(SessionFailed(failure)));
     } on Exception {
       // O repositório só lança Failure; outra exceção não pode deixar a tela
       // entrando para sempre.
       _emit(
-        const SessionFailed(
-          UnexpectedFailure('exceção fora das falhas tipadas'),
+        _reconcile(
+          const SessionFailed(
+            UnexpectedFailure('exceção fora das falhas tipadas'),
+          ),
         ),
       );
     } on Error {
@@ -68,11 +75,23 @@ class SessionNotifier extends ChangeNotifier {
     }
   }
 
+  // A conta pode ter entrado de verdade no nativo mesmo com o login do Dart
+  // cancelado ou com falha: nesse caso, vale o que a conta disse.
+  SessionState _reconcile(SessionState fallback) =>
+      switch (_arrivedDuringSignIn) {
+        SignedIn(:final user) => SessionSignedIn(user),
+        _ => fallback,
+      };
+
   // Durante o login, quem decide o estado é o resultado dele: um SignedOut que
-  // chegue no meio não pode esconder o "entrando". Uma falha já significa
+  // chegue no meio não pode esconder o "entrando". O estado fica guardado para
+  // o fim dele. Uma falha já significa
   // sessão fechada, e o SignedOut que vem depois dela não a esconde.
   void _onAuthState(AuthState authState) {
-    if (_signingIn) return;
+    if (_signingIn) {
+      _arrivedDuringSignIn = authState;
+      return;
+    }
     if (_state is SessionFailed && authState is SignedOut) return;
     _emit(switch (authState) {
       SignedOut() => const SessionSignedOut(),

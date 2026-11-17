@@ -167,6 +167,37 @@ void main() {
       await expectLater(signingIn, throwsStateError);
     });
 
+    test(
+      'deve terminar logado se a conta entrou no meio e o login falhou',
+      () async {
+        final signingIn = notifier.signIn();
+        repository.emit(SignedIn(ana));
+        await pumpEventQueue();
+
+        repository.failSignIn(const NetworkFailure());
+        await signingIn;
+
+        expect(
+          notifier.state,
+          isA<SessionSignedIn>().having((s) => s.user, 'user', ana),
+        );
+      },
+    );
+
+    test(
+      'deve terminar logado se a conta entrou no meio e o login cancelou',
+      () async {
+        final signingIn = notifier.signIn();
+        repository.emit(SignedIn(ana));
+        await pumpEventQueue();
+
+        repository.completeSignIn(const SignInCancelled());
+        await signingIn;
+
+        expect(notifier.state, isA<SessionSignedIn>());
+      },
+    );
+
     test('deve limpar a falha ao tentar de novo', () async {
       final firstTry = notifier.signIn();
       repository.failSignIn(const NetworkFailure());
