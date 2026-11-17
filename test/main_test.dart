@@ -2,16 +2,26 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ja_vi_esse_filme/core/links/external_link_opener.dart';
 import 'package:ja_vi_esse_filme/core/theme/app_theme_tokens.dart';
+import 'package:ja_vi_esse_filme/features/auth/domain/entities/auth_state.dart';
+import 'package:ja_vi_esse_filme/features/auth/presentation/state/session_notifier.dart';
+import 'package:ja_vi_esse_filme/features/auth/presentation/state/session_state.dart';
 import 'package:ja_vi_esse_filme/main.dart';
 import 'package:provider/provider.dart';
 
+import 'helpers/fake_auth_repository.dart';
 import 'helpers/fake_link_opener.dart';
 import 'helpers/stub_movie_repository.dart';
 
 void main() {
+  late FakeAuthRepository authRepository;
+
+  setUp(() => authRepository = FakeAuthRepository());
+  tearDown(() => authRepository.close());
+
   MainApp app({ExternalLinkOpener? linkOpener, String appVersion = ''}) =>
       MainApp(
         movieRepository: StubMovieRepository(),
+        authRepository: authRepository,
         linkOpener: linkOpener ?? FakeLinkOpener(),
         appVersion: appVersion,
       );
@@ -78,5 +88,28 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Versão 9.9.9'), findsOneWidget);
+  });
+
+  testWidgets('as telas devem receber a sessão ligada à conta do app', (
+    tester,
+  ) async {
+    await tester.pumpWidget(app());
+
+    authRepository.emit(const SignedOut());
+    await tester.pump();
+
+    final context = tester.element(find.byType(Scaffold).first);
+    expect(context.read<SessionNotifier>().state, isA<SessionSignedOut>());
+  });
+
+  testWidgets('a sessão deve parar de ouvir a conta quando o app sai', (
+    tester,
+  ) async {
+    await tester.pumpWidget(app());
+    await tester.pump();
+
+    await tester.pumpWidget(const SizedBox());
+
+    expect(authRepository.hasListener, isFalse);
   });
 }
