@@ -35,6 +35,18 @@ void main() {
     expect(() => AppUser(uid: '   '), throwsArgumentError);
   });
 
+  test('deve recusar uid com barra', () {
+    expect(() => AppUser(uid: 'abc/123'), throwsArgumentError);
+  });
+
+  test('deve recusar uid com espaço no começo', () {
+    expect(() => AppUser(uid: ' abc123'), throwsArgumentError);
+  });
+
+  test('deve recusar uid com espaço no fim', () {
+    expect(() => AppUser(uid: 'abc123 '), throwsArgumentError);
+  });
+
   group('igualdade', () {
     AppUser ana({
       String uid = 'abc123',

@@ -45,4 +45,9 @@ void main() {
       everyElement(l10n.failureGeneric),
     );
   });
+
+  // A mesma mensagem cobre as falhas do TMDB e as da conta (Firebase).
+  test('deve usar uma mensagem genérica que não cita o TMDB', () {
+    expect(l10n.failureGeneric, isNot(contains('TMDB')));
+  });
 }

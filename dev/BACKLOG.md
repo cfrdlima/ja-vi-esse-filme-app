@@ -62,3 +62,18 @@ Ideias que surgiram e não estão no plano imediato. Marque **[prioritário]** o
 - A "Browser key (auto created by Firebase)" existe no Google Cloud e o app não a usa. Restringir ou apagar quando houver página web com o Firebase JS (exclusão de conta, decisão 010) (sessão 016)
 - Subir para o `@firebase/rules-unit-testing` 6.x (e o `firebase` 13.x) quando a máquina e o CI usarem Node ≥ 24.12 (decisão 012, sessão 017)
 - O `CLAUDE.md` cita `gitleaks detect`, que está obsoleto na 8.x. Trocar por `gitleaks git --redact --no-banner .`, que é o que o CI roda (sessão 017)
+- Achados adiados do `/revisar` da sessão 019 (login com o Google):
+  - **Fake e estado (bom para a sessão do Perfil):**
+    - o `FakeAuthRepository` reemite o estado atual ao assinar, como o contrato pede (S14), e o `deleteAccount` dele passa a ser `async` (S15);
+    - o `signOut` do `SessionNotifier` ganha guardas contra login em andamento e contra chamada dupla, e trata `Exception` como o `signIn` (S11).
+  - **Repositório e adaptadores:**
+    - um teste com o Firebase e o Google falhando no `signOut`, com códigos diferentes, para provar que sobe a primeira falha (S8);
+    - sair do Google quando o `idToken` vem nulo (S9);
+    - o `GoogleSignInSdkGateway` tenta o `initialize()` de novo depois de uma falha, em vez de guardar o future com erro (S10).
+  - **Redator e `uid`:**
+    - regex de e-mail sem falso positivo em `pacote@7.1.0` e `logo@2x.png`, e pegando `%40` (S12);
+    - nomes com prefixo camelCase, como `googleAccessToken` e `firebaseIdToken` (S13);
+    - o `AppUser` recusando os IDs reservados do Firestore `.`, `..` e `__x__` (S16);
+    - e-mail de teste em `@example.com` no `secret_redactor_test.dart` (S17).
+  - **Manifest (`security-auditor`):** `USE_BIOMETRIC` e `USE_FINGERPRINT` vêm do `androidx.credentials`. Se as passkeys nunca forem usadas, avaliar `tools:node="remove"` testado no aparelho.
+- O emulador `Pixel_9` está com 96% do `/data` usado e não instala o app. Usar o `Pixel_9_Pro` ou liberar espaço (sessão 019)

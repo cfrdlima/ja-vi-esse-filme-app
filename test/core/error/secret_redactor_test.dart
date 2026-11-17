@@ -92,6 +92,66 @@ void main() {
     expect(text, r'{"session_id":"***"}');
   });
 
+  group('tokens do Firebase e do Google', () {
+    test('deve mascarar idToken em JSON', () {
+      final text = redactSecrets('{"idToken": "abc.def.ghi", "ok": true}');
+
+      expect(text, '{"idToken": "***", "ok": true}');
+    });
+
+    test('deve mascarar refreshToken em JSON escapado', () {
+      final text = redactSecrets(r'{\"refreshToken\": \"AMf-vB\"}');
+
+      expect(text, r'{\"refreshToken\": \"***\"}');
+    });
+
+    test('deve mascarar accessToken no toString de um Map', () {
+      final text = redactSecrets('{accessToken: tok-1, providerId: google}');
+
+      expect(text, '{accessToken: ***, providerId: google}');
+    });
+
+    test('deve mascarar id_token na query', () {
+      final text = redactSecrets('/callback?id_token=abc&state=1');
+
+      expect(text, '/callback?id_token=***&state=1');
+    });
+
+    test('deve mascarar JWT solto no texto', () {
+      final text = redactSecrets(
+        'token inválido: eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiIxIn0.c2ln-_x fim',
+      );
+
+      expect(text, 'token inválido: *** fim');
+    });
+
+    test('deve mascarar access token do Google solto no texto', () {
+      final text = redactSecrets('falhou com ya29.a0AfH6SM-x_y9 agora');
+
+      expect(text, 'falhou com *** agora');
+    });
+  });
+
+  group('e-mail', () {
+    test('deve mascarar e-mail no texto', () {
+      final text = redactSecrets('conta ana.silva+filmes@gmail.com desativada');
+
+      expect(text, 'conta *** desativada');
+    });
+
+    test('deve mascarar e-mail com subdomínio', () {
+      final text = redactSecrets('email: ana@mail.exemplo.com.br.');
+
+      expect(text, 'email: ***.');
+    });
+
+    test('deve manter arroba sem domínio, como uma menção', () {
+      final text = redactSecrets('falou com @ana sobre o filme');
+
+      expect(text, 'falou com @ana sobre o filme');
+    });
+  });
+
   test('deve manter texto sem segredo como está', () {
     final text = redactSecrets('Falha de rede ao buscar filmes');
 

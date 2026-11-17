@@ -262,10 +262,10 @@ abstract class AppLocalizations {
   /// **'Por segurança, entre de novo com o Google para continuar.'**
   String get failureRecentLoginRequired;
 
-  /// Qualquer outra falha (401, 404, 5xx, resposta inesperada)
+  /// Qualquer outra falha do TMDB (401, 404, 5xx, resposta inesperada) ou da conta. Neutra: não cita o TMDB
   ///
   /// In pt, this message translates to:
-  /// **'Algo deu errado ao falar com o TMDB.'**
+  /// **'Algo deu errado. Tente de novo em instantes.'**
   String get failureGeneric;
 
   /// Rótulo de acessibilidade do pôster quando o TMDB não manda título nenhum

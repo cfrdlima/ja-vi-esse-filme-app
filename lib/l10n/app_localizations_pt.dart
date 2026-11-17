@@ -109,7 +109,7 @@ class AppLocalizationsPt extends AppLocalizations {
       'Por segurança, entre de novo com o Google para continuar.';
 
   @override
-  String get failureGeneric => 'Algo deu errado ao falar com o TMDB.';
+  String get failureGeneric => 'Algo deu errado. Tente de novo em instantes.';
 
   @override
   String get movieUntitled => 'Filme sem título';

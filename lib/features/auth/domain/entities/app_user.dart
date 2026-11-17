@@ -1,10 +1,15 @@
 /// Usuário logado pela conta Google no Firebase (decisão 010).
 final class AppUser {
-  /// Recusa com [ArgumentError] o [uid] vazio: as regras do Firestore usam o
-  /// `uid` no caminho `users/{uid}`, e um vazio apontaria para outro lugar.
+  /// Recusa com [ArgumentError] o [uid] vazio, com `/` ou com espaço nas
+  /// pontas: as regras do Firestore usam o `uid` no caminho `users/{uid}`, e
+  /// qualquer um deles apontaria para outro documento.
   AppUser({required this.uid, this.displayName, this.email, this.photoUrl}) {
     // Sem o valor na mensagem: o `uid` não vai para log (CLAUDE.md).
     if (uid.trim().isEmpty) throw ArgumentError('não pode ser vazio', 'uid');
+    if (uid.contains('/')) throw ArgumentError('não pode ter barra', 'uid');
+    if (uid.trim() != uid) {
+      throw ArgumentError('não pode ter espaço nas pontas', 'uid');
+    }
   }
 
   final String uid;

@@ -21,6 +21,9 @@ abstract interface class AuthRepository {
   /// cancela os streams, `terminate()` e `clearPersistence()` do Firestore,
   /// `signOut()` do Firebase e do Google, e recria a instância.
   ///
+  /// Até o Firestore entrar no app (item do logout no `dev/PLANO.md`), só os
+  /// dois `signOut()` rodam: ainda não há cache do Firestore para limpar.
+  ///
   /// Os dois `signOut()` rodam sempre, mesmo se a limpeza falhar: a sessão
   /// nunca fica aberta. Nesse caso, [authStateChanges] emite [SignedOut]
   /// primeiro, e depois a falha sobe como `UnexpectedFailure`, para a UI
@@ -38,5 +41,9 @@ abstract interface class AuthRepository {
   ///
   /// No sucesso, [authStateChanges] emite [SignedOut]. Pode falhar também
   /// com `NetworkFailure` ou `UnexpectedFailure`.
+  ///
+  /// Até o item da exclusão no `dev/PLANO.md`, sempre falha com
+  /// `UnexpectedFailure` sem tocar em nada: apagar só o Auth deixaria os
+  /// documentos órfãos em `users/{uid}`.
   Future<void> deleteAccount();
 }
