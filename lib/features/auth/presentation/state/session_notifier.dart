@@ -37,9 +37,11 @@ class SessionNotifier extends ChangeNotifier {
   AuthState? _arrivedDuringSignIn;
   bool _disposed = false;
 
-  /// Abre o login do Google. Serve também para "tentar de novo".
+  /// Abre o login do Google. Serve também para "tentar de novo". Com um
+  /// logout em andamento, não faz nada: o Firebase sai antes do Google, e o
+  /// seletor abriria com a limpeza ainda rodando.
   Future<void> signIn() async {
-    if (_disposed || _signingIn) return;
+    if (_disposed || _signingIn || _signingOut) return;
     _signingIn = true;
     _arrivedDuringSignIn = null;
     _emit(const SessionSigningIn());

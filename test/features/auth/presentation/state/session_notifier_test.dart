@@ -298,6 +298,16 @@ void main() {
       },
     );
 
+    test('deve ignorar o login enquanto um logout não termina', () {
+      repository.signOutGate = Completer<void>();
+      addTearDown(() => repository.signOutGate?.complete());
+      unawaited(notifier.signOut());
+
+      unawaited(notifier.signIn());
+
+      expect(repository.pendingSignIns, 0);
+    });
+
     test('deve ignorar o logout enquanto um login não termina', () async {
       unawaited(notifier.signIn());
 
