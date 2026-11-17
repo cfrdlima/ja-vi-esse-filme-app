@@ -18,6 +18,20 @@ void main() {
     );
   });
 
+  test('deve avisar que a conta foi desativada', () {
+    expect(
+      failureMessage(l10n, const AccountDisabledFailure()),
+      l10n.failureAccountDisabled,
+    );
+  });
+
+  test('deve pedir para entrar de novo antes de uma ação sensível', () {
+    expect(
+      failureMessage(l10n, const RecentLoginRequiredFailure()),
+      l10n.failureRecentLoginRequired,
+    );
+  });
+
   test('deve usar a mensagem genérica nas outras falhas', () {
     const others = <Failure>[
       UnauthorizedFailure(),

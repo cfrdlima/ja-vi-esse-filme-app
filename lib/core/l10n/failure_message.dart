@@ -7,6 +7,8 @@ String failureMessage(AppLocalizations l10n, Failure failure) =>
     switch (failure) {
       NetworkFailure() => l10n.failureNetwork,
       RateLimitFailure() => l10n.failureRateLimit,
+      AccountDisabledFailure() => l10n.failureAccountDisabled,
+      RecentLoginRequiredFailure() => l10n.failureRecentLoginRequired,
       UnauthorizedFailure() ||
       NotFoundFailure() ||
       ServerFailure() ||

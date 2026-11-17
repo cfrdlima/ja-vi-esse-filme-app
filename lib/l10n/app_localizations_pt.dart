@@ -102,6 +102,13 @@ class AppLocalizationsPt extends AppLocalizations {
       'Muitos pedidos em pouco tempo. Espere um pouco.';
 
   @override
+  String get failureAccountDisabled => 'Esta conta foi desativada.';
+
+  @override
+  String get failureRecentLoginRequired =>
+      'Por segurança, entre de novo com o Google para continuar.';
+
+  @override
   String get failureGeneric => 'Algo deu errado ao falar com o TMDB.';
 
   @override

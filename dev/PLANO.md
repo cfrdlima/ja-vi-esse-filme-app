@@ -3,9 +3,9 @@
 > Fonte da verdade do que construir. Atualizado por `/fechar-sessao`.
 
 ## Última sessão
-**017 — Fase 2: regras do Firestore** (fechada em 2026-11-17) · [log](sessoes/017-regras-firestore.md)
-O `firestore.rules` nega tudo e só deixa o dono, logado pelo Google, em `users/{uid}/movies/{movieId}`, com id numérico e campos booleanos provisórios. Os 40 testes no emulador rodam no CI (decisão 012), e as regras foram publicadas no projeto.
-**Próximo passo:** o domínio da conta (entidade do usuário, contrato do repositório e falhas tipadas), em Dart puro e com fakes.
+**018 — Fase 2: domínio da conta** (fechada em 2026-11-17) · [log](sessoes/018-dominio-conta.md)
+`lib/features/auth/domain/` em Dart puro: `AppUser` sem dados pessoais no `toString`, os estados selados `AuthState` e `SignInOutcome` (o cancelamento não é erro), as falhas de conta desativada e login recente exigido, e o contrato do `AuthRepository` com a ordem da decisão 010. Um teste por lista branca garante que nenhum `domain/` importa nada fora do Dart puro.
+**Próximo passo:** o login com o Google (`data` sobre o `firebase_auth` e o `google_sign_in`, fake do `AuthRepository` e estado), com as pendências do log da 018.
 
 ## Fase 0 — Fundação
 - [x] Criar projeto (`io.github.cfrdlima.ja_vi_esse_filme`), `analysis_options.yaml`, `.gitignore` com `env/*.json` (exceto `example.json`)
@@ -51,10 +51,14 @@ O `firestore.rules` nega tudo e só deixa o dono, logado pelo Google, em `users/
   - `collectionGroup` negado.
 
   Vem antes do login e de qualquer escrita. (sessão 017)
-- [ ] Domínio da conta: entidade do usuário (`uid`, nome, e-mail, foto), contrato do repositório (usuário atual em stream, entrar, sair e excluir) e falhas tipadas (login cancelado, sem rede, conta desativada). O cancelamento não é erro
+- [x] Domínio da conta: entidade do usuário (`uid`, nome, e-mail, foto), contrato do repositório (usuário atual em stream, entrar, sair e excluir) e falhas tipadas (login cancelado, sem rede, conta desativada). O cancelamento não é erro (sessão 018)
 - [ ] Login com o Google: `google_sign_in` nativo (só a identidade básica, sem escopos extras) e credencial no `FirebaseAuth`, injetado no `main.dart`, com fakes nos testes. Na mesma entrega:
   - o `data_extraction_rules.xml` (+ `fullBackupContent`), excluindo pelo menos `sharedpref` (token do Auth) e `database` (cache do Firestore) do `cloud-backup` e do `device-transfer`;
   - o redator de segredos com JWT (`eyJ…`), `ya29.…`, `idToken`, `accessToken`, `refreshToken` e e-mail.
+  - o fake do `AuthRepository` em `test/helpers/`, com o formato que os testes do estado pedirem;
+  - o `failureGeneric` neutro, porque hoje ele cita o TMDB;
+  - o `AppUser` recusando `uid` com `/` ou espaço nas pontas, e a `data` montando o caminho com `collection('users').doc(uid)`;
+  - a tradução dos erros do SDK sem `e.message`, `e.email` nem `e.credential` (pendências da sessão 018).
 - [ ] Perfil logado e deslogado: botão "Entrar com Google" (diretrizes de marca do Google), nome e foto, e os 4 estados (consultar a `ui-ux-pro-max`)
 - [ ] Login opcional: uma ação que precisa de conta leva ao login e volta para onde estava
 - [ ] Logout na ordem da decisão 010: cancelar os streams; `terminate()`; `clearPersistence()`; `signOut()` do Firebase e do Google; recriar a instância. Teste: a falha ao limpar o cache não deixa a sessão aberta

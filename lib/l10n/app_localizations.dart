@@ -244,11 +244,23 @@ abstract class AppLocalizations {
   /// **'Sem conexão com a internet. Confira sua rede.'**
   String get failureNetwork;
 
-  /// Erro 429 do TMDB
+  /// Erro 429 do TMDB ou excesso de tentativas no login (too-many-requests)
   ///
   /// In pt, this message translates to:
   /// **'Muitos pedidos em pouco tempo. Espere um pouco.'**
   String get failureRateLimit;
+
+  /// Login recusado porque a conta foi desativada no Firebase (user-disabled)
+  ///
+  /// In pt, this message translates to:
+  /// **'Esta conta foi desativada.'**
+  String get failureAccountDisabled;
+
+  /// Ação sensível, como excluir a conta, que pede login recente (requires-recent-login)
+  ///
+  /// In pt, this message translates to:
+  /// **'Por segurança, entre de novo com o Google para continuar.'**
+  String get failureRecentLoginRequired;
 
   /// Qualquer outra falha (401, 404, 5xx, resposta inesperada)
   ///
