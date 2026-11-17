@@ -35,6 +35,22 @@ Ligar a aba Perfil ao `SessionNotifier`: deslogado com o botão "Entrar com o Go
 - [x] Fonte 2x em 360x640 sem overflow, em cada estado
 - [x] Strings novas no ARB (decisão 004)
 
+### Achados aceitos do `/revisar`
+- [ ] (4) Fake só emite `SignedOut` se a conta não estiver deslogada, como o Firebase
+- [ ] (1) Bloqueante: "Tentar de novo" depois da falha no logout volta a deslogado
+- [ ] (2) `signIn` ignorado durante um logout em andamento; o logout não mostra a falha se um login começou no meio
+- [ ] (3a) A foto não fica no `imageCache` depois do logout (sem `memCacheWidth` ou com limpeza)
+- [ ] (3b) `CacheManager` próprio da foto, esvaziado em todo `SessionSignedOut`, inclusive ao abrir o app deslogado (resolve também o S7)
+- [ ] (5) Teste do avatar com erro no download mostra o placeholder
+- [ ] (S1) Borda do botão do Google desbota quando desabilitado
+- [ ] (S2) `AppSizes.minTouchTarget` no lugar do `_minHeight`
+- [ ] (S3) Comentário do `SignedInPanel`
+- [ ] (S4) `signOutGate` completado no `tearDown`
+- [ ] (S5) `matchesSemantics` com papel de botão no teste do botão do Google
+- [ ] (S6) Prova por mutação dos testes de guarda do `AccountPhotoCleaner`
+- [ ] (6) Portão de release no `PLANO.md`: política 2.0 publicada antes de qualquer APK com login, com a lista do `security-auditor`
+- [ ] (S8, S9, S10) Backlog/log: host da foto `lh3`–`lh6` exato; reproduzir o voltar no seletor; `uid` no logcat como risco aceito
+
 ### Entrega
 - [x] Verificação no emulador (Pixel_9_Pro) com conta real: entrar e sair, screenshot, log sem e-mail nem token. **Feito:** logado (foto do Google carregada), sair, deslogado, entrando, cancelar tocando fora (volta a deslogado sem erro), entrar de novo, e fonte 2x do sistema sem overflow. No `flutter run` e no logcat do processo do app: 0 e-mail, 0 JWT, 0 `ya29.`, 0 `idToken`, 0 URL de foto
 - [ ] Tríade: format, analyze limpo, testes verdes
