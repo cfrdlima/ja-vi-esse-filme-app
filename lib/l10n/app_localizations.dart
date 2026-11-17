@@ -531,6 +531,48 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Licenças de código aberto'**
   String get aboutLicensesEntry;
+
+  /// Marca de filme já assistido, nos Detalhes
+  ///
+  /// In pt, this message translates to:
+  /// **'Assistido'**
+  String get shelfMarkWatched;
+
+  /// Marca de filme que a pessoa quer assistir, nos Detalhes
+  ///
+  /// In pt, this message translates to:
+  /// **'Quero assistir'**
+  String get shelfMarkWatchlist;
+
+  /// Marca de filme favorito, nos Detalhes
+  ///
+  /// In pt, this message translates to:
+  /// **'Favorito'**
+  String get shelfMarkFavorite;
+
+  /// Anúncio do leitor de tela enquanto as marcas do filme carregam nos Detalhes
+  ///
+  /// In pt, this message translates to:
+  /// **'Carregando suas marcas'**
+  String get shelfMarksLoading;
+
+  /// Erro ao ler as marcas do filme nos Detalhes, ao lado do Tentar de novo
+  ///
+  /// In pt, this message translates to:
+  /// **'Não deu para carregar suas marcas.'**
+  String get shelfMarksLoadFailed;
+
+  /// Título da folha de login que abre ao marcar um filme sem conta
+  ///
+  /// In pt, this message translates to:
+  /// **'Entre para guardar seus filmes'**
+  String get signInSheetTitle;
+
+  /// Texto da folha de login que abre ao marcar um filme sem conta
+  ///
+  /// In pt, this message translates to:
+  /// **'Com a conta Google, suas marcas ficam salvas e aparecem em qualquer aparelho.'**
+  String get signInSheetBody;
 }
 
 class _AppLocalizationsDelegate

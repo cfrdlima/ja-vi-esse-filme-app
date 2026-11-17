@@ -65,3 +65,24 @@
   - **Movimento reduzido:** com `disableAnimations`, não há `Hero` e a troca é a da rota.
   - **Mesma imagem no cache:** o pôster é decodificado no tamanho do arquivo (`w342`), sem `memCacheWidth` por largura. Assim a grade, o voo e o cabeçalho usam a mesma imagem já decodificada, e o pôster voa desenhado, sem passar pelo placeholder.
   - **Teclado:** o shell não encolhe com o teclado (cada tela desvia sozinha, e a aba recebe só a parte do teclado acima da barra). Se o navigator da aba mudasse de tamanho com o teclado fechando no meio do voo, o pôster sairia esticado.
+
+## Marcas (sessão 022)
+> Consulta à `ui-ux-pro-max` (stack Flutter) na sessão 022: `ux` "Color Only" (o estado não é só cor), `state-clarity` e "Contextual Semantics" (o controle anuncia se está selecionado), `touch-target-size` (≥ 48dp), `ux` "Content Jumping" (os estados assíncronos ocupam um espaço estável), `modal-escape` e `modal-motion` (a folha fecha com o gesto e com um botão, e sobe da borda de baixo). As buscas por "bottom sheet" e "modal sheet" na stack Flutter não trouxeram resultado; a folha abaixo segue o `MASTER.md` (diálogo / bottom sheet) e é padrão geral (fallback).
+
+- **Onde:** logo abaixo do cabeçalho, antes dos gêneros. Só aparece com o filme carregado e com título: sem título, não há cópia válida para a Estante (decisão 013), e a fileira some.
+- **Três marcas**, nesta ordem: **Assistido** (`check_circle_outline` → `check_circle`), **Quero assistir** (`bookmark_border` → `bookmark`) e **Favorito** (`favorite_border` → `favorite`). Cada uma é um `FilterChip` com ícone e texto, sem o "check" do chip: o ícone troca de contorno para cheio, e o fundo usa o `secondaryContainer` do chip selecionado. O estado nunca é só a cor.
+- **Layout:** `Wrap` com espaçamento `sm`, que quebra linha com fonte grande. Alvo de toque ≥ 48dp (`MaterialTapTargetSize.padded`).
+- **Leitor de tela:** cada chip é um botão de alternar com o nome da marca e "selecionado" quando ligado (o `FilterChip` já expõe o `selected`). O ícone é decorativo.
+- **Toque:** liga ou desliga na hora (otimista). Não há indicador de "salvando": offline, a confirmação pode levar horas, e a marca já vale no aparelho.
+
+### Estados das marcas
+- **Carregando:** três blocos no formato dos chips, no pulso do skeleton, com `Semantics` "Carregando suas marcas". Ocupam o mesmo espaço dos chips, para a tela não pular.
+- **Deslogado:** os três chips desligados. Tocar abre a folha de login; depois do login, a marca tocada entra sozinha.
+- **Erro de leitura:** "Não deu para carregar suas marcas." em `bodyMedium` e o `RetryButton.text` ao lado, como região viva.
+- **Escrita recusada:** os chips voltam ao que a Estante diz, e abaixo deles aparece a mensagem da falha em `bodyMedium` com o `RetryButton.text`, como região viva. Mexer de novo numa marca tira a mensagem.
+
+### Folha de login
+- `showModalBottomSheet` com fundo `surfaceContainerHigh`, raio `lg` só nos cantos de cima, scrim a 50% e alça de arrastar. Fecha com o gesto para baixo, com o toque fora e com o `CloseButton` no canto (tooltip do Material).
+- Conteúdo, com padding `lg`: título "Entre para guardar seus filmes" em `titleLarge`; texto "Com a conta Google, suas marcas ficam salvas e aparecem em qualquer aparelho." em `bodyMedium` `onSurfaceVariant`; e o botão "Entrar com o Google" do Perfil (override `perfil.md`), com o mesmo estado de "entrando".
+- **Falha no login:** a mensagem da falha acima do botão, como região viva, e o botão volta a ser "tentar de novo".
+- **Sucesso:** a folha fecha sozinha e a marca entra. **Cancelar o seletor do Google** deixa a folha aberta, sem erro.

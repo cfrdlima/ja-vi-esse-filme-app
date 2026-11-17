@@ -197,5 +197,19 @@
   "aboutLicensesTitle": "Licenças",
   "@aboutLicensesTitle": { "description": "Título da seção de licenças da tela Sobre" },
   "aboutLicensesEntry": "Licenças de código aberto",
-  "@aboutLicensesEntry": { "description": "Entrada que abre a página de licenças do Flutter" }
+  "@aboutLicensesEntry": { "description": "Entrada que abre a página de licenças do Flutter" },
+  "shelfMarkWatched": "Assistido",
+  "@shelfMarkWatched": { "description": "Marca de filme já assistido, nos Detalhes" },
+  "shelfMarkWatchlist": "Quero assistir",
+  "@shelfMarkWatchlist": { "description": "Marca de filme que a pessoa quer assistir, nos Detalhes" },
+  "shelfMarkFavorite": "Favorito",
+  "@shelfMarkFavorite": { "description": "Marca de filme favorito, nos Detalhes" },
+  "shelfMarksLoading": "Carregando suas marcas",
+  "@shelfMarksLoading": { "description": "Anúncio do leitor de tela enquanto as marcas do filme carregam nos Detalhes" },
+  "shelfMarksLoadFailed": "Não deu para carregar suas marcas.",
+  "@shelfMarksLoadFailed": { "description": "Erro ao ler as marcas do filme nos Detalhes, ao lado do Tentar de novo" },
+  "signInSheetTitle": "Entre para guardar seus filmes",
+  "@signInSheetTitle": { "description": "Título da folha de login que abre ao marcar um filme sem conta" },
+  "signInSheetBody": "Com a conta Google, suas marcas ficam salvas e aparecem em qualquer aparelho.",
+  "@signInSheetBody": { "description": "Texto da folha de login que abre ao marcar um filme sem conta" }
 }
