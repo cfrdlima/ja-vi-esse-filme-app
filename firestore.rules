@@ -18,16 +18,21 @@ service cloud.firestore {
       return id.matches('^[1-9][0-9]{0,9}$');
     }
 
-    // Provisório até a sessão do modelo de dados do filme (PLANO, Fase 2).
-    // Chaves fixas e tipos fechados limitam o tamanho do documento, a única
-    // barreira contra abuso da cota do Spark até o App Check (decisão 010).
+    // Formato da decisão 013. Chaves fixas e tipos fechados limitam o
+    // tamanho do documento, a única barreira contra abuso da cota do Spark
+    // até o App Check (decisão 010). Sem nenhuma marca, o documento é
+    // apagado, e não gravado.
     function isValidMovie(movie) {
-      let fields = ['watched', 'watchlist', 'favorite'];
-      return movie.keys().hasOnly(fields)
-        && movie.keys().hasAll(fields)
-        && movie.watched is bool
-        && movie.watchlist is bool
-        && movie.favorite is bool;
+      let marks = ['watchedAt', 'watchlistAt', 'favoriteAt'];
+      return movie.keys().hasOnly(marks.concat(['title', 'posterPath', 'cachedAt']))
+        && movie.keys().hasAll(['title', 'cachedAt'])
+        && movie.keys().hasAny(marks)
+        && movie.title is string
+        && (!('posterPath' in movie) || movie.posterPath is string)
+        && movie.cachedAt is timestamp
+        && (!('watchedAt' in movie) || movie.watchedAt is timestamp)
+        && (!('watchlistAt' in movie) || movie.watchlistAt is timestamp)
+        && (!('favoriteAt' in movie) || movie.favoriteAt is timestamp);
     }
 
     match /users/{uid}/movies/{movieId} {
