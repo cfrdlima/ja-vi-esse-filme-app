@@ -24,7 +24,7 @@ O bloco segue o `SessionState`, com um `switch` exaustivo.
 | `SessionSigningIn` | Mesmo layout do deslogado. O botão fica desabilitado, e o "G" dá lugar a um `CircularProgressIndicator` de 20dp. O texto não muda, para o botão não mudar de largura. O `Semantics` do botão diz "Entrando com o Google". |
 | `SessionSignedIn` | Avatar de **72dp** (`AppSizes.profileAvatar`), o nome em `titleLarge` (sem nome, "Sua conta") e o e-mail em `bodyMedium` `onSurfaceVariant`. Abaixo, `OutlinedButton` "Sair" com o ícone `logout`. |
 | `SessionSignInFailed` | O layout do deslogado com a mensagem do `failureMessage` em `bodyMedium` cor `error`, acima do botão. O botão do Google funciona como "tentar de novo" (tocar chama o `signIn`), porque é a mesma ação. |
-| `SessionSignOutFailed` | O layout do logado com a mensagem do `failureMessage` em `bodyMedium` cor `error` e, no lugar do "Sair", o `RetryButton.filled`, que chama o `signOut`. |
+| `SessionSignOutFailed` | Só a mensagem do `failureMessage` em `bodyMedium` cor `error` e o `RetryButton.filled`, que chama o `signOut`. Sem nome nem e-mail: o estado não traz o usuário, e a sessão pode já ter fechado (o `SignedOut` chega antes da falha). |
 
 Não há estado "vazio": sem conta, o deslogado é o vazio, e ele já chama para a ação.
 

@@ -9,6 +9,7 @@ import '../../../auth/presentation/state/session_notifier.dart';
 import '../../../auth/presentation/state/session_state.dart';
 import '../../../auth/presentation/widgets/google_sign_in_button.dart';
 import 'account_skeleton.dart';
+import 'sign_out_failed_panel.dart';
 import 'signed_in_panel.dart';
 import 'signed_out_panel.dart';
 
@@ -38,7 +39,10 @@ class AccountSection extends StatelessWidget {
         user: user,
         action: const _SignOutButton(),
       ),
-      _ => const SizedBox.shrink(),
+      SessionSignOutFailed(:final failure) => SignOutFailedPanel(
+        message: failureMessage(AppLocalizations.of(context), failure),
+        onRetry: () => unawaited(context.read<SessionNotifier>().signOut()),
+      ),
     };
   }
 }

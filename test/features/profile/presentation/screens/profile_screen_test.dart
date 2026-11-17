@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ja_vi_esse_filme/core/error/failures.dart';
 import 'package:ja_vi_esse_filme/core/l10n/app_locale.dart';
+import 'package:ja_vi_esse_filme/core/widgets/retry_button.dart';
 import 'package:ja_vi_esse_filme/features/auth/domain/entities/app_user.dart';
 import 'package:ja_vi_esse_filme/features/auth/domain/entities/auth_state.dart';
 import 'package:ja_vi_esse_filme/features/auth/presentation/state/session_notifier.dart';
@@ -211,6 +212,32 @@ void main() {
       await tester.tap(find.text(l10n.profileSignOut));
 
       expect(repository.signOutCalls, 1);
+    });
+  });
+
+  group('falha no logout', () {
+    Future<void> pumpFailedSignOut(WidgetTester tester) async {
+      repository
+        ..emit(SignedIn(AppUser(uid: 'abc123', displayName: 'Ana')))
+        ..signOutError = const NetworkFailure();
+      await pumpProfile(tester);
+      await tester.pump();
+      await tester.tap(find.text(l10n.profileSignOut));
+      await tester.pump();
+    }
+
+    testWidgets('deve mostrar a mensagem da falha', (tester) async {
+      await pumpFailedSignOut(tester);
+
+      expect(find.text(l10n.failureNetwork), findsOneWidget);
+    });
+
+    testWidgets('deve tentar sair de novo', (tester) async {
+      await pumpFailedSignOut(tester);
+
+      await tester.tap(find.byType(RetryButton));
+
+      expect(repository.signOutCalls, 2);
     });
   });
 }
