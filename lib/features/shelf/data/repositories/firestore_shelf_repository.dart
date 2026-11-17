@@ -30,10 +30,10 @@ class FirestoreShelfRepository implements ShelfRepository {
     if (movieId < 1 || movieId > MovieCopy.maxMovieId) {
       return Stream.error(const UnexpectedFailure('movieId fora das regras'));
     }
-    return _gateway
+    final source = _gateway
         .watchMovie(uid, movieId)
         .transform(
-          StreamTransformer.fromHandlers(
+          StreamTransformer<Map<String, Object?>, ShelfEntry>.fromHandlers(
             handleData: (data, sink) {
               try {
                 sink.add(ShelfMovieModel.fromDocument(movieId, data));
@@ -47,6 +47,23 @@ class FirestoreShelfRepository implements ShelfRepository {
                 sink.addError(_toFailure(error), stackTrace),
           ),
         );
+    final watch = _OpenWatch(source);
+    _openWatches.add(watch);
+    watch.onEnd = () => _openWatches.remove(watch);
+    return watch.stream;
+  }
+
+  final Set<_OpenWatch> _openWatches = {};
+
+  /// Encerra os streams do [watchMovie] ainda abertos: quem ouve recebe o
+  /// fim, e o Firestore deixa de ser ouvido. O logout chama isso antes do
+  /// `terminate()` (decisão 010).
+  Future<void> closeStreams() async {
+    final open = [..._openWatches];
+    _openWatches.clear();
+    for (final watch in open) {
+      await watch.close();
+    }
   }
 
   @override
@@ -119,3 +136,43 @@ Failure _toFailure(Object error) => switch (error) {
   FirebaseException(:final code) => UnexpectedFailure('cloud_firestore: $code'),
   _ => const UnexpectedFailure('erro fora do Firestore na Estante'),
 };
+
+/// Um stream do `watchMovie` que o [FirestoreShelfRepository.closeStreams]
+/// consegue encerrar por fora.
+final class _OpenWatch {
+  _OpenWatch(Stream<ShelfEntry> source) {
+    _controller = StreamController<ShelfEntry>(
+      onListen: () => _subscription = source.listen(
+        _controller.add,
+        onError: _controller.addError,
+        onDone: _end,
+      ),
+      onCancel: () {
+        onEnd?.call();
+        return _subscription?.cancel();
+      },
+    );
+  }
+
+  late final StreamController<ShelfEntry> _controller;
+  StreamSubscription<ShelfEntry>? _subscription;
+  void Function()? onEnd;
+
+  Stream<ShelfEntry> get stream => _controller.stream;
+
+  void _end() {
+    onEnd?.call();
+    unawaited(_controller.close());
+  }
+
+  Future<void> close() async {
+    await _subscription?.cancel();
+    _subscription = null;
+    // Sem ouvinte, o `close()` nunca completaria.
+    if (_controller.hasListener) {
+      await _controller.close();
+    } else {
+      unawaited(_controller.close());
+    }
+  }
+}

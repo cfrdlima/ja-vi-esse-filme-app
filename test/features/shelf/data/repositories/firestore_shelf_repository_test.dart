@@ -302,4 +302,36 @@ void main() {
       );
     });
   });
+
+  group('closeStreams', () {
+    test('deve encerrar os streams abertos', () async {
+      final done = Completer<void>();
+      repository.watchMovie(550).listen(null, onDone: done.complete);
+
+      await repository.closeStreams();
+
+      expect(done.isCompleted, isTrue);
+    });
+
+    test('deve parar de ouvir o Firestore', () async {
+      repository.watchMovie(550).listen(null);
+      await pumpEventQueue();
+
+      await repository.closeStreams();
+
+      expect(gateway.documents.hasListener, isFalse);
+    });
+
+    test('deve concluir sem nenhum stream aberto', () async {
+      await expectLater(repository.closeStreams(), completes);
+    });
+
+    test('deve esquecer o stream que quem ouvia já cancelou', () async {
+      final subscription = repository.watchMovie(550).listen(null);
+      await pumpEventQueue();
+      await subscription.cancel();
+
+      await expectLater(repository.closeStreams(), completes);
+    });
+  });
 }
