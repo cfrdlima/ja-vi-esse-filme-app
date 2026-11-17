@@ -34,7 +34,7 @@ service cloud.firestore {
         && movie.keys().hasAll(['title', 'cachedAt'])
         && movie.keys().hasAny(marks)
         && movie.title is string
-        && movie.title.size() >= 1
+        && movie.title.trim().size() >= 1
         && movie.title.size() <= 300
         && (!('posterPath' in movie) || isTmdbImagePath(movie.posterPath))
         && movie.cachedAt is timestamp

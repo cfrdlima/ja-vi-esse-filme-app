@@ -122,7 +122,7 @@ describe('validação do documento do filme', () => {
   });
 
   test('deve negar cachedAt que não é data', async () => {
-    const movie = { ...validMovie(), cachedAt: 'x'.repeat(100000) };
+    const movie = { ...validMovie(), cachedAt: 'ontem' };
 
     await assertFails(setDoc(movieRef(MOVIE_ID), movie));
   });
@@ -199,6 +199,12 @@ describe('validação do documento do filme', () => {
 
   test('deve negar um title com mais de 300 caracteres', async () => {
     const movie = { ...validMovie(), title: 'a'.repeat(301) };
+
+    await assertFails(setDoc(movieRef(MOVIE_ID), movie));
+  });
+
+  test('deve negar um title só com espaços', async () => {
+    const movie = { ...validMovie(), title: '   ' };
 
     await assertFails(setDoc(movieRef(MOVIE_ID), movie));
   });
