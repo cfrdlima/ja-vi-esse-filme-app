@@ -1,6 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
+import 'package:ja_vi_esse_filme/core/error/failures.dart';
 import 'package:ja_vi_esse_filme/features/auth/domain/entities/app_user.dart';
 import 'package:ja_vi_esse_filme/features/auth/domain/entities/auth_state.dart';
+import 'package:ja_vi_esse_filme/features/auth/domain/entities/sign_in_outcome.dart';
 import 'package:ja_vi_esse_filme/features/auth/presentation/state/session_notifier.dart';
 import 'package:ja_vi_esse_filme/features/auth/presentation/state/session_state.dart';
 
@@ -62,5 +66,103 @@ void main() {
     SessionNotifier(repository: other).dispose();
 
     expect(other.hasListener, isFalse);
+  });
+
+  group('signIn', () {
+    setUp(() async {
+      repository.emit(const SignedOut());
+      await pumpEventQueue();
+    });
+
+    test('deve mostrar que está entrando enquanto o login não termina', () {
+      unawaited(notifier.signIn());
+
+      expect(notifier.state, isA<SessionSigningIn>());
+    });
+
+    test('deve ficar logado com o usuário do login concluído', () async {
+      final signingIn = notifier.signIn();
+
+      repository.completeSignIn(SignInCompleted(ana));
+      await signingIn;
+
+      expect(
+        notifier.state,
+        isA<SessionSignedIn>().having((s) => s.user, 'user', ana),
+      );
+    });
+
+    test('deve voltar a deslogado quando o login é cancelado', () async {
+      final signingIn = notifier.signIn();
+
+      repository.completeSignIn(const SignInCancelled());
+      await signingIn;
+
+      expect(notifier.state, isA<SessionSignedOut>());
+    });
+
+    test('deve mostrar a falha do login', () async {
+      final signingIn = notifier.signIn();
+
+      repository.failSignIn(const NetworkFailure());
+      await signingIn;
+
+      expect(
+        notifier.state,
+        isA<SessionFailed>().having(
+          (s) => s.failure,
+          'failure',
+          isA<NetworkFailure>(),
+        ),
+      );
+    });
+
+    test(
+      'deve tratar exceção fora das falhas tipadas como inesperada',
+      () async {
+        final signingIn = notifier.signIn();
+
+        repository.failSignIn(const FormatException('resposta estranha'));
+        await signingIn;
+
+        expect(
+          notifier.state,
+          isA<SessionFailed>().having(
+            (s) => s.failure,
+            'failure',
+            isA<UnexpectedFailure>(),
+          ),
+        );
+      },
+    );
+
+    test('deve limpar a falha ao tentar de novo', () async {
+      final firstTry = notifier.signIn();
+      repository.failSignIn(const NetworkFailure());
+      await firstTry;
+
+      unawaited(notifier.signIn());
+
+      expect(notifier.state, isA<SessionSigningIn>());
+    });
+
+    test('deve ignorar um segundo login enquanto o primeiro não termina', () {
+      unawaited(notifier.signIn());
+      unawaited(notifier.signIn());
+
+      expect(repository.pendingSignIns, 1);
+    });
+
+    test(
+      'deve continuar entrando se a conta emitir SignedOut no meio',
+      () async {
+        unawaited(notifier.signIn());
+
+        repository.emit(const SignedOut());
+        await pumpEventQueue();
+
+        expect(notifier.state, isA<SessionSigningIn>());
+      },
+    );
   });
 }
