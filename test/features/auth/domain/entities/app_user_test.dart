@@ -26,4 +26,12 @@ void main() {
 
     expect([user.displayName, user.email, user.photoUrl], [null, null, null]);
   });
+
+  test('deve recusar uid vazio', () {
+    expect(() => AppUser(uid: ''), throwsArgumentError);
+  });
+
+  test('deve recusar uid só com espaços', () {
+    expect(() => AppUser(uid: '   '), throwsArgumentError);
+  });
 }
