@@ -265,6 +265,21 @@ void main() {
       await expectLater(repository.signIn(), throwsA(isA<UnexpectedFailure>()));
     });
 
+    test(
+      'deve manter o erro do Firebase se sair do Google também falhar',
+      () async {
+        firebase.signInError = FirebaseAuthException(code: 'user-disabled');
+        google.signOutError = const GoogleSignInException(
+          code: GoogleSignInExceptionCode.unknownError,
+        );
+
+        await expectLater(
+          repository.signIn(),
+          throwsA(isA<AccountDisabledFailure>()),
+        );
+      },
+    );
+
     test('deve sair do Google se o Firebase recusar a credencial', () async {
       firebase.signInError = FirebaseAuthException(code: 'invalid-credential');
 
