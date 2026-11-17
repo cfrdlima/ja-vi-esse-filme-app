@@ -28,12 +28,12 @@ Trocar o placeholder da aba Estante por três abas (**Assistidos**, **Quero assi
 - [x] Cópia vencida: não mostra o título/pôster como atuais e pede a renovação ao TMDB (falha da renovação não derruba a aba). **Feito:** um `ExpiredCopyRenewer` por conta; o "não mostrar como atual" fica na UI
 
 ### UI (RED/GREEN/REFACTOR, widget tests)
-- [ ] Tela da Estante com `TabBar` das três abas, grade de pôsteres (placeholder sem `posterPath`), skeleton, vazio por aba, erro com "tentar de novo", strings no ARB, `Semantics`, alvo ≥ 48dp, fonte grande
-- [ ] Toque no pôster abre os Detalhes (Hero com tag única da aba)
-- [ ] Sem conta: convite para entrar com o Google
+- [x] Tela da Estante com `TabBar` das três abas, grade de pôsteres (placeholder sem `posterPath`), skeleton, vazio por aba, erro com "tentar de novo", strings no ARB, `Semantics`, alvo ≥ 48dp, fonte grande. **Feito:** `ShelfScreen` e `ShelfTab`; grade e skeleton extraídos do `PagedMoviesView` (`PosterGrid`)
+- [x] Toque no pôster abre os Detalhes (Hero com tag única da aba). **Mudou:** o Hero fica só na aba visível, porque os Detalhes esperam `poster-<id>`; teste com o filme em duas abas, conferido por mutação
+- [x] Sem conta: convite para entrar com o Google. **Feito:** pelo `SessionNotifier`; as abas nascem com a conta e morrem no logout
 
 ### Composição
-- [ ] Rota `/estante` com a tela real no `app_router.dart`, dependências montadas no `main.dart`; fakes em `test/helpers/` atualizados
+- [x] Rota `/estante` com a tela real no `app_router.dart`, dependências montadas no `main.dart`; fakes em `test/helpers/` atualizados. **Feito:** o `MovieCopySource` nasce no router, sobre o `MovieRepository`; o `main.dart` não mudou (a Estante e a conta já vinham por `Provider`); sai o `PlaceholderScreen`, a última aba provisória, com a string `comingSoon`
 
 ### Entrega
 - [ ] Tríade: format, analyze limpo, `flutter test` verde, `npm test` das regras se mudarem

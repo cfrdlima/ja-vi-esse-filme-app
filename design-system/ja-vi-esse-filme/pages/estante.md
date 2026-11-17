@@ -11,13 +11,13 @@
 ## Estrutura
 - `Scaffold` com `AppBar` "Estante" e um `TabBar` no `bottom` com **Assistidos**, **Quero assistir** e **Favoritos**, nessa ordem, a mesma da fileira de marcas dos Detalhes. Começa em Assistidos.
 - `TabBarView` com uma grade por aba. Cada aba carrega na primeira vez que é aberta e depois fica viva: voltar a ela mostra os filmes e a rolagem em que estava.
-- Com fonte grande, o rótulo da aba não é cortado: o `TabBar` fica rolável (`isScrollable`) quando os três não cabem.
+- Com fonte grande (escala acima de 1), o `TabBar` fica rolável (`isScrollable`), para o rótulo não ser cortado.
 - Sem conta, não há `TabBar`, só o convite (ver "Sem conta").
 
 ## Grade
 - Igual à do Descobrir: `SliverGrid` com célula de no máximo 180dp, pôster 2:3, sem texto sobre o pôster e com o título no `Semantics`.
 - A mais recente primeiro: ordem pela data da marca da aba, descendente. Uma marca feita offline entra no topo com a data estimada.
-- Toque abre os Detalhes do filme. A tag do Hero leva a aba (`estante-<marca>-<id>`), porque o mesmo filme pode estar em duas abas.
+- Toque abre os Detalhes do filme, empilhados na própria aba Estante. Os Detalhes esperam a tag `poster-<id>`, e o mesmo filme pode estar em duas abas vivas: **só a aba visível tem o Hero**, e as outras mostram o pôster sem ele.
 
 ## Cópia vencida (decisão 013)
 - Uma cópia com mais de 6 meses desde o `cachedAt` não aparece como atual: a célula mostra o placeholder desenhado, e o `Semantics` diz "Atualizando dados do filme", sem o título velho.
@@ -26,7 +26,7 @@
 
 ## Estados (por aba)
 - **Carregando:** skeleton da grade, como no Descobrir.
-- **Vazio:** ícone da marca, uma frase da aba ("Nenhum filme assistido ainda.", "Nada na lista de quero assistir.", "Nenhum favorito ainda.") e o botão "Descobrir filmes", que leva à aba Descobrir.
+- **Vazio:** uma frase da aba ("Nenhum filme assistido ainda.", "Nada na lista de quero assistir.", "Nenhum favorito ainda.") e o botão "Descobrir filmes", que leva à aba Descobrir. Sem ícone: a mensagem segue a mesma do Descobrir e da Buscar (`MoviesMessage`).
 - **Erro:** mensagem por tipo de falha e "Tentar de novo" (alvo ≥ 48dp), que reassina.
 - **Sucesso:** grade.
 
