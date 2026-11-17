@@ -19,6 +19,10 @@ class SessionNotifier extends ChangeNotifier {
     );
   }
 
+  static const _untypedException = UnexpectedFailure(
+    'exceção fora das falhas tipadas',
+  );
+
   final AuthRepository _repository;
   late final StreamSubscription<AuthState> _subscription;
 
@@ -49,13 +53,7 @@ class SessionNotifier extends ChangeNotifier {
     } on Exception {
       // O repositório só lança Failure; outra exceção não pode deixar a tela
       // entrando para sempre.
-      _emit(
-        _reconcile(
-          const SessionSignInFailed(
-            UnexpectedFailure('exceção fora das falhas tipadas'),
-          ),
-        ),
-      );
+      _emit(_reconcile(const SessionSignInFailed(_untypedException)));
     } on Error {
       // Um bug continua subindo, mas sem deixar a tela presa em "entrando".
       _emit(const SessionSignInFailed(UnexpectedFailure('erro no login')));
@@ -75,6 +73,9 @@ class SessionNotifier extends ChangeNotifier {
       await _repository.signOut();
     } on Failure catch (failure) {
       _emit(SessionSignOutFailed(failure));
+    } on Exception {
+      // Mesmo motivo do signIn: a tela precisa ver o erro e o "tentar de novo".
+      _emit(const SessionSignOutFailed(_untypedException));
     } finally {
       _signingOut = false;
     }

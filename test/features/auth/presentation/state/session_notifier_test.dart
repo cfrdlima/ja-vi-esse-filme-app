@@ -300,6 +300,24 @@ void main() {
 
       expect(repository.signOutCalls, 1);
     });
+
+    test(
+      'deve mostrar a falha do logout quando sobe exceção não tipada',
+      () async {
+        repository.signOutError = Exception('fora do contrato');
+
+        await notifier.signOut();
+
+        expect(
+          notifier.state,
+          isA<SessionSignOutFailed>().having(
+            (state) => state.failure,
+            'failure',
+            isA<UnexpectedFailure>(),
+          ),
+        );
+      },
+    );
   });
 
   test('deve ignorar um login que termina depois do dispose', () async {
