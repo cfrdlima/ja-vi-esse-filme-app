@@ -34,4 +34,8 @@ abstract interface class AccountCacheGateway {
   /// Fecha os streams abertos, `terminate()` e `clearPersistence()`, nessa
   /// ordem. As escritas ainda pendentes se perdem.
   Future<void> clear();
+
+  /// Só o `clearPersistence()`, para o início do app, antes de qualquer
+  /// leitura: com a instância já em uso, falha.
+  Future<void> clearUnused();
 }

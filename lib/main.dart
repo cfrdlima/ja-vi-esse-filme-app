@@ -24,6 +24,7 @@ import 'features/auth/data/gateways/firestore_account_cache.dart';
 import 'features/auth/data/gateways/google_sign_in_sdk_gateway.dart';
 import 'features/auth/data/repositories/firebase_auth_repository.dart';
 import 'features/auth/data/repositories/unavailable_auth_repository.dart';
+import 'features/auth/data/stale_account_cache.dart';
 import 'features/auth/domain/repositories/auth_repository.dart';
 import 'features/auth/presentation/state/account_photo_cleaner.dart';
 import 'features/auth/presentation/state/session_notifier.dart';
@@ -81,7 +82,7 @@ MovieRepository _composeMovieRepository() {
 }
 
 /// Sem o Firebase (o `bootstrapApp` sobe o app mesmo com falha no
-/// `initializeApp`), [connect] não é chamado: o `FirebaseAuth.instance`
+/// `initializeApp`), [connect] não é chamado: o `FirebaseFirestore.instance`
 /// lançaria `no-app` e derrubaria o app inteiro.
 @visibleForTesting
 ShelfRepository composeShelfRepository({
@@ -89,6 +90,8 @@ ShelfRepository composeShelfRepository({
   required ShelfRepository Function() connect,
 }) => firebaseAvailable ? connect() : const UnavailableShelfRepository();
 
+/// Sem o Firebase, [connect] não é chamado: o `FirebaseAuth.instance`
+/// lançaria `no-app` e derrubaria o app inteiro.
 @visibleForTesting
 AuthRepository composeAuthRepository({
   required bool firebaseAvailable,
@@ -99,19 +102,25 @@ AuthRepository composeAuthRepository({
 void _evictCachedImage(String url) => unawaited(NetworkImage(url).evict());
 
 // O logout fecha os streams da Estante antes de limpar o cache do
-// Firestore (decisão 010).
+// Firestore (decisão 010). No início, o cache de uma conta que já saiu é
+// limpo, caso a limpeza do último logout tenha falhado.
 AuthRepository _connectFirebaseAuth(ShelfRepository shelf) {
   final firestore = FirebaseFirestore.instance;
-  return FirebaseAuthRepository(
+  final cache = FirestoreAccountCache(
+    closeStreams: shelf.closeStreams,
+    terminate: firestore.terminate,
+    clearPersistence: firestore.clearPersistence,
+    waitForPendingWrites: firestore.waitForPendingWrites,
+  );
+  final repository = FirebaseAuthRepository(
     firebase: FirebaseAuthSdkGateway(FirebaseAuth.instance),
     google: GoogleSignInSdkGateway(GoogleSignIn.instance),
-    cache: FirestoreAccountCache(
-      closeStreams: shelf.closeStreams,
-      terminate: firestore.terminate,
-      clearPersistence: firestore.clearPersistence,
-      waitForPendingWrites: firestore.waitForPendingWrites,
-    ),
+    cache: cache,
   );
+  unawaited(
+    clearStaleAccountCache(account: repository.authStateChanges, cache: cache),
+  );
+  return repository;
 }
 
 // O `uid` é lido a cada chamada, e não guardado: a conta pode mudar

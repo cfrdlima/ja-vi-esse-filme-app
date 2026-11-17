@@ -97,6 +97,9 @@ class _FakeAccountCache implements AccountCacheGateway {
   }
 
   @override
+  Future<void> clearUnused() async => throw UnimplementedError();
+
+  @override
   Future<void> waitForPendingWrites() async {
     if (waitError case final Object error) throw error;
     await pendingWrites?.future;

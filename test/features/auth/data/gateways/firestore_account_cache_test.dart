@@ -47,4 +47,10 @@ void main() {
 
     expect(calls, ['waitForPendingWrites']);
   });
+
+  test('deve limpar sem terminar no início do app', () async {
+    await cache().clearUnused();
+
+    expect(calls, ['clearPersistence']);
+  });
 }

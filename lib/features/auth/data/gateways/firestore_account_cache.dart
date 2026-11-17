@@ -28,4 +28,7 @@ final class FirestoreAccountCache implements AccountCacheGateway {
     await _terminate();
     await _clearPersistence();
   }
+
+  @override
+  Future<void> clearUnused() => _clearPersistence();
 }
