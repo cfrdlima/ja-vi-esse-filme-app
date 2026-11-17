@@ -25,6 +25,9 @@ class AccountSection extends StatelessWidget {
           onPressed: () => unawaited(context.read<SessionNotifier>().signIn()),
         ),
       ),
+      SessionSigningIn() => const SignedOutPanel(
+        action: GoogleSignInButton.loading(),
+      ),
       _ => const SizedBox.shrink(),
     };
   }

@@ -86,7 +86,10 @@ class GoogleSignInButton extends StatelessWidget {
       ),
     );
     if (!_loading) return button;
+    // `container`: sem ele, o rótulo se funde ao nó de quem estiver em volta
+    // (o texto do Perfil, por exemplo), e o botão deixa de ser lido sozinho.
     return Semantics(
+      container: true,
       label: l10n.signingInWithGoogle,
       excludeSemantics: true,
       button: true,

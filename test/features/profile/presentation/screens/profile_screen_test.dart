@@ -128,4 +128,20 @@ void main() {
       expect(repository.pendingSignIns, 1);
     });
   });
+
+  group('entrando', () {
+    setUp(() => repository.emit(const SignedOut()));
+
+    testWidgets('deve mostrar o botão do Google entrando', (tester) async {
+      final semantics = tester.ensureSemantics();
+      await pumpProfile(tester);
+      await tester.pump();
+
+      await tester.tap(find.text(l10n.signInWithGoogle));
+      await tester.pump();
+
+      expect(find.bySemanticsLabel(l10n.signingInWithGoogle), findsOneWidget);
+      semantics.dispose();
+    });
+  });
 }
