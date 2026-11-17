@@ -42,6 +42,8 @@ class SessionNotifier extends ChangeNotifier {
   /// seletor abriria com a limpeza ainda rodando.
   Future<void> signIn() async {
     if (_disposed || _signingIn || _signingOut) return;
+    // A conta já está aberta, esperando a resposta da pergunta do logout.
+    if (_state is SessionUnsyncedSignOut) return;
     _signingIn = true;
     _arrivedDuringSignIn = null;
     _emit(const SessionSigningIn());
@@ -65,10 +67,43 @@ class SessionNotifier extends ChangeNotifier {
     }
   }
 
-  /// Encerra a sessão. Uma falha na limpeza fica visível, porque o usuário
-  /// precisa saber. Com um login em andamento, não faz nada: o resultado dele
-  /// ainda vai decidir o estado.
+  /// Encerra a sessão. Com a conta aberta, primeiro espera as marcas do
+  /// aparelho chegarem ao servidor; se sobrar alguma, pergunta antes
+  /// ([SessionUnsyncedSignOut]), porque sair as apaga. Depois de uma falha
+  /// no logout, tenta de novo sem perguntar: a limpeza já começou.
+  ///
+  /// Uma falha na limpeza fica visível, porque o usuário precisa saber. Com
+  /// um login em andamento, não faz nada: o resultado dele ainda vai decidir
+  /// o estado.
   Future<void> signOut() async {
+    if (_disposed || _signingIn || _signingOut) return;
+    if (_state case SessionSignedIn(:final user)) {
+      _signingOut = true;
+      _emit(SessionSigningOut(user));
+      if (!await _repository.syncPendingChanges()) {
+        _signingOut = false;
+        _emit(SessionUnsyncedSignOut(user));
+        return;
+      }
+      _signingOut = false;
+    }
+    await _clearAndSignOut();
+  }
+
+  /// Sai mesmo com marcas sem sincronizar, depois da pergunta.
+  void confirmSignOut() {
+    if (_state is! SessionUnsyncedSignOut) return;
+    unawaited(_clearAndSignOut());
+  }
+
+  /// Desiste de sair, e a conta continua aberta.
+  void cancelSignOut() {
+    if (_state case SessionUnsyncedSignOut(:final user)) {
+      _emit(SessionSignedIn(user));
+    }
+  }
+
+  Future<void> _clearAndSignOut() async {
     if (_disposed || _signingIn || _signingOut) return;
     _signingOut = true;
     try {

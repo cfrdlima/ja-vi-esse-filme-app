@@ -71,9 +71,13 @@ class FakeAuthRepository implements AuthRepository {
   var synced = true;
   var syncCalls = 0;
 
+  /// Com um completer aqui, a espera fica pendente até o teste completá-lo.
+  Completer<void>? syncGate;
+
   @override
   Future<bool> syncPendingChanges() async {
     syncCalls++;
+    await syncGate?.future;
     return synced;
   }
 

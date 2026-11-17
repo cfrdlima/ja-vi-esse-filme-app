@@ -248,6 +248,137 @@ void main() {
     );
   });
 
+  group('signOut com marcas sem sincronizar', () {
+    setUp(() async {
+      repository.emit(SignedIn(ana));
+      await pumpEventQueue();
+    });
+
+    test('deve conferir a sincronização antes de sair', () async {
+      await notifier.signOut();
+
+      expect(repository.syncCalls, 1);
+    });
+
+    test('deve mostrar a conta saindo enquanto confere', () {
+      repository.syncGate = Completer<void>();
+      addTearDown(() => repository.syncGate?.complete());
+
+      unawaited(notifier.signOut());
+
+      expect(
+        notifier.state,
+        isA<SessionSigningOut>().having((s) => s.user, 'user', ana),
+      );
+    });
+
+    test('deve perguntar quando sobram marcas sem sincronizar', () async {
+      repository.synced = false;
+
+      await notifier.signOut();
+
+      expect(
+        notifier.state,
+        isA<SessionUnsyncedSignOut>().having((s) => s.user, 'user', ana),
+      );
+    });
+
+    test('não deve sair antes de a pessoa confirmar', () async {
+      repository.synced = false;
+
+      await notifier.signOut();
+
+      expect(repository.signOutCalls, 0);
+    });
+
+    test('deve sair ao confirmar', () async {
+      repository.synced = false;
+      await notifier.signOut();
+
+      notifier.confirmSignOut();
+      await pumpEventQueue();
+
+      expect(repository.signOutCalls, 1);
+    });
+
+    test('não deve conferir de novo ao confirmar', () async {
+      repository.synced = false;
+      await notifier.signOut();
+
+      notifier.confirmSignOut();
+      await pumpEventQueue();
+
+      expect(repository.syncCalls, 1);
+    });
+
+    test('deve ficar deslogado depois de confirmar', () async {
+      repository.synced = false;
+      await notifier.signOut();
+
+      notifier.confirmSignOut();
+      await pumpEventQueue();
+
+      expect(notifier.state, isA<SessionSignedOut>());
+    });
+
+    test('deve voltar à conta ao cancelar', () async {
+      repository.synced = false;
+      await notifier.signOut();
+
+      notifier.cancelSignOut();
+
+      expect(
+        notifier.state,
+        isA<SessionSignedIn>().having((s) => s.user, 'user', ana),
+      );
+    });
+
+    test('deve deixar sair de novo depois de cancelar', () async {
+      repository.synced = false;
+      await notifier.signOut();
+      notifier.cancelSignOut();
+      repository.synced = true;
+
+      await notifier.signOut();
+
+      expect(repository.signOutCalls, 1);
+    });
+
+    test('deve ignorar o confirmar sem a pergunta aberta', () async {
+      notifier.confirmSignOut();
+      await pumpEventQueue();
+
+      expect(repository.signOutCalls, 0);
+    });
+
+    test('deve ignorar o cancelar sem a pergunta aberta', () async {
+      notifier.cancelSignOut();
+
+      expect(notifier.state, isA<SessionSignedIn>());
+    });
+
+    // Depois da falha, a limpeza já começou: conferir de novo não protege
+    // mais nada, e a conta do Firebase pode já ter saído.
+    test('deve tentar de novo sem conferir depois de uma falha', () async {
+      repository.signOutError = const UnexpectedFailure('cache');
+      await notifier.signOut();
+      repository.signOutError = null;
+
+      await notifier.signOut();
+
+      expect(repository.syncCalls, 1);
+    });
+
+    test('deve ignorar o login enquanto pergunta', () async {
+      repository.synced = false;
+      await notifier.signOut();
+
+      unawaited(notifier.signIn());
+
+      expect(repository.pendingSignIns, 0);
+    });
+  });
+
   group('signOut', () {
     setUp(() async {
       repository.emit(SignedIn(ana));
@@ -316,15 +447,19 @@ void main() {
       expect(repository.signOutCalls, 0);
     });
 
-    test('deve ignorar um segundo logout enquanto o primeiro não termina', () {
-      repository.signOutGate = Completer<void>();
-      addTearDown(() => repository.signOutGate?.complete());
-      unawaited(notifier.signOut());
+    test(
+      'deve ignorar um segundo logout enquanto o primeiro não termina',
+      () async {
+        repository.signOutGate = Completer<void>();
+        addTearDown(() => repository.signOutGate?.complete());
+        unawaited(notifier.signOut());
 
-      unawaited(notifier.signOut());
+        unawaited(notifier.signOut());
+        await pumpEventQueue();
 
-      expect(repository.signOutCalls, 1);
-    });
+        expect(repository.signOutCalls, 1);
+      },
+    );
 
     test(
       'deve mostrar a falha do logout quando sobe exceção não tipada',

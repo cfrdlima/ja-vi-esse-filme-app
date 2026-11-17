@@ -211,5 +211,13 @@
   "signInSheetTitle": "Entre para guardar seus filmes",
   "@signInSheetTitle": { "description": "Título da folha de login que abre ao marcar um filme sem conta" },
   "signInSheetBody": "Com a conta Google, suas marcas ficam salvas e aparecem em qualquer aparelho.",
-  "@signInSheetBody": { "description": "Texto da folha de login que abre ao marcar um filme sem conta" }
+  "@signInSheetBody": { "description": "Texto da folha de login que abre ao marcar um filme sem conta" },
+  "profileSigningOut": "Saindo",
+  "@profileSigningOut": { "description": "Botão Sair desabilitado enquanto o app espera as marcas chegarem ao servidor (até 5 s)" },
+  "profileUnsyncedWarning": "Algumas marcas ainda não chegaram ao servidor. Se sair agora, elas serão apagadas deste aparelho e não vão para a sua conta.",
+  "@profileUnsyncedWarning": { "description": "Aviso no Perfil quando o logout acharia marcas feitas offline e ainda não sincronizadas" },
+  "profileSignOutAnyway": "Sair mesmo assim",
+  "@profileSignOutAnyway": { "description": "Confirma o logout apesar das marcas não sincronizadas" },
+  "profileStaySignedIn": "Ficar na conta",
+  "@profileStaySignedIn": { "description": "Desiste do logout para as marcas não sincronizadas chegarem ao servidor" }
 }

@@ -573,6 +573,30 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Com a conta Google, suas marcas ficam salvas e aparecem em qualquer aparelho.'**
   String get signInSheetBody;
+
+  /// Botão Sair desabilitado enquanto o app espera as marcas chegarem ao servidor (até 5 s)
+  ///
+  /// In pt, this message translates to:
+  /// **'Saindo'**
+  String get profileSigningOut;
+
+  /// Aviso no Perfil quando o logout acharia marcas feitas offline e ainda não sincronizadas
+  ///
+  /// In pt, this message translates to:
+  /// **'Algumas marcas ainda não chegaram ao servidor. Se sair agora, elas serão apagadas deste aparelho e não vão para a sua conta.'**
+  String get profileUnsyncedWarning;
+
+  /// Confirma o logout apesar das marcas não sincronizadas
+  ///
+  /// In pt, this message translates to:
+  /// **'Sair mesmo assim'**
+  String get profileSignOutAnyway;
+
+  /// Desiste do logout para as marcas não sincronizadas chegarem ao servidor
+  ///
+  /// In pt, this message translates to:
+  /// **'Ficar na conta'**
+  String get profileStaySignedIn;
 }
 
 class _AppLocalizationsDelegate

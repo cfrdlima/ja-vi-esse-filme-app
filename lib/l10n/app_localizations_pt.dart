@@ -311,4 +311,17 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String get signInSheetBody =>
       'Com a conta Google, suas marcas ficam salvas e aparecem em qualquer aparelho.';
+
+  @override
+  String get profileSigningOut => 'Saindo';
+
+  @override
+  String get profileUnsyncedWarning =>
+      'Algumas marcas ainda não chegaram ao servidor. Se sair agora, elas serão apagadas deste aparelho e não vão para a sua conta.';
+
+  @override
+  String get profileSignOutAnyway => 'Sair mesmo assim';
+
+  @override
+  String get profileStaySignedIn => 'Ficar na conta';
 }
