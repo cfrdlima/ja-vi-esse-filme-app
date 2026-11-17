@@ -19,7 +19,8 @@ final class NotFoundFailure extends Failure {
   const NotFoundFailure();
 }
 
-/// 429: limite de requisições atingido.
+/// 429 do TMDB, ou `too-many-requests` do Firebase Auth: limite de
+/// requisições atingido.
 final class RateLimitFailure extends Failure {
   const RateLimitFailure({this.retryAfter});
 
@@ -32,6 +33,17 @@ final class ServerFailure extends Failure {
   const ServerFailure(this.statusCode);
 
   final int statusCode;
+}
+
+/// Login recusado porque a conta foi desativada no Firebase Auth.
+final class AccountDisabledFailure extends Failure {
+  const AccountDisabledFailure();
+}
+
+/// Ação sensível (como excluir a conta) que exige um login recente. A pessoa
+/// entra de novo com o Google e tenta outra vez.
+final class RecentLoginRequiredFailure extends Failure {
+  const RecentLoginRequiredFailure();
 }
 
 /// Qualquer outra resposta que o app não sabe tratar (status inesperado ou
