@@ -34,4 +34,28 @@ void main() {
   test('deve recusar uid só com espaços', () {
     expect(() => AppUser(uid: '   '), throwsArgumentError);
   });
+
+  group('igualdade', () {
+    AppUser ana({String? photoUrl}) => AppUser(
+      uid: 'abc123',
+      displayName: 'Ana',
+      email: 'ana@example.com',
+      photoUrl: photoUrl,
+    );
+
+    test('deve considerar iguais usuários com os mesmos dados', () {
+      expect(ana(), ana());
+    });
+
+    test('deve dar o mesmo hashCode a usuários iguais', () {
+      expect(ana().hashCode, ana().hashCode);
+    });
+
+    test('deve diferenciar usuários com algum dado diferente', () {
+      expect(
+        ana(),
+        isNot(ana(photoUrl: 'https://lh3.googleusercontent.com/a/x')),
+      );
+    });
+  });
 }

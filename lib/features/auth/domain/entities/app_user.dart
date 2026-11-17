@@ -18,4 +18,15 @@ final class AppUser {
   final String? displayName;
   final String? email;
   final String? photoUrl;
+
+  @override
+  bool operator ==(Object other) =>
+      other is AppUser &&
+      other.uid == uid &&
+      other.displayName == displayName &&
+      other.email == email &&
+      other.photoUrl == photoUrl;
+
+  @override
+  int get hashCode => Object.hash(uid, displayName, email, photoUrl);
 }
