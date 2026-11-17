@@ -1,6 +1,6 @@
 # Sessão 021 — Fase 2: Modelo dos dados do filme
 
-**Data**: 2026-11-17 · **Branch**: `feature/021-modelo-dados-filme` · **Status**: aberta
+**Data**: 2026-11-17 · **Branch**: `feature/021-modelo-dados-filme` · **Status**: fechada
 
 ## Objetivo
 Definir e implementar o documento do filme do usuário em `users/{uid}/movies/{movieId}` (assistido, quero ver, favorito e datas), decidindo se ele guarda cópia do título e do `poster_path` com `cached_at` e renovação no limite de 6 meses dos termos do TMDB. Entrega o domínio, a camada `data` sobre o `cloud_firestore` (fina, atrás de um gateway) e as regras com os testes no emulador. Sem UI: marcar nos detalhes e o login opcional vêm na sessão seguinte.
@@ -53,14 +53,39 @@ Definir e implementar o documento do filme do usuário em `users/{uid}/movies/{m
 ### Entrega
 - [x] `PLANO.md`: nova ordem (login opcional junto com "Marcar"; logout completo depois do Firestore entrar), e a cópia do TMDB no conteúdo da política 2.0
 - [x] Tríade: format, analyze limpo, `flutter test` verde, `npm test` das regras verde. **Feito:** format sem mudança (184 arquivos), analyze limpo, 1000 testes verdes, 72 testes das regras verdes, `flutter build apk --debug` compilando com o plugin nativo
-- [ ] `/revisar` (`code-reviewer` e `security-auditor`: regras e storage)
-- [ ] `/fechar-sessao`
+- [x] `/revisar` (`code-reviewer` e `security-auditor`: regras e storage). **Feito:** os achados aceitos estão em "Achados aceitos do `/revisar`"
+- [x] `/fechar-sessao`. **Feito:** format sem mudança (186 arquivos), analyze limpo, 1016 testes verdes, 77 testes das regras verdes. O `gitleaks` não está instalado aqui e fica para o CI do PR
 
 ## Decisões
 - [013 — Documento do filme do usuário no Firestore](../decisoes/013-documento-do-filme-no-firestore.md): cópia de `title` e `posterPath` com `cachedAt` (6 meses); marcas como timestamps `watchedAt`/`watchlistAt`/`favoriteAt`; sem marcas, o documento é apagado; feature `shelf`; `cloud_firestore` 7.1.0; gateway fino, sem `fake_cloud_firestore`.
 
 ## Commits
-- `docs: abre a sessão 021`
+- `96867c9` docs: abre a sessão 021
+- `1b2716d` docs: decisão 013, documento do filme no Firestore
+- `534bdc5` add: regras do Firestore com o formato do filme da decisão 013
+- `c368d85` add: regras do Firestore só aceitam datas do servidor no filme
+- `e36d623` add: regras do Firestore limitam o title e o formato do posterPath
+- `dbe766c` test: regras contam o title em unidades UTF-16
+- `965e06d` add: MovieCopy com o título e o pôster no formato das regras
+- `036973f` add: ShelfMovie com as marcas, o que sobra ao tirar uma e a cópia vencida
+- `c4b0dd6` add: SignInRequiredFailure para ação que precisa de conta
+- `301240c` add: ShelfEntry diz se o filme está na Estante
+- `6ca6d8b` chore: cloud_firestore 7.1.0 com as transitivas de 23/10
+- `d3c808e` add: contrato do ShelfRepository
+- `53e34ed` add: ShelfMovieModel lê o documento do filme com parse defensivo
+- `ba89c8e` add: ShelfMovieModel monta a escrita de marcar e desmarcar
+- `35a9d72` add: FirestoreShelfRepository com o uid de quem está logado e falhas tipadas
+- `e00dc4f` add: CloudFirestoreShelfGateway fino sobre o cloud_firestore
+- `74014cd` docs: decisão 013 com a data pendente estimada no gateway
+- `0ceca64` docs: plano reordenado, progresso da sessão 021 e backlog do gateway
+- `39c5053` test: regras aceitam a escrita real do markFields e negam apagar o pôster sem renovar
+- `a4f4207` fix: regras recusam title só com espaços
+- `63cc0b1` fix: MovieCopy recusa id com mais de 10 dígitos, como as regras
+- `473d23f` fix: removeMark cai para o delete quando a marca já era a última, e Error sobe sem virar falha
+- `e22535e` refactor: conversões do gateway da Estante em FirestoreFields, com testes
+- `d586f2b` docs: contrato da Estante diz que offline a escrita não falha
+- `0ee1907` docs: achados do /revisar na decisão 013, no plano e no log da sessão 021
+- `docs: fecha sessão 021` (este fechamento)
 
 ## Notas
 - Na abertura, com o usuário: o "Login opcional" e o "Logout" do plano dependem de coisas que ainda não existem (nenhuma ação pede conta, e o `cloud_firestore` não está no app). O modelo de dados vem antes; o login opcional entra com "Marcar", e o logout completo depois.
@@ -73,3 +98,8 @@ Definir e implementar o documento do filme do usuário em `users/{uid}/movies/{m
 - **`uid` lido na chamada:** um `watchMovie` aberto continua no `uid` de quando foi assinado. O estado do "Marcar" precisa reassinar quando a conta muda, e o logout precisa cancelar o stream.
 - **`/revisar`:** o `code-reviewer` achou 0 bloqueantes, 4 importantes e 10 sugestões; o `security-auditor`, 0 bloqueantes, 3 importantes e 3 sugestões. Todos entraram, como mudança ou como registro (decisão 013, `PLANO.md` e `BACKLOG.md`).
 - **Portões novos no `PLANO.md`:** App Check antes de qualquer APK com login, e o logout completo na mesma sessão do "Marcar".
+- **Pendências para as próximas sessões:**
+  - "Marcar" com o login opcional e o logout completo juntos (portão do `security-auditor`), o `ShelfRepository` montado no `main.dart` e o fake em `test/helpers/`;
+  - verificar o `CloudFirestoreShelfGateway` no aparelho (caminho, `merge`, data pendente offline);
+  - App Check antes de qualquer APK com login; política 2.0 com a cópia do TMDB e a limpeza pelo Admin SDK decidida;
+  - `gitleaks` só no CI.

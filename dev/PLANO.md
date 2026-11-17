@@ -3,9 +3,9 @@
 > Fonte da verdade do que construir. Atualizado por `/fechar-sessao`.
 
 ## Última sessão
-**020 — Fase 2: Perfil logado e deslogado** (fechada em 2026-11-17) · [log](sessoes/020-perfil-logado.md)
-O Perfil segue o `SessionNotifier` em 6 estados, com o botão "Entrar com o Google" nas diretrizes de marca (G oficial, Google Sans recortada), o avatar com host validado e só em memória, e a foto apagada no logout. O `/revisar` pegou e corrigiu o "tentar de novo" preso na falha do logout e o login no meio de um logout.
-**Próximo passo:** login opcional (uma ação que precisa de conta leva ao login e volta). Antes de qualquer APK com login, a política 2.0 precisa estar publicada (portão no item da política).
+**021 — Fase 2: Modelo dos dados do filme** (fechada em 2026-11-17) · [log](sessoes/021-modelo-dados-filme.md)
+O documento `users/{uid}/movies/{id}` guarda a cópia do título e do pôster com `cachedAt`, e cada marca é a hora do servidor (decisão 013). As regras foram reescritas com 77 testes no emulador, e entraram o domínio e a camada `data` da Estante sobre o `cloud_firestore` 7.1.0. O `/revisar` levou à queda para o `delete` no desmarcar e às conversões testadas, e virou portão: App Check antes de qualquer APK com login.
+**Próximo passo:** "Marcar" nos detalhes, com o login opcional e o logout completo na mesma sessão.
 
 ## Fase 0 — Fundação
 - [x] Criar projeto (`io.github.cfrdlima.ja_vi_esse_filme`), `analysis_options.yaml`, `.gitignore` com `env/*.json` (exceto `example.json`)
@@ -62,7 +62,7 @@ O Perfil segue o `SessionNotifier` em 6 estados, com o botão "Entrar com o Goog
 
   (sessão 019)
 - [x] Perfil logado e deslogado: botão "Entrar com Google" (diretrizes de marca do Google), nome e foto, e os 4 estados (consultar a `ui-ux-pro-max`) (sessão 020)
-- [ ] Modelo dos dados do filme (decisão 013): um documento por filme com a cópia do título e do `poster_path` (nunca a imagem) e `cachedAt` para o limite de 6 meses dos termos do TMDB, as marcas como timestamps do servidor, as regras e os testes no emulador, o domínio e a camada `data` sobre o `cloud_firestore` (sessão 021, que reordenou este bloco: o login opcional e o logout dependiam de algo que ainda não existia)
+- [x] Modelo dos dados do filme (decisão 013): um documento por filme com a cópia do título e do `poster_path` (nunca a imagem) e `cachedAt` para o limite de 6 meses dos termos do TMDB, as marcas como timestamps do servidor, as regras e os testes no emulador, o domínio e a camada `data` sobre o `cloud_firestore` (sessão 021, que reordenou este bloco: o login opcional e o logout dependiam de algo que ainda não existia)
 - [ ] Marcar como **assistido**, **quero assistir** e **favorito** nos detalhes, com atualização otimista e erro com "tentar de novo". Na mesma entrega, o **login opcional** e o **logout completo** (item abaixo), porque o "Marcar" liga o cache do Firestore no aparelho, e só o logout completo o limpa (`security-auditor` da 021). O login opcional: marcar sem conta (`SignInRequiredFailure`) leva ao login e volta para onde estava. Também entram a montagem do `ShelfRepository` no `main.dart` (o `currentUid` vindo do Firebase Auth) e o fake dele em `test/helpers/`. Atenção: offline, o future do `set` só completa quando o servidor confirma, então a UI não espera por ele para mostrar a marca
 - [ ] Logout na ordem da decisão 010: cancelar os streams; `terminate()`; `clearPersistence()`; `signOut()` do Firebase e do Google; recriar a instância. Teste: a falha ao limpar o cache não deixa a sessão aberta. Entra na mesma sessão do "Marcar", que é quando o Firestore passa a ter cache no aparelho, e cancela também os streams do `ShelfRepository`
 - [ ] Estante: abas Assistidos, Quero assistir e Favoritos, com paginação e os 4 estados
