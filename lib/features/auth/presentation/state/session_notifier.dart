@@ -65,9 +65,10 @@ class SessionNotifier extends ChangeNotifier {
   }
 
   /// Encerra a sessão. O deslogado chega pelo stream da conta; uma falha na
-  /// limpeza fica visível, porque o usuário precisa saber.
+  /// limpeza fica visível, porque o usuário precisa saber. Com um login em
+  /// andamento, não faz nada: o resultado dele ainda vai decidir o estado.
   Future<void> signOut() async {
-    if (_disposed) return;
+    if (_disposed || _signingIn) return;
     try {
       await _repository.signOut();
     } on Failure catch (failure) {

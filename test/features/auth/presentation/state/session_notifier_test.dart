@@ -283,6 +283,14 @@ void main() {
 
       expect(notifier.state, isA<SessionSignOutFailed>());
     });
+
+    test('deve ignorar o logout enquanto um login não termina', () async {
+      unawaited(notifier.signIn());
+
+      await notifier.signOut();
+
+      expect(repository.signOutCalls, 0);
+    });
   });
 
   test('deve ignorar um login que termina depois do dispose', () async {
