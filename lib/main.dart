@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -28,6 +29,10 @@ import 'features/auth/presentation/state/session_notifier.dart';
 import 'features/movies/data/datasources/movie_remote_data_source.dart';
 import 'features/movies/data/repositories/tmdb_movie_repository.dart';
 import 'features/movies/domain/repositories/movie_repository.dart';
+import 'features/shelf/data/gateways/cloud_firestore_shelf_gateway.dart';
+import 'features/shelf/data/repositories/firestore_shelf_repository.dart';
+import 'features/shelf/data/repositories/unavailable_shelf_repository.dart';
+import 'features/shelf/domain/repositories/shelf_repository.dart';
 import 'firebase_options.dart';
 
 Future<void> main() async {
@@ -42,6 +47,10 @@ Future<void> main() async {
         authRepository: composeAuthRepository(
           firebaseAvailable: Firebase.apps.isNotEmpty,
           connect: _connectFirebaseAuth,
+        ),
+        shelfRepository: composeShelfRepository(
+          firebaseAvailable: Firebase.apps.isNotEmpty,
+          connect: _connectFirestoreShelf,
         ),
         linkOpener: UrlLauncherLinkOpener(),
         appVersion: AppConfig.appVersion,
@@ -70,6 +79,12 @@ MovieRepository _composeMovieRepository() {
 /// `initializeApp`), [connect] não é chamado: o `FirebaseAuth.instance`
 /// lançaria `no-app` e derrubaria o app inteiro.
 @visibleForTesting
+ShelfRepository composeShelfRepository({
+  required bool firebaseAvailable,
+  required ShelfRepository Function() connect,
+}) => firebaseAvailable ? connect() : const UnavailableShelfRepository();
+
+@visibleForTesting
 AuthRepository composeAuthRepository({
   required bool firebaseAvailable,
   required AuthRepository Function() connect,
@@ -83,10 +98,18 @@ AuthRepository _connectFirebaseAuth() => FirebaseAuthRepository(
   google: GoogleSignInSdkGateway(GoogleSignIn.instance),
 );
 
+// O `uid` é lido a cada chamada, e não guardado: a conta pode mudar
+// (decisão 013).
+ShelfRepository _connectFirestoreShelf() => FirestoreShelfRepository(
+  gateway: CloudFirestoreShelfGateway(firestore: FirebaseFirestore.instance),
+  currentUid: () => FirebaseAuth.instance.currentUser?.uid,
+);
+
 class MainApp extends StatefulWidget {
   const MainApp({
     required this.movieRepository,
     required this.authRepository,
+    required this.shelfRepository,
     required this.linkOpener,
     required this.appVersion,
     required this.evictPhoto,
@@ -95,6 +118,7 @@ class MainApp extends StatefulWidget {
 
   final MovieRepository movieRepository;
   final AuthRepository authRepository;
+  final ShelfRepository shelfRepository;
   final ExternalLinkOpener linkOpener;
   final String appVersion;
 
@@ -125,6 +149,8 @@ class _MainAppState extends State<MainApp> {
     return MultiProvider(
       providers: [
         Provider<ExternalLinkOpener>.value(value: widget.linkOpener),
+        Provider<AuthRepository>.value(value: widget.authRepository),
+        Provider<ShelfRepository>.value(value: widget.shelfRepository),
         // Não preguiçoso: a sessão passa a ouvir a conta desde o início, e
         // não só quando a primeira tela a pedir.
         ChangeNotifierProvider(

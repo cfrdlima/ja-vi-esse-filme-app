@@ -9,6 +9,7 @@ import 'package:ja_vi_esse_filme/core/routing/app_routes.dart';
 import 'package:ja_vi_esse_filme/core/theme/app_sizes.dart';
 import 'package:ja_vi_esse_filme/features/about/presentation/screens/about_screen.dart';
 import 'package:ja_vi_esse_filme/features/auth/domain/entities/auth_state.dart';
+import 'package:ja_vi_esse_filme/features/auth/domain/repositories/auth_repository.dart';
 import 'package:ja_vi_esse_filme/features/auth/presentation/state/session_notifier.dart';
 import 'package:ja_vi_esse_filme/features/movies/domain/entities/movie.dart';
 import 'package:ja_vi_esse_filme/features/movies/presentation/screens/discover_screen.dart';
@@ -16,11 +17,13 @@ import 'package:ja_vi_esse_filme/features/movies/presentation/screens/movie_deta
 import 'package:ja_vi_esse_filme/features/movies/presentation/screens/search_screen.dart';
 import 'package:ja_vi_esse_filme/features/movies/presentation/state/search_notifier.dart';
 import 'package:ja_vi_esse_filme/features/movies/presentation/widgets/movie_poster.dart';
+import 'package:ja_vi_esse_filme/features/shelf/domain/repositories/shelf_repository.dart';
 import 'package:ja_vi_esse_filme/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
 import '../../helpers/back_navigation.dart';
 import '../../helpers/fake_auth_repository.dart';
+import '../../helpers/fake_shelf_repository.dart';
 import '../../helpers/stub_movie_repository.dart';
 import '../../helpers/test_app.dart';
 
@@ -39,9 +42,17 @@ Future<GoRouter> pumpAppRouter(
   // `pumpAndSettle` não terminaria.
   final account = FakeAuthRepository()..emit(const SignedOut());
   addTearDown(account.close);
+  final shelf = FakeShelfRepository();
+  addTearDown(shelf.close);
   await tester.pumpWidget(
-    ChangeNotifierProvider(
-      create: (_) => SessionNotifier(repository: account),
+    MultiProvider(
+      providers: [
+        Provider<ShelfRepository>.value(value: shelf),
+        Provider<AuthRepository>.value(value: account),
+        ChangeNotifierProvider(
+          create: (_) => SessionNotifier(repository: account),
+        ),
+      ],
       child: testRouterApp(
         routerConfig: router,
         builder: (context, child) => MediaQuery(

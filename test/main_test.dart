@@ -5,29 +5,39 @@ import 'package:ja_vi_esse_filme/core/theme/app_theme_tokens.dart';
 import 'package:ja_vi_esse_filme/features/auth/data/repositories/unavailable_auth_repository.dart';
 import 'package:ja_vi_esse_filme/features/auth/domain/entities/app_user.dart';
 import 'package:ja_vi_esse_filme/features/auth/domain/entities/auth_state.dart';
+import 'package:ja_vi_esse_filme/features/auth/domain/repositories/auth_repository.dart';
 import 'package:ja_vi_esse_filme/features/auth/presentation/state/session_notifier.dart';
 import 'package:ja_vi_esse_filme/features/auth/presentation/state/session_state.dart';
+import 'package:ja_vi_esse_filme/features/shelf/data/repositories/unavailable_shelf_repository.dart';
+import 'package:ja_vi_esse_filme/features/shelf/domain/repositories/shelf_repository.dart';
 import 'package:ja_vi_esse_filme/main.dart';
 import 'package:provider/provider.dart';
 
 import 'helpers/fake_auth_repository.dart';
 import 'helpers/fake_link_opener.dart';
+import 'helpers/fake_shelf_repository.dart';
 import 'helpers/stub_movie_repository.dart';
 
 void main() {
   late FakeAuthRepository authRepository;
+  late FakeShelfRepository shelfRepository;
   late List<String> evictedPhotos;
 
   setUp(() {
     authRepository = FakeAuthRepository();
+    shelfRepository = FakeShelfRepository();
     evictedPhotos = [];
   });
-  tearDown(() => authRepository.close());
+  tearDown(() async {
+    shelfRepository.close();
+    await authRepository.close();
+  });
 
   MainApp app({ExternalLinkOpener? linkOpener, String appVersion = ''}) =>
       MainApp(
         movieRepository: StubMovieRepository(),
         authRepository: authRepository,
+        shelfRepository: shelfRepository,
         linkOpener: linkOpener ?? FakeLinkOpener(),
         appVersion: appVersion,
         evictPhoto: evictedPhotos.add,
@@ -64,6 +74,20 @@ void main() {
 
     final context = tester.element(find.byType(Scaffold).first);
     expect(MaterialLocalizations.of(context).backButtonTooltip, 'Voltar');
+  });
+
+  testWidgets('o app deve entregar a Estante às telas', (tester) async {
+    await tester.pumpWidget(app());
+
+    final context = tester.element(find.byType(Scaffold).first);
+    expect(context.read<ShelfRepository>(), same(shelfRepository));
+  });
+
+  testWidgets('o app deve entregar a conta às telas', (tester) async {
+    await tester.pumpWidget(app());
+
+    final context = tester.element(find.byType(Scaffold).first);
+    expect(context.read<AuthRepository>(), same(authRepository));
   });
 
   testWidgets('o app deve abrir no shell de navegação', (tester) async {
@@ -133,6 +157,28 @@ void main() {
     await tester.pumpWidget(const SizedBox());
 
     expect(authRepository.hasListener, isFalse);
+  });
+
+  group('composeShelfRepository', () {
+    test('deve usar a Estante indisponível quando o Firebase não subiu', () {
+      final repository = composeShelfRepository(
+        firebaseAvailable: false,
+        connect: () => throw StateError('não deveria tocar no Firebase'),
+      );
+
+      expect(repository, isA<UnavailableShelfRepository>());
+    });
+
+    test('deve conectar ao Firestore quando o Firebase subiu', () {
+      final connected = FakeShelfRepository();
+
+      final repository = composeShelfRepository(
+        firebaseAvailable: true,
+        connect: () => connected,
+      );
+
+      expect(repository, same(connected));
+    });
   });
 
   group('composeAuthRepository', () {
