@@ -72,4 +72,16 @@ void main() {
     expect(find.bySemanticsLabel('A'), findsNothing);
     semantics.dispose();
   });
+
+  testWidgets('deve mostrar a inicial quando a foto não baixa', (tester) async {
+    // Nos widget tests, todo pedido HTTP responde 400.
+    await pumpAvatar(
+      tester,
+      userWithPhoto('https://lh3.googleusercontent.com/a/foto=s96-c'),
+    );
+    await tester.runAsync(() => Future<void>.delayed(Duration.zero));
+    await tester.pump();
+
+    expect(find.text('A'), findsOneWidget);
+  });
 }
