@@ -36,10 +36,15 @@ void main() {
   });
 
   group('igualdade', () {
-    AppUser ana({String? photoUrl}) => AppUser(
-      uid: 'abc123',
-      displayName: 'Ana',
-      email: 'ana@example.com',
+    AppUser ana({
+      String uid = 'abc123',
+      String? displayName = 'Ana',
+      String? email = 'ana@example.com',
+      String? photoUrl = 'https://lh3.googleusercontent.com/a/foto',
+    }) => AppUser(
+      uid: uid,
+      displayName: displayName,
+      email: email,
       photoUrl: photoUrl,
     );
 
@@ -51,11 +56,20 @@ void main() {
       expect(ana().hashCode, ana().hashCode);
     });
 
-    test('deve diferenciar usuários com algum dado diferente', () {
-      expect(
-        ana(),
-        isNot(ana(photoUrl: 'https://lh3.googleusercontent.com/a/x')),
-      );
+    test('deve diferenciar usuários com uid diferente', () {
+      expect(ana(), isNot(ana(uid: 'outro')));
+    });
+
+    test('deve diferenciar usuários com nome diferente', () {
+      expect(ana(), isNot(ana(displayName: 'Bia')));
+    });
+
+    test('deve diferenciar usuários com e-mail diferente', () {
+      expect(ana(), isNot(ana(email: 'bia@example.com')));
+    });
+
+    test('deve diferenciar usuários com foto diferente', () {
+      expect(ana(), isNot(ana(photoUrl: null)));
     });
   });
 
