@@ -8,19 +8,19 @@ Ligar o app ao projeto Firebase `ja-vi-esse-filme`. A sessão roda o `flutterfir
 ## Checklist
 ### Pré-requisitos (usuário, no console e no terminal)
 - [x] Projeto `ja-vi-esse-filme` criado, com o Firestore `(default)`
-- [ ] **Plano de cobrança.** O projeto está no **Blaze**, e a decisão 010 assume o Spark. Voltar ao Spark ("Modificar") ou manter o Blaze com um orçamento e alertas em 50%, 90% e 100%. A escolha entra na decisão 011
-- [ ] Firestore: a aba Regras mostra `allow read, write: if false;` (modo de produção)
-- [ ] Firestore: a região é `southamerica-east1`, conferida no Google Cloud. Se for outra, recriar o banco enquanto está vazio
-- [ ] SHA-1 e SHA-256 de debug (`keytool -list -v -keystore ~/.android/debug.keystore -alias androiddebugkey -storepass android -keypass android`)
-- [ ] App Android `io.github.cfrdlima.ja_vi_esse_filme` registrado com o SHA-1 e o SHA-256, sem baixar o `google-services.json`
-- [ ] Authentication: provedor Google ativado, com o e-mail de suporte, e os outros provedores desligados
-- [ ] `firebase login` feito
-- [ ] `flutterfire_cli` atualizado (`dart pub global activate flutterfire_cli`). Na 1.4.0, o prompt de atualização trava em shell não interativo
+- [x] **Plano de cobrança.** O projeto está no **Blaze**, e a decisão 010 assume o Spark. Voltar ao Spark ("Modificar") ou manter o Blaze com um orçamento e alertas em 50%, 90% e 100%. A escolha entra na decisão 011 **Feito:** voltou para o Spark
+- [x] Firestore: a aba Regras mostra `allow read, write: if false;` (modo de produção)
+- [x] Firestore: a região é `southamerica-east1`, conferida no Google Cloud. Se for outra, recriar o banco enquanto está vazio
+- [x] SHA-1 e SHA-256 de debug (`keytool -list -v -keystore ~/.android/debug.keystore -alias androiddebugkey -storepass android -keypass android`). SHA-1 `68:34:9C:40:1B:C5:B9:CB:02:7A:60:6D:30:2E:B0:DD:CA:00:A2:34`, SHA-256 `1F:E5:E3:EE:07:CB:37:B8:96:38:DE:29:F5:AC:A2:31:90:03:70:8A:60:74:CE:1F:3B:18:CF:F4:56:75:3D:34`
+- [x] App Android `io.github.cfrdlima.ja_vi_esse_filme` registrado com o SHA-1 e o SHA-256, sem baixar o `google-services.json`
+- [x] Authentication: provedor Google ativado, com o e-mail de suporte, e os outros provedores desligados
+- [x] `firebase login` feito
+- [x] `flutterfire_cli` atualizado (`dart pub global activate flutterfire_cli`). Na 1.4.0, o prompt de atualização trava em shell não interativo. Atualizado para a 1.5.0
 
 ### Código
-- [ ] Conferir a versão do `firebase_core` (pub.dev/Context7) e o minSdk exigido contra a decisão 003. Hoje o `build.gradle.kts` usa `flutter.minSdkVersion`
-- [ ] `flutterfire configure --platforms=android` e conferir no `git status` que os arquivos gerados ficaram fora do git
-- [ ] Decisão 011: versionar os arquivos (chave restrita antes do commit, com fingerprint no `.gitleaksignore`) ou gerá-los no CI. Registrar também o plano de cobrança
+- [x] Conferir a versão do `firebase_core` (pub.dev/Context7) e o minSdk exigido contra a decisão 003. Hoje o `build.gradle.kts` usa `flutter.minSdkVersion`. **Feito:** `firebase_core` 5.2.0 pede minSdk 24, igual à decisão 003
+- [x] `flutterfire configure --platforms=android` e conferir no `git status` que os arquivos gerados ficaram fora do git. **Feito:** os dois arquivos ficaram ignorados; o `firebase.json` (sem chave) apareceu como novo
+- [x] Decisão 011: versionar os arquivos (chave restrita antes do commit, com fingerprint no `.gitleaksignore`) ou gerá-los no CI. Registrar também o plano de cobrança. **Feito:** versionar, com Spark
 - [ ] Se versionar: restringir a chave `AIza…` no Google Cloud (pacote + SHA-1, só Identity Toolkit, Token Service e Firestore) antes do commit
 - [ ] CI: o build e os testes continuam passando com a escolha da decisão 011
 - [ ] RED: o bootstrap chama o initializer injetado antes do `runApp`
@@ -34,6 +34,7 @@ Ligar o app ao projeto Firebase `ja-vi-esse-filme`. A sessão roda o `flutterfir
 - [ ] `/fechar-sessao`
 
 ## Decisões
+- [011 — Arquivos do Firebase versionados com chave restrita, e plano Spark](../decisoes/011-arquivos-firebase-versionados-e-spark.md)
 
 ## Commits
 
