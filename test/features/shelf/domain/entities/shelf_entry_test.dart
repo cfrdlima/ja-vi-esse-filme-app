@@ -13,11 +13,14 @@ void main() {
 
   group('ShelfEntry', () {
     // Sem const, como o `map` do stream faria.
-    test('deve tratar duas ausências da Estante criadas sem const como iguais', () {
-      const make = NotOnShelf.new;
+    test(
+      'deve tratar duas ausências da Estante criadas sem const como iguais',
+      () {
+        const make = NotOnShelf.new;
 
-      expect((make() == make(), make().hashCode), (true, make().hashCode));
-    });
+        expect((make() == make(), make().hashCode), (true, make().hashCode));
+      },
+    );
 
     test('deve tratar o mesmo filme na Estante como igual', () {
       expect(OnShelf(movie()), OnShelf(movie()));

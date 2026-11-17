@@ -1,0 +1,76 @@
+/// Um campo a escrever no documento, sem o `FieldValue` do SDK: o model
+/// monta a escrita e é testado sem o Firestore.
+sealed class FieldWrite {
+  const FieldWrite();
+}
+
+final class SetField extends FieldWrite {
+  const SetField(this.value);
+
+  final Object value;
+
+  @override
+  bool operator ==(Object other) => other is SetField && other.value == value;
+
+  @override
+  int get hashCode => value.hashCode;
+
+  @override
+  String toString() => 'SetField($value)';
+}
+
+/// A hora do servidor (`FieldValue.serverTimestamp()`), a única que as
+/// regras aceitam nas datas (decisão 013).
+final class ServerTime extends FieldWrite {
+  const ServerTime();
+
+  @override
+  bool operator ==(Object other) => other is ServerTime;
+
+  @override
+  int get hashCode => (ServerTime).hashCode;
+
+  @override
+  String toString() => 'ServerTime()';
+}
+
+/// Remove o campo (`FieldValue.delete()`).
+final class DeleteField extends FieldWrite {
+  const DeleteField();
+
+  @override
+  bool operator ==(Object other) => other is DeleteField;
+
+  @override
+  int get hashCode => (DeleteField).hashCode;
+
+  @override
+  String toString() => 'DeleteField()';
+}
+
+/// Fachada fina sobre o `cloud_firestore` em `users/{uid}/movies/{movieId}`,
+/// para o repositório ser testado com fakes (decisão 013). Repassa as
+/// exceções do SDK (`FirebaseException`) sem traduzir: a tradução é do
+/// repositório.
+abstract interface class ShelfGateway {
+  /// Emite os campos do documento ao assinar e a cada mudança, com as datas
+  /// já em `DateTime` (UTC). Uma data do servidor ainda pendente (escrita
+  /// offline) vem estimada, e não nula. Sem documento, emite o mapa vazio.
+  Stream<Map<String, Object?>> watchMovie(String uid, int movieId);
+
+  /// `set` com `merge`: cria o documento ou mescla os campos.
+  Future<void> mergeMovie(
+    String uid,
+    int movieId,
+    Map<String, FieldWrite> fields,
+  );
+
+  /// `update`: falha com `not-found` se o documento não existir.
+  Future<void> updateMovie(
+    String uid,
+    int movieId,
+    Map<String, FieldWrite> fields,
+  );
+
+  Future<void> deleteMovie(String uid, int movieId);
+}
