@@ -27,6 +27,22 @@ final class SessionSignedIn extends SessionState {
   final AppUser user;
 }
 
+/// O logout espera até 5 s as marcas do aparelho chegarem ao servidor antes
+/// de limpar o cache (sessão 022). A conta continua aberta.
+final class SessionSigningOut extends SessionState {
+  const SessionSigningOut(this.user);
+
+  final AppUser user;
+}
+
+/// Sobraram marcas sem chegar ao servidor: sair apaga essas marcas. A pessoa
+/// confirma ou cancela; a conta continua aberta até lá.
+final class SessionUnsyncedSignOut extends SessionState {
+  const SessionUnsyncedSignOut(this.user);
+
+  final AppUser user;
+}
+
 /// O login ou o logout falhou, com a [failure] para a mensagem. A tela olha o
 /// subtipo para saber o que o "tentar de novo" repete.
 sealed class SessionFailed extends SessionState {

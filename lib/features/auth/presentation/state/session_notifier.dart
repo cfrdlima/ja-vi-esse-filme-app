@@ -42,6 +42,8 @@ class SessionNotifier extends ChangeNotifier {
   /// seletor abriria com a limpeza ainda rodando.
   Future<void> signIn() async {
     if (_disposed || _signingIn || _signingOut) return;
+    // A conta já está aberta, esperando a resposta da pergunta do logout.
+    if (_state is SessionUnsyncedSignOut) return;
     _signingIn = true;
     _arrivedDuringSignIn = null;
     _emit(const SessionSigningIn());
@@ -65,12 +67,61 @@ class SessionNotifier extends ChangeNotifier {
     }
   }
 
-  /// Encerra a sessão. Uma falha na limpeza fica visível, porque o usuário
-  /// precisa saber. Com um login em andamento, não faz nada: o resultado dele
-  /// ainda vai decidir o estado.
+  /// Encerra a sessão. Com a conta aberta, primeiro espera as marcas do
+  /// aparelho chegarem ao servidor, duas vezes: a segunda pega as marcas
+  /// feitas durante a primeira espera. Se sobrar alguma, pergunta antes
+  /// ([SessionUnsyncedSignOut]), porque sair as apaga. Depois de uma falha
+  /// no logout, tenta de novo sem perguntar: a limpeza já começou.
+  ///
+  /// Uma falha na limpeza fica visível, porque o usuário precisa saber. Com
+  /// um login em andamento, não faz nada: o resultado dele ainda vai decidir
+  /// o estado.
   Future<void> signOut() async {
     if (_disposed || _signingIn || _signingOut) return;
     _signingOut = true;
+    try {
+      if (_state case SessionSignedIn(:final user)) {
+        _emit(SessionSigningOut(user));
+        final synced =
+            await _repository.syncPendingChanges() &&
+            await _repository.syncPendingChanges();
+        // A conta mudou durante a espera. Se ela saiu por fora, o cache
+        // dela continua no aparelho e precisa ser limpo.
+        if (_state is! SessionSigningOut) {
+          if (_state is SessionSignedOut) await _runSignOut();
+          return;
+        }
+        if (!synced) {
+          _emit(SessionUnsyncedSignOut(user));
+          return;
+        }
+      }
+      await _runSignOut();
+    } finally {
+      _signingOut = false;
+    }
+  }
+
+  /// Sai mesmo com marcas sem sincronizar, depois da pergunta.
+  void confirmSignOut() {
+    if (_disposed || _signingOut) return;
+    if (_state case SessionUnsyncedSignOut(:final user)) {
+      _signingOut = true;
+      _emit(SessionSigningOut(user));
+      unawaited(_runSignOut().whenComplete(() => _signingOut = false));
+    }
+  }
+
+  /// Desiste de sair, e a conta continua aberta. Com a saída já em
+  /// andamento, não há mais como desistir.
+  void cancelSignOut() {
+    if (_signingOut) return;
+    if (_state case SessionUnsyncedSignOut(:final user)) {
+      _emit(SessionSignedIn(user));
+    }
+  }
+
+  Future<void> _runSignOut() async {
     try {
       await _repository.signOut();
       // Não espera o stream: depois de uma falha, o Firebase já saiu na
@@ -82,8 +133,6 @@ class SessionNotifier extends ChangeNotifier {
     } on Exception {
       // Mesmo motivo do signIn: a tela precisa ver o erro e o "tentar de novo".
       _emit(const SessionSignOutFailed(_untypedException));
-    } finally {
-      _signingOut = false;
     }
   }
 

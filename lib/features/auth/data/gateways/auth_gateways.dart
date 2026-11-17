@@ -23,3 +23,19 @@ abstract interface class GoogleAccountGateway {
 
   Future<void> signOut();
 }
+
+/// O cache da conta no aparelho (o do Firestore), que o logout limpa
+/// (decisão 010). Repassa as exceções do SDK sem traduzir.
+abstract interface class AccountCacheGateway {
+  /// Completa quando as escritas feitas no aparelho chegam ao servidor.
+  /// Offline, fica pendente até a rede voltar.
+  Future<void> waitForPendingWrites();
+
+  /// Fecha os streams abertos, `terminate()` e `clearPersistence()`, nessa
+  /// ordem. As escritas ainda pendentes se perdem.
+  Future<void> clear();
+
+  /// Só o `clearPersistence()`, para o início do app, antes de qualquer
+  /// leitura: com a instância já em uso, falha.
+  Future<void> clearUnused();
+}

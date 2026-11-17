@@ -11,7 +11,7 @@ final class MovieCopy {
     required String title,
     String? posterPath,
   }) {
-    if (movieId < 1 || movieId > maxMovieId) {
+    if (!_isValidId(movieId)) {
       throw ArgumentError('deve ser de 1 a $maxMovieId', 'movieId');
     }
     final trimmed = title.trim();
@@ -22,6 +22,13 @@ final class MovieCopy {
       posterPath: _isTmdbImagePath(posterPath) ? posterPath : null,
     );
   }
+
+  /// Se o filme pode virar uma cópia sem [ArgumentError]: os Detalhes só
+  /// mostram as marcas quando pode.
+  static bool canCopy({required int movieId, required String title}) =>
+      _isValidId(movieId) && title.trim().isNotEmpty;
+
+  static bool _isValidId(int movieId) => movieId >= 1 && movieId <= maxMovieId;
 
   const MovieCopy._({
     required this.movieId,

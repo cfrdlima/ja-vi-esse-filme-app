@@ -13,6 +13,7 @@ import 'account_skeleton.dart';
 import 'sign_out_failed_panel.dart';
 import 'signed_in_panel.dart';
 import 'signed_out_panel.dart';
+import 'unsynced_sign_out_prompt.dart';
 
 /// Bloco da conta no Perfil, que segue o estado da sessão.
 class AccountSection extends StatelessWidget {
@@ -38,7 +39,20 @@ class AccountSection extends StatelessWidget {
       ),
       SessionSignedIn(:final user) => SignedInPanel(
         user: user,
-        onSignOut: () => unawaited(context.read<SessionNotifier>().signOut()),
+        action: SignOutButton(
+          onPressed: () => unawaited(context.read<SessionNotifier>().signOut()),
+        ),
+      ),
+      SessionSigningOut(:final user) => SignedInPanel(
+        user: user,
+        action: const SignOutButton.loading(),
+      ),
+      SessionUnsyncedSignOut(:final user) => SignedInPanel(
+        user: user,
+        action: UnsyncedSignOutPrompt(
+          onConfirm: context.read<SessionNotifier>().confirmSignOut,
+          onCancel: context.read<SessionNotifier>().cancelSignOut,
+        ),
       ),
       SessionSignOutFailed(:final failure) => SignOutFailedPanel(
         message: failureMessage(AppLocalizations.of(context), failure),
@@ -62,7 +76,9 @@ class AccountSection extends StatelessWidget {
     SessionSignedOut() ||
     SessionSigningIn() ||
     SessionSignInFailed() => 'signedOut',
-    SessionSignedIn() => 'signedIn',
+    SessionSignedIn() ||
+    SessionSigningOut() ||
+    SessionUnsyncedSignOut() => 'signedIn',
     SessionSignOutFailed() => 'signOutFailed',
   };
 }

@@ -302,4 +302,69 @@ void main() {
       );
     });
   });
+
+  group('closeStreams', () {
+    test('deve encerrar os streams abertos', () async {
+      final done = Completer<void>();
+      repository.watchMovie(550).listen(null, onDone: done.complete);
+      await pumpEventQueue();
+
+      await repository.closeStreams();
+      await pumpEventQueue();
+
+      expect(done.isCompleted, isTrue);
+    });
+
+    test('deve parar de ouvir o Firestore', () async {
+      repository.watchMovie(550).listen(null);
+      await pumpEventQueue();
+
+      await repository.closeStreams();
+
+      expect(gateway.documents.hasListener, isFalse);
+    });
+
+    test('deve contar o stream só depois de alguém ouvir', () {
+      repository.watchMovie(550);
+
+      expect(repository.openStreamCount, 0);
+    });
+
+    test('deve contar o stream que alguém ouve', () async {
+      repository.watchMovie(550).listen(null);
+      await pumpEventQueue();
+
+      expect(repository.openStreamCount, 1);
+    });
+
+    test('deve esquecer o stream que quem ouvia cancelou', () async {
+      final subscription = repository.watchMovie(550).listen(null);
+      await pumpEventQueue();
+
+      await subscription.cancel();
+
+      expect(repository.openStreamCount, 0);
+    });
+
+    test('deve esquecer o stream que o Firestore encerrou', () async {
+      repository.watchMovie(550).listen(null);
+      await pumpEventQueue();
+
+      await gateway.close();
+      await pumpEventQueue();
+
+      expect(repository.openStreamCount, 0);
+    });
+
+    // Com quem ouve pausado, esperar o fim do stream travaria o logout.
+    test('deve concluir com o stream pausado', () async {
+      repository.watchMovie(550).listen(null).pause();
+      await pumpEventQueue();
+
+      await expectLater(
+        repository.closeStreams().timeout(const Duration(seconds: 1)),
+        completes,
+      );
+    });
+  });
 }

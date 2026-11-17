@@ -36,4 +36,8 @@ abstract interface class ShelfRepository {
   ///
   /// As mesmas falhas do [addMark].
   Future<void> removeMark(ShelfMovie movie, ShelfMark mark);
+
+  /// Encerra os streams do [watchMovie] ainda abertos: quem ouve recebe o
+  /// fim. O logout chama isso antes de limpar o cache (decisão 010).
+  Future<void> closeStreams();
 }

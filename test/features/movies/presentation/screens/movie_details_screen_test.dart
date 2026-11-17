@@ -7,6 +7,9 @@ import 'package:ja_vi_esse_filme/core/l10n/app_locale.dart';
 import 'package:ja_vi_esse_filme/core/links/external_link_opener.dart';
 import 'package:ja_vi_esse_filme/core/theme/app_sizes.dart';
 import 'package:ja_vi_esse_filme/core/widgets/retry_button.dart';
+import 'package:ja_vi_esse_filme/features/auth/domain/entities/auth_state.dart';
+import 'package:ja_vi_esse_filme/features/auth/domain/repositories/auth_repository.dart';
+import 'package:ja_vi_esse_filme/features/auth/presentation/state/session_notifier.dart';
 import 'package:ja_vi_esse_filme/features/movies/domain/entities/cast_member.dart';
 import 'package:ja_vi_esse_filme/features/movies/domain/entities/movie.dart';
 import 'package:ja_vi_esse_filme/features/movies/domain/entities/movie_details.dart';
@@ -19,18 +22,35 @@ import 'package:ja_vi_esse_filme/features/movies/presentation/widgets/movie_post
 import 'package:ja_vi_esse_filme/features/movies/presentation/widgets/poster_hero.dart';
 import 'package:ja_vi_esse_filme/features/movies/presentation/widgets/poster_skeleton.dart';
 import 'package:ja_vi_esse_filme/features/movies/presentation/widgets/trailer_list.dart';
+import 'package:ja_vi_esse_filme/features/shelf/domain/repositories/shelf_repository.dart';
+import 'package:ja_vi_esse_filme/features/shelf/presentation/widgets/shelf_marks_bar.dart';
 import 'package:ja_vi_esse_filme/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../helpers/fake_auth_repository.dart';
 import '../../../../helpers/fake_link_opener.dart';
 import '../../../../helpers/fake_movie_repository.dart';
+import '../../../../helpers/fake_shelf_repository.dart';
 import '../../../../helpers/test_app.dart';
 
 void main() {
   final l10n = lookupAppLocalizations(AppLocale.locale);
   late FakeMovieRepository repository;
+  late FakeShelfRepository shelf;
+  late FakeAuthRepository auth;
 
-  setUp(() => repository = FakeMovieRepository());
+  setUp(() {
+    repository = FakeMovieRepository();
+    shelf = FakeShelfRepository();
+    // Deslogado: as marcas ficam paradas, sem o pulso do skeleton, que não
+    // deixaria o `pumpAndSettle` terminar.
+    auth = FakeAuthRepository()..emit(const SignedOut());
+  });
+
+  tearDown(() async {
+    shelf.close();
+    await auth.close();
+  });
 
   final complete = MovieDetails(
     id: 7,
@@ -63,6 +83,16 @@ void main() {
 
   final bare = MovieDetails(id: 7, title: 'Filme Sem Nada', overview: '');
 
+  // Acima do `MaterialApp`, como no `main.dart`.
+  Widget shelfProviders(Widget app) => MultiProvider(
+    providers: [
+      Provider<ShelfRepository>.value(value: shelf),
+      Provider<AuthRepository>.value(value: auth),
+      ChangeNotifierProvider(create: (_) => SessionNotifier(repository: auth)),
+    ],
+    child: app,
+  );
+
   Widget screen({MediaQueryData? mediaQuery, Movie? preview}) {
     final app = testApp(
       home: Provider<ExternalLinkOpener>.value(
@@ -80,7 +110,10 @@ void main() {
         ),
       ),
     );
-    return mediaQuery == null ? app : MediaQuery(data: mediaQuery, child: app);
+    final withShelf = shelfProviders(app);
+    return mediaQuery == null
+        ? withShelf
+        : MediaQuery(data: mediaQuery, child: withShelf);
   }
 
   const preview = Movie(
@@ -99,6 +132,8 @@ void main() {
   Future<void> pumpWith(WidgetTester tester, MovieDetails details) async {
     await tester.pumpWidget(screen());
     repository.completeDetails(details);
+    await tester.pump();
+    // A conta chega às marcas um quadro depois de elas montarem.
     await tester.pump();
   }
 
@@ -297,6 +332,33 @@ void main() {
       expect(heroOfPoster(tester).movieId, 7);
     });
 
+    testWidgets('deve mostrar as marcas do filme', (tester) async {
+      await pumpWith(tester, complete);
+
+      expect(find.byType(ShelfMarksBar), findsOneWidget);
+    });
+
+    testWidgets('deve mostrar as marcas desligadas sem conta', (tester) async {
+      await pumpWith(tester, complete);
+
+      expect(find.widgetWithText(FilterChip, l10n.shelfMarkWatched), findsOne);
+    });
+
+    testWidgets('deve pôr as marcas entre o cabeçalho e os gêneros', (
+      tester,
+    ) async {
+      await pumpWith(tester, complete);
+
+      final marksTop = tester.getTopLeft(find.byType(ShelfMarksBar)).dy;
+      expect(
+        (
+          marksTop > tester.getBottomLeft(find.byType(PosterHero)).dy,
+          marksTop < tester.getTopLeft(find.text('Aventura')).dy,
+        ),
+        (true, true),
+      );
+    });
+
     testWidgets('deve mostrar os gêneros', (tester) async {
       await pumpWith(tester, complete);
 
@@ -432,8 +494,22 @@ void main() {
               ),
             )
             .map((text) => text.data),
-        ['Filme Sem Nada', l10n.movieOverviewTitle, l10n.movieNoOverview],
+        [
+          'Filme Sem Nada',
+          l10n.shelfMarkWatched,
+          l10n.shelfMarkWatchlist,
+          l10n.shelfMarkFavorite,
+          l10n.movieOverviewTitle,
+          l10n.movieNoOverview,
+        ],
       );
+    });
+
+    // Sem título não há cópia válida para a Estante (decisão 013).
+    testWidgets('não deve mostrar as marcas sem título', (tester) async {
+      await pumpWith(tester, MovieDetails(id: 7, title: '', overview: ''));
+
+      expect(find.byType(ShelfMarksBar), findsNothing);
     });
 
     testWidgets('não deve mostrar a estrela da nota', (tester) async {
@@ -464,28 +540,30 @@ void main() {
 
     // Uma grade de um pôster só, que empilha os detalhes como a aba faz.
     Future<void> pumpGrid(WidgetTester tester) => tester.pumpWidget(
-      testApp(
-        home: Builder(
-          builder: (context) => Align(
-            alignment: Alignment.bottomRight,
-            child: SizedBox(
-              width: gridWidth,
-              child: PosterHero(
-                movieId: 7,
-                child: MoviePoster(
-                  movie: preview,
-                  onTap: () => Navigator.of(context).push(
-                    MaterialPageRoute<void>(
-                      builder: (_) => ChangeNotifierProvider(
-                        create: (_) {
-                          final notifier = MovieDetailsNotifier(
-                            repository: repository,
-                            movieId: 7,
-                          );
-                          unawaited(notifier.load());
-                          return notifier;
-                        },
-                        child: const MovieDetailsScreen(preview: preview),
+      shelfProviders(
+        testApp(
+          home: Builder(
+            builder: (context) => Align(
+              alignment: Alignment.bottomRight,
+              child: SizedBox(
+                width: gridWidth,
+                child: PosterHero(
+                  movieId: 7,
+                  child: MoviePoster(
+                    movie: preview,
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder: (_) => ChangeNotifierProvider(
+                          create: (_) {
+                            final notifier = MovieDetailsNotifier(
+                              repository: repository,
+                              movieId: 7,
+                            );
+                            unawaited(notifier.load());
+                            return notifier;
+                          },
+                          child: const MovieDetailsScreen(preview: preview),
+                        ),
                       ),
                     ),
                   ),

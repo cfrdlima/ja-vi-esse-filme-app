@@ -4,6 +4,8 @@ import '../../../../core/theme/app_sizes.dart';
 import '../../../../core/theme/app_theme_tokens.dart';
 import '../../../../core/widgets/section_title.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../../../shelf/domain/entities/movie_copy.dart';
+import '../../../shelf/presentation/widgets/shelf_marks_section.dart';
 import '../../domain/entities/movie.dart';
 import '../../domain/entities/movie_details.dart';
 import '../formatting/movie_format.dart';
@@ -36,6 +38,17 @@ class MovieDetailsContent extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _Header(details: details, posterKey: posterKey),
+              if (MovieCopy.canCopy(
+                movieId: details.id,
+                title: details.title,
+              )) ...[
+                SizedBox(height: spacing.md),
+                ShelfMarksSection(
+                  movieId: details.id,
+                  title: details.title,
+                  posterPath: details.posterPath,
+                ),
+              ],
               if (details.genres.isNotEmpty) ...[
                 SizedBox(height: spacing.md),
                 _Genres(genres: details.genres),

@@ -17,6 +17,10 @@ final class UnavailableAuthRepository implements AuthRepository {
   @override
   Future<SignInOutcome> signIn() async => throw _unavailable;
 
+  /// Sem Firebase não há nada no aparelho esperando o servidor.
+  @override
+  Future<bool> syncPendingChanges() async => true;
+
   /// Sem Firebase não há sessão aberta para encerrar.
   @override
   Future<void> signOut() async {}

@@ -29,4 +29,13 @@ abstract final class AppSizes {
 
   /// Altura mínima de um alvo de toque (Material e `MASTER.md`).
   static const minTouchTarget = 48.0;
+
+  /// Bloco de uma marca no skeleton dos Detalhes, no tamanho de um chip com
+  /// ícone e texto curto (override `detalhes.md`, "Marcas").
+  static const markSkeletonWidth = 112.0;
+  static const markSkeletonHeight = 32.0;
+
+  /// Indicador no lugar do ícone de um botão com texto, como o "Saindo".
+  static const buttonProgress = 18.0;
+  static const buttonProgressStroke = 2.0;
 }

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 
 import '../../../../core/error/failures.dart';
 import '../../domain/entities/movie_copy.dart';
@@ -30,10 +31,10 @@ class FirestoreShelfRepository implements ShelfRepository {
     if (movieId < 1 || movieId > MovieCopy.maxMovieId) {
       return Stream.error(const UnexpectedFailure('movieId fora das regras'));
     }
-    return _gateway
+    final source = _gateway
         .watchMovie(uid, movieId)
         .transform(
-          StreamTransformer.fromHandlers(
+          StreamTransformer<Map<String, Object?>, ShelfEntry>.fromHandlers(
             handleData: (data, sink) {
               try {
                 sink.add(ShelfMovieModel.fromDocument(movieId, data));
@@ -47,6 +48,31 @@ class FirestoreShelfRepository implements ShelfRepository {
                 sink.addError(_toFailure(error), stackTrace),
           ),
         );
+    // Contado só com alguém ouvindo: antes disso, o Firestore nem foi
+    // assinado, e não há o que fechar.
+    late final _OpenWatch watch;
+    watch = _OpenWatch(
+      source,
+      onStart: () => _openWatches.add(watch),
+      onEnd: () => _openWatches.remove(watch),
+    );
+    return watch.stream;
+  }
+
+  final Set<_OpenWatch> _openWatches = {};
+
+  @visibleForTesting
+  int get openStreamCount => _openWatches.length;
+
+  /// Além do contrato, o Firestore deixa de ser ouvido antes do
+  /// `terminate()`.
+  @override
+  Future<void> closeStreams() async {
+    final open = [..._openWatches];
+    _openWatches.clear();
+    for (final watch in open) {
+      await watch.close();
+    }
   }
 
   @override
@@ -119,3 +145,49 @@ Failure _toFailure(Object error) => switch (error) {
   FirebaseException(:final code) => UnexpectedFailure('cloud_firestore: $code'),
   _ => const UnexpectedFailure('erro fora do Firestore na Estante'),
 };
+
+/// Um stream do `watchMovie` que o [FirestoreShelfRepository.closeStreams]
+/// consegue encerrar por fora.
+final class _OpenWatch {
+  _OpenWatch(
+    Stream<ShelfEntry> source, {
+    required void Function() onStart,
+    required this._onEnd,
+  }) {
+    _controller = StreamController<ShelfEntry>(
+      onListen: () {
+        onStart();
+        _subscription = source.listen(
+          _controller.add,
+          onError: _controller.addError,
+          onDone: _end,
+        );
+      },
+      onCancel: () {
+        _onEnd();
+        return _subscription?.cancel();
+      },
+    );
+  }
+
+  late final StreamController<ShelfEntry> _controller;
+  StreamSubscription<ShelfEntry>? _subscription;
+  final void Function() _onEnd;
+
+  Stream<ShelfEntry> get stream => _controller.stream;
+
+  void _end() {
+    _onEnd();
+    unawaited(_controller.close());
+  }
+
+  /// Para de ouvir o Firestore, que é o que o `terminate()` precisa. O fim
+  /// do stream não é esperado: com quem ouve pausado, ele só chegaria na
+  /// retomada, e o logout ficaria preso.
+  Future<void> close() async {
+    final subscription = _subscription;
+    _subscription = null;
+    await subscription?.cancel();
+    unawaited(_controller.close());
+  }
+}

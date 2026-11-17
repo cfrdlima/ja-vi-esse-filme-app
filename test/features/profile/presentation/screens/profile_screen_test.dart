@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ja_vi_esse_filme/core/error/failures.dart';
@@ -223,8 +225,118 @@ void main() {
       await pumpSignedIn(tester, ana);
 
       await tester.tap(find.text(l10n.profileSignOut));
+      await tester.pump();
 
       expect(repository.signOutCalls, 1);
+    });
+  });
+
+  group('marcas sem sincronizar', () {
+    final ana = AppUser(uid: 'abc123', displayName: 'Ana');
+
+    Future<void> tapSignOut(WidgetTester tester) async {
+      repository.emit(SignedIn(ana));
+      await pumpProfile(tester);
+      // Até o fim da troca vinda do "carregando", que ainda está na árvore.
+      await tester.pumpAndSettle();
+      await tester.tap(find.text(l10n.profileSignOut));
+      await tester.pump();
+    }
+
+    testWidgets('deve mostrar Saindo enquanto espera o servidor', (
+      tester,
+    ) async {
+      repository.syncGate = Completer<void>();
+      addTearDown(() => repository.syncGate?.complete());
+
+      await tapSignOut(tester);
+
+      expect(find.text(l10n.profileSigningOut), findsOneWidget);
+    });
+
+    testWidgets('deve desabilitar o botão enquanto espera o servidor', (
+      tester,
+    ) async {
+      repository.syncGate = Completer<void>();
+      addTearDown(() => repository.syncGate?.complete());
+
+      await tapSignOut(tester);
+
+      expect(
+        tester
+            .widget<OutlinedButton>(
+              find.ancestor(
+                of: find.text(l10n.profileSigningOut),
+                matching: find.byWidgetPredicate((w) => w is OutlinedButton),
+              ),
+            )
+            .onPressed,
+        isNull,
+      );
+    });
+
+    testWidgets('deve avisar que sair apaga as marcas', (tester) async {
+      repository.synced = false;
+
+      await tapSignOut(tester);
+
+      expect(find.text(l10n.profileUnsyncedWarning), findsOneWidget);
+    });
+
+    testWidgets('deve anunciar o aviso ao leitor de tela', (tester) async {
+      final semantics = tester.ensureSemantics();
+      repository.synced = false;
+
+      await tapSignOut(tester);
+
+      expect(
+        tester.getSemantics(find.text(l10n.profileUnsyncedWarning)),
+        matchesSemantics(
+          label: l10n.profileUnsyncedWarning,
+          isLiveRegion: true,
+        ),
+      );
+      semantics.dispose();
+    });
+
+    testWidgets('não deve sair antes de confirmar', (tester) async {
+      repository.synced = false;
+
+      await tapSignOut(tester);
+
+      expect(repository.signOutCalls, 0);
+    });
+
+    testWidgets('deve sair ao tocar em Sair mesmo assim', (tester) async {
+      repository.synced = false;
+      await tapSignOut(tester);
+
+      await tester.tap(find.text(l10n.profileSignOutAnyway));
+      await tester.pump();
+
+      expect(repository.signOutCalls, 1);
+    });
+
+    testWidgets('deve voltar à conta ao tocar em Ficar na conta', (
+      tester,
+    ) async {
+      repository.synced = false;
+      await tapSignOut(tester);
+
+      await tester.tap(find.text(l10n.profileStaySignedIn));
+      await tester.pump();
+
+      expect(find.text(l10n.profileSignOut), findsOneWidget);
+    });
+
+    testWidgets('deve continuar mostrando a conta durante o aviso', (
+      tester,
+    ) async {
+      repository.synced = false;
+
+      await tapSignOut(tester);
+
+      expect(find.text('Ana'), findsOneWidget);
     });
   });
 
@@ -290,6 +402,23 @@ void main() {
       },
       'logado': (tester) async {
         repository.emit(SignedIn(ana));
+        await tester.pump();
+      },
+      'saindo': (tester) async {
+        repository
+          ..emit(SignedIn(ana))
+          ..syncGate = Completer<void>();
+        addTearDown(() => repository.syncGate?.complete());
+        await tester.pump();
+        await tapVisible(tester, find.text(l10n.profileSignOut));
+        await tester.pump();
+      },
+      'aviso de marcas sem sincronizar': (tester) async {
+        repository
+          ..emit(SignedIn(ana))
+          ..synced = false;
+        await tester.pump();
+        await tapVisible(tester, find.text(l10n.profileSignOut));
         await tester.pump();
       },
       'falha no logout': (tester) async {

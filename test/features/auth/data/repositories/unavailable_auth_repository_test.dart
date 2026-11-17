@@ -21,6 +21,10 @@ void main() {
     await expectLater(repository.signOut(), completes);
   });
 
+  test('deve dizer que não há nada por sincronizar', () async {
+    expect(await repository.syncPendingChanges(), isTrue);
+  });
+
   test('deve falhar a exclusão com UnexpectedFailure', () async {
     await expectLater(
       repository.deleteAccount(),

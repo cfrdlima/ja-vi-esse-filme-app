@@ -289,4 +289,39 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get aboutLicensesEntry => 'Licenças de código aberto';
+
+  @override
+  String get shelfMarkWatched => 'Assistido';
+
+  @override
+  String get shelfMarkWatchlist => 'Quero assistir';
+
+  @override
+  String get shelfMarkFavorite => 'Favorito';
+
+  @override
+  String get shelfMarksLoading => 'Carregando suas marcas';
+
+  @override
+  String get shelfMarksLoadFailed => 'Não deu para carregar suas marcas.';
+
+  @override
+  String get signInSheetTitle => 'Entre para guardar seus filmes';
+
+  @override
+  String get signInSheetBody =>
+      'Com a conta Google, suas marcas ficam salvas e aparecem em qualquer aparelho.';
+
+  @override
+  String get profileSigningOut => 'Saindo';
+
+  @override
+  String get profileUnsyncedWarning =>
+      'Algumas marcas ainda não chegaram ao servidor. Se sair agora, elas serão apagadas deste aparelho e não vão para a sua conta.';
+
+  @override
+  String get profileSignOutAnyway => 'Sair mesmo assim';
+
+  @override
+  String get profileStaySignedIn => 'Ficar na conta';
 }

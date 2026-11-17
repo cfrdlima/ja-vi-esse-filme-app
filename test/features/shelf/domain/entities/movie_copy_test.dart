@@ -93,4 +93,22 @@ void main() {
       );
     });
   });
+
+  group('canCopy', () {
+    test('deve aceitar um filme com id e título válidos', () {
+      expect(MovieCopy.canCopy(movieId: 550, title: 'Clube da Luta'), isTrue);
+    });
+
+    for (final title in ['', '   ']) {
+      test('deve recusar o título vazio: "$title"', () {
+        expect(MovieCopy.canCopy(movieId: 550, title: title), isFalse);
+      });
+    }
+
+    for (final id in [0, -1, MovieCopy.maxMovieId + 1]) {
+      test('deve recusar o id fora das regras: $id', () {
+        expect(MovieCopy.canCopy(movieId: id, title: 'Filme'), isFalse);
+      });
+    }
+  });
 }

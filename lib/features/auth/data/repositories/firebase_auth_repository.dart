@@ -8,10 +8,27 @@ import '../../domain/repositories/auth_repository.dart';
 import '../gateways/auth_gateways.dart';
 
 final class FirebaseAuthRepository implements AuthRepository {
-  FirebaseAuthRepository({required this._firebase, required this._google});
+  FirebaseAuthRepository({
+    required this._firebase,
+    required this._google,
+    required this._cache,
+  });
 
   final FirebaseAuthGateway _firebase;
   final GoogleAccountGateway _google;
+  final AccountCacheGateway _cache;
+
+  @override
+  Future<bool> syncPendingChanges() async {
+    try {
+      await _cache.waitForPendingWrites().timeout(AuthRepository.syncTimeout);
+      return true;
+    } on Exception {
+      // Prazo esgotado (`TimeoutException`) ou erro do SDK: sem saber se
+      // chegou, a pessoa decide se sai.
+      return false;
+    }
+  }
 
   @override
   Stream<AuthState> get authStateChanges => _firebase
@@ -63,12 +80,13 @@ final class FirebaseAuthRepository implements AuthRepository {
 
   @override
   Future<void> signOut() async {
-    // Os dois rodam sempre, para a sessão nunca ficar aberta pela metade. A
-    // primeira falha sobe depois, já traduzida.
+    // Todos rodam sempre, para a sessão nunca ficar aberta pela metade, nem
+    // quando a limpeza do cache falha. A primeira falha sobe depois, já
+    // traduzida.
     Object? firstError;
-    for (final signOutOf in [_firebase.signOut, _google.signOut]) {
+    for (final step in [_cache.clear, _firebase.signOut, _google.signOut]) {
       try {
-        await signOutOf();
+        await step();
       } on Object catch (error) {
         firstError ??= error;
       }
@@ -98,6 +116,10 @@ Failure _toFailure(Object error) => switch (error) {
   FirebaseAuthException(code: 'too-many-requests') => const RateLimitFailure(),
   FirebaseAuthException(:final code) => UnexpectedFailure(
     'firebase_auth: $code',
+  ),
+  // A limpeza do cache, no logout.
+  FirebaseException(:final plugin, :final code) => UnexpectedFailure(
+    '$plugin: $code',
   ),
   GoogleSignInException(:final code) => UnexpectedFailure(
     'google_sign_in: ${code.name}',

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -19,15 +20,21 @@ import 'core/network/tmdb_client.dart';
 import 'core/routing/app_router.dart';
 import 'core/theme/app_theme.dart';
 import 'features/auth/data/gateways/firebase_auth_sdk_gateway.dart';
+import 'features/auth/data/gateways/firestore_account_cache.dart';
 import 'features/auth/data/gateways/google_sign_in_sdk_gateway.dart';
 import 'features/auth/data/repositories/firebase_auth_repository.dart';
 import 'features/auth/data/repositories/unavailable_auth_repository.dart';
+import 'features/auth/data/stale_account_cache.dart';
 import 'features/auth/domain/repositories/auth_repository.dart';
 import 'features/auth/presentation/state/account_photo_cleaner.dart';
 import 'features/auth/presentation/state/session_notifier.dart';
 import 'features/movies/data/datasources/movie_remote_data_source.dart';
 import 'features/movies/data/repositories/tmdb_movie_repository.dart';
 import 'features/movies/domain/repositories/movie_repository.dart';
+import 'features/shelf/data/gateways/cloud_firestore_shelf_gateway.dart';
+import 'features/shelf/data/repositories/firestore_shelf_repository.dart';
+import 'features/shelf/data/repositories/unavailable_shelf_repository.dart';
+import 'features/shelf/domain/repositories/shelf_repository.dart';
 import 'firebase_options.dart';
 
 Future<void> main() async {
@@ -36,18 +43,26 @@ Future<void> main() async {
   registerFontLicenses();
   await bootstrapApp(
     initialize: _initializeFirebase,
-    run: () => runApp(
-      MainApp(
-        movieRepository: _composeMovieRepository(),
-        authRepository: composeAuthRepository(
-          firebaseAvailable: Firebase.apps.isNotEmpty,
-          connect: _connectFirebaseAuth,
+    run: () {
+      final firebaseAvailable = Firebase.apps.isNotEmpty;
+      final shelfRepository = composeShelfRepository(
+        firebaseAvailable: firebaseAvailable,
+        connect: _connectFirestoreShelf,
+      );
+      runApp(
+        MainApp(
+          movieRepository: _composeMovieRepository(),
+          authRepository: composeAuthRepository(
+            firebaseAvailable: firebaseAvailable,
+            connect: () => _connectFirebaseAuth(shelfRepository),
+          ),
+          shelfRepository: shelfRepository,
+          linkOpener: UrlLauncherLinkOpener(),
+          appVersion: AppConfig.appVersion,
+          evictPhoto: _evictCachedImage,
         ),
-        linkOpener: UrlLauncherLinkOpener(),
-        appVersion: AppConfig.appVersion,
-        evictPhoto: _evictCachedImage,
-      ),
-    ),
+      );
+    },
     report: logUnhandledError,
   );
 }
@@ -67,7 +82,15 @@ MovieRepository _composeMovieRepository() {
 }
 
 /// Sem o Firebase (o `bootstrapApp` sobe o app mesmo com falha no
-/// `initializeApp`), [connect] não é chamado: o `FirebaseAuth.instance`
+/// `initializeApp`), [connect] não é chamado: o `FirebaseFirestore.instance`
+/// lançaria `no-app` e derrubaria o app inteiro.
+@visibleForTesting
+ShelfRepository composeShelfRepository({
+  required bool firebaseAvailable,
+  required ShelfRepository Function() connect,
+}) => firebaseAvailable ? connect() : const UnavailableShelfRepository();
+
+/// Sem o Firebase, [connect] não é chamado: o `FirebaseAuth.instance`
 /// lançaria `no-app` e derrubaria o app inteiro.
 @visibleForTesting
 AuthRepository composeAuthRepository({
@@ -78,15 +101,40 @@ AuthRepository composeAuthRepository({
 // A foto da conta só fica no cache em memória (ver `AccountAvatar`).
 void _evictCachedImage(String url) => unawaited(NetworkImage(url).evict());
 
-AuthRepository _connectFirebaseAuth() => FirebaseAuthRepository(
-  firebase: FirebaseAuthSdkGateway(FirebaseAuth.instance),
-  google: GoogleSignInSdkGateway(GoogleSignIn.instance),
+// O logout fecha os streams da Estante antes de limpar o cache do
+// Firestore (decisão 010). No início, o cache de uma conta que já saiu é
+// limpo, caso a limpeza do último logout tenha falhado.
+AuthRepository _connectFirebaseAuth(ShelfRepository shelf) {
+  final firestore = FirebaseFirestore.instance;
+  final cache = FirestoreAccountCache(
+    closeStreams: shelf.closeStreams,
+    terminate: firestore.terminate,
+    clearPersistence: firestore.clearPersistence,
+    waitForPendingWrites: firestore.waitForPendingWrites,
+  );
+  final repository = FirebaseAuthRepository(
+    firebase: FirebaseAuthSdkGateway(FirebaseAuth.instance),
+    google: GoogleSignInSdkGateway(GoogleSignIn.instance),
+    cache: cache,
+  );
+  unawaited(
+    clearStaleAccountCache(account: repository.authStateChanges, cache: cache),
+  );
+  return repository;
+}
+
+// O `uid` é lido a cada chamada, e não guardado: a conta pode mudar
+// (decisão 013).
+ShelfRepository _connectFirestoreShelf() => FirestoreShelfRepository(
+  gateway: CloudFirestoreShelfGateway(firestore: FirebaseFirestore.instance),
+  currentUid: () => FirebaseAuth.instance.currentUser?.uid,
 );
 
 class MainApp extends StatefulWidget {
   const MainApp({
     required this.movieRepository,
     required this.authRepository,
+    required this.shelfRepository,
     required this.linkOpener,
     required this.appVersion,
     required this.evictPhoto,
@@ -95,6 +143,7 @@ class MainApp extends StatefulWidget {
 
   final MovieRepository movieRepository;
   final AuthRepository authRepository;
+  final ShelfRepository shelfRepository;
   final ExternalLinkOpener linkOpener;
   final String appVersion;
 
@@ -125,6 +174,8 @@ class _MainAppState extends State<MainApp> {
     return MultiProvider(
       providers: [
         Provider<ExternalLinkOpener>.value(value: widget.linkOpener),
+        Provider<AuthRepository>.value(value: widget.authRepository),
+        Provider<ShelfRepository>.value(value: widget.shelfRepository),
         // Não preguiçoso: a sessão passa a ouvir a conta desde o início, e
         // não só quando a primeira tela a pedir.
         ChangeNotifierProvider(
