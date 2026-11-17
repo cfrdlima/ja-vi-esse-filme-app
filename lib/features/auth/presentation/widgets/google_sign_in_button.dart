@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_sizes.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../l10n/app_localizations.dart';
 
@@ -22,7 +23,6 @@ class GoogleSignInButton extends StatelessWidget {
   static const _logoLeading = 12.0;
   static const _logoGap = 10.0;
   static const _textTrailing = 12.0;
-  static const _minHeight = 48.0;
   static const _progressStroke = 2.0;
   static const _disabledOpacity = 0.38;
 
@@ -38,16 +38,24 @@ class GoogleSignInButton extends StatelessWidget {
       onPressed: onPressed,
       style: OutlinedButton.styleFrom(
         backgroundColor: AppColors.googleButtonFill,
-        // Desabilitado, o fundo continua o da marca, e só o texto perde a
-        // opacidade, como o Material faz (override `perfil.md`).
+        // Desabilitado, o fundo continua o da marca, e só o texto e a borda
+        // perdem a opacidade, como o Material faz (override `perfil.md`).
         disabledBackgroundColor: AppColors.googleButtonFill,
         foregroundColor: AppColors.googleButtonText,
         disabledForegroundColor: AppColors.googleButtonText.withValues(
           alpha: _disabledOpacity,
         ),
-        side: const BorderSide(color: AppColors.googleButtonStroke),
+        side: WidgetStateBorderSide.resolveWith(
+          (states) => BorderSide(
+            color: states.contains(WidgetState.disabled)
+                ? AppColors.googleButtonStroke.withValues(
+                    alpha: _disabledOpacity,
+                  )
+                : AppColors.googleButtonStroke,
+          ),
+        ),
         shape: const StadiumBorder(),
-        minimumSize: const Size(0, _minHeight),
+        minimumSize: const Size(0, AppSizes.minTouchTarget),
         padding: const EdgeInsetsDirectional.only(
           start: _logoLeading,
           end: _textTrailing,

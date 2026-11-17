@@ -26,4 +26,7 @@ abstract final class AppSizes {
 
   /// Avatar da conta no Perfil (override `perfil.md`).
   static const profileAvatar = 72.0;
+
+  /// Altura mínima de um alvo de toque (Material e `MASTER.md`).
+  static const minTouchTarget = 48.0;
 }

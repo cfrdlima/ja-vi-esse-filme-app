@@ -38,7 +38,7 @@ class AccountSection extends StatelessWidget {
       ),
       SessionSignedIn(:final user) => SignedInPanel(
         user: user,
-        action: const _SignOutButton(),
+        onSignOut: () => unawaited(context.read<SessionNotifier>().signOut()),
       ),
       SessionSignOutFailed(:final failure) => SignOutFailedPanel(
         message: failureMessage(AppLocalizations.of(context), failure),
@@ -65,17 +65,4 @@ class AccountSection extends StatelessWidget {
     SessionSignedIn() => 'signedIn',
     SessionSignOutFailed() => 'signOutFailed',
   };
-}
-
-class _SignOutButton extends StatelessWidget {
-  const _SignOutButton();
-
-  @override
-  Widget build(BuildContext context) {
-    return OutlinedButton.icon(
-      onPressed: () => unawaited(context.read<SessionNotifier>().signOut()),
-      icon: const Icon(Icons.logout),
-      label: Text(AppLocalizations.of(context).profileSignOut),
-    );
-  }
 }

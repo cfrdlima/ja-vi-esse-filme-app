@@ -8,12 +8,11 @@ import 'account_avatar.dart';
 /// Bloco da conta logada: nome, e-mail e a ação de sair (override
 /// `perfil.md`).
 class SignedInPanel extends StatelessWidget {
-  const SignedInPanel({required this.user, required this.action, super.key});
+  const SignedInPanel({required this.user, required this.onSignOut, super.key});
 
   final AppUser user;
 
-  /// O "Sair" ou, depois de uma falha no logout, o "Tentar de novo".
-  final Widget action;
+  final VoidCallback onSignOut;
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +51,11 @@ class SignedInPanel extends StatelessWidget {
           ],
         ),
         SizedBox(height: spacing.lg),
-        action,
+        OutlinedButton.icon(
+          onPressed: onSignOut,
+          icon: const Icon(Icons.logout),
+          label: Text(l10n.profileSignOut),
+        ),
       ],
     );
   }

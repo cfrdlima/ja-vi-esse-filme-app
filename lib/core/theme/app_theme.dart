@@ -2,13 +2,14 @@ import 'package:flutter/material.dart';
 
 import 'app_colors.dart';
 import 'app_radii.dart';
+import 'app_sizes.dart';
 import 'app_spacing.dart';
 import 'app_theme_tokens.dart';
 import 'app_typography.dart';
 
 /// `ThemeData` do app, montado a partir dos tokens do `MASTER.md`.
 abstract final class AppTheme {
-  static const _minTouchTarget = Size(64, 48);
+  static const _minTouchTarget = Size(64, AppSizes.minTouchTarget);
   static const _focusedBorderWidth = 2.0;
   static const _scrimOpacity = 0.5;
   // Opacidade padrão do M3 para contornos de componentes desabilitados.
