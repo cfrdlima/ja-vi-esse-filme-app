@@ -9,6 +9,7 @@ String failureMessage(AppLocalizations l10n, Failure failure) =>
       RateLimitFailure() => l10n.failureRateLimit,
       AccountDisabledFailure() => l10n.failureAccountDisabled,
       RecentLoginRequiredFailure() => l10n.failureRecentLoginRequired,
+      SignInRequiredFailure() => l10n.failureSignInRequired,
       UnauthorizedFailure() ||
       NotFoundFailure() ||
       ServerFailure() ||

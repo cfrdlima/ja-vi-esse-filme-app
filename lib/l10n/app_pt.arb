@@ -68,6 +68,8 @@
   "@failureAccountDisabled": { "description": "Login recusado porque a conta foi desativada no Firebase (user-disabled)" },
   "failureRecentLoginRequired": "Por segurança, entre de novo com o Google para continuar.",
   "@failureRecentLoginRequired": { "description": "Ação sensível, como excluir a conta, que pede login recente (requires-recent-login)" },
+  "failureSignInRequired": "Entre com o Google para guardar seus filmes.",
+  "@failureSignInRequired": { "description": "Ação que precisa de conta, como marcar um filme, sem ninguém logado" },
   "failureGeneric": "Algo deu errado. Tente de novo em instantes.",
   "@failureGeneric": { "description": "Qualquer outra falha do TMDB (401, 404, 5xx, resposta inesperada) ou da conta. Neutra: não cita o TMDB" },
   "movieUntitled": "Filme sem título",
