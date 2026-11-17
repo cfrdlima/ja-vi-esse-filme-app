@@ -24,9 +24,6 @@ class AppLocalizationsPt extends AppLocalizations {
   String get shelfTitle => 'Minha estante';
 
   @override
-  String get comingSoon => 'Em breve';
-
-  @override
   String get notFoundTitle => 'Página não encontrada';
 
   @override
@@ -324,4 +321,38 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get profileStaySignedIn => 'Ficar na conta';
+
+  @override
+  String get shelfTabWatched => 'Assistidos';
+
+  @override
+  String get shelfTabWatchlist => 'Quero assistir';
+
+  @override
+  String get shelfTabFavorite => 'Favoritos';
+
+  @override
+  String get shelfLoading => 'Carregando sua Estante';
+
+  @override
+  String get shelfEmptyWatched => 'Nenhum filme assistido ainda.';
+
+  @override
+  String get shelfEmptyWatchlist => 'Nada na lista de quero assistir.';
+
+  @override
+  String get shelfEmptyFavorite => 'Nenhum favorito ainda.';
+
+  @override
+  String get shelfDiscoverAction => 'Descobrir filmes';
+
+  @override
+  String get shelfCopyUpdating => 'Atualizando dados do filme';
+
+  @override
+  String get shelfUpdateFailed => 'Não deu para atualizar a Estante.';
+
+  @override
+  String get shelfSignInBody =>
+      'Entre para guardar os filmes que você viu, quer ver e mais gosta.';
 }

@@ -124,12 +124,6 @@ abstract class AppLocalizations {
   /// **'Minha estante'**
   String get shelfTitle;
 
-  /// Aviso das telas que ainda não foram construídas
-  ///
-  /// In pt, this message translates to:
-  /// **'Em breve'**
-  String get comingSoon;
-
   /// Título da tela de rota desconhecida
   ///
   /// In pt, this message translates to:
@@ -597,6 +591,72 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Ficar na conta'**
   String get profileStaySignedIn;
+
+  /// Aba da Estante com os filmes assistidos
+  ///
+  /// In pt, this message translates to:
+  /// **'Assistidos'**
+  String get shelfTabWatched;
+
+  /// Aba da Estante com os filmes que a pessoa quer assistir
+  ///
+  /// In pt, this message translates to:
+  /// **'Quero assistir'**
+  String get shelfTabWatchlist;
+
+  /// Aba da Estante com os filmes favoritos
+  ///
+  /// In pt, this message translates to:
+  /// **'Favoritos'**
+  String get shelfTabFavorite;
+
+  /// Anúncio do leitor de tela enquanto uma aba da Estante carrega
+  ///
+  /// In pt, this message translates to:
+  /// **'Carregando sua Estante'**
+  String get shelfLoading;
+
+  /// Vazio da aba Assistidos
+  ///
+  /// In pt, this message translates to:
+  /// **'Nenhum filme assistido ainda.'**
+  String get shelfEmptyWatched;
+
+  /// Vazio da aba Quero assistir
+  ///
+  /// In pt, this message translates to:
+  /// **'Nada na lista de quero assistir.'**
+  String get shelfEmptyWatchlist;
+
+  /// Vazio da aba Favoritos
+  ///
+  /// In pt, this message translates to:
+  /// **'Nenhum favorito ainda.'**
+  String get shelfEmptyFavorite;
+
+  /// Botão do vazio da Estante que leva à aba Descobrir
+  ///
+  /// In pt, this message translates to:
+  /// **'Descobrir filmes'**
+  String get shelfDiscoverAction;
+
+  /// Rótulo do pôster na Estante quando a cópia do TMDB venceu e está sendo renovada
+  ///
+  /// In pt, this message translates to:
+  /// **'Atualizando dados do filme'**
+  String get shelfCopyUpdating;
+
+  /// Erro no rodapé da Estante, com os filmes já na tela, ao lado do Tentar de novo
+  ///
+  /// In pt, this message translates to:
+  /// **'Não deu para atualizar a Estante.'**
+  String get shelfUpdateFailed;
+
+  /// Convite para entrar na aba Estante sem conta
+  ///
+  /// In pt, this message translates to:
+  /// **'Entre para guardar os filmes que você viu, quer ver e mais gosta.'**
+  String get shelfSignInBody;
 }
 
 class _AppLocalizationsDelegate
