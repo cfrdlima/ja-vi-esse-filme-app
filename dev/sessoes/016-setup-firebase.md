@@ -29,7 +29,7 @@ Ligar o app ao projeto Firebase `ja-vi-esse-filme`. A sessão roda o `flutterfir
 - [x] GREEN: implementação mínima
 - [x] REFACTOR, mantendo o verde
 - [x] `firebase_core` no `pubspec`, com `Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform)` depois do `registerErrorHandlers()`
-- [ ] Tríade: `flutter analyze`, `flutter test`, `gitleaks` e o app subindo no emulador
+- [x] Tríade: `flutter analyze`, `flutter test`, `gitleaks` e o app subindo no emulador. **Feito:** analyze limpo, 741 testes, gitleaks git sem vazamento, e no emulador o Descobrir carrega os filmes com `FirebaseApp initialization successful` no logcat
 - [x] `security-auditor` (a sessão toca config e chaves). **Aprovado**, sem achado crítico, alto ou médio
 - [ ] `/fechar-sessao`
 
