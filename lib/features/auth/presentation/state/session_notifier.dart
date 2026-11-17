@@ -50,10 +50,23 @@ class SessionNotifier extends ChangeNotifier {
     }
   }
 
+  /// Encerra a sessão. O deslogado chega pelo stream da conta; uma falha na
+  /// limpeza fica visível, porque o usuário precisa saber.
+  Future<void> signOut() async {
+    if (_disposed) return;
+    try {
+      await _repository.signOut();
+    } on Failure catch (failure) {
+      _emit(SessionFailed(failure));
+    }
+  }
+
   // Durante o login, quem decide o estado é o resultado dele: um SignedOut que
-  // chegue no meio não pode esconder o "entrando".
+  // chegue no meio não pode esconder o "entrando". Uma falha já significa
+  // sessão fechada, e o SignedOut que vem depois dela não a esconde.
   void _onAuthState(AuthState authState) {
     if (_signingIn) return;
+    if (_state is SessionFailed && authState is SignedOut) return;
     _emit(switch (authState) {
       SignedOut() => const SessionSignedOut(),
       SignedIn(:final user) => SessionSignedIn(user),

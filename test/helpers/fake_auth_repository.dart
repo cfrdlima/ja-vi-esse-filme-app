@@ -37,9 +37,11 @@ class FakeAuthRepository implements AuthRepository {
   void failSignIn(Object error) =>
       _pendingSignIns.removeAt(0).completeError(error);
 
+  /// Como o contrato manda: emite [SignedOut] antes de a falha subir.
   @override
   Future<void> signOut() async {
     signOutCalls++;
+    emit(const SignedOut());
     if (signOutError case final error?) throw error;
   }
 

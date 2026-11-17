@@ -153,6 +153,17 @@ void main() {
       expect(repository.pendingSignIns, 1);
     });
 
+    test('deve manter a falha se a conta emitir SignedOut depois', () async {
+      final signingIn = notifier.signIn();
+      repository.failSignIn(const NetworkFailure());
+      await signingIn;
+
+      repository.emit(const SignedOut());
+      await pumpEventQueue();
+
+      expect(notifier.state, isA<SessionFailed>());
+    });
+
     test(
       'deve continuar entrando se a conta emitir SignedOut no meio',
       () async {
@@ -164,5 +175,34 @@ void main() {
         expect(notifier.state, isA<SessionSigningIn>());
       },
     );
+  });
+
+  group('signOut', () {
+    setUp(() async {
+      repository.emit(SignedIn(ana));
+      await pumpEventQueue();
+    });
+
+    test('deve pedir o logout à conta', () async {
+      await notifier.signOut();
+
+      expect(repository.signOutCalls, 1);
+    });
+
+    test('deve ficar deslogado depois do logout', () async {
+      await notifier.signOut();
+      await pumpEventQueue();
+
+      expect(notifier.state, isA<SessionSignedOut>());
+    });
+
+    test('deve mostrar a falha do logout mesmo depois do SignedOut', () async {
+      repository.signOutError = const UnexpectedFailure('cache');
+
+      await notifier.signOut();
+      await pumpEventQueue();
+
+      expect(notifier.state, isA<SessionFailed>());
+    });
   });
 }
