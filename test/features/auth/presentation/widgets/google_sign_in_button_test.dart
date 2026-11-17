@@ -43,7 +43,18 @@ void main() {
       final semantics = tester.ensureSemantics();
       await pumpButton(tester, GoogleSignInButton(onPressed: () {}));
 
-      expect(find.bySemanticsLabel(l10n.signInWithGoogle), findsOneWidget);
+      expect(
+        tester.getSemantics(find.byType(OutlinedButton)),
+        matchesSemantics(
+          label: l10n.signInWithGoogle,
+          isButton: true,
+          hasEnabledState: true,
+          isEnabled: true,
+          hasTapAction: true,
+          isFocusable: true,
+          hasFocusAction: true,
+        ),
+      );
       semantics.dispose();
     });
 
@@ -103,7 +114,14 @@ void main() {
       final semantics = tester.ensureSemantics();
       await pumpButton(tester, const GoogleSignInButton.loading());
 
-      expect(find.bySemanticsLabel(l10n.signingInWithGoogle), findsOneWidget);
+      expect(
+        tester.getSemantics(find.bySemanticsLabel(l10n.signingInWithGoogle)),
+        matchesSemantics(
+          label: l10n.signingInWithGoogle,
+          isButton: true,
+          hasEnabledState: true,
+        ),
+      );
       semantics.dispose();
     });
 
