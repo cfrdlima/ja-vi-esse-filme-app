@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:ja_vi_esse_filme/features/shelf/data/gateways/shelf_gateway.dart';
 import 'package:ja_vi_esse_filme/features/shelf/data/models/shelf_movie_model.dart';
 import 'package:ja_vi_esse_filme/features/shelf/domain/entities/movie_copy.dart';
 import 'package:ja_vi_esse_filme/features/shelf/domain/entities/shelf_entry.dart';
@@ -123,6 +124,53 @@ void main() {
       final movie = onShelf(ShelfMovieModel.fromDocument(550, data));
 
       expect(movie.copy.posterPath, isNull);
+    });
+  });
+
+  group('ShelfMovieModel.markFields', () {
+    test('deve marcar com a hora do servidor e renovar a cópia', () {
+      final copy = MovieCopy(
+        movieId: 550,
+        title: 'Clube da Luta',
+        posterPath: '/a.jpg',
+      );
+
+      expect(ShelfMovieModel.markFields(copy, ShelfMark.watchlist), {
+        'watchlistAt': const ServerTime(),
+        'title': const SetField('Clube da Luta'),
+        'posterPath': const SetField('/a.jpg'),
+        'cachedAt': const ServerTime(),
+      });
+    });
+
+    test('deve apagar o posterPath salvo quando o filme não tem pôster', () {
+      final copy = MovieCopy(movieId: 550, title: 'Clube da Luta');
+
+      final fields = ShelfMovieModel.markFields(copy, ShelfMark.favorite);
+
+      expect(fields['posterPath'], const DeleteField());
+    });
+
+    test('deve usar um campo por marca', () {
+      final copy = MovieCopy(movieId: 550, title: 'Filme');
+
+      final fields = {
+        for (final mark in ShelfMark.values)
+          ...ShelfMovieModel.markFields(copy, mark).keys,
+      };
+
+      expect(
+        fields,
+        containsAll(<String>['watchedAt', 'watchlistAt', 'favoriteAt']),
+      );
+    });
+  });
+
+  group('ShelfMovieModel.unmarkFields', () {
+    test('deve apagar só o campo da marca', () {
+      expect(ShelfMovieModel.unmarkFields(ShelfMark.favorite), {
+        'favoriteAt': const DeleteField(),
+      });
     });
   });
 }
