@@ -1,18 +1,36 @@
 rules_version = '2';
 
-// Nega tudo por padrão (decisão 010). Só o que tiver match explícito abre.
+// Nega tudo por padrão (decisão 010). Só o que tiver match explícito abre,
+// e só o dono acessa users/{uid}/…. Testes em firestore/test (decisão 012).
 service cloud.firestore {
   match /databases/{database}/documents {
+
+    function isOwner(uid) {
+      return request.auth != null && request.auth.uid == uid;
+    }
+
+    // Id do TMDB: inteiro positivo, sem zero à esquerda, com até 10 dígitos.
+    function isTmdbId(id) {
+      return id.matches('^[1-9][0-9]{0,9}$');
+    }
+
+    // Provisório até a sessão do modelo de dados do filme (PLANO, Fase 2).
+    // Chaves fixas e tipos fechados limitam o tamanho do documento, a única
+    // barreira contra abuso da cota do Spark até o App Check (decisão 010).
+    function isValidMovie(movie) {
+      let fields = ['watched', 'watchlist', 'favorite'];
+      return movie.keys().hasOnly(fields)
+        && movie.keys().hasAll(fields)
+        && movie.watched is bool
+        && movie.watchlist is bool
+        && movie.favorite is bool;
+    }
+
     match /users/{uid}/movies/{movieId} {
-      allow read, delete: if request.auth != null && request.auth.uid == uid;
-      allow create, update: if request.auth != null
-        && request.auth.uid == uid
-        && movieId.matches('^[1-9][0-9]{0,9}$')
-        && request.resource.data.keys().hasOnly(['watched', 'watchlist', 'favorite'])
-        && request.resource.data.keys().hasAll(['watched', 'watchlist', 'favorite'])
-        && request.resource.data.watched is bool
-        && request.resource.data.watchlist is bool
-        && request.resource.data.favorite is bool;
+      allow read, delete: if isOwner(uid);
+      allow create, update: if isOwner(uid)
+        && isTmdbId(movieId)
+        && isValidMovie(request.resource.data);
     }
   }
 }
