@@ -1,4 +1,8 @@
-const _names = '(?:guest_)?session_id|api_key|request_token|access_token';
+// Do TMDB (`session_id`, `api_key`, `request_token`) e dos tokens do Firebase
+// e do Google, em snake_case ou camelCase (`id_token` e `idToken`).
+const _names =
+    '(?:guest_)?session_id|api_key|request_token|'
+    'access_?token|id_?token|refresh_?token';
 
 // `"session_id": "valor"`, aceitando aspas escapadas dentro do valor.
 final _jsonField = RegExp(

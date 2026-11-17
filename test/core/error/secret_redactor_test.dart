@@ -92,6 +92,32 @@ void main() {
     expect(text, r'{"session_id":"***"}');
   });
 
+  group('tokens do Firebase e do Google', () {
+    test('deve mascarar idToken em JSON', () {
+      final text = redactSecrets('{"idToken": "abc.def.ghi", "ok": true}');
+
+      expect(text, '{"idToken": "***", "ok": true}');
+    });
+
+    test('deve mascarar refreshToken em JSON escapado', () {
+      final text = redactSecrets(r'{\"refreshToken\": \"AMf-vB\"}');
+
+      expect(text, r'{\"refreshToken\": \"***\"}');
+    });
+
+    test('deve mascarar accessToken no toString de um Map', () {
+      final text = redactSecrets('{accessToken: tok-1, providerId: google}');
+
+      expect(text, '{accessToken: ***, providerId: google}');
+    });
+
+    test('deve mascarar id_token na query', () {
+      final text = redactSecrets('/callback?id_token=abc&state=1');
+
+      expect(text, '/callback?id_token=***&state=1');
+    });
+  });
+
   test('deve manter texto sem segredo como está', () {
     final text = redactSecrets('Falha de rede ao buscar filmes');
 
