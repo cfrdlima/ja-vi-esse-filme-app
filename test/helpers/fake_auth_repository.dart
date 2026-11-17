@@ -9,20 +9,35 @@ import 'package:ja_vi_esse_filme/features/auth/domain/repositories/auth_reposito
 class FakeAuthRepository implements AuthRepository {
   final _states = StreamController<AuthState>.broadcast();
   final List<Completer<SignInOutcome>> _pendingSignIns = [];
+  AuthState? _current;
 
   var signOutCalls = 0;
   Object? signOutError;
 
   bool get hasListener => _states.hasListener;
 
-  void emit(AuthState state) => _states.add(state);
+  void emit(AuthState state) {
+    _current = state;
+    _states.add(state);
+  }
 
   void emitError(Object error) => _states.addError(error);
 
   Future<void> close() => _states.close();
 
+  /// Como o contrato manda, quem assina recebe primeiro o estado atual (o
+  /// último [emit]). Antes do primeiro [emit], não há estado: a conta ainda
+  /// está carregando.
   @override
-  Stream<AuthState> get authStateChanges => _states.stream;
+  Stream<AuthState> get authStateChanges => Stream.multi((controller) {
+    if (_current case final current?) controller.add(current);
+    final subscription = _states.stream.listen(
+      controller.add,
+      onError: controller.addError,
+      onDone: controller.close,
+    );
+    controller.onCancel = subscription.cancel;
+  }, isBroadcast: true);
 
   @override
   Future<SignInOutcome> signIn() {
@@ -48,5 +63,5 @@ class FakeAuthRepository implements AuthRepository {
   }
 
   @override
-  Future<void> deleteAccount() => throw UnimplementedError();
+  Future<void> deleteAccount() async => throw UnimplementedError();
 }
