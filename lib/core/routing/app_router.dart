@@ -14,8 +14,9 @@ import '../../features/movies/presentation/state/discover_notifier.dart';
 import '../../features/movies/presentation/state/movie_details_notifier.dart';
 import '../../features/movies/presentation/state/search_notifier.dart';
 import '../../features/profile/presentation/screens/profile_screen.dart';
-import '../../l10n/app_localizations.dart';
-import '../widgets/placeholder_screen.dart';
+import '../../features/shelf/data/sources/tmdb_movie_copy_source.dart';
+import '../../features/shelf/domain/repositories/movie_copy_source.dart';
+import '../../features/shelf/presentation/screens/shelf_screen.dart';
 import 'app_routes.dart';
 import 'app_shell.dart';
 import 'not_found_screen.dart';
@@ -51,7 +52,13 @@ GoRouter createAppRouter({
       ),
       tabBranch(
         path: AppRoutes.shelf,
-        root: _placeholder((l10n) => l10n.shelfTitle),
+        // A renovação das cópias vencidas busca o filme no mesmo TMDB dos
+        // Detalhes (decisão 013).
+        root: Provider<MovieCopySource>(
+          create: (_) => TmdbMovieCopySource(movies: movieRepository),
+          child: const ShelfScreen(),
+        ),
+        routes: [_movieDetailsRoute(movieRepository)],
       ),
       tabBranch(
         path: AppRoutes.profile,
@@ -116,11 +123,3 @@ int? _movieIdOf(String raw) =>
     _digitsOnly.hasMatch(raw) ? int.tryParse(raw, radix: 10) : null;
 
 final _digitsOnly = RegExp(r'^\d+$');
-
-/// O router é montado sem `BuildContext`, então o título só é lido do
-/// catálogo quando a tela é construída. Sai junto com os placeholders na
-/// Fase 1.
-Widget _placeholder(String Function(AppLocalizations) titleOf) => Builder(
-  builder: (context) =>
-      PlaceholderScreen(title: titleOf(AppLocalizations.of(context))),
-);
