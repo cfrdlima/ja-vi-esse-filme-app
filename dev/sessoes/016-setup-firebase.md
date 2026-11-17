@@ -21,7 +21,7 @@ Ligar o app ao projeto Firebase `ja-vi-esse-filme`. A sessão roda o `flutterfir
 - [x] Conferir a versão do `firebase_core` (pub.dev/Context7) e o minSdk exigido contra a decisão 003. Hoje o `build.gradle.kts` usa `flutter.minSdkVersion`. **Feito:** `firebase_core` 5.2.0 pede minSdk 24, igual à decisão 003
 - [x] `flutterfire configure --platforms=android` e conferir no `git status` que os arquivos gerados ficaram fora do git. **Feito:** os dois arquivos ficaram ignorados; o `firebase.json` (sem chave) apareceu como novo
 - [x] Decisão 011: versionar os arquivos (chave restrita antes do commit, com fingerprint no `.gitleaksignore`) ou gerá-los no CI. Registrar também o plano de cobrança. **Feito:** versionar, com Spark
-- [ ] Se versionar: restringir a chave `AIza…` no Google Cloud (pacote + SHA-1, só Identity Toolkit, Token Service e Firestore) antes do commit
+- [x] Se versionar: restringir a chave `AIza…` no Google Cloud (pacote + SHA-1, só Identity Toolkit, Token Service e Firestore) antes do commit. **Feito** pelo usuário antes do `bee97e1`
 - [ ] CI: o build e os testes continuam passando com a escolha da decisão 011
 - [ ] RED: o bootstrap chama o initializer injetado antes do `runApp`
 - [ ] GREEN: implementação mínima
@@ -37,8 +37,14 @@ Ligar o app ao projeto Firebase `ja-vi-esse-filme`. A sessão roda o `flutterfir
 - [011 — Arquivos do Firebase versionados com chave restrita, e plano Spark](../decisoes/011-arquivos-firebase-versionados-e-spark.md)
 
 ## Commits
+- `8823c30` docs: decisão 011 e pré-requisitos da sessão 016
+- `bee97e1` chore: configura o Firebase no Android com firebase_core
+- `f81304e` chore: ignora no gitleaks a chave restrita do Firebase
 
 ## Notas
+- **Integrar esta branch com merge commit**, nunca squash ou rebase: o `.gitleaksignore` usa o hash `bee97e1` (decisão 011).
+- O `gitleaks` não está instalado na máquina. Na sessão foi usado o binário 8.30.1 do CI, com checksum conferido, numa pasta temporária.
+- A CLI do Firebase está logada por padrão em outra conta. Os comandos deste projeto usam `--account` com a conta do projeto.
 - Arquivos que a sessão deve tocar: `pubspec.yaml`/`.lock`, `lib/main.dart` e um bootstrap testável em `core/`, com testes espelhados, `android/settings.gradle.kts` e `android/app/build.gradle.kts` (plugin `google-services`), `.gitignore`/`.gitleaksignore`, `.github/workflows/ci.yml`, `dev/decisoes/011-*.md` e o `CLAUDE.md`.
 - Riscos:
   - o CI quebra se os arquivos ficarem fora do git e não forem gerados lá;

@@ -30,6 +30,7 @@ Sobre o plano:
 ## Consequências
 - Os arquivos saem do `.gitignore`. O CI continua sem secrets do Firebase.
 - Uma chave nova (rotação ou novo `flutterfire configure`) exige a mesma restrição antes do commit, e o fingerprint do `.gitleaksignore` precisa ser trocado.
+- O fingerprint do modo `git` inclui o hash do commit que trouxe a chave. A branch que traz esses arquivos é integrada com **merge commit**, nunca squash ou rebase, para o hash não mudar e o `gitleaks` do CI não falhar na `main`. O `.gitleaksignore` também traz o formato do modo `dir` (sem commit), para a varredura local.
 - Ao criar a assinatura de release (Fase 4), adicionar o SHA-1 e o SHA-256 de release ao app no Firebase e à restrição da chave.
 - Com o Spark, não há Cloud Functions. A exclusão de conta pela web segue o que a decisão 010 prevê (página com o Firebase JS ou pedido por formulário ou e-mail).
 - No Spark, um abuso da cota derruba o app para todos. Até o App Check (Fase 4), os limites de tamanho nas regras do Firestore são a única barreira.
