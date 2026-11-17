@@ -1,6 +1,6 @@
 import { after, before, beforeEach, describe, test } from 'node:test';
 import { assertFails, assertSucceeds } from '@firebase/rules-unit-testing';
-import { doc, setDoc, updateDoc } from 'firebase/firestore';
+import { deleteField, doc, setDoc, updateDoc } from 'firebase/firestore';
 import {
   MOVIE_ID,
   OWNER_UID,
@@ -74,6 +74,20 @@ describe('validação do documento do filme', () => {
     await setDoc(movieRef(MOVIE_ID), validMovie());
 
     await assertFails(updateDoc(movieRef(MOVIE_ID), { extra: 'x' }));
+  });
+
+  test('deve negar uma atualização que remove uma chave obrigatória', async () => {
+    await setDoc(movieRef(MOVIE_ID), validMovie());
+
+    await assertFails(
+      updateDoc(movieRef(MOVIE_ID), { favorite: deleteField() }),
+    );
+  });
+
+  test('deve negar uma atualização com tipo errado', async () => {
+    await setDoc(movieRef(MOVIE_ID), validMovie());
+
+    await assertFails(updateDoc(movieRef(MOVIE_ID), { favorite: 'x' }));
   });
 
   test('deve deixar atualizar um campo permitido', async () => {

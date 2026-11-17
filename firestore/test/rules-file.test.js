@@ -11,7 +11,12 @@ describe('arquivo firestore.rules', () => {
     assert.doesNotMatch(rules, /match\s+\/[^\n]*=\*\*\}/);
   });
 
-  test('não deve ter allow incondicional', () => {
-    assert.doesNotMatch(rules, /if\s+true\b/);
+  test('não deve ter allow com if true', () => {
+    assert.doesNotMatch(rules, /if\s*\(?\s*true\b/);
+  });
+
+  // Sem if, o allow libera o acesso sem condição nenhuma.
+  test('não deve ter allow sem condição', () => {
+    assert.doesNotMatch(rules, /allow\s+[a-z,\s]+;/);
   });
 });

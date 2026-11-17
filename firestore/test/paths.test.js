@@ -43,4 +43,10 @@ describe('caminhos fora de users/{uid}/movies', () => {
 
     await assertFails(setDoc(nested, { a: 1 }));
   });
+
+  test('deve negar a leitura numa subcoleção não listada do dono', async () => {
+    const other = doc(ownerDb(), 'users', OWNER_UID, 'secrets', 'doc');
+
+    await assertFails(getDoc(other));
+  });
 });
