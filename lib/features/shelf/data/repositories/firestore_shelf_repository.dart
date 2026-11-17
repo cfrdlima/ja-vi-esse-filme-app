@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 
 import '../../../../core/error/failures.dart';
 import '../../domain/entities/movie_copy.dart';
@@ -47,13 +48,21 @@ class FirestoreShelfRepository implements ShelfRepository {
                 sink.addError(_toFailure(error), stackTrace),
           ),
         );
-    final watch = _OpenWatch(source);
-    _openWatches.add(watch);
-    watch.onEnd = () => _openWatches.remove(watch);
+    // Contado só com alguém ouvindo: antes disso, o Firestore nem foi
+    // assinado, e não há o que fechar.
+    late final _OpenWatch watch;
+    watch = _OpenWatch(
+      source,
+      onStart: () => _openWatches.add(watch),
+      onEnd: () => _openWatches.remove(watch),
+    );
     return watch.stream;
   }
 
   final Set<_OpenWatch> _openWatches = {};
+
+  @visibleForTesting
+  int get openStreamCount => _openWatches.length;
 
   /// Além do contrato, o Firestore deixa de ser ouvido antes do
   /// `terminate()`.
@@ -140,15 +149,22 @@ Failure _toFailure(Object error) => switch (error) {
 /// Um stream do `watchMovie` que o [FirestoreShelfRepository.closeStreams]
 /// consegue encerrar por fora.
 final class _OpenWatch {
-  _OpenWatch(Stream<ShelfEntry> source) {
+  _OpenWatch(
+    Stream<ShelfEntry> source, {
+    required void Function() onStart,
+    required this._onEnd,
+  }) {
     _controller = StreamController<ShelfEntry>(
-      onListen: () => _subscription = source.listen(
-        _controller.add,
-        onError: _controller.addError,
-        onDone: _end,
-      ),
+      onListen: () {
+        onStart();
+        _subscription = source.listen(
+          _controller.add,
+          onError: _controller.addError,
+          onDone: _end,
+        );
+      },
       onCancel: () {
-        onEnd?.call();
+        _onEnd();
         return _subscription?.cancel();
       },
     );
@@ -156,23 +172,22 @@ final class _OpenWatch {
 
   late final StreamController<ShelfEntry> _controller;
   StreamSubscription<ShelfEntry>? _subscription;
-  void Function()? onEnd;
+  final void Function() _onEnd;
 
   Stream<ShelfEntry> get stream => _controller.stream;
 
   void _end() {
-    onEnd?.call();
+    _onEnd();
     unawaited(_controller.close());
   }
 
+  /// Para de ouvir o Firestore, que é o que o `terminate()` precisa. O fim
+  /// do stream não é esperado: com quem ouve pausado, ele só chegaria na
+  /// retomada, e o logout ficaria preso.
   Future<void> close() async {
-    await _subscription?.cancel();
+    final subscription = _subscription;
     _subscription = null;
-    // Sem ouvinte, o `close()` nunca completaria.
-    if (_controller.hasListener) {
-      await _controller.close();
-    } else {
-      unawaited(_controller.close());
-    }
+    await subscription?.cancel();
+    unawaited(_controller.close());
   }
 }
