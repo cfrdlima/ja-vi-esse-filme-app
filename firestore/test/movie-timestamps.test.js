@@ -2,6 +2,7 @@ import { after, before, beforeEach, describe, test } from 'node:test';
 import { assertFails, assertSucceeds } from '@firebase/rules-unit-testing';
 import {
   Timestamp,
+  deleteField,
   doc,
   serverTimestamp,
   setDoc,
@@ -9,6 +10,7 @@ import {
 } from 'firebase/firestore';
 import {
   MOVIE_ID,
+  POSTER_PATH,
   OWNER_UID,
   createTestEnvironment,
   googleContext,
@@ -101,5 +103,38 @@ describe('datas do documento do filme', () => {
     await assertSucceeds(
       updateDoc(movieRef(), { watchlistAt: serverTimestamp() }),
     );
+  });
+
+  // A escrita exata do markFields (ShelfMovieModel): set com merge, a marca
+  // e o cachedAt do servidor, e o posterPath apagado quando não há pôster.
+  function markWrite(posterPath) {
+    return {
+      favoriteAt: serverTimestamp(),
+      title: 'Clube da Luta',
+      posterPath: posterPath ?? deleteField(),
+      cachedAt: serverTimestamp(),
+    };
+  }
+
+  test('deve aceitar o merge do app que cria o filme sem pôster', async () => {
+    await assertSucceeds(setDoc(movieRef(), markWrite(), { merge: true }));
+  });
+
+  test('deve aceitar o merge do app que cria o filme com pôster', async () => {
+    await assertSucceeds(
+      setDoc(movieRef(), markWrite(POSTER_PATH), { merge: true }),
+    );
+  });
+
+  test('deve aceitar o merge do app que apaga o pôster salvo', async () => {
+    await setDoc(movieRef(), validMovie());
+
+    await assertSucceeds(setDoc(movieRef(), markWrite(), { merge: true }));
+  });
+
+  test('deve negar apagar o posterPath sem renovar o cachedAt', async () => {
+    await setDoc(movieRef(), validMovie());
+
+    await assertFails(updateDoc(movieRef(), { posterPath: deleteField() }));
   });
 });
