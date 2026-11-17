@@ -406,6 +406,12 @@ abstract class AppLocalizations {
   /// **'Carregando a conta'**
   String get profileAccountLoading;
 
+  /// Texto do botão de login, traduzido de "Sign in with Google" como as diretrizes de marca do Google permitem
+  ///
+  /// In pt, this message translates to:
+  /// **'Entrar com o Google'**
+  String get signInWithGoogle;
+
   /// Título da tela Sobre
   ///
   /// In pt, this message translates to:

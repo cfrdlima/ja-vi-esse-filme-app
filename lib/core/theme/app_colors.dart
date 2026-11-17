@@ -24,6 +24,12 @@ abstract final class AppColors {
   static const scrim = Color(0xFF000000);
   static const focusRing = Color(0xFFFFFFFF);
 
+  // Tema Dark do botão "Entrar com o Google". São cores da marca do Google,
+  // fora da paleta do app (override `perfil.md`).
+  static const googleButtonFill = Color(0xFF131314);
+  static const googleButtonStroke = Color(0xFF8E918F);
+  static const googleButtonText = Color(0xFFE3E3E3);
+
   static const darkScheme = ColorScheme(
     brightness: Brightness.dark,
     primary: gold,

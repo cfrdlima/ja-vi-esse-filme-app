@@ -220,6 +220,9 @@ class AppLocalizationsPt extends AppLocalizations {
   String get profileAccountLoading => 'Carregando a conta';
 
   @override
+  String get signInWithGoogle => 'Entrar com o Google';
+
+  @override
   String get aboutTitle => 'Sobre';
 
   @override

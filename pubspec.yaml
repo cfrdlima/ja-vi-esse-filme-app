@@ -34,9 +34,12 @@ flutter:
   assets:
     # Logo oficial do TMDB, rasterizado do SVG em 1x, 2x e 3x (sessão 014).
     - assets/images/tmdb_logo.png
+    # "G" oficial do Google (g-logo.png das diretrizes de marca, sessão 020).
+    - assets/images/google_g_logo.png
     # Licenças das fontes, lidas pela página de licenças (LicenseRegistry).
     - assets/fonts/Inter-OFL.txt
     - assets/fonts/PlayfairDisplay-OFL.txt
+    - assets/fonts/GoogleSans-OFL.txt
 
   # Fontes variáveis (OFL, google/fonts): o FontWeight controla o eixo wght.
   fonts:
@@ -46,3 +49,8 @@ flutter:
     - family: Inter
       fonts:
         - asset: assets/fonts/Inter-Variable.ttf
+    # Recorte Latin com wght=500 fixo, só para o botão do Google (sessão 020).
+    - family: GoogleSans
+      fonts:
+        - asset: assets/fonts/GoogleSans-Medium.ttf
+          weight: 500
