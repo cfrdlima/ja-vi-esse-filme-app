@@ -1,9 +1,13 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../auth/presentation/state/session_notifier.dart';
 import '../../../auth/presentation/state/session_state.dart';
+import '../../../auth/presentation/widgets/google_sign_in_button.dart';
 import 'account_skeleton.dart';
+import 'signed_out_panel.dart';
 
 /// Bloco da conta no Perfil, que segue o estado da sessão.
 class AccountSection extends StatelessWidget {
@@ -16,6 +20,11 @@ class AccountSection extends StatelessWidget {
     );
     return switch (state) {
       SessionLoading() => const AccountSkeleton(),
+      SessionSignedOut() => SignedOutPanel(
+        action: GoogleSignInButton(
+          onPressed: () => unawaited(context.read<SessionNotifier>().signIn()),
+        ),
+      ),
       _ => const SizedBox.shrink(),
     };
   }

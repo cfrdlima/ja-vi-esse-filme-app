@@ -406,6 +406,18 @@ abstract class AppLocalizations {
   /// **'Carregando a conta'**
   String get profileAccountLoading;
 
+  /// Título do Perfil sem conta, acima do botão Entrar com o Google
+  ///
+  /// In pt, this message translates to:
+  /// **'Entre para guardar seus filmes'**
+  String get profileSignedOutTitle;
+
+  /// Texto de apoio do Perfil sem conta: o que a conta guarda e que o login é opcional
+  ///
+  /// In pt, this message translates to:
+  /// **'Com a conta, o que você já viu, quer ver e favoritou fica guardado e aparece em qualquer aparelho. Descobrir e Buscar continuam funcionando sem conta.'**
+  String get profileSignedOutBody;
+
   /// Texto do botão de login, traduzido de "Sign in with Google" como as diretrizes de marca do Google permitem
   ///
   /// In pt, this message translates to:

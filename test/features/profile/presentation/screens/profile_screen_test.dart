@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ja_vi_esse_filme/core/l10n/app_locale.dart';
+import 'package:ja_vi_esse_filme/features/auth/domain/entities/auth_state.dart';
 import 'package:ja_vi_esse_filme/features/auth/presentation/state/session_notifier.dart';
 import 'package:ja_vi_esse_filme/features/profile/presentation/screens/profile_screen.dart';
 import 'package:ja_vi_esse_filme/l10n/app_localizations.dart';
@@ -94,6 +95,37 @@ void main() {
       await pumpProfile(tester);
 
       expect(find.bySemanticsLabel(l10n.profileAccountLoading), findsOneWidget);
+    });
+  });
+
+  group('deslogado', () {
+    setUp(() => repository.emit(const SignedOut()));
+
+    testWidgets('deve convidar a entrar para guardar os filmes', (
+      tester,
+    ) async {
+      await pumpProfile(tester);
+      await tester.pump();
+
+      expect(find.text(l10n.profileSignedOutTitle), findsOneWidget);
+    });
+
+    testWidgets('deve dizer o que a conta guarda', (tester) async {
+      await pumpProfile(tester);
+      await tester.pump();
+
+      expect(find.text(l10n.profileSignedOutBody), findsOneWidget);
+    });
+
+    testWidgets('deve pedir o login ao tocar em Entrar com o Google', (
+      tester,
+    ) async {
+      await pumpProfile(tester);
+      await tester.pump();
+
+      await tester.tap(find.text(l10n.signInWithGoogle));
+
+      expect(repository.pendingSignIns, 1);
     });
   });
 }
