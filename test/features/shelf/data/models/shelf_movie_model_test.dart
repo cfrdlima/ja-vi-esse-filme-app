@@ -173,4 +173,29 @@ void main() {
       });
     });
   });
+
+  group('ShelfMovieModel.copyFields', () {
+    test('deve regravar a cópia e o cachedAt sem tocar nas marcas', () {
+      final copy = MovieCopy(
+        movieId: 550,
+        title: 'Clube da Luta',
+        posterPath: '/a.jpg',
+      );
+
+      expect(ShelfMovieModel.copyFields(copy), {
+        'title': const SetField('Clube da Luta'),
+        'posterPath': const SetField('/a.jpg'),
+        'cachedAt': const ServerTime(),
+      });
+    });
+
+    test('deve apagar o pôster salvo quando a cópia nova não tem', () {
+      final copy = MovieCopy(movieId: 550, title: 'Clube da Luta');
+
+      expect(
+        ShelfMovieModel.copyFields(copy)['posterPath'],
+        const DeleteField(),
+      );
+    });
+  });
 }

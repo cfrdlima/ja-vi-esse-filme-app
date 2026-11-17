@@ -36,6 +36,13 @@ void main() {
     );
   });
 
+  test('deve falhar a renovação da cópia com SignInRequiredFailure', () async {
+    await expectLater(
+      repository.renewCopy(copy),
+      throwsA(isA<SignInRequiredFailure>()),
+    );
+  });
+
   test('deve concluir o fechamento, porque não há stream aberto', () async {
     await expectLater(repository.closeStreams(), completes);
   });

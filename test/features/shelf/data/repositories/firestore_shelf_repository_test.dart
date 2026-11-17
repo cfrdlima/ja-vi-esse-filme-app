@@ -251,6 +251,44 @@ void main() {
     );
   });
 
+  group('renewCopy', () {
+    test('deve atualizar o filme do usuário logado', () async {
+      await repository.renewCopy(copy);
+
+      expect(gateway.calls, ['update alice 550']);
+    });
+
+    test('deve atualizar só a cópia do model', () async {
+      await repository.renewCopy(copy);
+
+      expect(gateway.lastFields, ShelfMovieModel.copyFields(copy));
+    });
+
+    test('deve aceitar o documento que já não existe', () async {
+      gateway.updateFailure = _firestoreError('not-found');
+
+      await expectLater(repository.renewCopy(copy), completes);
+    });
+
+    test('deve falhar com SignInRequiredFailure sem ninguém logado', () async {
+      uid = null;
+
+      await expectLater(
+        repository.renewCopy(copy),
+        throwsA(isA<SignInRequiredFailure>()),
+      );
+    });
+
+    test('deve traduzir o erro do Firestore', () async {
+      gateway.updateFailure = _firestoreError('resource-exhausted');
+
+      await expectLater(
+        repository.renewCopy(copy),
+        throwsA(isA<RateLimitFailure>()),
+      );
+    });
+  });
+
   group('tradução dos erros do Firestore', () {
     for (final (code, matcher) in [
       ('unavailable', isA<NetworkFailure>()),

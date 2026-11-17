@@ -43,6 +43,12 @@ abstract final class ShelfMovieModel {
   /// cópia não misturar o título novo com o pôster antigo.
   static Map<String, FieldWrite> markFields(MovieCopy copy, ShelfMark mark) => {
     _fieldOf(mark): const ServerTime(),
+    ...copyFields(copy),
+  };
+
+  /// Atualização que regrava só a [copy] com o `cachedAt` do servidor, para
+  /// renovar o prazo dela sem mexer nas marcas (decisão 013).
+  static Map<String, FieldWrite> copyFields(MovieCopy copy) => {
     'title': SetField(copy.title),
     'posterPath': switch (copy.posterPath) {
       final String path => SetField(path),

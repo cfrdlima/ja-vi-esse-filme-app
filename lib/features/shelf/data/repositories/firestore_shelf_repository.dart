@@ -123,6 +123,20 @@ class FirestoreShelfRepository implements ShelfRepository {
     }
   }
 
+  @override
+  Future<void> renewCopy(MovieCopy copy) => _write((uid) async {
+    try {
+      await _gateway.updateMovie(
+        uid,
+        copy.movieId,
+        ShelfMovieModel.copyFields(copy),
+      );
+    } on FirebaseException catch (e) {
+      // O filme saiu da Estante enquanto a cópia nova vinha do TMDB.
+      if (e.code != 'not-found') rethrow;
+    }
+  });
+
   /// Um `Error` é bug e sobe como está, para o relatório de erros.
   Future<void> _write(Future<void> Function(String uid) write) async {
     final uid = _currentUid();

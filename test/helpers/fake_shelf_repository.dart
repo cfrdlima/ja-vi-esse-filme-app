@@ -73,6 +73,18 @@ class FakeShelfRepository implements ShelfRepository {
     return write._completer.future;
   }
 
+  /// As cópias passadas ao `renewCopy`, em ordem.
+  final List<MovieCopy> renewedCopies = [];
+
+  /// Com `true`, o `renewCopy` nunca completa, como offline.
+  bool holdRenewals = false;
+
+  @override
+  Future<void> renewCopy(MovieCopy copy) {
+    renewedCopies.add(copy);
+    return holdRenewals ? Completer<void>().future : Future.value();
+  }
+
   var closeStreamsCalls = 0;
 
   @override
