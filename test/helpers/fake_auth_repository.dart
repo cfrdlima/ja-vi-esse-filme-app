@@ -14,6 +14,9 @@ class FakeAuthRepository implements AuthRepository {
   var signOutCalls = 0;
   Object? signOutError;
 
+  /// Com um completer aqui, o logout fica pendente até o teste completá-lo.
+  Completer<void>? signOutGate;
+
   bool get hasListener => _states.hasListener;
 
   void emit(AuthState state) {
@@ -58,6 +61,7 @@ class FakeAuthRepository implements AuthRepository {
   @override
   Future<void> signOut() async {
     signOutCalls++;
+    await signOutGate?.future;
     emit(const SignedOut());
     if (signOutError case final error?) throw error;
   }

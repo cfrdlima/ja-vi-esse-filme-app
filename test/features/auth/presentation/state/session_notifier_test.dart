@@ -291,6 +291,15 @@ void main() {
 
       expect(repository.signOutCalls, 0);
     });
+
+    test('deve ignorar um segundo logout enquanto o primeiro não termina', () {
+      repository.signOutGate = Completer<void>();
+      unawaited(notifier.signOut());
+
+      unawaited(notifier.signOut());
+
+      expect(repository.signOutCalls, 1);
+    });
   });
 
   test('deve ignorar um login que termina depois do dispose', () async {

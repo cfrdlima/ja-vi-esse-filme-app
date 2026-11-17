@@ -26,6 +26,7 @@ class SessionNotifier extends ChangeNotifier {
   SessionState get state => _state;
 
   bool _signingIn = false;
+  bool _signingOut = false;
 
   /// O último estado da conta que chegou durante o login, guardado para o
   /// fim dele. `null` quando não chegou nenhum.
@@ -68,11 +69,14 @@ class SessionNotifier extends ChangeNotifier {
   /// limpeza fica visível, porque o usuário precisa saber. Com um login em
   /// andamento, não faz nada: o resultado dele ainda vai decidir o estado.
   Future<void> signOut() async {
-    if (_disposed || _signingIn) return;
+    if (_disposed || _signingIn || _signingOut) return;
+    _signingOut = true;
     try {
       await _repository.signOut();
     } on Failure catch (failure) {
       _emit(SessionSignOutFailed(failure));
+    } finally {
+      _signingOut = false;
     }
   }
 
