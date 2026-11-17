@@ -7,9 +7,9 @@ Ligar a aba Perfil ao `SessionNotifier`: deslogado com o botão "Entrar com o Go
 
 ## Checklist
 ### Preparação
-- [ ] Consultar a `ui-ux-pro-max` (stack Flutter) para a tela de perfil e gerar o override `design-system/ja-vi-esse-filme/pages/perfil.md`
-- [ ] Conferir as diretrizes de marca do Google para o botão (logo "G" oficial, cores, texto "Entrar com o Google", margens)
-- [ ] Asset oficial do "G" em PNG (sem `flutter_svg`), declarado no `pubspec.yaml`
+- [x] Consultar a `ui-ux-pro-max` (stack Flutter) para a tela de perfil e gerar o override `design-system/ja-vi-esse-filme/pages/perfil.md`
+- [x] Conferir as diretrizes de marca do Google para o botão (logo "G" oficial, cores, texto "Entrar com o Google", margens). **Feito:** tema Dark (`#131314`, borda `#8E918F`, texto `#E3E3E3`), pílula, 12/10/12dp, "G" de 20dp, Google Sans Medium 14/20. Os PNGs prontos trazem o texto em inglês, então o botão é nosso com o `g-logo.png` oficial
+- [ ] Asset oficial do "G" em PNG (sem `flutter_svg`), declarado no `pubspec.yaml`. Copiados para `assets/` (`google_g_logo.png`, `GoogleSans-Medium.ttf` e `GoogleSans-OFL.txt`); o `pubspec.yaml` e o `LicenseRegistry` entram no ciclo do botão
 
 ### Pendências da 019 (RED/GREEN/REFACTOR por comportamento)
 - [ ] `FakeAuthRepository` reemite o estado atual ao assinar (S14)
@@ -36,6 +36,7 @@ Ligar a aba Perfil ao `SessionNotifier`: deslogado com o botão "Entrar com o Go
 - [ ] `/fechar-sessao`
 
 ## Decisões
+- Com o usuário, na abertura: o botão usa a **Google Sans recortada** (Latin, `wght=500`, 52 KB, OFL sem Reserved Font Name), feita com o `fonttools` fora do app; a foto da conta **sai do cache no logout** nesta sessão; a foto só carrega de **`https` em `googleusercontent.com`**. São assets e regras de UI, sem dependência nova, então não viram arquivo em `dev/decisoes/`.
 
 ## Commits
 
