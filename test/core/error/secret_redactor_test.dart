@@ -132,6 +132,26 @@ void main() {
     });
   });
 
+  group('e-mail', () {
+    test('deve mascarar e-mail no texto', () {
+      final text = redactSecrets('conta ana.silva+filmes@gmail.com desativada');
+
+      expect(text, 'conta *** desativada');
+    });
+
+    test('deve mascarar e-mail com subdomínio', () {
+      final text = redactSecrets('email: ana@mail.exemplo.com.br.');
+
+      expect(text, 'email: ***.');
+    });
+
+    test('deve manter arroba sem domínio, como uma menção', () {
+      final text = redactSecrets('falou com @ana sobre o filme');
+
+      expect(text, 'falou com @ana sobre o filme');
+    });
+  });
+
   test('deve manter texto sem segredo como está', () {
     final text = redactSecrets('Falha de rede ao buscar filmes');
 
