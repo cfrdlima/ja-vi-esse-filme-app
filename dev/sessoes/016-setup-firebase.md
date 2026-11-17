@@ -22,13 +22,13 @@ Ligar o app ao projeto Firebase `ja-vi-esse-filme`. A sessão roda o `flutterfir
 - [x] `flutterfire configure --platforms=android` e conferir no `git status` que os arquivos gerados ficaram fora do git. **Feito:** os dois arquivos ficaram ignorados; o `firebase.json` (sem chave) apareceu como novo
 - [x] Decisão 011: versionar os arquivos (chave restrita antes do commit, com fingerprint no `.gitleaksignore`) ou gerá-los no CI. Registrar também o plano de cobrança. **Feito:** versionar, com Spark
 - [x] Se versionar: restringir a chave `AIza…` no Google Cloud (pacote + SHA-1, só Identity Toolkit, Token Service e Firestore) antes do commit. **Feito** pelo usuário antes do `bee97e1`
-- [ ] CI: o build e os testes continuam passando com a escolha da decisão 011
-- [ ] RED: o bootstrap chama o initializer injetado antes do `runApp`
-- [ ] GREEN: implementação mínima
-- [ ] RED: uma falha na inicialização vai para o `report` e não derruba os handlers nem deixa tela branca
-- [ ] GREEN: implementação mínima
-- [ ] REFACTOR, mantendo o verde
-- [ ] `firebase_core` no `pubspec`, com `Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform)` depois do `registerErrorHandlers()`
+- [x] CI: o build e os testes continuam passando com a escolha da decisão 011. **Feito localmente:** format, analyze e 741 testes; o CI confirma no push
+- [x] RED: o bootstrap chama o initializer injetado antes do `runApp`
+- [x] GREEN: implementação mínima
+- [x] RED: uma falha na inicialização vai para o `report` e não derruba os handlers nem deixa tela branca
+- [x] GREEN: implementação mínima
+- [x] REFACTOR, mantendo o verde
+- [x] `firebase_core` no `pubspec`, com `Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform)` depois do `registerErrorHandlers()`
 - [ ] Tríade: `flutter analyze`, `flutter test`, `gitleaks` e o app subindo no emulador
 - [ ] `security-auditor` (a sessão toca config e chaves)
 - [ ] `/fechar-sessao`
@@ -42,6 +42,7 @@ Ligar o app ao projeto Firebase `ja-vi-esse-filme`. A sessão roda o `flutterfir
 - `f81304e` chore: ignora no gitleaks a chave restrita do Firebase
 
 ## Notas
+- No emulador, o `FirebaseApp initialization successful` apareceu no logcat, sem erro reportado pelo bootstrap. Sem o `env/dev.json`, o app para no splash com `ConfigException: TMDB_BASE_URL ausente`, lançada ao montar o repositório antes do `runApp`. Isso já acontecia antes desta sessão, não vem do Firebase e já está no `BACKLOG.md` (sessão 008).
 - **Integrar esta branch com merge commit**, nunca squash ou rebase: o `.gitleaksignore` usa o hash `bee97e1` (decisão 011).
 - O `gitleaks` não está instalado na máquina. Na sessão foi usado o binário 8.30.1 do CI, com checksum conferido, numa pasta temporária.
 - A CLI do Firebase está logada por padrão em outra conta. Os comandos deste projeto usam `--account` com a conta do projeto.
