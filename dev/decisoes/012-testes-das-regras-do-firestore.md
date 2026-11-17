@@ -26,4 +26,6 @@ Opção 1, isolada em `firestore/` (o app Flutter não vê nada disso):
 - Dependências npm só de desenvolvimento, que não vão para o APK. O `npm audit` acusa vulnerabilidades transitivas (moderadas e altas) dentro da `firebase-tools`. Elas não têm correção sem voltar para a 13.x, e o código só roda localmente contra o emulador, com o projeto `demo-`. Revisar a cada atualização da `firebase-tools`.
 - `node_modules/` e os logs do emulador ficam no `.gitignore`.
 - Quem for rodar os testes das regras precisa de Node 22 e de um JDK 21 (`JAVA_HOME`).
+- O CI guarda em cache o jar do emulador (`~/.cache/firebase/emulators`), que roda no runner. O risco de um cache adulterado é aceito: o cache de um PR fica restrito à ref dele e não chega à `main`, o workflow usa `pull_request` (nunca `pull_request_target`), `contents: read`, nenhum secret e `persist-credentials: false`. Se o job ganhar algum secret, o cache passa a ser só restaurado nos PRs e salvo apenas no push para a `main`.
+- O repositório não tem `.firebaserc`, para nenhum comando sem `--project` apontar para produção. O deploy das regras sempre passa o projeto explícito: `firebase deploy --only firestore:rules --project ja-vi-esse-filme`.
 - A sessão do modelo de dados (Fase 2) e a das listas (Fase 3) estendem as regras e estes testes juntas.
