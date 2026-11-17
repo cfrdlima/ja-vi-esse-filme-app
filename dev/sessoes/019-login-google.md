@@ -1,6 +1,6 @@
 # Sessão 019 — Fase 2: login com o Google
 
-**Data**: 2026-11-17 · **Branch**: `feature/019-login-google` · **Status**: aberta
+**Data**: 2026-11-17 · **Branch**: `feature/019-login-google` · **Status**: fechada
 
 ## Objetivo
 Entrar com o Google pelo `google_sign_in` nativo, só com a identidade básica e sem escopos extras, passando a credencial ao `FirebaseAuth`. A camada `data` traduz os erros do SDK em falhas tipadas, por trás de adaptadores finos testados com fakes. O `AuthNotifier` e o fake do `AuthRepository` também entram, montados no `main.dart`, e as pendências da 018 são resolvidas na mesma entrega. A limpeza do Firestore no logout e a exclusão da conta ficam para os itens próprios do plano.
@@ -46,8 +46,8 @@ Entrar com o Google pelo `google_sign_in` nativo, só com a identidade básica e
 
 ### Entrega
 - [x] Tríade: format sem mudança, analyze limpo e 842 testes verdes. **O gitleaks ficou pendente:** o binário não está instalado nesta máquina, mas o CI roda ele no PR
-- [ ] `/revisar` (`code-reviewer` e `security-auditor`, porque toca auth, storage e manifest)
-- [ ] `/fechar-sessao`
+- [x] `/revisar` (`code-reviewer` e `security-auditor`, porque toca auth, storage e manifest). **Feito:** o `security-auditor` aprovou; o `code-reviewer` achou 1 bloqueante e 6 importantes, todos resolvidos (ver abaixo)
+- [x] `/fechar-sessao`. **Feito:** format sem mudança (158 arquivos), analyze limpo, 861 testes verdes. O gitleaks não está instalado aqui e fica para o CI do PR
 
 ### Achados aceitos do `/revisar`
 - [x] Bloqueante (1): sem o Firebase (falha no `initializeApp`), a composição não pode derrubar o app. **Feito:** o `UnavailableAuthRepository` emite `SignedOut`, o login e a exclusão falham com `UnexpectedFailure` e o logout conclui. O `composeAuthRepository` (`@visibleForTesting`, no `main.dart`) só chama o `connect` com o `Firebase.apps` não vazio, e um teste prova que, sem Firebase, ele nem toca no SDK
@@ -88,9 +88,12 @@ Nenhuma nova. As dependências `firebase_auth` e `google_sign_in` já estão na 
 - `6e876bf` fix: falha da sessão diz se foi no login ou no logout
 - `54c5d60` test: erro do Firebase vence o do Google ao sair em silêncio
 - `08fbb23` test: SessionNotifier ignora login depois do dispose
+- `44468a4` docs: achados do /revisar resolvidos na sessão 019
+- `docs: fecha sessão 019` (este fechamento)
 
 ## Notas
-- **Achados do `/revisar` adiados** (com o ok do usuário), para a sessão do Perfil ou para o `BACKLOG.md`:
+- **Depois das correções do `/revisar`, o app não foi aberto de novo no emulador.** O login real foi verificado antes delas. As correções mudam a composição e o estado, e não a UI, e estão cobertas por teste. Na sessão do Perfil, a verificação no emulador acontece de qualquer forma, com o botão de verdade.
+- **Achados do `/revisar` adiados** (com o ok do usuário), levados para o `BACKLOG.md`:
   - (8) teste da primeira falha no `signOut`, com as duas falhando;
   - (9) sair do Google quando o `idToken` vem nulo;
   - (10) tentar de novo o `initialize()` do Google depois de uma falha;

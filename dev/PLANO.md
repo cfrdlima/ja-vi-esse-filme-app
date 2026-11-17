@@ -3,9 +3,9 @@
 > Fonte da verdade do que construir. Atualizado por `/fechar-sessao`.
 
 ## Última sessão
-**018 — Fase 2: domínio da conta** (fechada em 2026-11-17) · [log](sessoes/018-dominio-conta.md)
-`lib/features/auth/domain/` em Dart puro: `AppUser` sem dados pessoais no `toString`, os estados selados `AuthState` e `SignInOutcome` (o cancelamento não é erro), as falhas de conta desativada e login recente exigido, e o contrato do `AuthRepository` com a ordem da decisão 010. Um teste por lista branca garante que nenhum `domain/` importa nada fora do Dart puro.
-**Próximo passo:** o login com o Google (`data` sobre o `firebase_auth` e o `google_sign_in`, fake do `AuthRepository` e estado), com as pendências do log da 018.
+**019 — Fase 2: login com o Google** (fechada em 2026-11-17) · [log](sessoes/019-login-google.md)
+O login com o Google funciona de ponta a ponta: o `google_sign_in` nativo, sem escopos extras, passa a credencial ao `FirebaseAuth`, por trás de adaptadores finos. O `FirebaseAuthRepository` traduz os erros só pelo código, o `SessionNotifier` cobre carregando, deslogado, entrando, logado e falha de login ou de logout, e o app sobe mesmo sem Firebase. Entraram também as pendências da 018: o `uid` validado, o redator com JWT e e-mail, a mensagem genérica neutra e as regras de backup.
+**Próximo passo:** o Perfil logado e deslogado, com o botão "Entrar com Google" sobre o `SessionNotifier`. Os achados adiados da 019 (fake com reemissão, guardas do `signOut`) estão no `BACKLOG.md`.
 
 ## Fase 0 — Fundação
 - [x] Criar projeto (`io.github.cfrdlima.ja_vi_esse_filme`), `analysis_options.yaml`, `.gitignore` com `env/*.json` (exceto `example.json`)
@@ -52,13 +52,15 @@
 
   Vem antes do login e de qualquer escrita. (sessão 017)
 - [x] Domínio da conta: entidade do usuário (`uid`, nome, e-mail, foto), contrato do repositório (usuário atual em stream, entrar, sair e excluir) e falhas tipadas (login cancelado, sem rede, conta desativada). O cancelamento não é erro (sessão 018)
-- [ ] Login com o Google: `google_sign_in` nativo (só a identidade básica, sem escopos extras) e credencial no `FirebaseAuth`, injetado no `main.dart`, com fakes nos testes. Na mesma entrega:
+- [x] Login com o Google: `google_sign_in` nativo (só a identidade básica, sem escopos extras) e credencial no `FirebaseAuth`, injetado no `main.dart`, com fakes nos testes. Na mesma entrega:
   - o `data_extraction_rules.xml` (+ `fullBackupContent`), excluindo pelo menos `sharedpref` (token do Auth) e `database` (cache do Firestore) do `cloud-backup` e do `device-transfer`;
   - o redator de segredos com JWT (`eyJ…`), `ya29.…`, `idToken`, `accessToken`, `refreshToken` e e-mail.
   - o fake do `AuthRepository` em `test/helpers/`, com o formato que os testes do estado pedirem;
   - o `failureGeneric` neutro, porque hoje ele cita o TMDB;
   - o `AppUser` recusando `uid` com `/` ou espaço nas pontas, e a `data` montando o caminho com `collection('users').doc(uid)`;
   - a tradução dos erros do SDK sem `e.message`, `e.email` nem `e.credential` (pendências da sessão 018).
+
+  (sessão 019)
 - [ ] Perfil logado e deslogado: botão "Entrar com Google" (diretrizes de marca do Google), nome e foto, e os 4 estados (consultar a `ui-ux-pro-max`)
 - [ ] Login opcional: uma ação que precisa de conta leva ao login e volta para onde estava
 - [ ] Logout na ordem da decisão 010: cancelar os streams; `terminate()`; `clearPersistence()`; `signOut()` do Firebase e do Google; recriar a instância. Teste: a falha ao limpar o cache não deixa a sessão aberta
