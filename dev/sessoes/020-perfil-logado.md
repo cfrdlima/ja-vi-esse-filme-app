@@ -9,7 +9,7 @@ Ligar a aba Perfil ao `SessionNotifier`: deslogado com o botão "Entrar com o Go
 ### Preparação
 - [x] Consultar a `ui-ux-pro-max` (stack Flutter) para a tela de perfil e gerar o override `design-system/ja-vi-esse-filme/pages/perfil.md`
 - [x] Conferir as diretrizes de marca do Google para o botão (logo "G" oficial, cores, texto "Entrar com o Google", margens). **Feito:** tema Dark (`#131314`, borda `#8E918F`, texto `#E3E3E3`), pílula, 12/10/12dp, "G" de 20dp, Google Sans Medium 14/20. Os PNGs prontos trazem o texto em inglês, então o botão é nosso com o `g-logo.png` oficial
-- [ ] Asset oficial do "G" em PNG (sem `flutter_svg`), declarado no `pubspec.yaml`. Copiados para `assets/` (`google_g_logo.png`, `GoogleSans-Medium.ttf` e `GoogleSans-OFL.txt`); o `pubspec.yaml` e o `LicenseRegistry` entram no ciclo do botão
+- [x] Asset oficial do "G" em PNG (sem `flutter_svg`), declarado no `pubspec.yaml`. **Feito:** `google_g_logo.png` (200×204, original), `GoogleSans-Medium.ttf` (52 KB) e a OFL, com a licença no `LicenseRegistry` e teste
 
 ### Pendências da 019 (RED/GREEN/REFACTOR por comportamento)
 - [x] `FakeAuthRepository` reemite o estado atual ao assinar (S14)
@@ -18,19 +18,25 @@ Ligar a aba Perfil ao `SessionNotifier`: deslogado com o botão "Entrar com o Go
 - [x] `SessionNotifier.signOut` ignora a chamada dupla (S11)
 - [x] `SessionNotifier.signOut` trata `Exception` não tipada como `UnexpectedFailure` (S11)
 
+### Extras que surgiram
+- [x] Foto da conta sai do cache no logout (`AccountPhotoCleaner`, `evictPhoto` injetado no `MainApp`)
+- [x] Host da foto validado (`https` e `googleusercontent.com` ou subdomínio)
+- [x] `SkeletonPulse` movido para `core/widgets`
+- [x] Largura de leitura, divisor e transição entre estados (`AnimatedSwitcher`, instantânea com "reduzir movimento")
+
 ### UI (RED/GREEN/REFACTOR por estado)
-- [ ] Carregando: skeleton do cabeçalho, sem spinner solto
-- [ ] Deslogado: texto sobre o que a conta oferece e o botão "Entrar com o Google" (≥ 48dp, `Semantics`)
-- [ ] Entrando: botão desabilitado com indicador e rótulo acessível
-- [ ] Logado: avatar (`cached_network_image`) com placeholder desenhado sem foto ou com erro, nome com fallback e botão "Sair"
-- [ ] Falha no login: mensagem do `failureMessage` e "Tentar de novo" chamando o `signIn`
-- [ ] Falha no logout: mensagem e "Tentar de novo" chamando o `signOut`
-- [ ] Entrada "Sobre" presente em todos os estados
-- [ ] Fonte 2x em 360x640 sem overflow, em cada estado
-- [ ] Strings novas no ARB (decisão 004)
+- [x] Carregando: skeleton do cabeçalho, sem spinner solto
+- [x] Deslogado: texto sobre o que a conta oferece e o botão "Entrar com o Google" (≥ 48dp, `Semantics`)
+- [x] Entrando: botão desabilitado com indicador e rótulo acessível
+- [x] Logado: avatar (`cached_network_image`) com placeholder desenhado sem foto ou com erro, nome com fallback e botão "Sair"
+- [x] Falha no login: mensagem do `failureMessage` e "Tentar de novo" chamando o `signIn`
+- [x] Falha no logout: mensagem e "Tentar de novo" chamando o `signOut`. **Mudou:** sem nome nem e-mail, porque o `SessionSignOutFailed` não traz o usuário e a sessão pode já ter fechado (`perfil.md` atualizado)
+- [x] Entrada "Sobre" presente em todos os estados
+- [x] Fonte 2x em 360x640 sem overflow, em cada estado
+- [x] Strings novas no ARB (decisão 004)
 
 ### Entrega
-- [ ] Verificação no emulador (Pixel_9_Pro) com conta real: entrar e sair, screenshot, log sem e-mail nem token
+- [x] Verificação no emulador (Pixel_9_Pro) com conta real: entrar e sair, screenshot, log sem e-mail nem token. **Feito:** logado (foto do Google carregada), sair, deslogado, entrando, cancelar tocando fora (volta a deslogado sem erro), entrar de novo, e fonte 2x do sistema sem overflow. No `flutter run` e no logcat do processo do app: 0 e-mail, 0 JWT, 0 `ya29.`, 0 `idToken`, 0 URL de foto
 - [ ] Tríade: format, analyze limpo, testes verdes
 - [ ] `/revisar` (`code-reviewer` e `security-auditor`: auth e foto da conta)
 - [ ] `/fechar-sessao`
@@ -51,3 +57,9 @@ Ligar a aba Perfil ao `SessionNotifier`: deslogado com o botão "Entrar com o Go
 - Fora do escopo: "login leva para onde estava" e a limpeza do Firestore no logout (itens próprios do plano).
 - No ciclo da S15, o GREEN foi aplicado no mesmo passo em que o teste foi reescrito. O RED foi confirmado depois, voltando a linha por um instante (`UnimplementedError` lançado na chamada).
 - Um `signIn` durante um logout em andamento ainda não é barrado. Fica para avaliar no `/revisar`.
+- **`Semantics` do botão entrando sem `container`:** o rótulo se fundia ao nó do painel (título e texto juntos), e o leitor de tela leria tudo como um bloco. O teste do Perfil pegou; corrigido com `container: true`.
+- **Testes de guarda que passaram de primeira** (acessibilidade do botão, troca de conta e sessão aberta no `AccountPhotoCleaner`, guardas por estado do Perfil): não houve RED. A guarda de fonte 2x foi provada por mutação (sem o `Expanded` do painel logado, o teste falha).
+- **Avatar:** os testes de placeholder, host e semântica foram escritos juntos, num RED só.
+- **Emulador, voltar no seletor:** um `KEYCODE_BACK` no seletor de contas terminou **logado** (`GetCredentialResponse returned from framework` no log). O comportamento é do Credential Manager, e não do app, que só refletiu o Firebase. Tocar fora do seletor cancela certo. Fica para o `/revisar` avaliar.
+- **`uid` no logcat:** 4 linhas `Notifying … listeners about user (<uid>)` vêm do SDK nativo do FirebaseAuth, só com o `uid`, sem dado pessoal na linha. Não são do app.
+- **Cache da foto em memória:** o `evictFromCache` tira a entrada do disco e a do `imageCache` com a chave da URL. A cópia redimensionada (`memCacheWidth`) pode ficar na memória até o app fechar.
