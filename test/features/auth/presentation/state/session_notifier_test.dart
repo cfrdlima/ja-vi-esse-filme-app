@@ -254,15 +254,80 @@ void main() {
       await pumpEventQueue();
     });
 
-    test('deve conferir a sincronização antes de sair', () async {
+    // A segunda pega as marcas feitas durante a primeira espera, que o
+    // `waitForPendingWrites` de antes não cobre.
+    test('deve conferir a sincronização duas vezes antes de sair', () async {
       await notifier.signOut();
 
-      expect(repository.syncCalls, 1);
+      expect(repository.syncCalls, 2);
     });
 
+    test('deve perguntar quando a segunda conferência acha marcas', () async {
+      repository.syncResults = [true, false];
+
+      await notifier.signOut();
+
+      expect(notifier.state, isA<SessionUnsyncedSignOut>());
+    });
+
+    test('deve mostrar a conta saindo ao confirmar', () async {
+      repository.synced = false;
+      await notifier.signOut();
+      repository.signOutGate = Completer<void>();
+      addTearDown(() => repository.signOutGate?.complete());
+
+      notifier.confirmSignOut();
+
+      expect(notifier.state, isA<SessionSigningOut>());
+    });
+
+    test('deve ignorar o cancelar enquanto a conta sai', () async {
+      repository.synced = false;
+      await notifier.signOut();
+      repository.signOutGate = Completer<void>();
+      addTearDown(() => repository.signOutGate?.complete());
+      notifier.confirmSignOut();
+
+      notifier.cancelSignOut();
+
+      expect(notifier.state, isA<SessionSigningOut>());
+    });
+
+    test('deve ficar deslogado quando a conta cai durante a espera', () async {
+      repository
+        ..synced = false
+        ..syncGate = Completer<void>();
+      unawaited(notifier.signOut());
+      await pumpEventQueue();
+
+      repository.emit(const SignedOut());
+      await pumpEventQueue();
+      repository.syncGate!.complete();
+      await pumpEventQueue();
+
+      expect(notifier.state, isA<SessionSignedOut>());
+    });
+
+    // A conta saiu por fora, mas o cache dela continua no aparelho.
+    test('deve limpar o aparelho quando a conta cai durante a espera', () async {
+      repository
+        ..synced = false
+        ..syncGate = Completer<void>();
+      unawaited(notifier.signOut());
+      await pumpEventQueue();
+
+      repository.emit(const SignedOut());
+      await pumpEventQueue();
+      repository.syncGate!.complete();
+      await pumpEventQueue();
+
+      expect(repository.signOutCalls, 1);
+    });
+
+    // A espera fica pendente: completá-la no fim rodaria o logout com o
+    // fake já fechado.
     test('deve mostrar a conta saindo enquanto confere', () {
       repository.syncGate = Completer<void>();
-      addTearDown(() => repository.syncGate?.complete());
 
       unawaited(notifier.signOut());
 
@@ -366,7 +431,8 @@ void main() {
 
       await notifier.signOut();
 
-      expect(repository.syncCalls, 1);
+      // As duas conferências são da primeira tentativa.
+      expect(repository.syncCalls, 2);
     });
 
     test('deve ignorar o login enquanto pergunta', () async {
