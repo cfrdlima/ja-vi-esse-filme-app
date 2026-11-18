@@ -154,6 +154,10 @@ class ShelfTabNotifier extends ChangeNotifier {
   // (decisão 010). A aba não mostra a conta que está saindo.
   void _onDone() {
     _shelfSubscription = null;
+    // Uma cópia que chegue do TMDB agora seria gravada depois do
+    // `closeStreams()`, no cache que o logout vai limpar.
+    _renewer?.dispose();
+    _renewer = null;
     _movies = null;
     _hasMore = false;
     _emit(const ShelfTabLoading());

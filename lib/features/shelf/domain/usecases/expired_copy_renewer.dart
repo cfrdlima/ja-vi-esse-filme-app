@@ -43,22 +43,30 @@ class ExpiredCopyRenewer {
 
   Future<void> _drain() async {
     _running = true;
-    while (_queue.isNotEmpty && !_disposed) {
-      final id = _queue.removeFirst();
-      try {
-        final copy = await _source.fetchCopy(id);
-        if (_disposed) break;
-        // Sem esperar: offline, o future só completa quando o servidor
-        // confirma. Uma recusa deixa a cópia vencida, que é o que a aba já
-        // mostra.
-        unawaited(_shelf.renewCopy(copy).catchError((Object _) {}));
-      } on Failure catch (failure) {
-        // Sem rede ou no limite, os próximos falhariam igual. Outra falha
-        // (o filme sumiu do TMDB) segue para o próximo, e o placeholder fica.
-        if (failure is RateLimitFailure || failure is NetworkFailure) _stop(id);
+    // Um erro que não é `Failure` é bug e sobe para o relatório de erros,
+    // mas não pode deixar a fila travada até a conta mudar.
+    try {
+      while (_queue.isNotEmpty && !_disposed) {
+        final id = _queue.removeFirst();
+        try {
+          final copy = await _source.fetchCopy(id);
+          if (_disposed) break;
+          // Sem esperar: offline, o future só completa quando o servidor
+          // confirma. Uma recusa deixa a cópia vencida, que é o que a aba já
+          // mostra.
+          unawaited(_shelf.renewCopy(copy).catchError((Object _) {}));
+        } on Failure catch (failure) {
+          // Sem rede ou no limite, os próximos falhariam igual. Outra falha
+          // (o filme sumiu do TMDB) segue para o próximo, e o placeholder
+          // fica.
+          if (failure is RateLimitFailure || failure is NetworkFailure) {
+            _stop(id);
+          }
+        }
       }
+    } finally {
+      _running = false;
     }
-    _running = false;
   }
 
   /// Os filmes que não foram buscados voltam a poder ser pedidos.

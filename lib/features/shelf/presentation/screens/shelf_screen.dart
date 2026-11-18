@@ -1,14 +1,18 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../core/l10n/failure_message.dart';
+import '../../../../core/routing/app_routes.dart';
 import '../../../../core/theme/app_theme_tokens.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../auth/presentation/state/session_notifier.dart';
 import '../../../auth/presentation/state/session_state.dart';
 import '../../../auth/presentation/widgets/google_sign_in_button.dart';
+import '../../../movies/presentation/widgets/paged_movies_view.dart';
+import '../../../movies/presentation/widgets/poster_grid.dart';
 import '../../domain/entities/shelf_mark.dart';
 import '../widgets/shelf_tab.dart';
 
@@ -29,13 +33,20 @@ class ShelfScreen extends StatelessWidget {
         appBar: AppBar(title: title),
         body: const _SignInInvite(),
       ),
-      // As abas nascem com a conta e morrem no logout, levando os streams e
-      // o que a conta anterior mostrava.
-      SessionLoading() ||
-      SessionSignedIn() ||
-      SessionSigningOut() ||
-      SessionUnsyncedSignOut() ||
-      SessionSignOutFailed() => _ShelfTabs(title: title),
+      // As abas nascem com a conta e morrem quando a saída começa, antes do
+      // `closeStreams()`: nenhum stream nem renovação da Estante sobrevive à
+      // limpeza do cache (decisão 010).
+      SessionLoading() || SessionSignedIn() => _ShelfTabs(title: title),
+      SessionSigningOut() || SessionUnsyncedSignOut() => Scaffold(
+        appBar: AppBar(title: title),
+        body: PosterGridSkeleton(
+          label: AppLocalizations.of(context).profileSigningOut,
+        ),
+      ),
+      SessionSignOutFailed() => Scaffold(
+        appBar: AppBar(title: title),
+        body: const _SignOutFailed(),
+      ),
     };
   }
 }
@@ -131,6 +142,25 @@ class _SignInInvite extends StatelessWidget {
               GoogleSignInButton(onPressed: () => unawaited(session.signIn())),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// A saída falhou depois de fechar a Estante: as abas não voltam, porque
+/// reabririam o Firestore no cache que ficou. O Perfil tem o "tentar de
+/// novo" da saída.
+class _SignOutFailed extends StatelessWidget {
+  const _SignOutFailed();
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return MoviesMessage(
+      message: l10n.shelfSignOutFailed,
+      action: FilledButton(
+        onPressed: () => context.go(AppRoutes.profile),
+        child: Text(l10n.shelfGoToProfile),
       ),
     );
   }

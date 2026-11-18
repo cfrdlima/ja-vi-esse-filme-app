@@ -663,6 +663,18 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Mostrando os {count} filmes mais recentes.'**
   String shelfCapped(int count);
+
+  /// Aviso na Estante quando a saída da conta falhou; as abas não voltam até sair ou reiniciar
+  ///
+  /// In pt, this message translates to:
+  /// **'Não deu para sair da conta. Tente de novo no Perfil.'**
+  String get shelfSignOutFailed;
+
+  /// Botão do aviso de saída que falhou, na Estante, que leva à aba Perfil
+  ///
+  /// In pt, this message translates to:
+  /// **'Ir para o Perfil'**
+  String get shelfGoToProfile;
 }
 
 class _AppLocalizationsDelegate

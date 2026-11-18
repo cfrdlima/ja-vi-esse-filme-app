@@ -27,6 +27,19 @@ class _CopySource implements MovieCopySource {
   }
 }
 
+/// Fica pendente até o teste responder.
+class _PendingCopySource extends _CopySource {
+  final _answer = Completer<MovieCopy>();
+
+  @override
+  Future<MovieCopy> fetchCopy(int movieId) {
+    requestedIds.add(movieId);
+    return _answer.future;
+  }
+
+  void answer() => _answer.complete(MovieCopy(movieId: 7, title: 'Novo 7'));
+}
+
 void main() {
   late FakeShelfRepository shelf;
   late StreamController<AuthState> account;
@@ -441,6 +454,28 @@ void main() {
         await emitPage(page([7]));
 
         expect(source.requestedIds, isEmpty);
+      });
+
+      test('não deve regravar a cópia depois que o stream acaba', () async {
+        final pending = _PendingCopySource();
+        source = pending;
+        final local = newNotifier();
+        addTearDown(local.dispose);
+        await signInAs(ana);
+        shelf.emitShelf(
+          ShelfPage(
+            movies: [movie(7, cachedAt: now.subtract(ShelfMovie.copyMaxAge))],
+            hasMore: false,
+          ),
+        );
+        await pumpEventQueue();
+
+        shelf.endShelf();
+        await pumpEventQueue();
+        pending.answer();
+        await pumpEventQueue();
+
+        expect(shelf.renewedCopies, isEmpty);
       });
 
       test('deve trocar a renovação quando a conta muda', () async {

@@ -360,4 +360,11 @@ class AppLocalizationsPt extends AppLocalizations {
   String shelfCapped(int count) {
     return 'Mostrando os $count filmes mais recentes.';
   }
+
+  @override
+  String get shelfSignOutFailed =>
+      'Não deu para sair da conta. Tente de novo no Perfil.';
+
+  @override
+  String get shelfGoToProfile => 'Ir para o Perfil';
 }

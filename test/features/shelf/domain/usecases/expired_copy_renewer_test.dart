@@ -183,6 +183,24 @@ void main() {
       expect(source.requestedIds, [1]);
     });
 
+    test(
+      'deve seguir aceitando pedidos depois de um erro inesperado',
+      () async {
+        runZonedGuarded(
+          () => renewer.renew([movie(1, cachedAt: expiredAt)]),
+          (_, _) {},
+        );
+        await pumpEventQueue();
+        source.requests[1]!.completeError(StateError('bug'));
+        await pumpEventQueue();
+
+        renewer.renew([movie(2, cachedAt: expiredAt)]);
+        await pumpEventQueue();
+
+        expect(source.requestedIds, [1, 2]);
+      },
+    );
+
     test('não deve regravar depois do dispose', () async {
       renewer.renew([movie(1, cachedAt: expiredAt)]);
       await pumpEventQueue();

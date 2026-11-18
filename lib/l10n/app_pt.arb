@@ -241,5 +241,9 @@
   "shelfSignInBody": "Entre para guardar os filmes que você viu, quer ver e mais gosta.",
   "@shelfSignInBody": { "description": "Convite para entrar na aba Estante sem conta" },
   "shelfCapped": "Mostrando os {count} filmes mais recentes.",
-  "@shelfCapped": { "description": "Rodapé da aba da Estante quando ela chega ao teto de filmes por aba e ainda há mais", "placeholders": { "count": { "type": "int" } } }
+  "@shelfCapped": { "description": "Rodapé da aba da Estante quando ela chega ao teto de filmes por aba e ainda há mais", "placeholders": { "count": { "type": "int" } } },
+  "shelfSignOutFailed": "Não deu para sair da conta. Tente de novo no Perfil.",
+  "@shelfSignOutFailed": { "description": "Aviso na Estante quando a saída da conta falhou; as abas não voltam até sair ou reiniciar" },
+  "shelfGoToProfile": "Ir para o Perfil",
+  "@shelfGoToProfile": { "description": "Botão do aviso de saída que falhou, na Estante, que leva à aba Perfil" }
 }

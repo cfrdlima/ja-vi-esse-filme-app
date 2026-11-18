@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
@@ -81,6 +83,7 @@ void main() {
           ],
         ),
         GoRoute(path: '/descobrir', builder: (_, _) => const Text('descobrir')),
+        GoRoute(path: '/perfil', builder: (_, _) => const Text('perfil')),
       ],
     );
     return MultiProvider(
@@ -391,6 +394,64 @@ void main() {
         await tester.pumpAndSettle();
 
         expect(find.byType(GoogleSignInButton), findsOneWidget);
+      });
+
+      SessionNotifier sessionOf(WidgetTester tester) =>
+          tester.element(find.byType(ShelfScreen)).read<SessionNotifier>();
+
+      testWidgets('deve parar de ouvir a Estante ao começar a sair', (
+        tester,
+      ) async {
+        await pumpSignedIn(tester);
+        await emitPage(tester, page([movie(7)]));
+        auth.syncGate = Completer<void>();
+
+        unawaited(sessionOf(tester).signOut());
+        await tester.pump();
+        await tester.pump();
+
+        expect(shelf.activeShelves, 0);
+      });
+
+      // Uma aba aberta pela primeira vez durante a saída assinaria a
+      // Estante depois do `closeStreams()`.
+      testWidgets('não deve mostrar as abas enquanto sai da conta', (
+        tester,
+      ) async {
+        await pumpSignedIn(tester);
+        auth.syncGate = Completer<void>();
+
+        unawaited(sessionOf(tester).signOut());
+        await tester.pump();
+
+        expect(find.byType(TabBar), findsNothing);
+      });
+
+      testWidgets('deve avisar quando a saída da conta falhou', (tester) async {
+        await pumpSignedIn(tester);
+        auth.signOutError = const UnexpectedFailure('teste');
+
+        await sessionOf(tester).signOut();
+        await tester.pumpAndSettle();
+
+        expect(
+          find.text('Não deu para sair da conta. Tente de novo no Perfil.'),
+          findsOneWidget,
+        );
+      });
+
+      testWidgets('deve levar ao Perfil depois da saída que falhou', (
+        tester,
+      ) async {
+        await pumpSignedIn(tester);
+        auth.signOutError = const UnexpectedFailure('teste');
+        await sessionOf(tester).signOut();
+        await tester.pumpAndSettle();
+
+        await tester.tap(find.text('Ir para o Perfil'));
+        await tester.pumpAndSettle();
+
+        expect(find.text('perfil'), findsOneWidget);
       });
 
       testWidgets('deve caber com a fonte grande', (tester) async {
