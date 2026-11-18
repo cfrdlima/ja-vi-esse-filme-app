@@ -604,6 +604,12 @@ abstract class AppLocalizations {
   /// **'{date} (dia da marca)'**
   String diarySuggestedDay(DateTime date);
 
+  /// Dica do leitor de tela e tooltip do botão que abre o seletor do dia em que assistiu
+  ///
+  /// In pt, this message translates to:
+  /// **'Escolher quando assistiu'**
+  String get diaryChooseDay;
+
   /// Botão que apaga o dia escolhido em que a pessoa assistiu
   ///
   /// In pt, this message translates to:

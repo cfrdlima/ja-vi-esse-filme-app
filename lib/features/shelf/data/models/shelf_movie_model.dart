@@ -55,8 +55,8 @@ abstract final class ShelfMovieModel {
     _ => null,
   };
 
-  // Igual à `isWatchedOn` do `firestore.rules`, que deixa passar o dia fora
-  // do calendário; o `WatchedOn` o recusa.
+  // Só o formato; o intervalo e o dia do calendário vêm do `WatchedOn`, mais
+  // estrito que a `isWatchedOn` do `firestore.rules`.
   static final _isoDay = RegExp(r'^(\d{4})-(\d{2})-(\d{2})$');
 
   static WatchedOn? _watchedOnOf(Object? value) {

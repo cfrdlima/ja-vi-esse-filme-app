@@ -66,6 +66,13 @@ class ShelfMarksBar extends StatelessWidget {
     if (unwatching && confirm != null) {
       final confirmed = await confirm(context);
       if (!confirmed || !context.mounted) return;
+      // Outro aparelho pode ter tirado o Assistido com o diálogo aberto: o
+      // `toggle` o poria de volta.
+      if (notifier.state case ShelfMarksReady(
+        :final isMarked,
+      ) when !isMarked(mark)) {
+        return;
+      }
     }
     notifier.toggle(mark);
   }

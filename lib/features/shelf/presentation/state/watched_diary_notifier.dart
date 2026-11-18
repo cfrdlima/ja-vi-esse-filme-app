@@ -11,13 +11,16 @@ import '../../domain/repositories/shelf_repository.dart';
 import '../../domain/usecases/choose_watched_on.dart';
 import 'watched_diary_state.dart';
 
-/// Um valor pedido e ainda não confirmado pela Estante. O registro separa
+/// Um valor pedido cuja escrita ainda não terminou. O registro separa
 /// "tirar" (valor nulo) de "nada pedido" (registro nulo).
 typedef _Pending<T> = ({T? value, int id});
 
 /// A nota e o dia em que assistiu (decisão 018), sobre o filme assistido que
-/// o `ShelfMarksNotifier` confirma. As escritas são otimistas como as das
-/// marcas: o valor aparece na hora, e só a recusa do servidor o volta.
+/// o `ShelfMarksNotifier` confirma. As escritas são otimistas: o valor
+/// pedido fica na tela até a escrita dele terminar, e só a recusa do
+/// servidor o volta. Não sai com o snapshot que já traz o valor, porque o
+/// Firestore mostra a escrita no aparelho antes de o servidor responder, e
+/// a recusa chegaria depois sem ter onde aparecer (`/revisar` da 028).
 class WatchedDiaryNotifier extends ChangeNotifier {
   WatchedDiaryNotifier({
     required this._shelf,
@@ -72,16 +75,20 @@ class WatchedDiaryNotifier extends ChangeNotifier {
 
   void clearRating() => _writeRating(null);
 
+  /// O último dia que o seletor deixa escolher, pelo relógio da hora em que
+  /// é pedido: a tela pode ficar aberta de um dia para o outro.
+  WatchedOn today() => _chooseWatchedOn.today();
+
   /// Lança [ArgumentError] com o [day] no futuro, sem gravar.
   void chooseWatchedOn(WatchedOn day) {
-    final movie = _movie;
+    final movie = _writableMovie();
     if (movie == null) return;
     final write = _chooseWatchedOn(movie, day);
     _track(write, _setWatchedOn(day), () => chooseWatchedOn(day));
   }
 
   void clearWatchedOn() {
-    final movie = _movie;
+    final movie = _writableMovie();
     if (movie == null) return;
     _track(_shelf.clearWatchedOn(movie), _setWatchedOn(null), clearWatchedOn);
   }
@@ -89,8 +96,11 @@ class WatchedDiaryNotifier extends ChangeNotifier {
   /// Repete a última escrita recusada.
   void retryWrite() => _failed?.retry();
 
+  /// Nulo depois do dispose ou sem o filme assistido: não há o que gravar.
+  ShelfMovie? _writableMovie() => _disposed ? null : _movie;
+
   void _writeRating(Rating? rating) {
-    final movie = _movie;
+    final movie = _writableMovie();
     if (movie == null) return;
     final write = rating == null
         ? _shelf.clearRating(movie)
@@ -120,16 +130,13 @@ class WatchedDiaryNotifier extends ChangeNotifier {
   ) async {
     try {
       await write;
+      if (_disposed || generation != _generation) return;
+      // Confirmada: a tela volta a seguir a Estante.
+      if (_clearPending(id)) _emitReady();
     } on Exception catch (error) {
       if (_disposed || generation != _generation) return;
       // Uma escrita nova no mesmo campo já substituiu esta.
-      if (_rating?.id == id) {
-        _rating = null;
-      } else if (_watchedOn?.id == id) {
-        _watchedOn = null;
-      } else {
-        return;
-      }
+      if (!_clearPending(id)) return;
       _failed = (
         failure: error is Failure
             ? error
@@ -138,6 +145,19 @@ class WatchedDiaryNotifier extends ChangeNotifier {
       );
       _emitReady();
     }
+  }
+
+  /// Tira o pendente da escrita [id], se ela ainda for a última do campo.
+  bool _clearPending(int id) {
+    if (_rating?.id == id) {
+      _rating = null;
+      return true;
+    }
+    if (_watchedOn?.id == id) {
+      _watchedOn = null;
+      return true;
+    }
+    return false;
   }
 
   void _onMovie() {
@@ -149,13 +169,6 @@ class WatchedDiaryNotifier extends ChangeNotifier {
       _watchedOn = null;
       _failed = null;
       return _emit(const DiaryHidden());
-    }
-    // A Estante já tem o que foi pedido: o otimista não é mais preciso.
-    if (_rating case (:final value, id: _) when value == movie.rating) {
-      _rating = null;
-    }
-    if (_watchedOn case (:final value, id: _) when value == movie.watchedOn) {
-      _watchedOn = null;
     }
     _emitReady();
   }
@@ -178,7 +191,6 @@ class WatchedDiaryNotifier extends ChangeNotifier {
         rating: _shownRating(),
         watchedOn: _shownWatchedOn(),
         markedOn: WatchedOn.fromLocal(movie.markedAt(ShelfMark.watched)!),
-        today: _chooseWatchedOn.today(),
         failure: _failed?.failure,
       ),
     );

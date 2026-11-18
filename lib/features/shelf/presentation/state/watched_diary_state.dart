@@ -20,7 +20,6 @@ final class DiaryReady extends WatchedDiaryState {
     required this.rating,
     required this.watchedOn,
     required this.markedOn,
-    required this.today,
     required this.failure,
   });
 
@@ -33,9 +32,6 @@ final class DiaryReady extends WatchedDiaryState {
   /// O dia local em que o Assistido entrou: a sugestão do seletor, que não
   /// é gravada.
   final WatchedOn markedOn;
-
-  /// O último dia que o seletor deixa escolher.
-  final WatchedOn today;
 
   /// A recusa da última escrita, para a mensagem e o "tentar de novo".
   final Failure? failure;

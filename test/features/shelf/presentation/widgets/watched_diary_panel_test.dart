@@ -211,8 +211,8 @@ void main() {
       await pumpPanel(tester, initial: watched());
 
       expect(
-        find.bySemanticsLabel(RegExp('Escolher quando assistiu')),
-        findsOneWidget,
+        tester.getSemantics(find.byType(TextButton).first),
+        isSemantics(tooltip: 'Escolher quando assistiu', isButton: true),
       );
       semantics.dispose();
     });

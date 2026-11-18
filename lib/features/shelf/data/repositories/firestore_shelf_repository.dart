@@ -190,7 +190,7 @@ class FirestoreShelfRepository implements ShelfRepository {
   Future<void> _writePersonal(
     ShelfMovie movie,
     Map<String, FieldWrite> fields,
-  ) async {
+  ) {
     if (!movie.isMarked(ShelfMark.watched)) {
       throw ArgumentError('nota e dia só no filme assistido', 'movie');
     }

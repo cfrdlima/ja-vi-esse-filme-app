@@ -233,6 +233,8 @@
     "description": "Sugestão do dia em que assistiu quando a pessoa não escolheu: o dia em que marcou como assistido",
     "placeholders": { "date": { "type": "DateTime", "format": "yMd" } }
   },
+  "diaryChooseDay": "Escolher quando assistiu",
+  "@diaryChooseDay": { "description": "Dica do leitor de tela e tooltip do botão que abre o seletor do dia em que assistiu" },
   "diaryClearDay": "Tirar dia",
   "@diaryClearDay": { "description": "Botão que apaga o dia escolhido em que a pessoa assistiu" },
   "unwatchDialogTitle": "Tirar dos assistidos?",

@@ -344,6 +344,9 @@ class AppLocalizationsPt extends AppLocalizations {
   }
 
   @override
+  String get diaryChooseDay => 'Escolher quando assistiu';
+
+  @override
   String get diaryClearDay => 'Tirar dia';
 
   @override

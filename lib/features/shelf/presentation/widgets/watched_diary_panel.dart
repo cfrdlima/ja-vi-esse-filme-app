@@ -72,10 +72,15 @@ class _RatingRow extends StatelessWidget {
               key: const ValueKey('diary-stars'),
               label: l10n.diaryRatingLabel,
               value: _valueOf(l10n, rating),
+              slider: true,
               increasedValue: _valueOf(l10n, state.increasedRating),
               decreasedValue: _valueOf(l10n, state.decreasedRating),
-              onIncrease: notifier.increase,
-              onDecrease: notifier.decrease,
+              // Sem ação no limite: o leitor de tela não oferece o que não
+              // muda nada.
+              onIncrease: rating?.halfStars == Rating.maxHalfStars
+                  ? null
+                  : notifier.increase,
+              onDecrease: rating == null ? null : notifier.decrease,
               container: true,
               child: ExcludeSemantics(
                 child: Row(
@@ -156,13 +161,18 @@ class _DayRow extends StatelessWidget {
           children: [
             TextButton.icon(
               icon: const Icon(Icons.event),
-              label: Text(
-                chosen == null
-                    ? l10n.diarySuggestedDay(_dateOf(state.markedOn))
-                    : l10n.diaryChosenDay(_dateOf(chosen)),
-                style: chosen == null
-                    ? TextStyle(color: theme.colorScheme.onSurfaceVariant)
-                    : null,
+              // Dentro do rótulo, a dica entra no nó do botão; sem ela, o
+              // leitor de tela leria só a data.
+              label: Tooltip(
+                message: l10n.diaryChooseDay,
+                child: Text(
+                  chosen == null
+                      ? l10n.diarySuggestedDay(_dateOf(state.markedOn))
+                      : l10n.diaryChosenDay(_dateOf(chosen)),
+                  style: chosen == null
+                      ? TextStyle(color: theme.colorScheme.onSurfaceVariant)
+                      : null,
+                ),
               ),
               onPressed: () => unawaited(_pickDay(context)),
             ),
@@ -182,9 +192,10 @@ class _DayRow extends StatelessWidget {
       context: context,
       initialDate: _dateOf(state.watchedOn ?? state.markedOn),
       firstDate: DateTime(WatchedOn.firstYear),
-      lastDate: _dateOf(state.today),
+      lastDate: _dateOf(notifier.today()),
     );
-    if (picked == null) return;
+    // Os Detalhes podem ter saído com o seletor aberto.
+    if (picked == null || !context.mounted) return;
     notifier.chooseWatchedOn(WatchedOn.fromLocal(picked));
   }
 
