@@ -36,18 +36,18 @@ Trocar o placeholder da aba Estante por três abas (**Assistidos**, **Quero assi
 - [x] Rota `/estante` com a tela real no `app_router.dart`, dependências montadas no `main.dart`; fakes em `test/helpers/` atualizados. **Feito:** o `MovieCopySource` nasce no router, sobre o `MovieRepository`; o `main.dart` não mudou (a Estante e a conta já vinham por `Provider`); sai o `PlaceholderScreen`, a última aba provisória, com a string `comingSoon`
 
 ### Achados aceitos do `/revisar` (o usuário seguiu a recomendação)
-- [ ] (1, bloqueante) `loadMore` não fura o erro do rodapé (laço de reassinatura com limite crescente)
-- [ ] (2) Nada da Estante grava ou assina depois do `closeStreams()`: abas só em `SessionSignedIn`, mortas no `SigningOut`; o `_onDone` descarta o renovador
-- [ ] (3) Sem skeleton eterno depois de um logout que falhou: aviso com "Ir para o Perfil" no `SessionSignOutFailed`
-- [ ] (4) Teto de 200 filmes por aba no limite crescente, com aviso no rodapé, e o custo de leitura registrado em decisão
-- [ ] (5) Aba vazia que recebe erro mostra o erro com "tentar de novo", e não uma grade em branco
-- [ ] (6) Política 2.0 no `PLANO.md`: consulta automática ao TMDB (ids e IP), base legal e "renovada quando o filme aparece na Estante"
-- [ ] (8) `try`/`finally` no `_drain` do renovador
-- [ ] (10) Rodapé com estado selado (`NextPageStatus`) no lugar de `bool` + `Failure?`
-- [ ] (14) Comentário do `_SilentCopySource` no teste
-- [ ] (15) Widget tests do spinner e do "Tentar de novo" do rodapé e da mensagem do erro da primeira página
-- [ ] (16) Decisão nova (só `orderBy`, limite crescente com teto) e comentários com mais de 80 colunas
-- [ ] (7, 9, 11, 12, 13) Para o `BACKLOG.md`: renovador por conta compartilhado, `retryAfter` no renovador, relógio único da cópia vencida, `index` redundante do `ShelfTab`, `PosterGrid`/`MoviesMessage` em `core/widgets`
+- [x] (1, bloqueante) `loadMore` não fura o erro do rodapé (laço de reassinatura com limite crescente)
+- [x] (2) Nada da Estante grava ou assina depois do `closeStreams()`: abas só em `SessionSignedIn`, mortas no `SigningOut`; o `_onDone` descarta o renovador. **Mudou do que o auditor sugeriu:** sem a guarda "fechado" no repositório, pelo mesmo motivo da 022 (ela precisaria de um sinal para reabrir com a mesma conta); as abas morrem quando a saída começa, antes do `closeStreams()`
+- [x] (3) Sem skeleton eterno depois de um logout que falhou: aviso com "Ir para o Perfil" no `SessionSignOutFailed`
+- [x] (4) Teto de 200 filmes por aba no limite crescente, com aviso no rodapé, e o custo de leitura registrado em decisão. **Feito:** decisão 014
+- [x] (5) Aba vazia que recebe erro mostra o erro com "tentar de novo", e não uma grade em branco
+- [x] (6) Política 2.0 no `PLANO.md`: consulta automática ao TMDB (ids e IP), base legal e "renovada quando o filme aparece na Estante"
+- [x] (8) `try`/`finally` no `_drain` do renovador
+- [x] (10) Rodapé com estado selado (`NextPageStatus`) no lugar de `bool` + `Failure?`
+- [x] (14) Comentário do `_SilentCopySource` no teste
+- [x] (15) Widget tests do spinner e do "Tentar de novo" do rodapé e da mensagem do erro da primeira página
+- [x] (16) Decisão nova (só `orderBy`, limite crescente com teto) e comentários com mais de 80 colunas. **Feito:** decisão 014 e emenda na 013
+- [x] (7, 9, 11, 12, 13) Para o `BACKLOG.md`: renovador por conta compartilhado, `retryAfter` no renovador, relógio único da cópia vencida, `index` redundante do `ShelfTab`, `PosterGrid`/`MoviesMessage` em `core/widgets`
 
 ### Entrega
 - [ ] Tríade: format, analyze limpo, `flutter test` verde, `npm test` das regras se mudarem
@@ -57,6 +57,7 @@ Trocar o placeholder da aba Estante por três abas (**Assistidos**, **Quero assi
 - [ ] `/fechar-sessao`
 
 ## Decisões
+- [014](../decisoes/014-consulta-das-abas-da-estante.md): a consulta das abas usa só o `orderBy` descendente, com limite crescente e teto de 200, e emenda a 013. Segue as decisões [010](../decisoes/010-conta-propria-com-firebase.md) e [013](../decisoes/013-documento-do-filme-no-firestore.md)
 
 ## Commits
 
@@ -65,3 +66,4 @@ Trocar o placeholder da aba Estante por três abas (**Assistidos**, **Quero assi
 - **Erro no stream da consulta (`cloud_firestore_platform_interface` 8.1.0, `method_channel_query.dart`):** no Android, o nativo manda o erro e o `endOfStream`, mas o `Query.snapshots()` do Dart ouve o canal sem `onDone`, e o stream público não acaba. Depois de um erro, o listener nativo morreu, e o "tentar de novo" assina outra vez. O `onDone` da aba só chega pelo `closeStreams()` do logout.
 - **Marca offline na consulta (Android, `cloud_firestore` 7.1.0):** o `serverTimestamp()` pendente entra na consulta local com `orderBy(<marca>At, descending: true)` e fica **no topo** (o SDK ordena a data pendente depois de todas as datas). Quando o servidor confirma, a posição não muda. Respondido o "a conferir no emulador" da preparação.
 - **Emulador:** o `Pixel_9` ficou sem espaço (96% do `/data`, com apps de outros projetos, que não foram mexidos); a verificação foi no `Pixel_9_Pro` (10 GB), que já tinha o app e a conta da 022.
+- **`/revisar`:** o `code-reviewer` achou 1 bloqueante, 2 importantes e 10 sugestões; o `security-auditor`, 3 importantes e 2 sugestões. Consolidados em 16; o usuário seguiu a recomendação: 1 a 6 e as sugestões 8, 10, 14, 15 e 16 nesta sessão, e 7, 9, 11, 12 e 13 no backlog.

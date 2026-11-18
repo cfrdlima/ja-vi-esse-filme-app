@@ -54,7 +54,8 @@ abstract interface class ShelfRepository {
   /// As mesmas falhas do [addMark].
   Future<void> renewCopy(MovieCopy copy);
 
-  /// Encerra os streams do [watchMovie] e do [watchShelf] ainda abertos: quem ouve recebe o
-  /// fim. O logout chama isso antes de limpar o cache (decisão 010).
+  /// Encerra os streams do [watchMovie] e do [watchShelf] ainda abertos:
+  /// quem ouve recebe o fim. O logout chama isso antes de limpar o cache
+  /// (decisão 010).
   Future<void> closeStreams();
 }

@@ -32,7 +32,8 @@ final class UnavailableShelfRepository implements ShelfRepository {
   Future<void> renewCopy(MovieCopy copy) async =>
       throw const SignInRequiredFailure();
 
-  /// O [watchMovie] e o [watchShelf] daqui já nascem com erro: não há stream para fechar.
+  /// O [watchMovie] e o [watchShelf] daqui já nascem com erro: não há stream
+  /// para fechar.
   @override
   Future<void> closeStreams() async {}
 }

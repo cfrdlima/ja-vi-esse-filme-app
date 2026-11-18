@@ -33,8 +33,13 @@
 ## Paginação (stream com limite crescente)
 - A aba assina os primeiros 20 filmes. Faltando cerca de 2 telas para o fim, o limite cresce em 20 e a assinatura é refeita com o limite novo: a lista inteira continua ao vivo, sem itens duplicados ou pulados.
 - Rodapé: indicador pequeno enquanto o limite novo não chega; erro com "Tentar de novo" no rodapé, sem perder os filmes já mostrados; nada quando vieram menos filmes que o limite (fim).
-- Nunca pede o mesmo limite duas vezes.
+- Nunca pede o mesmo limite duas vezes, nem com o erro no rodapé: só o "Tentar de novo" sai dele.
+- Teto de 200 filmes por aba (decisão 014): com mais, o rodapé diz "Mostrando os 200 filmes mais recentes.".
 
 ## Sem conta
 - No lugar das abas: ícone de estante, "Entre para guardar os filmes que você viu, quer ver e mais gosta." e o botão "Entrar com Google" (o mesmo do Perfil, com as diretrizes de marca do Google).
 - Ao entrar, as abas aparecem em Assistidos. Ao sair da conta, a Estante volta para o convite e não mostra nada da conta anterior.
+
+## Saindo da conta
+- Quando a saída começa (inclusive na pergunta das marcas sem sincronizar), as abas saem de cena, com os streams e a renovação: no lugar, o skeleton com "Saindo". Se a pessoa ficar na conta, as abas voltam e assinam de novo.
+- Se a saída falhar, a Estante não volta às abas, que reabririam o Firestore no cache que ficou: aviso "Não deu para sair da conta. Tente de novo no Perfil." com o botão "Ir para o Perfil".
