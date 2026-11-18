@@ -12,6 +12,7 @@ import 'package:provider/provider.dart';
 import 'core/bootstrap/app_bootstrap.dart';
 import 'core/config/app_config.dart';
 import 'core/error/error_handlers.dart';
+import 'core/firestore/user_data_write_lock.dart';
 import 'core/l10n/app_locale.dart';
 import 'core/licenses/font_licenses.dart';
 import 'core/links/external_link_opener.dart';
@@ -19,6 +20,7 @@ import 'core/links/url_launcher_link_opener.dart';
 import 'core/network/tmdb_client.dart';
 import 'core/routing/app_router.dart';
 import 'core/theme/app_theme.dart';
+import 'features/auth/data/gateways/cloud_firestore_account_documents.dart';
 import 'features/auth/data/gateways/firebase_auth_sdk_gateway.dart';
 import 'features/auth/data/gateways/firestore_account_cache.dart';
 import 'features/auth/data/gateways/google_sign_in_sdk_gateway.dart';
@@ -45,16 +47,17 @@ Future<void> main() async {
     initialize: _initializeFirebase,
     run: () {
       final firebaseAvailable = Firebase.apps.isNotEmpty;
+      final writeLock = UserDataWriteLock();
       final shelfRepository = composeShelfRepository(
         firebaseAvailable: firebaseAvailable,
-        connect: _connectFirestoreShelf,
+        connect: () => _connectFirestoreShelf(writeLock),
       );
       runApp(
         MainApp(
           movieRepository: _composeMovieRepository(),
           authRepository: composeAuthRepository(
             firebaseAvailable: firebaseAvailable,
-            connect: () => _connectFirebaseAuth(shelfRepository),
+            connect: () => _connectFirebaseAuth(shelfRepository, writeLock),
           ),
           shelfRepository: shelfRepository,
           linkOpener: UrlLauncherLinkOpener(),
@@ -104,7 +107,10 @@ void _evictCachedImage(String url) => unawaited(NetworkImage(url).evict());
 // O logout fecha os streams da Estante antes de limpar o cache do
 // Firestore (decisão 010). No início, o cache de uma conta que já saiu é
 // limpo, caso a limpeza do último logout tenha falhado.
-AuthRepository _connectFirebaseAuth(ShelfRepository shelf) {
+AuthRepository _connectFirebaseAuth(
+  ShelfRepository shelf,
+  UserDataWriteLock writeLock,
+) {
   final firestore = FirebaseFirestore.instance;
   final cache = FirestoreAccountCache(
     closeStreams: shelf.closeStreams,
@@ -116,6 +122,9 @@ AuthRepository _connectFirebaseAuth(ShelfRepository shelf) {
     firebase: FirebaseAuthSdkGateway(FirebaseAuth.instance),
     google: GoogleSignInSdkGateway(GoogleSignIn.instance),
     cache: cache,
+    documents: cloudFirestoreAccountDocuments(firestore),
+    reportError: logUnhandledError,
+    writeLock: writeLock,
   );
   unawaited(
     clearStaleAccountCache(account: repository.authStateChanges, cache: cache),
@@ -125,10 +134,14 @@ AuthRepository _connectFirebaseAuth(ShelfRepository shelf) {
 
 // O `uid` é lido a cada chamada, e não guardado: a conta pode mudar
 // (decisão 013).
-ShelfRepository _connectFirestoreShelf() => FirestoreShelfRepository(
-  gateway: CloudFirestoreShelfGateway(firestore: FirebaseFirestore.instance),
-  currentUid: () => FirebaseAuth.instance.currentUser?.uid,
-);
+ShelfRepository _connectFirestoreShelf(UserDataWriteLock writeLock) =>
+    FirestoreShelfRepository(
+      writeLock: writeLock,
+      gateway: CloudFirestoreShelfGateway(
+        firestore: FirebaseFirestore.instance,
+      ),
+      currentUid: () => FirebaseAuth.instance.currentUser?.uid,
+    );
 
 class MainApp extends StatefulWidget {
   const MainApp({

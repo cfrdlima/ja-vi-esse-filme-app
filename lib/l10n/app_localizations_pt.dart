@@ -106,6 +106,10 @@ class AppLocalizationsPt extends AppLocalizations {
       'Por segurança, entre de novo com o Google para continuar.';
 
   @override
+  String get failureAccountMismatch =>
+      'Essa não é a conta que está no app. Escolha a mesma conta Google para confirmar.';
+
+  @override
   String get failureSignInRequired =>
       'Entre com o Google para guardar seus filmes.';
 
@@ -311,6 +315,32 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get profileSigningOut => 'Saindo';
+
+  @override
+  String get profileDeleteAccount => 'Excluir conta';
+
+  @override
+  String get profileDeleteAccountHint =>
+      'Apaga a conta e todos os filmes marcados.';
+
+  @override
+  String get profileDeleteAccountRetry => 'Tentar excluir de novo';
+
+  @override
+  String get profileAccountDeleted => 'Sua conta foi excluída.';
+
+  @override
+  String get deleteAccountDialogTitle => 'Excluir a conta?';
+
+  @override
+  String get deleteAccountDialogBody =>
+      'Vamos apagar seus assistidos, quero assistir e favoritos e a sua conta no app. Não dá para desfazer. Para confirmar, escolha a sua conta Google de novo.';
+
+  @override
+  String get deleteAccountDialogCancel => 'Cancelar';
+
+  @override
+  String get profileDeletingAccount => 'Excluindo a conta';
 
   @override
   String get profileUnsyncedWarning =>

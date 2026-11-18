@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:ja_vi_esse_filme/features/auth/domain/entities/account_deletion_outcome.dart';
 import 'package:ja_vi_esse_filme/features/auth/domain/entities/auth_state.dart';
 import 'package:ja_vi_esse_filme/features/auth/domain/entities/sign_in_outcome.dart';
 import 'package:ja_vi_esse_filme/features/auth/domain/repositories/auth_repository.dart';
@@ -85,6 +86,22 @@ class FakeAuthRepository implements AuthRepository {
     return synced;
   }
 
+  final List<Completer<AccountDeletionOutcome>> _pendingDeletions = [];
+
+  /// Cada exclusão fica pendente até o teste responder com
+  /// [completeDeletion] ou [failDeletion].
   @override
-  Future<void> deleteAccount() async => throw UnimplementedError();
+  Future<AccountDeletionOutcome> deleteAccount() {
+    final completer = Completer<AccountDeletionOutcome>();
+    _pendingDeletions.add(completer);
+    return completer.future;
+  }
+
+  int get pendingDeletions => _pendingDeletions.length;
+
+  void completeDeletion(AccountDeletionOutcome outcome) =>
+      _pendingDeletions.removeAt(0).complete(outcome);
+
+  void failDeletion(Object error) =>
+      _pendingDeletions.removeAt(0).completeError(error);
 }

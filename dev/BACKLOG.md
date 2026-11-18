@@ -92,4 +92,9 @@ Ideias que surgiram e não estão no plano imediato. Marque **[prioritário]** o
 - Mover `PosterGrid*` e `MoviesMessage` para `core/widgets/`, agora que a Estante usa os dois (`code-reviewer` da 023, S9)
 - Estante além de 200 filmes por aba: cursor (`startAfterDocument` + `get()`) depois do teto, sem reler a aba inteira (decisão 014)
 - Guardar os fluxos do Maestro da sessão 023 (abas, marcar e ver na aba, offline, logout, login pelo convite) junto com os da 022 em `.maestro/` (sessão 023)
-
+- Aviso para a exclusão (e o login) offline: com modo avião, o Play Services devolve `GetCredentialCancellationException` depois de escolher a conta, e o app trata como cancelamento, sem mensagem. Avaliar um aviso neutro no cancelamento ("Se não aconteceu nada, confira a conexão") ou checar a rede antes de abrir o seletor (sessão 024)
+- O `disconnect()` do `google_sign_in_android` revoga todas as contas autenticadas no processo: uma conta escolhida antes (um `user-mismatch`) perde a autorização junto. Avaliar reabrir o seletor só depois de um `signOut()` do Google, ou registrar a limitação na política (sessão 024)
+- Marca da tela de consentimento OAuth no Google Cloud: o seletor mostra o logo do Flutter. Trocar pelo ícone do app junto com o item "Ícone, splash, nome do app" da Fase 4 (sessão 024)
+- `integration_test` do `cloudFirestoreAccountDocuments` contra o emulador do Firestore: leitura do servidor, `WriteBatch` e o caminho `users/{uid}/movies` de verdade (decisão 015, sessão 024)
+- Limpar o cache do Firestore quando chega um `SignedOut` que não veio do `signOut()` do app (conta excluída em outro aparelho, refresh com `user-not-found`): hoje o cache só sai no logout e na próxima abertura sem conta (`security-auditor` da 024)
+- Separar o "Excluindo a conta" em dois estados, reautenticando e apagando, e só tirar a Estante de cena no segundo: hoje fechar o seletor desmonta as abas, que perdem a rolagem e a paginação (`code-reviewer` da 024, S7)

@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import '../../../../core/firestore/user_collections.dart';
+
 import 'firestore_fields.dart';
 import 'shelf_gateway.dart';
 
@@ -12,8 +14,10 @@ class CloudFirestoreShelfGateway implements ShelfGateway {
 
   // Pelo `doc(uid)`, e não por um caminho montado em texto: o `AppUser` já
   // recusa `uid` com barra (sessão 019).
-  CollectionReference<Map<String, dynamic>> _movies(String uid) =>
-      _firestore.collection('users').doc(uid).collection('movies');
+  CollectionReference<Map<String, dynamic>> _movies(String uid) => _firestore
+      .collection(UserCollections.users)
+      .doc(uid)
+      .collection(UserCollections.movies);
 
   DocumentReference<Map<String, dynamic>> _movie(String uid, int movieId) =>
       _movies(uid).doc('$movieId');

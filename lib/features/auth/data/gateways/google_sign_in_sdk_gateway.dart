@@ -29,4 +29,10 @@ final class GoogleSignInSdkGateway implements GoogleAccountGateway {
     await _initialized;
     await _signIn.signOut();
   }
+
+  @override
+  Future<void> disconnect() async {
+    await _initialized;
+    await _signIn.disconnect();
+  }
 }

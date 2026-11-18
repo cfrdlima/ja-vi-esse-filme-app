@@ -1,4 +1,5 @@
 import '../../../../core/error/failures.dart';
+import '../../domain/entities/account_deletion_outcome.dart';
 import '../../domain/entities/auth_state.dart';
 import '../../domain/entities/sign_in_outcome.dart';
 import '../../domain/repositories/auth_repository.dart';
@@ -26,5 +27,5 @@ final class UnavailableAuthRepository implements AuthRepository {
   Future<void> signOut() async {}
 
   @override
-  Future<void> deleteAccount() async => throw _unavailable;
+  Future<AccountDeletionOutcome> deleteAccount() async => throw _unavailable;
 }

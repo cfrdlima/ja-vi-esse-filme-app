@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
+import 'package:ja_vi_esse_filme/features/auth/domain/entities/account_deletion_outcome.dart';
 import 'package:ja_vi_esse_filme/features/auth/domain/entities/auth_state.dart';
 
 import 'fake_auth_repository.dart';
@@ -18,10 +21,18 @@ void main() {
     expect(first, isA<SignedOut>());
   });
 
-  test('deve falhar o deleteAccount pelo future, sem lançar na chamada', () {
+  test('deve deixar a exclusão pendente até o teste responder', () async {
+    unawaited(repository.deleteAccount());
+
+    expect(repository.pendingDeletions, 1);
+  });
+
+  test('deve devolver o resultado da exclusão que o teste der', () async {
     final result = repository.deleteAccount();
 
-    expect(result, throwsUnimplementedError);
+    repository.completeDeletion(const AccountDeleted());
+
+    expect(await result, const AccountDeleted());
   });
 
   test('não deve emitir SignedOut de novo quando a conta já saiu', () async {

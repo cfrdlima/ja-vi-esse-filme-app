@@ -10,6 +10,7 @@ String failureMessage(AppLocalizations l10n, Failure failure) =>
       AccountDisabledFailure() => l10n.failureAccountDisabled,
       RecentLoginRequiredFailure() => l10n.failureRecentLoginRequired,
       SignInRequiredFailure() => l10n.failureSignInRequired,
+      AccountMismatchFailure() => l10n.failureAccountMismatch,
       UnauthorizedFailure() ||
       NotFoundFailure() ||
       ServerFailure() ||

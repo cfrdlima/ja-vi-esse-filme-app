@@ -29,6 +29,11 @@ class AccountSection extends StatelessWidget {
     );
     final panel = switch (state) {
       SessionLoading() => const AccountSkeleton(),
+      // Antes do deslogado, do qual é um subtipo.
+      SessionAccountDeleted() => SignedOutPanel(
+        notice: AppLocalizations.of(context).profileAccountDeleted,
+        action: signInButton,
+      ),
       SessionSignedOut() => SignedOutPanel(action: signInButton),
       SessionSigningIn() => const SignedOutPanel(
         action: GoogleSignInButton.loading(),
@@ -52,6 +57,16 @@ class AccountSection extends StatelessWidget {
         action: UnsyncedSignOutPrompt(
           onConfirm: context.read<SessionNotifier>().confirmSignOut,
           onCancel: context.read<SessionNotifier>().cancelSignOut,
+        ),
+      ),
+      SessionDeletingAccount(:final user) => SignedInPanel(
+        user: user,
+        action: const SignOutButton.disabled(),
+      ),
+      SessionDeleteAccountFailed(:final user) => SignedInPanel(
+        user: user,
+        action: SignOutButton(
+          onPressed: () => unawaited(context.read<SessionNotifier>().signOut()),
         ),
       ),
       SessionSignOutFailed(:final failure) => SignOutFailedPanel(
@@ -78,7 +93,9 @@ class AccountSection extends StatelessWidget {
     SessionSignInFailed() => 'signedOut',
     SessionSignedIn() ||
     SessionSigningOut() ||
-    SessionUnsyncedSignOut() => 'signedIn',
+    SessionUnsyncedSignOut() ||
+    SessionDeletingAccount() ||
+    SessionDeleteAccountFailed() => 'signedIn',
     SessionSignOutFailed() => 'signOutFailed',
   };
 }

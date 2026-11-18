@@ -256,6 +256,12 @@ abstract class AppLocalizations {
   /// **'Por segurança, entre de novo com o Google para continuar.'**
   String get failureRecentLoginRequired;
 
+  /// Na reautenticação para excluir a conta, a pessoa escolheu outra conta Google (user-mismatch)
+  ///
+  /// In pt, this message translates to:
+  /// **'Essa não é a conta que está no app. Escolha a mesma conta Google para confirmar.'**
+  String get failureAccountMismatch;
+
   /// Ação que precisa de conta, como marcar um filme, sem ninguém logado
   ///
   /// In pt, this message translates to:
@@ -573,6 +579,54 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Saindo'**
   String get profileSigningOut;
+
+  /// Ação destrutiva no fim do Perfil e botão de confirmar no diálogo (decisão 015)
+  ///
+  /// In pt, this message translates to:
+  /// **'Excluir conta'**
+  String get profileDeleteAccount;
+
+  /// Texto de apoio abaixo do Excluir conta
+  ///
+  /// In pt, this message translates to:
+  /// **'Apaga a conta e todos os filmes marcados.'**
+  String get profileDeleteAccountHint;
+
+  /// Botão depois de uma exclusão que falhou; exclui sem o diálogo, já confirmado
+  ///
+  /// In pt, this message translates to:
+  /// **'Tentar excluir de novo'**
+  String get profileDeleteAccountRetry;
+
+  /// Aviso no Perfil logo depois da exclusão da conta
+  ///
+  /// In pt, this message translates to:
+  /// **'Sua conta foi excluída.'**
+  String get profileAccountDeleted;
+
+  /// Título do diálogo de confirmação da exclusão
+  ///
+  /// In pt, this message translates to:
+  /// **'Excluir a conta?'**
+  String get deleteAccountDialogTitle;
+
+  /// Texto do diálogo: o que é apagado, que não tem volta e que o seletor do Google abre
+  ///
+  /// In pt, this message translates to:
+  /// **'Vamos apagar seus assistidos, quero assistir e favoritos e a sua conta no app. Não dá para desfazer. Para confirmar, escolha a sua conta Google de novo.'**
+  String get deleteAccountDialogBody;
+
+  /// Fecha o diálogo da exclusão sem fazer nada
+  ///
+  /// In pt, this message translates to:
+  /// **'Cancelar'**
+  String get deleteAccountDialogCancel;
+
+  /// Botão Excluir conta desabilitado e skeleton da Estante enquanto a conta é excluída (decisão 015)
+  ///
+  /// In pt, this message translates to:
+  /// **'Excluindo a conta'**
+  String get profileDeletingAccount;
 
   /// Aviso no Perfil quando o logout acharia marcas feitas offline e ainda não sincronizadas
   ///

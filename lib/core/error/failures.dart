@@ -46,6 +46,12 @@ final class RecentLoginRequiredFailure extends Failure {
   const RecentLoginRequiredFailure();
 }
 
+/// Na reautenticação, a pessoa escolheu no seletor uma conta Google que não
+/// é a que está no app (`user-mismatch`). Nada foi apagado.
+final class AccountMismatchFailure extends Failure {
+  const AccountMismatchFailure();
+}
+
 /// Ação que precisa de conta (marcar um filme, por exemplo) sem ninguém
 /// logado. A UI leva ao login e volta (decisão 010).
 final class SignInRequiredFailure extends Failure {

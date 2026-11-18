@@ -6,6 +6,7 @@ import '../../../../core/theme/app_sizes.dart';
 import '../../../../core/theme/app_theme_tokens.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../widgets/account_section.dart';
+import '../widgets/delete_account_section.dart';
 
 /// Aba Perfil: o bloco da conta e a entrada da tela Sobre.
 class ProfileScreen extends StatelessWidget {
@@ -43,6 +44,8 @@ class ProfileScreen extends StatelessWidget {
             trailing: const Icon(Icons.chevron_right),
             onTap: () => context.go(AppRoutes.about),
           ),
+          // No fim, longe do "Sair" (`destructive-nav-separation`).
+          const DeleteAccountSection(),
         ],
       ),
     );

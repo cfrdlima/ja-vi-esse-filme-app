@@ -4,6 +4,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 
 import '../../../../core/error/failures.dart';
+import '../../../../core/firestore/user_data_write_lock.dart';
 import '../../domain/entities/movie_copy.dart';
 import '../../domain/entities/shelf_entry.dart';
 import '../../domain/entities/shelf_mark.dart';
@@ -16,9 +17,16 @@ import '../models/shelf_movie_model.dart';
 /// A Estante no Firestore, sempre no `uid` de quem está logado na hora da
 /// chamada (decisão 013).
 class FirestoreShelfRepository implements ShelfRepository {
-  FirestoreShelfRepository({required this._gateway, required this._currentUid});
+  FirestoreShelfRepository({
+    required this._gateway,
+    required this._currentUid,
+    required this._writeLock,
+  });
 
   final ShelfGateway _gateway;
+
+  /// Ligada pela exclusão da conta enquanto ela apaga os documentos.
+  final UserDataWriteLock _writeLock;
 
   /// Nulo sem ninguém logado.
   final String? Function() _currentUid;
@@ -170,6 +178,9 @@ class FirestoreShelfRepository implements ShelfRepository {
   Future<void> _write(Future<void> Function(String uid) write) async {
     final uid = _currentUid();
     if (uid == null) throw const SignInRequiredFailure();
+    if (_writeLock.isLocked) {
+      throw const UnexpectedFailure('shelf: exclusão da conta em andamento');
+    }
     try {
       await write(uid);
     } on Exception catch (error) {

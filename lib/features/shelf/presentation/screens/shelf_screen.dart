@@ -25,7 +25,8 @@ class ShelfScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final title = Text(AppLocalizations.of(context).shelfTitle);
+    final l10n = AppLocalizations.of(context);
+    final title = Text(l10n.shelfTitle);
     return switch (context.watch<SessionNotifier>().state) {
       SessionSignedOut() ||
       SessionSigningIn() ||
@@ -36,12 +37,17 @@ class ShelfScreen extends StatelessWidget {
       // As abas nascem com a conta e morrem quando a saída começa, antes do
       // `closeStreams()`: nenhum stream nem renovação da Estante sobrevive à
       // limpeza do cache (decisão 010).
-      SessionLoading() || SessionSignedIn() => _ShelfTabs(title: title),
+      SessionLoading() ||
+      SessionSignedIn() ||
+      SessionDeleteAccountFailed() => _ShelfTabs(title: title),
       SessionSigningOut() || SessionUnsyncedSignOut() => Scaffold(
         appBar: AppBar(title: title),
-        body: PosterGridSkeleton(
-          label: AppLocalizations.of(context).profileSigningOut,
-        ),
+        body: PosterGridSkeleton(label: l10n.profileSigningOut),
+      ),
+      // Como na saída: a limpeza no fim da exclusão fecha os streams.
+      SessionDeletingAccount() => Scaffold(
+        appBar: AppBar(title: title),
+        body: PosterGridSkeleton(label: l10n.profileDeletingAccount),
       ),
       SessionSignOutFailed() => Scaffold(
         appBar: AppBar(title: title),
