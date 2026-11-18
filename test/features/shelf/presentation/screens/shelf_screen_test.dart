@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ja_vi_esse_filme/core/error/failures.dart';
+import 'package:ja_vi_esse_filme/features/auth/domain/entities/account_deletion_outcome.dart';
 import 'package:ja_vi_esse_filme/features/auth/domain/entities/app_user.dart';
 import 'package:ja_vi_esse_filme/features/auth/domain/entities/auth_state.dart';
 import 'package:ja_vi_esse_filme/features/auth/domain/repositories/auth_repository.dart';
@@ -452,6 +453,69 @@ void main() {
         await tester.pumpAndSettle();
 
         expect(find.text('perfil'), findsOneWidget);
+      });
+
+      group('ao excluir a conta', () {
+        Future<void> startDeletion(WidgetTester tester) async {
+          unawaited(sessionOf(tester).deleteAccount());
+          await tester.pump();
+          await tester.pump();
+        }
+
+        // A limpeza do cache no fim da exclusão roda o `closeStreams()`, como
+        // no logout (decisão 010).
+        testWidgets('deve parar de ouvir a Estante ao começar a excluir', (
+          tester,
+        ) async {
+          await pumpSignedIn(tester);
+          await emitPage(tester, page([movie(7)]));
+
+          await startDeletion(tester);
+
+          expect(shelf.activeShelves, 0);
+        });
+
+        testWidgets('não deve mostrar as abas enquanto exclui', (tester) async {
+          await pumpSignedIn(tester);
+
+          await startDeletion(tester);
+
+          expect(find.byType(TabBar), findsNothing);
+        });
+
+        testWidgets('deve dizer que está excluindo a conta', (tester) async {
+          await pumpSignedIn(tester);
+
+          await startDeletion(tester);
+
+          expect(find.bySemanticsLabel('Excluindo a conta'), findsOneWidget);
+        });
+
+        // A conta continua quando a exclusão falha antes do `user.delete()`.
+        testWidgets('deve voltar às abas quando a exclusão falha', (
+          tester,
+        ) async {
+          await pumpSignedIn(tester);
+          await startDeletion(tester);
+
+          auth.failDeletion(const NetworkFailure());
+          await tester.pump();
+          await tester.pump();
+
+          expect(find.byType(TabBar), findsOneWidget);
+        });
+
+        testWidgets('deve convidar a entrar depois da conta excluída', (
+          tester,
+        ) async {
+          await pumpSignedIn(tester);
+          await startDeletion(tester);
+
+          auth.completeDeletion(const AccountDeleted());
+          await tester.pumpAndSettle();
+
+          expect(find.byType(GoogleSignInButton), findsOneWidget);
+        });
       });
 
       testWidgets('deve caber com a fonte grande', (tester) async {

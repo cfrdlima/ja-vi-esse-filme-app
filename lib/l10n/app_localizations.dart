@@ -580,6 +580,12 @@ abstract class AppLocalizations {
   /// **'Saindo'**
   String get profileSigningOut;
 
+  /// Botão Excluir conta desabilitado e skeleton da Estante enquanto a conta é excluída (decisão 015)
+  ///
+  /// In pt, this message translates to:
+  /// **'Excluindo a conta'**
+  String get profileDeletingAccount;
+
   /// Aviso no Perfil quando o logout acharia marcas feitas offline e ainda não sincronizadas
   ///
   /// In pt, this message translates to:

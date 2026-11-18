@@ -317,6 +317,9 @@ class AppLocalizationsPt extends AppLocalizations {
   String get profileSigningOut => 'Saindo';
 
   @override
+  String get profileDeletingAccount => 'Excluindo a conta';
+
+  @override
   String get profileUnsyncedWarning =>
       'Algumas marcas ainda não chegaram ao servidor. Se sair agora, elas serão apagadas deste aparelho e não vão para a sua conta.';
 

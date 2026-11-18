@@ -214,6 +214,8 @@
   "@signInSheetBody": { "description": "Texto da folha de login que abre ao marcar um filme sem conta" },
   "profileSigningOut": "Saindo",
   "@profileSigningOut": { "description": "Botão Sair desabilitado enquanto o app espera as marcas chegarem ao servidor (até 5 s)" },
+  "profileDeletingAccount": "Excluindo a conta",
+  "@profileDeletingAccount": { "description": "Botão Excluir conta desabilitado e skeleton da Estante enquanto a conta é excluída (decisão 015)" },
   "profileUnsyncedWarning": "Algumas marcas ainda não chegaram ao servidor. Se sair agora, elas serão apagadas deste aparelho e não vão para a sua conta.",
   "@profileUnsyncedWarning": { "description": "Aviso no Perfil quando o logout acharia marcas feitas offline e ainda não sincronizadas" },
   "profileSignOutAnyway": "Sair mesmo assim",

@@ -24,7 +24,7 @@ Excluir a conta pelo app, na ordem da decisão 010: login recente, os documentos
 
 ### Estado (RED/GREEN/REFACTOR)
 - [x] `SessionNotifier.deleteAccount`: estado "excluindo", sucesso (deslogado), falha com "tentar de novo"; guarda contra chamada dupla e contra login/logout em andamento. **Feito:** `SessionDeletingAccount`, `SessionDeleteAccountFailed` (fora do `SessionFailed`, porque a conta continua) e `SessionAccountDeleted` (subtipo do deslogado, com o aviso no Perfil no lugar do `SnackBar`); o `SignedOut` do `user.delete()` fica guardado até o fim, como no login; 16 testes
-- [ ] Estante sai de cena quando a exclusão começa, como no logout
+- [x] Estante sai de cena quando a exclusão começa, como no logout. **Feito:** skeleton "Excluindo a conta" durante a exclusão, abas de volta na falha, convite depois; 5 widget tests, conferidos por mutação
 
 ### UI (RED/GREEN/REFACTOR, widget tests)
 - [ ] "Excluir conta" no Perfil, com diálogo de confirmação explícita (o que é apagado, sem volta), progresso, erro com "tentar de novo", strings no ARB, `Semantics`, alvo ≥ 48dp, fonte grande
