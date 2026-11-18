@@ -33,7 +33,7 @@ Publicar no Pages (repositório `cfrdlima/ja-vi-esse-filme-suporte`, decisão 00
 - [x] (I6) Saída da tríade no log
 - [x] (S1–S6, S8, S9) Passo certo sem conta, rótulos do console, lixeira e enviados, LGPD (19, II e 7º, VI), botão de confirmar, datas do Auth, o que o console mostra, cdnjs/Pages na 2.0, `description` próprio no front matter
 - [ ] (S7) Conferir no console se o Firestore tem backup agendado, PITR ou export: o `firebase` CLI da máquina está em outra conta (403 no projeto). Pendência para o usuário, também no item da 2.0
-- [ ] Republicar a página corrigida (decisão 006), com `gitleaks` e o noreply
+- [x] Republicar a página corrigida (decisão 006), com `gitleaks` e o noreply. **Feito:** `b39bf96` no repositório público, no ar com HTTP 200 e o `description` próprio
 - [ ] `/fechar-sessao`
 
 ## Decisões
@@ -44,6 +44,8 @@ Publicar no Pages (repositório `cfrdlima/ja-vi-esse-filme-suporte`, decisão 00
 - `afb2060` docs: página de exclusão da conta pela web e procedimento de atendimento do pedido
 - `5cc4990` docs: emenda na decisão 015 com o endereço, o prazo e a guarda do pedido por e-mail
 - Repositório público: `ddc12a6` docs: página de exclusão da conta (autor e committer noreply, sem atribuição, a pedido do usuário)
+- `607ca7e` fix: atendimento da exclusão com confirmação do remetente, ordem no console e dados sem conta, achados do /revisar da sessão 025
+- Repositório público: `b39bf96` docs: confirmação do pedido, revogação do acesso e dados sem conta na exclusão da conta
 
 ## Notas
 - **Exigência do Play** (Central de Ajuda, "Understanding Google Play's app account deletion requirements"): link funcional; nome do app ou do desenvolvedor igual ao da ficha da loja; caminho de exclusão em destaque; pedido sem precisar do app (e-mail aceito); dados ligados à conta apagados; o que fica guardado e por quê informado; prazo "razoavelmente rápido", sem número. A URL vai no formulário de Segurança dos dados, mesmo com a exclusão no app. **Pendência para a loja:** o nome "Claudinei de Lima" precisa bater com o nome do desenvolvedor no Play Console (o usuário manteve o nome).
