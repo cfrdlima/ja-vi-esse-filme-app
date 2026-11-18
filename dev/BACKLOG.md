@@ -103,3 +103,7 @@ Ideias que surgiram e não estão no plano imediato. Marque **[prioritário]** o
 - Prova de rede da política 2.0: num aparelho sem conta, conferir com proxy ou logcat de rede que o app não fala com `*.googleapis.com` (sessão 026)
 - Limpeza mensal em escala: trocar a query por usuário por uma `collectionGroup('movies')` com `fieldOverride` de escopo collection group no `firestore.indexes.json` (deploy junto), e reaproveitar a lista de usuários da primeira etapa. Hoje cada execução custa cerca de 3 leituras por usuário mais as cópias vencidas, e a cota do Spark é de 50 mil leituras por dia (sessão 027)
 - App: título pt-BR só com espaços deveria cair no `original_title` (`TmdbJson.nonEmpty` não faz trim), como a limpeza mensal já faz (sessão 027)
+- Comentário em texto na nota pessoal: ficou fora da decisão 018; se entrar, vem com decisão própria, tamanho máximo no domínio e nas regras, e revisão da política (sessão 028)
+- Mostrar a nota pessoal e o dia em que assistiu na grade da aba Assistidos da Estante (sessão 028)
+- Ordenar a aba Assistidos pelo dia escolhido (`watchedOn`) em vez do `watchedAt`, se fizer falta; pede índice composto (decisões 014 e 018, sessão 028)
+- `gitleaks` local: instalar o binário 8.30.1 do CI (hoje roda a imagem 8.21.2 em container) para o `/fechar-sessao` usar a mesma versão (sessão 028)

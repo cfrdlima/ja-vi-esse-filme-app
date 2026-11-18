@@ -1,6 +1,6 @@
 # Sessão 028 — Fase 3: nota pessoal e data em que assistiu
 
-**Data**: 2026-11-18 · **Branch**: `feature/028-nota-e-data` (empilhada na `feature/027-limpeza-mensal`) · **Status**: aberta
+**Data**: 2026-11-18 · **Branch**: `feature/028-nota-e-data` (empilhada na `feature/027-limpeza-mensal`) · **Status**: fechada
 
 ## Objetivo
 Permitir que o usuário dê a um filme assistido uma nota de 0,5 a 5 estrelas (`rating`, inteiro de 1 a 10 no Firestore) e escolha o dia em que assistiu (`watchedOn`, data civil `AAAA-MM-DD`, gravada só quando ele escolhe, nunca futura nem antes de 1888). Os dois campos só existem com a marca Assistido: desmarcar Assistido apaga os dois depois de um aviso. O `watchedAt` continua sendo a hora do servidor e ainda ordena a aba.
@@ -8,7 +8,7 @@ Permitir que o usuário dê a um filme assistido uma nota de 0,5 a 5 estrelas (`
 ## Checklist
 ### Preparação
 - [x] Decisão (`/decisao`): `rating` e `watchedOn` no documento do filme, a escala, o formato da data, o vínculo com o Assistido e a emenda na 013 (o cliente escolhe o `watchedOn`, mas nunca os `<marca>At`)
-- [ ] Consultar a `ui-ux-pro-max` (stack Flutter) para o seletor de estrelas e o de data nos Detalhes; override em `pages/` se precisar
+- [x] Consultar a `ui-ux-pro-max` (stack Flutter) para o seletor de estrelas e o de data nos Detalhes; override em `pages/` se precisar. **Feito:** sem regra específica para estrelas nem seletor de data (fallback com as regras gerais); seção "Nota e dia em que assistiu" no `detalhes.md`
 - [x] Conferir o `firestore/cleanup` (a renovação usa `update` e preserva os campos novos) e a exclusão da conta (a subcoleção `movies` já está na lista). **Feito:** teste no emulador de que a renovação mantém `rating` e `watchedOn` (passou de primeira, porque o Admin SDK ignora as regras e o `update` só toca na cópia); a exclusão apaga o documento inteiro
 
 ### Regras do Firestore (RED/GREEN/REFACTOR, no emulador)
@@ -30,16 +30,16 @@ Permitir que o usuário dê a um filme assistido uma nota de 0,5 a 5 estrelas (`
 - [x] `addMark(watched)` não grava o `watchedOn` (decisão 018: só quando o usuário escolhe; a tela sugere o dia do `watchedAt`). **Feito:** sem mudança no `markFields`
 
 ### Apresentação (RED/GREEN/REFACTOR, widget tests)
-- [ ] Estado: dar e tirar a nota e trocar a data com atualização otimista, e erro com "tentar de novo"
-- [ ] Detalhes: estrelas (alvos de 48dp, `Semantics` com "3,5 de 5 estrelas") e data, só com Assistido; os 4 estados
-- [ ] Aviso antes de desmarcar Assistido quando há nota ou data
-- [ ] Textos no ARB (PT-BR); fonte grande sem overflow
+- [x] Estado: dar e tirar a nota e trocar a data com atualização otimista, e erro com "tentar de novo". **Feito:** `WatchedDiaryNotifier`, alimentado pelo `watchedMovie` do `ShelfMarksNotifier`
+- [x] Detalhes: estrelas (alvos de 48dp, `Semantics` com "3,5 de 5 estrelas") e data, só com Assistido; os 4 estados. **Feito:** `WatchedDiaryPanel`; o carregando e o erro de leitura são os das marcas, e o painel some sem o Assistido confirmado
+- [x] Aviso antes de desmarcar Assistido quando há nota ou data. **Feito:** `UnwatchDialog`
+- [x] Textos no ARB (PT-BR); fonte grande sem overflow
 - [x] Verificação no emulador (screenshot via MCP do Flutter). **Feito** por `adb` (sem MCP do Flutter nesta máquina), com a conta de teste descartável escolhida pelo usuário; ver "Notas"
 
 ### Entrega
-- [ ] `docs/PRIVACIDADE.md`: tirar o `A REVISAR` da Fase 3 só para a nota e a data (as listas continuam marcadas)
-- [ ] `PLANO.md`: item marcado
-- [ ] Tríade (format, analyze, `flutter test`), `npm test` em `firestore/` (JDK 21) e `gitleaks`
+- [x] `docs/PRIVACIDADE.md`: tirar o `A REVISAR` da Fase 3 só para a nota e a data (as listas continuam marcadas). **Também:** `docs/EXCLUSAO-DA-CONTA.md`
+- [x] `PLANO.md`: item marcado
+- [x] Tríade (format, analyze, `flutter test`), `npm test` em `firestore/` (JDK 21) e `gitleaks`. **Feito:** format 0 de 235, analyze limpo, 1589 verdes; 203 verdes no `firestore/`; `gitleaks` 8.21.2 em container sem vazamento (576 commits)
 - [x] `/revisar` (regras do Firestore e dado pessoal novo). **Feito:** `code-reviewer` (1 bloqueante, 4 importantes, 6 sugestões) e `security-auditor` (nenhum bloqueante, 2 importantes, 4 sugestões); o usuário aceitou todos
 
 ### Achados aceitos do `/revisar`
@@ -63,8 +63,40 @@ Permitir que o usuário dê a um filme assistido uma nota de 0,5 a 5 estrelas (`
 - Escolhas do usuário na abertura: estrelas de 0,5 a 5; a data como campo novo, só o dia; nota e data só com Assistido.
 
 ## Commits
+- `ffd6451` docs: abre sessão 028 e decisão 018 (nota e data em que assistiu)
+- `dca2f18` test: regras da nota e do dia em que assistiu, e a limpeza que os preserva
+- `bfc66fc` add: regras aceitam a nota e o dia em que assistiu só com o Assistido
+- `b5b6689` test: nota em meias estrelas, dia em que assistiu e os dois só no filme assistido
+- `c8d0e21` add: Rating, WatchedOn e o ShelfMovie com a nota e o dia só no assistido
+- `28a2858` test: model e repositório gravam e leem a nota e o dia em que assistiu
+- `6defba8` test: Estante sem Firebase recusa a nota e o dia sem conta
+- `f73903c` add: repositório grava e lê a nota e o dia, e o Assistido desmarcado leva os dois
+- `71c3b13` test: escolha do dia em que assistiu recusa o futuro e sugere o dia do Assistido
+- `ca5df75` add: ChooseWatchedOn recusa o dia no futuro e sugere o dia do Assistido
+- `094975d` docs: checklist da 028 e emenda na 018 sobre o dia futuro já gravado
+- `6fe8b9e` test: marcas dão o filme assistido confirmado para a nota e o dia
+- `21d9886` add: marcas dão o filme assistido confirmado para a nota e o dia
+- `31b332b` test: estado da nota e do dia com escrita otimista, recusa e tentar de novo
+- `0a13230` add: WatchedDiaryNotifier com a nota e o dia otimistas, a recusa e o tentar de novo
+- `77dfdb2` refactor: sugestão do dia sai do ChooseWatchedOn e vira o markedOn do estado
+- `74d5492` test: painel da nota e do dia com estrelas, seletor, recusa e fonte grande
+- `080ee1b` add: painel da nota e do dia com estrelas ajustáveis pelo leitor de tela e o seletor do dia
+- `872bff1` refactor: meia estrela a mais e a menos no estado, sem repetir a conta no painel
+- `1389cf5` test: seção das marcas mostra a nota e confirma antes de tirar o Assistido com nota
+- `414e1ef` add: seção das marcas monta a nota e o dia e confirma antes de tirar o Assistido com eles
+- `d167da3` docs: política 2.0 e página de exclusão com a nota e o dia em que assistiu
+- `4481830` test: achados do /revisar da 028 (recusa depois do eco local, dispose, slider, confirmação e hoje do seletor)
+- `2e104fc` fix: recusa da nota e do dia aparece depois do eco local, nada grava depois do dispose, estrelas como slider e confirmação sem repor o Assistido
+- `b0b0e8e` test: regras negam a nota por update sem o Assistido, por merge sem documento e com watchedAt do cliente
+- `0eab8dc` docs: política 2.0, exclusão, override e aviso do logout com a nota e o dia (achados do /revisar)
+- `6610f66` docs: achados do /revisar da 028 marcados no checklist
+- `6ee6fc5` docs: verificação no emulador da nota e do dia, e o deploy das regras
+- `0e770cb` fix: diálogo da exclusão da conta cita as notas e os dias
+- (este) docs: fecha sessão 028
 
 ## Notas
+- **Pendências:** conferir no console do Firebase que a conta de teste sumiu do Authentication e que não sobrou nada em `users/`; ao publicar a 2.0, levar o `docs/EXCLUSAO-DA-CONTA.md` atualizado para o repositório do suporte. As regras publicadas no projeto real já são as desta branch, antes da integração na `main`.
+- **Empilhada:** a 028 tem base na `feature/027-limpeza-mensal`; o PR vai com essa base, como a 026 e a 027.
 - **Emulador (`Pixel_9_Pro`, Android 16, projeto real, conta de teste descartável escolhida pelo usuário):**
   - Cancelar o seletor do Google deixa a folha de login aberta, sem erro. Depois do login, o Assistido entra sozinho e o painel aparece com 5 estrelas vazias e "18/11/2026 (dia da marca)".
   - **Regras desatualizadas no projeto real (como na 022):** a primeira nota deu `PERMISSION_DENIED`. A tela mostrou "Algo deu errado." com "Tentar de novo", e as estrelas voltaram ao vazio: o caminho do B1 com o Firestore real. Com a confirmação do usuário, as regras desta branch foram publicadas (`firebase deploy --only firestore:rules --project ja-vi-esse-filme --account` da conta dona do projeto; a conta padrão da CLI deu 403).
