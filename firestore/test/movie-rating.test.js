@@ -1,6 +1,7 @@
 import { after, before, beforeEach, describe, test } from 'node:test';
 import { assertFails, assertSucceeds } from '@firebase/rules-unit-testing';
 import {
+  Timestamp,
   deleteField,
   doc,
   serverTimestamp,
@@ -89,6 +90,29 @@ describe('nota e dia em que assistiu', () => {
   test('deve negar o dia sem a marca Assistido', async () => {
     await assertFails(
       setDoc(movieRef(), { ...unwatchedMovie(), watchedOn: '2026-11-18' }),
+    );
+  });
+
+  // O caminho do app: o update só da nota num filme que já existe.
+  test('deve negar dar a nota a um filme só na lista de quero assistir', async () => {
+    await setDoc(movieRef(), unwatchedMovie());
+
+    await assertFails(updateDoc(movieRef(), { rating: 7 }));
+  });
+
+  // A nota não recria o filme que saiu da Estante (decisão 018).
+  test('deve negar a nota com merge num filme que não existe', async () => {
+    await assertFails(setDoc(movieRef(), { rating: 9 }, { merge: true }));
+  });
+
+  test('deve negar a nota junto com um watchedAt escolhido pelo cliente', async () => {
+    await setDoc(movieRef(), validMovie());
+
+    await assertFails(
+      updateDoc(movieRef(), {
+        rating: 9,
+        watchedAt: Timestamp.fromDate(new Date('2020-01-01T00:00:00Z')),
+      }),
     );
   });
 
