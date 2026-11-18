@@ -30,7 +30,7 @@ class WatchedDiaryPanel extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _RatingRow(rating: ready.rating, notifier: notifier),
+            _RatingRow(state: ready, notifier: notifier),
             SizedBox(height: spacing.sm),
             _DayRow(state: ready, notifier: notifier),
             if (ready.failure case final failure?)
@@ -46,16 +46,16 @@ class WatchedDiaryPanel extends StatelessWidget {
 }
 
 class _RatingRow extends StatelessWidget {
-  const _RatingRow({required this.rating, required this.notifier});
+  const _RatingRow({required this.state, required this.notifier});
 
-  final Rating? rating;
+  final DiaryReady state;
   final WatchedDiaryNotifier notifier;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
-    final rating = this.rating;
+    final rating = state.rating;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -72,8 +72,8 @@ class _RatingRow extends StatelessWidget {
               key: const ValueKey('diary-stars'),
               label: l10n.diaryRatingLabel,
               value: _valueOf(l10n, rating),
-              increasedValue: _valueOf(l10n, _step(rating, 1)),
-              decreasedValue: _valueOf(l10n, _step(rating, -1)),
+              increasedValue: _valueOf(l10n, state.increasedRating),
+              decreasedValue: _valueOf(l10n, state.decreasedRating),
               onIncrease: notifier.increase,
               onDecrease: notifier.decrease,
               container: true,
@@ -104,13 +104,6 @@ class _RatingRow extends StatelessWidget {
 
   static String _valueOf(AppLocalizations l10n, Rating? rating) =>
       rating == null ? l10n.diaryNoRating : l10n.diaryRatingValue(rating.stars);
-
-  /// A nota depois de subir ou descer meia estrela, como no notifier.
-  static Rating? _step(Rating? rating, int delta) {
-    final halfStars = (rating?.halfStars ?? 0) + delta;
-    if (halfStars < 1) return null;
-    return Rating(halfStars.clamp(1, Rating.maxHalfStars));
-  }
 
   static IconData _iconFor(int star, Rating? rating) {
     final halfStars = rating?.halfStars ?? 0;

@@ -42,4 +42,17 @@ final class DiaryReady extends WatchedDiaryState {
 
   /// Se tirar o Assistido apaga algo: a tela avisa antes.
   bool get hasPersonalData => rating != null || watchedOn != null;
+
+  /// A nota com meia estrela a mais; a mesma no máximo.
+  Rating get increasedRating {
+    final halfStars = (rating?.halfStars ?? 0) + 1;
+    return Rating(halfStars.clamp(1, Rating.maxHalfStars));
+  }
+
+  /// A nota com meia estrela a menos; nula ao descer de meia estrela ou sem
+  /// nota.
+  Rating? get decreasedRating {
+    final halfStars = (rating?.halfStars ?? 0) - 1;
+    return halfStars < 1 ? null : Rating(halfStars);
+  }
 }

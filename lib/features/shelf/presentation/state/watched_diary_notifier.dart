@@ -55,16 +55,19 @@ class WatchedDiaryNotifier extends ChangeNotifier {
 
   /// Meia estrela a mais, para o leitor de tela.
   void increase() {
-    final halfStars = _shownRating()?.halfStars ?? 0;
-    if (halfStars < Rating.maxHalfStars) _writeRating(Rating(halfStars + 1));
+    if (_state case DiaryReady(
+      :final rating,
+      :final increasedRating,
+    ) when rating != increasedRating) {
+      _writeRating(increasedRating);
+    }
   }
 
   /// Meia estrela a menos; de meia estrela, tira a nota.
   void decrease() {
-    final halfStars = _shownRating()?.halfStars;
-    if (halfStars == null) return;
-    if (halfStars == 1) return clearRating();
-    _writeRating(Rating(halfStars - 1));
+    if (_state case DiaryReady(rating: Rating(), :final decreasedRating)) {
+      _writeRating(decreasedRating);
+    }
   }
 
   void clearRating() => _writeRating(null);
