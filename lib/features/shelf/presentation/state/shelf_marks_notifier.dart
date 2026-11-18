@@ -7,6 +7,7 @@ import '../../../auth/domain/entities/auth_state.dart';
 import '../../domain/entities/movie_copy.dart';
 import '../../domain/entities/shelf_entry.dart';
 import '../../domain/entities/shelf_mark.dart';
+import '../../domain/entities/shelf_movie.dart';
 import '../../domain/repositories/shelf_repository.dart';
 import 'shelf_marks_state.dart';
 
@@ -64,6 +65,13 @@ class ShelfMarksNotifier extends ChangeNotifier {
 
   ShelfMarksState _state = const ShelfMarksLoading();
   ShelfMarksState get state => _state;
+
+  final _watchedMovie = ValueNotifier<ShelfMovie?>(null);
+
+  /// O filme que a nota e o dia usam (decisão 018): o último confirmado pela
+  /// Estante, só enquanto a tela mostra o Assistido ligado e a Estante já o
+  /// confirmou. Nulo nos outros casos, inclusive deslogado.
+  ValueListenable<ShelfMovie?> get watchedMovie => _watchedMovie;
 
   /// Liga ou desliga a [mark]. Sem as marcas lidas (deslogado, carregando ou
   /// com erro), não faz nada: quem está deslogado passa pelo login antes.
@@ -235,11 +243,19 @@ class ShelfMarksNotifier extends ChangeNotifier {
     if (_disposed) return;
     _state = state;
     notifyListeners();
+    _watchedMovie.value = switch ((state, _confirmed)) {
+      (final ShelfMarksReady ready, OnShelf(:final movie))
+          when ready.isMarked(ShelfMark.watched) &&
+              movie.isMarked(ShelfMark.watched) =>
+        movie,
+      _ => null,
+    };
   }
 
   @override
   void dispose() {
     _disposed = true;
+    _watchedMovie.dispose();
     unawaited(_accountSubscription.cancel());
     unawaited(_watchSubscription?.cancel());
     super.dispose();
