@@ -34,7 +34,7 @@ Excluir a conta pelo app, na ordem da decisão 010: login recente, os documentos
 
 ### Achados aceitos do `/revisar` (o usuário seguiu a recomendação)
 - [x] (1) Nenhuma marca grava durante a exclusão: escritas da Estante travadas antes do `deleteAll`, espera das escritas pendentes, e teste de que a marca no meio é recusada. **Feito:** `UserDataWriteLock` em `core/firestore`, compartilhado pelo `main.dart`; a conta trava, espera as pendentes (15 s) e destrava no `finally`; a Estante recusa com `UnexpectedFailure`; 10 testes
-- [ ] (3) Prazo nos passos depois do `user.delete()` (`disconnect()` e limpeza), com a falha só registrada; teste com o `disconnect()` que não responde
+- [x] (3) Prazo nos passos depois do `user.delete()` (`disconnect()` e limpeza), com a falha só registrada; teste com o `disconnect()` que não responde. **Feito:** `timeout` de 15 s em cada passo do `_finishDeletion`, o `TimeoutException` registrado como `NetworkFailure`; 4 testes com `fakeAsync`
 - [ ] (6) `deadline-exceeded` do Firestore como `NetworkFailure`; `user-not-found` e `user-token-expired` na reautenticação como `AccountDisabledFailure`
 - [ ] (8) Teste da lista fixa falha com qualquer `match` fora de `/users/{uid}/<nome>/{…}`; item das listas no `PLANO.md` cita a exclusão aninhada
 - [ ] (10) Testes do `SignedIn` que chega durante a exclusão e da foto saindo do cache no `SessionAccountDeleted`

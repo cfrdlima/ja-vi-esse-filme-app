@@ -157,11 +157,12 @@ final class FirebaseAuthRepository implements AuthRepository {
   }
 
   // A conta já não existe: uma falha aqui não a reabre, e só é registrada.
-  // A limpeza roda mesmo se o `disconnect()` falhar.
+  // A limpeza roda mesmo se o `disconnect()` falhar. O prazo evita a tela
+  // presa em "Excluindo a conta" com a conta já apagada.
   Future<void> _finishDeletion() async {
     for (final step in [_google.disconnect, _cache.clear]) {
       try {
-        await step();
+        await step().timeout(AuthRepository.deleteStepTimeout);
       } on Object catch (error, stack) {
         _reportError(_toFailure(error), stack);
       }

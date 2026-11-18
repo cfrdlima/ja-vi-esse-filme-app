@@ -111,9 +111,13 @@ class _FakeGoogleAccountGateway implements GoogleAccountGateway {
 
   Object? disconnectError;
 
+  /// Com um completer aqui, o `disconnect()` fica pendente.
+  Completer<void>? disconnectGate;
+
   @override
   Future<void> disconnect() async {
     _log.add('disconnect');
+    await disconnectGate?.future;
     if (disconnectError case final error?) throw error;
   }
 }
@@ -154,10 +158,14 @@ class _FakeAccountCache implements AccountCacheGateway {
   Completer<void>? pendingWrites;
   Object? waitError;
 
+  /// Com um completer aqui, a limpeza fica pendente.
+  Completer<void>? clearGate;
+
   @override
   Future<void> clear() async {
     _log.add('clearCache');
     clearCalls++;
+    await clearGate?.future;
     firebaseSignOutsWhenCleared = _firebase.signOutCalls;
     if (clearError case final Object error) throw error;
   }
@@ -842,6 +850,66 @@ void main() {
         );
 
         expect(await repository.deleteAccount(), const AccountDeleted());
+      });
+
+      // Sem prazo, a tela ficaria em "Excluindo a conta" com a conta já
+      // apagada (`/revisar` da sessão 024).
+      group('quando um passo não responde', () {
+        AccountDeletionOutcome? deleteAndWait(
+          FakeAsync async,
+          Duration elapsed,
+        ) {
+          AccountDeletionOutcome? outcome;
+          unawaited(repository.deleteAccount().then((o) => outcome = o));
+          async.elapse(elapsed);
+          return outcome;
+        }
+
+        test('deve terminar quando o disconnect não responde', () {
+          fakeAsync((async) {
+            google.disconnectGate = Completer<void>();
+
+            final outcome = deleteAndWait(
+              async,
+              AuthRepository.deleteStepTimeout,
+            );
+
+            expect(outcome, const AccountDeleted());
+          });
+        });
+
+        test('deve limpar o cache quando o disconnect não responde', () {
+          fakeAsync((async) {
+            google.disconnectGate = Completer<void>();
+
+            deleteAndWait(async, AuthRepository.deleteStepTimeout);
+
+            expect(log.last, 'clearCache');
+          });
+        });
+
+        test('deve terminar quando a limpeza não responde', () {
+          fakeAsync((async) {
+            cache.clearGate = Completer<void>();
+
+            final outcome = deleteAndWait(
+              async,
+              AuthRepository.deleteStepTimeout,
+            );
+
+            expect(outcome, const AccountDeleted());
+          });
+        });
+
+        test('deve registrar o prazo esgotado como NetworkFailure', () {
+          fakeAsync((async) {
+            google.disconnectGate = Completer<void>();
+
+            deleteAndWait(async, AuthRepository.deleteStepTimeout);
+
+            expect(reported, [isA<NetworkFailure>()]);
+          });
+        });
       });
 
       test('deve registrar as falhas já traduzidas', () async {
