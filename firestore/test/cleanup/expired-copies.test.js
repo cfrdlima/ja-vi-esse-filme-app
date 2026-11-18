@@ -104,6 +104,17 @@ describe('cópias vencidas do TMDB', () => {
     );
   });
 
+  // Decisão 018: a nota e o dia em que assistiu são do usuário, e não do
+  // TMDB, e por isso a renovação não toca neles.
+  test('deve manter a nota e o dia em que assistiu ao renovar a cópia', async () => {
+    await addMovie('550', { rating: 7, watchedOn: '2039-06-15' });
+
+    await renew(fakeSource());
+
+    const { rating, watchedOn } = await movie('550');
+    assert.deepEqual({ rating, watchedOn }, { rating: 7, watchedOn: '2039-06-15' });
+  });
+
   test('deve tirar o pôster quando o TMDB não manda um', async () => {
     await addMovie('550');
 
