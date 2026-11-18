@@ -10,10 +10,10 @@ Excluir a conta pelo app, na ordem da decisão 010: login recente, os documentos
 - [x] Conferir no Context7: `reauthenticateWithCredential` e `user.delete()` (`firebase_auth`), `disconnect()` (`google_sign_in` 7.x), `WriteBatch` (limite de 500) e `get(GetOptions(source: Source.server))` (`cloud_firestore` 7.1.0). **Feito:** `requires-recent-login` e `user-mismatch`; lote de até 500; `Source.server` offline falha com `unavailable`; o `disconnect()` do Android só revoga contas do mesmo processo (ver decisão 015)
 - [x] Decidir com o usuário: como garantir o login recente (reautenticar sempre antes de apagar?), o prazo da exclusão offline e se o `integration_test` do gateway contra o emulador entra agora. **Decidido:** reautenticar sempre; 15 s por passo; `integration_test` no backlog
 - [x] Decisão do mecanismo da exclusão pela web (`/decisao`). **Feito:** decisão 015, pedido por e-mail
-- [ ] Consultar a `ui-ux-pro-max` (stack Flutter) para a confirmação destrutiva no Perfil e gerar o override se precisar
+- [x] Consultar a `ui-ux-pro-max` (stack Flutter) para a confirmação destrutiva no Perfil e gerar o override se precisar. **Feito:** seção "Excluir a conta" e dois estados no `pages/perfil.md`; nada na stack Flutter (fallback Material 3)
 
-### Domínio (RED/GREEN/REFACTOR)
-- [ ] Lista fixa das subcoleções de `users/{uid}` (`movies`) num lugar só, usada pela exclusão
+### Lista fixa (RED/GREEN/REFACTOR)
+- [ ] Lista fixa das subcoleções de `users/{uid}` (`movies`) num lugar só, usada pela exclusão e pelo gateway da Estante. **Mudou:** fica em `core/firestore`, e não no `domain`, porque nome de coleção é detalhe do Firestore; um teste das regras (Node) confere que ela bate com os `match` do `firestore.rules`
 
 ### Data (RED/GREEN/REFACTOR)
 - [ ] Gateway da exclusão dos documentos: lê `users/{uid}/movies` do servidor e apaga em lotes até não sobrar nada, esperando a confirmação, com prazo

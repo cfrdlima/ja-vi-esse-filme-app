@@ -8,6 +8,7 @@
 > - pro-rules "Correct Brand Logos", "Touch Target Minimum" e "Semantic native controls";
 > - stack Flutter "Use pub.dev packages": a sugestão era o `cached_network_image` para a foto, mas no `/revisar` da sessão 020 a foto da conta passou a ficar só em memória (ver Avatar).
 > A busca por avatar e placeholder na stack Flutter não trouxe nada específico. O layout abaixo é padrão geral (fallback).
+> Consulta da sessão 024 (excluir a conta): `ux` "Confirmation Dialogs" (confirmar antes da ação sem volta) e "Confirmation Messages" (avisar o sucesso); quick-reference `destructive-emphasis` (cor de erro, separada das ações comuns), `destructive-nav-separation` (excluir a conta longe das entradas normais) e `success-feedback`. O `undo-support` não se aplica, porque a exclusão não tem volta, e por isso a confirmação é obrigatória. A stack Flutter não trouxe nada para diálogo ou ação destrutiva; o desenho do diálogo é padrão do Material 3 (fallback).
 > Botão do Google: [diretrizes de marca](https://developers.google.com/identity/branding-guidelines), conferidas na sessão 020.
 
 ## Estrutura
@@ -28,7 +29,22 @@ O bloco segue o `SessionState`, com um `switch` exaustivo.
 | `SessionSignInFailed` | O layout do deslogado com a mensagem do `failureMessage` em `bodyMedium` cor `error`, acima do botão. O botão do Google funciona como "tentar de novo" (tocar chama o `signIn`), porque é a mesma ação. |
 | `SessionSignOutFailed` | Só a mensagem do `failureMessage` em `bodyMedium` cor `error` e o `RetryButton.filled`, que chama o `signOut` (sem esperar o servidor de novo: a limpeza já começou). Sem nome nem e-mail: o estado não traz o usuário, e a sessão pode já ter fechado (o `SignedOut` chega antes da falha). |
 
+| `SessionDeletingAccount` | O layout do logado, com o "Sair" desabilitado. O botão "Excluir conta" fica desabilitado, com o texto "Excluindo a conta" e um `CircularProgressIndicator` de 18dp no lugar do ícone, e o leitor de tela anuncia "Excluindo a conta" (região viva). Dura a reautenticação no seletor do Google e a exclusão (até 15 s por passo, decisão 015). |
+| `SessionDeleteAccountFailed` | O layout do logado (a conta continua), com a mensagem do `failureMessage` em `bodyMedium` cor `error`, num nó próprio e em região viva, logo acima do botão de excluir, que vira "Tentar excluir de novo" e chama a exclusão direto, sem o diálogo: a pessoa já confirmou. O "Sair" volta a funcionar. |
+
 Não há estado "vazio": sem conta, o deslogado é o vazio, e ele já chama para a ação.
+
+## Excluir a conta
+- Só com a conta (`SessionSignedIn` e os estados da exclusão). Fica no **fim** da lista, depois do "Sobre o app", separado por um divisor e um espaço `lg`, longe do "Sair" (`destructive-nav-separation`).
+- `TextButton.icon` com o ícone `delete_forever_outlined` e o texto "Excluir conta" na cor `error` do tema, alvo ≥ 48dp, alinhado à esquerda. Abaixo, em `bodySmall` `onSurfaceVariant`: "Apaga a conta e todos os filmes marcados."
+- O toque abre o diálogo de confirmação (`AlertDialog` do Material 3):
+  - título "Excluir a conta?" em `headlineSmall`;
+  - texto em `bodyMedium`: "Vamos apagar seus assistidos, quero assistir e favoritos e a sua conta no app. Não dá para desfazer. Para confirmar, escolha a sua conta Google de novo.";
+  - ações, à direita: `TextButton` "Cancelar" (fecha sem fazer nada, e o voltar do Android faz o mesmo) e `FilledButton` "Excluir conta" com fundo `error` e texto `onError`. A ação segura vem primeiro na ordem de foco;
+  - com fonte grande, o texto rola dentro do diálogo e as ações quebram em coluna (o `OverflowBar` do Material), sem overflow.
+- Fechar o seletor do Google na reautenticação volta ao logado, sem mensagem: é cancelamento, não erro (decisão 015).
+- **Sucesso:** a sessão vai para o deslogado, e um `SnackBar` diz "Sua conta foi excluída" (`success-feedback`). O leitor de tela anuncia o `SnackBar`.
+- A foto sai do cache em memória, como no logout.
 
 ## Botão "Entrar com o Google"
 - O desenho é nosso, com o "G" oficial, porque os botões prontos do pacote do Google trazem o texto em inglês gravado na imagem. A diretriz permite e incentiva traduzir o texto.
