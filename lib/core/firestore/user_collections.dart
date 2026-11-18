@@ -10,6 +10,7 @@ abstract final class UserCollections {
   /// As subcoleções de `users/{uid}`. Toda subcoleção nova entra aqui, nas
   /// regras e nos testes delas no mesmo ciclo. O teste
   /// `firestore/test/rules-file.test.js` confere esta lista com os `match`
-  /// do `firestore.rules`.
+  /// do `firestore.rules`. Só um nível: os `items` das listas (Fase 3)
+  /// vão pedir exclusão aninhada no `FirestoreAccountDocuments`.
   static const all = [movies];
 }

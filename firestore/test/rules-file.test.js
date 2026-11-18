@@ -34,6 +34,22 @@ describe('lista fixa das subcoleções de users/{uid}', () => {
     return [...new Set(names)].sort();
   }
 
+  // Um curinga com outro nome ({userId}) ou um match aninhado (os items de
+  // uma lista, na Fase 3) escaparia da comparação abaixo, e a exclusão não
+  // saberia apagar a subcoleção (`/revisar` da sessão 024).
+  test('deve ter só match no formato /users/{uid}/<nome>/{id}', () => {
+    const rules = readFileSync(RULES_PATH, 'utf8');
+    const matches = [...rules.matchAll(/match\s+(\S+)\s*\{/g)]
+      .map(([, path]) => path)
+      .filter((path) => path !== '/databases/{database}/documents');
+
+    const outside = matches.filter(
+      (path) => !/^\/users\/\{uid\}\/[A-Za-z]+\/\{[A-Za-z]+\}$/.test(path),
+    );
+
+    assert.deepEqual(outside, []);
+  });
+
   test('deve ter nas regras ao menos uma subcoleção', () => {
     assert.ok(collectionsInRules().length > 0);
   });
