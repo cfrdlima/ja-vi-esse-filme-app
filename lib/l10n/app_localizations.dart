@@ -493,7 +493,7 @@ abstract class AppLocalizations {
   /// Resumo da política de privacidade; acompanha a versão publicada (decisão 006)
   ///
   /// In pt, this message translates to:
-  /// **'O app não tem login nem servidor próprio. As buscas vão direto ao TMDB, e o app guarda no aparelho só um cache temporário dos pôsteres. Não há anúncios nem analytics.'**
+  /// **'O app não tem servidor próprio, e as buscas vão direto ao TMDB. A conta é opcional e só com o Google: com ela, os filmes que você marca ficam no Firebase, do Google. Não há anúncios nem analytics.'**
   String get aboutPrivacySummary;
 
   /// Link que abre a política publicada no GitHub Pages
