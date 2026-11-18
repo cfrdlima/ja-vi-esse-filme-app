@@ -26,6 +26,8 @@ Opção 2.
   - os commits do repositório público usam o e-mail noreply do GitHub (`82839130+cfrdlima@users.noreply.github.com`), e não o e-mail da config de git do repositório privado (revisão da sessão 014);
   - o repositório público não recebe workflows nem secrets do privado.
 
+- **Emenda (sessão 025):** o `security-auditor` achou o repositório do app **público** (`visibility: public`, sem fork, sem Pages), ao contrário do que esta decisão pressupõe. Com o ok do usuário, ele voltou a privado em 2026-11-18. Já tinham ficado expostos o código, as decisões, os logs de sessão e o e-mail da config de git nos commits; a visibilidade passa a ser conferida (`gh api repos/cfrdlima/ja-vi-esse-filme-app --jq .visibility`) antes de cada publicação. No plano Free, o ruleset `checks` da `main` deixou de ser aplicado num repositório privado.
+
 ## Consequências
 - Até o repositório público existir, a política não tem URL pública e as Issues não funcionam para quem está de fora. O e-mail já funciona.
 - Há o risco de as duas cópias divergirem. Por isso o checklist de release (Fase 4) compara o `docs/PRIVACIDADE.md` com a versão publicada.
