@@ -42,6 +42,8 @@ Sobre a prova de que nada sobra:
 
 - **Emenda (`/revisar` da sessão 024): escritas travadas durante a exclusão.** Depois da reautenticação, um `UserDataWriteLock` compartilhado com a Estante recusa marcas e renovações de cópia, e a exclusão espera as escritas pendentes chegarem ao servidor antes da primeira leitura. Sem isso, uma marca confirmada entre a última leitura vazia e o `user.delete()` ficaria órfã em `users/{uid}`. A trava sai no fim, com sucesso ou falha.
 
+- **Emenda (sessão 025): detalhes do pedido por e-mail.** O endereço é o `xbtechnologies.app@gmail.com` (decisão 006). O pedido é atendido em até 15 dias depois do recebimento (LGPD, art. 19, II). A mensagem e a resposta ficam guardadas por 6 meses depois do atendimento, como registro, e depois são apagadas. A página fica em `https://cfrdlima.github.io/ja-vi-esse-filme-suporte/excluir-conta/`, com a fonte em `docs/EXCLUSAO-DA-CONTA.md` e o procedimento interno em `dev/ATENDIMENTO-EXCLUSAO.md`. No console, a conta é desativada antes de apagar os documentos e conferida de novo depois de 1 h, porque os ID tokens de outro aparelho valem por até cerca de 1 h. O app **não** ganha link para a página: a exclusão já existe no Perfil, e o Play pede a URL só no formulário de Segurança dos dados. A página promete o prazo do Google para backups (até cerca de 180 dias, conforme a documentação do Firebase e do Google Cloud), e não um apagamento imediato.
+
 Esta decisão complementa a 010 e não substitui nenhuma.
 
 ## Consequências
