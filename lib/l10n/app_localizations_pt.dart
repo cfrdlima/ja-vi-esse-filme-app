@@ -269,7 +269,7 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get aboutPrivacySummary =>
-      'O app não tem servidor próprio, e as buscas vão direto ao TMDB. A conta é opcional e só com o Google: com ela, os filmes que você marca ficam no Firebase, do Google. Não há anúncios nem analytics.';
+      'O app não tem servidor próprio, e as buscas vão direto ao TMDB. A conta é opcional e só com o Google: com ela, a sua conta e os filmes que você marca ficam no Firebase, do Google. Não há anúncios nem analytics.';
 
   @override
   String get aboutPrivacyPolicyLink => 'Política de privacidade';
