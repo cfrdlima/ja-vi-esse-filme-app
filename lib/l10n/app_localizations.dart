@@ -562,6 +562,78 @@ abstract class AppLocalizations {
   /// **'Não deu para carregar suas marcas.'**
   String get shelfMarksLoadFailed;
 
+  /// Rótulo das estrelas da nota pessoal, nos Detalhes do filme assistido
+  ///
+  /// In pt, this message translates to:
+  /// **'Sua nota'**
+  String get diaryRatingLabel;
+
+  /// Nota pessoal para o leitor de tela, em meias estrelas ("3,5 de 5 estrelas")
+  ///
+  /// In pt, this message translates to:
+  /// **'{stars} de 5 estrelas'**
+  String diaryRatingValue(double stars);
+
+  /// Valor do leitor de tela para as estrelas sem nota pessoal
+  ///
+  /// In pt, this message translates to:
+  /// **'Sem nota'**
+  String get diaryNoRating;
+
+  /// Botão que apaga a nota pessoal, ao lado das estrelas
+  ///
+  /// In pt, this message translates to:
+  /// **'Tirar nota'**
+  String get diaryClearRating;
+
+  /// Rótulo do dia em que a pessoa assistiu ao filme, nos Detalhes
+  ///
+  /// In pt, this message translates to:
+  /// **'Quando assistiu'**
+  String get diaryDayLabel;
+
+  /// Dia escolhido em que a pessoa assistiu, no formato curto (dd/MM/aaaa no pt-BR)
+  ///
+  /// In pt, this message translates to:
+  /// **'{date}'**
+  String diaryChosenDay(DateTime date);
+
+  /// Sugestão do dia em que assistiu quando a pessoa não escolheu: o dia em que marcou como assistido
+  ///
+  /// In pt, this message translates to:
+  /// **'{date} (dia da marca)'**
+  String diarySuggestedDay(DateTime date);
+
+  /// Botão que apaga o dia escolhido em que a pessoa assistiu
+  ///
+  /// In pt, this message translates to:
+  /// **'Tirar dia'**
+  String get diaryClearDay;
+
+  /// Título da confirmação antes de desmarcar Assistido num filme com nota ou dia
+  ///
+  /// In pt, this message translates to:
+  /// **'Tirar dos assistidos?'**
+  String get unwatchDialogTitle;
+
+  /// Texto da confirmação antes de desmarcar Assistido
+  ///
+  /// In pt, this message translates to:
+  /// **'Sua nota e o dia em que assistiu também serão apagados.'**
+  String get unwatchDialogBody;
+
+  /// Ação segura da confirmação de desmarcar Assistido
+  ///
+  /// In pt, this message translates to:
+  /// **'Cancelar'**
+  String get unwatchDialogCancel;
+
+  /// Ação que desmarca Assistido e apaga a nota e o dia
+  ///
+  /// In pt, this message translates to:
+  /// **'Tirar'**
+  String get unwatchDialogConfirm;
+
   /// Título da folha de login que abre ao marcar um filme sem conta
   ///
   /// In pt, this message translates to:

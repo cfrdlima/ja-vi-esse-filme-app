@@ -208,6 +208,41 @@
   "@shelfMarksLoading": { "description": "Anúncio do leitor de tela enquanto as marcas do filme carregam nos Detalhes" },
   "shelfMarksLoadFailed": "Não deu para carregar suas marcas.",
   "@shelfMarksLoadFailed": { "description": "Erro ao ler as marcas do filme nos Detalhes, ao lado do Tentar de novo" },
+  "diaryRatingLabel": "Sua nota",
+  "@diaryRatingLabel": { "description": "Rótulo das estrelas da nota pessoal, nos Detalhes do filme assistido" },
+  "diaryRatingValue": "{stars} de 5 estrelas",
+  "@diaryRatingValue": {
+    "description": "Nota pessoal para o leitor de tela, em meias estrelas (\"3,5 de 5 estrelas\")",
+    "placeholders": {
+      "stars": { "type": "double", "format": "decimalPattern" }
+    }
+  },
+  "diaryNoRating": "Sem nota",
+  "@diaryNoRating": { "description": "Valor do leitor de tela para as estrelas sem nota pessoal" },
+  "diaryClearRating": "Tirar nota",
+  "@diaryClearRating": { "description": "Botão que apaga a nota pessoal, ao lado das estrelas" },
+  "diaryDayLabel": "Quando assistiu",
+  "@diaryDayLabel": { "description": "Rótulo do dia em que a pessoa assistiu ao filme, nos Detalhes" },
+  "diaryChosenDay": "{date}",
+  "@diaryChosenDay": {
+    "description": "Dia escolhido em que a pessoa assistiu, no formato curto (dd/MM/aaaa no pt-BR)",
+    "placeholders": { "date": { "type": "DateTime", "format": "yMd" } }
+  },
+  "diarySuggestedDay": "{date} (dia da marca)",
+  "@diarySuggestedDay": {
+    "description": "Sugestão do dia em que assistiu quando a pessoa não escolheu: o dia em que marcou como assistido",
+    "placeholders": { "date": { "type": "DateTime", "format": "yMd" } }
+  },
+  "diaryClearDay": "Tirar dia",
+  "@diaryClearDay": { "description": "Botão que apaga o dia escolhido em que a pessoa assistiu" },
+  "unwatchDialogTitle": "Tirar dos assistidos?",
+  "@unwatchDialogTitle": { "description": "Título da confirmação antes de desmarcar Assistido num filme com nota ou dia" },
+  "unwatchDialogBody": "Sua nota e o dia em que assistiu também serão apagados.",
+  "@unwatchDialogBody": { "description": "Texto da confirmação antes de desmarcar Assistido" },
+  "unwatchDialogCancel": "Cancelar",
+  "@unwatchDialogCancel": { "description": "Ação segura da confirmação de desmarcar Assistido" },
+  "unwatchDialogConfirm": "Tirar",
+  "@unwatchDialogConfirm": { "description": "Ação que desmarca Assistido e apaga a nota e o dia" },
   "signInSheetTitle": "Entre para guardar seus filmes",
   "@signInSheetTitle": { "description": "Título da folha de login que abre ao marcar um filme sem conta" },
   "signInSheetBody": "Com a conta Google, suas marcas ficam salvas e aparecem em qualquer aparelho.",

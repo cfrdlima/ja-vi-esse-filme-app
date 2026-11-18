@@ -307,6 +307,59 @@ class AppLocalizationsPt extends AppLocalizations {
   String get shelfMarksLoadFailed => 'Não deu para carregar suas marcas.';
 
   @override
+  String get diaryRatingLabel => 'Sua nota';
+
+  @override
+  String diaryRatingValue(double stars) {
+    final intl.NumberFormat starsNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String starsString = starsNumberFormat.format(stars);
+
+    return '$starsString de 5 estrelas';
+  }
+
+  @override
+  String get diaryNoRating => 'Sem nota';
+
+  @override
+  String get diaryClearRating => 'Tirar nota';
+
+  @override
+  String get diaryDayLabel => 'Quando assistiu';
+
+  @override
+  String diaryChosenDay(DateTime date) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat.yMd(localeName);
+    final String dateString = dateDateFormat.format(date);
+
+    return '$dateString';
+  }
+
+  @override
+  String diarySuggestedDay(DateTime date) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat.yMd(localeName);
+    final String dateString = dateDateFormat.format(date);
+
+    return '$dateString (dia da marca)';
+  }
+
+  @override
+  String get diaryClearDay => 'Tirar dia';
+
+  @override
+  String get unwatchDialogTitle => 'Tirar dos assistidos?';
+
+  @override
+  String get unwatchDialogBody =>
+      'Sua nota e o dia em que assistiu também serão apagados.';
+
+  @override
+  String get unwatchDialogCancel => 'Cancelar';
+
+  @override
+  String get unwatchDialogConfirm => 'Tirar';
+
+  @override
   String get signInSheetTitle => 'Entre para guardar seus filmes';
 
   @override
