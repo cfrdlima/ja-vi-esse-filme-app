@@ -1,30 +1,51 @@
 # Limpeza mensal do Firestore
 
-Script da decisão 017, em `firestore/cleanup/`. Ele apaga os `users/{uid}` sem conta no Firebase Authentication e renova pelo TMDB as cópias com mais de 180 dias (o filme que sumiu do TMDB é apagado). A política 2.0 promete essa limpeza uma vez por mês.
+Script da decisão 017, em `firestore/cleanup/`. Ele apaga os `users/{uid}` sem conta no Firebase Authentication e renova pelo TMDB as cópias com mais de 180 dias. O filme que o TMDB diz que não existe mais (404 com o código 34) sai da Estante. A política 2.0 promete essa limpeza uma vez por mês.
 
-## Como rodar (todo mês, pelo dono do projeto)
+## Uma vez na máquina
 
-Uma vez na máquina: instalar o `gcloud` e entrar com a conta dona do projeto Firebase:
+1. Instale o `gcloud` (Google Cloud CLI).
+2. Use a conta Google dona do projeto Firebase, com verificação em duas etapas ligada.
+3. **Nunca** crie chave de conta de serviço para isto.
+
+## Todo mês
+
+De dentro de `firestore/` (Node 22), num terminal novo:
 
 ```bash
+# 1. Nada de emulador nem de chave de conta de serviço neste shell.
+unset FIRESTORE_EMULATOR_HOST FIREBASE_AUTH_EMULATOR_HOST FIREBASE_EMULATOR_HUB GOOGLE_APPLICATION_CREDENTIALS
+
+# 2. Só as dependências do script, sem as de teste e sem scripts de instalação.
+npm ci --omit=dev --ignore-scripts
+
+# 3. Credencial temporária da conta dona do projeto.
 gcloud auth application-default login
+gcloud auth application-default set-quota-project <id-do-projeto>
+
+# 4. Simulação: só conta, não grava nada.
+npm run cleanup -- --project <id-do-projeto> --dry-run
+
+# 5. Token de leitura do TMDB sem aparecer na tela nem no histórico.
+read -rs TMDB_READ_TOKEN && export TMDB_READ_TOKEN
+
+# 6. Execução real. Se a simulação pediu, acrescente --confirm-orphans <n>
+#    com o número que ela mostrou.
+npm run cleanup -- --project <id-do-projeto>
+
+# 7. Limpeza da credencial e do token.
+unset TMDB_READ_TOKEN
+gcloud auth application-default revoke
 ```
 
-Todo mês, de dentro de `firestore/` (Node 22):
-
-```bash
-npm ci --ignore-scripts
-npm run cleanup -- --project <id-do-projeto> --dry-run   # só conta, não grava nada
-TMDB_READ_TOKEN=<token de leitura v4> npm run cleanup -- --project <id-do-projeto>
-```
-
-- O token de leitura do TMDB vai só na variável de ambiente, nunca em arquivo do repositório nem em argumento. Para não ficar no histórico do shell, digite um espaço antes do comando (com `HISTCONTROL=ignorespace`) ou exporte a variável lendo de um arquivo fora do repositório.
-- O script imprime só contagens. Se ele parar no limite do TMDB ou tiver falhas, saia com código 1 e rode de novo em alguns minutos.
-- Não cole nada além das contagens neste arquivo nem em issue, commit ou log.
+- **Saída:** só contagens. Com falhas ou uma parada (limite do TMDB, token recusado, 404 seguidos, cota, teto de escritas), o script sai com código 1 e explica o que fazer. Um filme sem título no TMDB não muda o código de saída.
+- **Travas:** o script recusa rodar com variável de emulador no ambiente ou com projeto `demo-`. Ele também se recusa a apagar quando o Auth não devolve nenhuma conta. Acima de 5 contas sem dados (ou 20% dos `users/{uid}`, o que for maior), ele só apaga com `--confirm-orphans` igual à contagem da simulação.
+- **Credencial:** o `application-default login` grava um token de longa duração em `~/.config/gcloud/`. Por isso ele é feito a cada execução e revogado no fim.
+- **Registro:** anote abaixo só a data e as contagens. Não cole nada além disso neste arquivo nem em issue, commit ou log.
 
 ## Execuções
 
 Data e contagens da saída. Um mês sem linha é um mês esquecido.
 
-| Data | Sem conta apagados | Cópias vencidas | Renovadas | Filmes apagados | Falhas |
-|---|---|---|---|---|---|
+| Data | Sem conta apagados | Cópias vencidas | Renovadas | Filmes apagados | Falhas | Sem título | Puladas | Parada |
+|---|---|---|---|---|---|---|---|---|
