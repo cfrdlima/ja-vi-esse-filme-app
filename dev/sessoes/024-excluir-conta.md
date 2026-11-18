@@ -7,9 +7,9 @@ Excluir a conta pelo app, na ordem da decisão 010: login recente, os documentos
 
 ## Checklist
 ### Preparação
-- [ ] Conferir no Context7: `reauthenticateWithCredential` e `user.delete()` (`firebase_auth`), `disconnect()` (`google_sign_in` 7.x), `WriteBatch` (limite de 500) e `get(GetOptions(source: Source.server))` (`cloud_firestore` 7.1.0)
-- [ ] Decidir com o usuário: como garantir o login recente (reautenticar sempre antes de apagar?), o prazo da exclusão offline e se o `integration_test` do gateway contra o emulador entra agora
-- [ ] Decisão do mecanismo da exclusão pela web (`/decisao`)
+- [x] Conferir no Context7: `reauthenticateWithCredential` e `user.delete()` (`firebase_auth`), `disconnect()` (`google_sign_in` 7.x), `WriteBatch` (limite de 500) e `get(GetOptions(source: Source.server))` (`cloud_firestore` 7.1.0). **Feito:** `requires-recent-login` e `user-mismatch`; lote de até 500; `Source.server` offline falha com `unavailable`; o `disconnect()` do Android só revoga contas do mesmo processo (ver decisão 015)
+- [x] Decidir com o usuário: como garantir o login recente (reautenticar sempre antes de apagar?), o prazo da exclusão offline e se o `integration_test` do gateway contra o emulador entra agora. **Decidido:** reautenticar sempre; 15 s por passo; `integration_test` no backlog
+- [x] Decisão do mecanismo da exclusão pela web (`/decisao`). **Feito:** decisão 015, pedido por e-mail
 - [ ] Consultar a `ui-ux-pro-max` (stack Flutter) para a confirmação destrutiva no Perfil e gerar o override se precisar
 
 ### Domínio (RED/GREEN/REFACTOR)
@@ -40,6 +40,7 @@ Excluir a conta pelo app, na ordem da decisão 010: login recente, os documentos
 - [ ] `/fechar-sessao`
 
 ## Decisões
+- [015](../decisoes/015-exclusao-da-conta.md): reautenticar sempre antes de apagar, lotes de 500 lidos do servidor, prazo de 15 s por passo, lista fixa das subcoleções e, na web, pedido por e-mail (sessão 025). Complementa a [010](../decisoes/010-conta-propria-com-firebase.md)
 
 ## Commits
 
