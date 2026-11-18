@@ -766,6 +766,41 @@ void main() {
 
     // A conta continua aberta depois da falha, e sair segue o caminho do
     // logado: espera as marcas chegarem ao servidor antes de limpar.
+    // A conta trocou por fora durante a exclusão: vale o que a conta disse.
+    test(
+      'deve ficar na conta que chegou durante a exclusão que falha',
+      () async {
+        final bia = AppUser(uid: 'bia456', displayName: 'Bia');
+        await startDeletion();
+        repository.emit(SignedIn(bia));
+        await pumpEventQueue();
+
+        await fail(offline);
+
+        expect(
+          notifier.state,
+          isA<SessionSignedIn>().having((s) => s.user, 'user', bia),
+        );
+      },
+    );
+
+    test(
+      'deve ficar na conta que chegou durante a exclusão cancelada',
+      () async {
+        final bia = AppUser(uid: 'bia456', displayName: 'Bia');
+        await startDeletion();
+        repository.emit(SignedIn(bia));
+        await pumpEventQueue();
+
+        await answer(const AccountDeletionCancelled());
+
+        expect(
+          notifier.state,
+          isA<SessionSignedIn>().having((s) => s.user, 'user', bia),
+        );
+      },
+    );
+
     test(
       'deve esperar o servidor ao sair depois da exclusão que falhou',
       () async {
