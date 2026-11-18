@@ -86,18 +86,18 @@
 ### Nota e dia em que assistiu (sessão 028, decisão 018)
 > Consulta à `ui-ux-pro-max` (stack Flutter) na sessão 028: `ux` "Input Labels" (rótulo visível, não só ícone), "Dragging Movements" (alternativa de um toque, sem arrastar), "Confirmation Dialogs" (confirmar antes de apagar), "Date Formatting" (data no formato do pt-BR) e stack Flutter "Use Semantics widget" e "Support large fonts". As buscas por "rating stars" e por seletor de data não trouxeram regra específica; o controle de estrelas abaixo é padrão geral (fallback).
 
-- **Onde:** logo abaixo dos chips das marcas, só com o **Assistido** ligado (inclusive o otimista). Desligar o Assistido some com o bloco.
+- **Onde:** logo abaixo dos chips das marcas, só com o **Assistido** ligado na tela **e** já confirmado pela Estante: sem o documento lido, não há onde gravar (o Firestore confirma no aparelho em milissegundos, mesmo offline). Desligar o Assistido some com o bloco.
 - **Nota:** rótulo "Sua nota" em `titleSmall` e uma fileira de **5 estrelas** (`star_border`, `star_half`, `star`), cada uma um `IconButton` com alvo de 48dp, na cor `primary` quando cheia ou meia, e `onSurfaceVariant` vazia. O estado vem da forma do ícone, e não só da cor.
   - **Toque:** na estrela *n*, a nota vira *n* estrelas; tocar de novo na mesma estrela com *n* cheias dá *n* − 0,5. Não há arrastar nem meio alvo de 24dp.
   - **Tirar a nota:** `TextButton` "Tirar nota" ao lado das estrelas, só com nota.
-  - **Leitor de tela:** a fileira é um nó só, ajustável, com o rótulo "Sua nota" e o valor "3,5 de 5 estrelas" (ou "Sem nota"). Deslizar para cima ou para baixo muda meia estrela (`onIncrease` / `onDecrease`); as estrelas ficam fora da árvore de semântica.
+  - **Leitor de tela:** a fileira é um nó só, com o papel de controle deslizante (`slider`), o rótulo "Sua nota" e o valor "3,5 de 5 estrelas" (ou "Sem nota"). Deslizar para cima ou para baixo muda meia estrela (`onIncrease` / `onDecrease`), sem a ação de subir com 5 estrelas nem a de descer sem nota; as estrelas e o título "Sua nota" ficam fora da árvore de semântica (o nó já leva o rótulo).
   - **Fonte grande:** a fileira cabe em 5 × 48dp = 240dp; o "Tirar nota" quebra para a linha de baixo (`Wrap`).
 - **Dia:** rótulo "Quando assistiu" em `titleSmall` e um `TextButton.icon` (`event`) com a data no formato curto do pt-BR.
   - **Escolhido:** "10/11/2026", com o `TextButton` "Tirar dia" ao lado.
   - **Sem dia escolhido:** a sugestão "10/11/2026 (dia da marca)" em `onSurfaceVariant`, que não é gravada (decisão 018).
-  - **Seletor:** `showDatePicker` do Material com o dia escolhido ou o sugerido aberto, de 1º/1/1888 até hoje (relógio do aparelho). Cancelar não grava nada.
-- **Otimista**, como as marcas: a nota e o dia aparecem na hora, e só a recusa do servidor volta o valor, com a mensagem da falha e o `RetryButton.text` abaixo do bloco, como região viva.
-- **Desmarcar o Assistido com nota ou dia:** antes, um `AlertDialog` "Tirar dos assistidos?" com "Sua nota e o dia em que assistiu também serão apagados." e as ações "Cancelar" e "Tirar". Sem nota nem dia, desmarca na hora, como antes.
+  - **Seletor:** `showDatePicker` do Material com o dia escolhido ou o sugerido aberto, de 1º/1/1888 até hoje (relógio do aparelho na hora de abrir). Cancelar não grava nada. O botão tem a dica "Escolher quando assistiu" para o leitor de tela.
+- **Otimista**, como as marcas: a nota e o dia aparecem na hora e ficam na tela até a escrita terminar; só a recusa do servidor volta o valor, com a mensagem da falha e o `RetryButton.text` abaixo do bloco, como região viva.
+- **Desmarcar o Assistido com nota ou dia:** antes, um `AlertDialog` "Tirar dos assistidos?" com "Sua nota e o dia em que assistiu também serão apagados." e as ações "Cancelar" e "Tirar". Sem nota nem dia, desmarca na hora, como antes. Se outro aparelho tirar o Assistido com o diálogo aberto, o "Tirar" não faz nada.
 
 ### Folha de login
 - `showModalBottomSheet` com fundo `surfaceContainerHigh`, raio `lg` só nos cantos de cima, scrim a 50% e alça de arrastar. Fecha com o gesto para baixo, com o toque fora e com o `CloseButton` no canto (tooltip do Material).

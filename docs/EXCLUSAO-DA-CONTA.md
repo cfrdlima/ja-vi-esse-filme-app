@@ -56,7 +56,7 @@ O app não envia dados da sua conta ao TMDB, então não há nada para apagar l�
 ## O que fica guardado por um tempo
 
 - **Backups e registros do Google.** Os dados ficam no Firebase, um serviço do Google. Depois da exclusão, o Google os remove dos sistemas ativos e dos backups em até cerca de **180 dias**, e guarda os endereços IP dos acessos ao login por algumas semanas. Por isso não prometemos um apagamento imediato de todas as cópias.
-- **Outros aparelhos.** Se a conta estiver aberta em outro aparelho, ele guarda uma cópia local das marcas até você sair da conta nele, ou até o app perceber que a conta não existe mais e você abri-lo de novo. Saia da conta nos outros aparelhos antes de excluir. Uma marca feita em outro aparelho logo depois da exclusão pode ficar guardada sem conta ligada a ela. Uma limpeza feita uma vez por mês apaga esses dados, e você também pode pedir por e-mail: apagamos todos os dados que ficaram sem conta.
+- **Outros aparelhos.** Se a conta estiver aberta em outro aparelho, ele guarda uma cópia local das marcas, das notas e dos dias até você sair da conta nele, ou até o app perceber que a conta não existe mais e você abri-lo de novo. Saia da conta nos outros aparelhos antes de excluir. Uma marca feita em outro aparelho logo depois da exclusão pode ficar guardada sem conta ligada a ela. Uma limpeza feita uma vez por mês apaga esses dados, e você também pode pedir por e-mail: apagamos todos os dados que ficaram sem conta.
 - **O seu e-mail de pedido.** Se você pediu por e-mail, guardamos as mensagens do pedido por **6 meses** depois do atendimento, como registro de que ele foi atendido. Depois desse prazo, elas são apagadas.
 
 ## Dúvidas

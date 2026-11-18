@@ -11,7 +11,8 @@ Marcadores "A REVISAR" apontam pontos que dependem de decisões futuras e não
 podem ir para a versão publicada sem resolução. A cópia publicada sai sem
 estes comentários.
 A 2.0 (sessão 026) cobre a conta Google, as marcas no Firestore e a exclusão
-da conta, e substitui a 1.0 para todas as versões do app.
+da conta, e substitui a 1.0 para todas as versões do app. A sessão 028 acrescentou
+à 2.0, ainda não publicada, a nota e o dia em que assistiu (decisão 018).
 -->
 
 Esta política explica quais dados o app **Já Vi Esse Filme** trata, para quê, com quem eles são compartilhados e como você pode exercer seus direitos, conforme a Lei Geral de Proteção de Dados (Lei nº 13.709/2018, LGPD). Ao criar a conta, você passa a usar o serviço da Estante como ele está descrito aqui.
@@ -75,7 +76,7 @@ Com a conta, cada filme que você marca como **assistido**, **quero assistir** o
 
 Quando você desmarca a última marca de um filme, o registro dele é apagado. A cópia do título e do pôster é escrita quando você marca o filme. Depois de 6 meses ela fica vencida e não aparece como atual: quando o filme aparece na Estante com a cópia vencida (só nas páginas carregadas, até 200 filmes por aba), o app a renova pelo TMDB (seção 3.1). Uma limpeza feita uma vez por mês renova pelo TMDB as cópias vencidas que a Estante não renovou; nela, o TMDB recebe só os identificadores desses filmes, sem nenhum dado da conta. Se o TMDB informar que um filme não existe mais, ele sai da sua Estante, com as marcas, a nota e o dia (seção 7).
 
-No aparelho, o app guarda uma **cópia local** das marcas, das notas, dos dias, dos títulos e dos caminhos dos pôsteres, e as marcas, as notas e os dias escolhidos sem internet ficam guardadas até chegarem ao servidor. A sessão da conta (o token do login, com o nome, o e-mail e o endereço da foto) fica nos arquivos privados do app, protegidos pelo sistema do Android. Ao sair da conta, o app remove essa cópia local (seção 7).
+No aparelho, o app guarda uma **cópia local** das marcas, das notas, dos dias, dos títulos e dos caminhos dos pôsteres, e as marcas, as notas e os dias escolhidos sem internet ficam guardados até chegarem ao servidor. A sessão da conta (o token do login, com o nome, o e-mail e o endereço da foto) fica nos arquivos privados do app, protegidos pelo sistema do Android. Ao sair da conta, o app remove essa cópia local (seção 7).
 
 O SDK do Firebase Authentication escreve o identificador da conta no log do sistema do aparelho. O app não envia esse log a ninguém.
 
@@ -127,7 +128,7 @@ Os filmes marcados ficam no Cloud Firestore em São Paulo. O Firebase Authentica
 
 - **Cache de imagens:** as imagens sem uso há mais de 30 dias saem na próxima vez que o app é aberto, e o cache fica em torno de 200 imagens (seção 3.1).
 - **Conta e filmes marcados:** enquanto a conta existir. Cada filme fica até você desmarcar a última marca dele, ou até a limpeza mensal saber pelo TMDB que ele não existe mais. A cópia do título e do pôster vence com 6 meses, e a limpeza mensal garante que nenhuma cópia vencida fique guardada por mais de cerca de 7 meses desde que foi escrita.
-- **No aparelho, com a conta:** a cópia local e a sessão ficam até você sair da conta. Ao sair, o app remove a cópia local do Firestore. Isso não é um apagamento seguro: os arquivos não são sobrescritos. As marcas feitas sem internet que ainda não chegaram ao servidor são apagadas ao sair, e o app avisa antes. Se a limpeza falhar, a cópia fica até a próxima vez que você abrir o app sem conta, quando ele tenta de novo, ou até você usar "Limpar armazenamento" nas configurações do Android.
+- **No aparelho, com a conta:** a cópia local e a sessão ficam até você sair da conta. Ao sair, o app remove a cópia local do Firestore. Isso não é um apagamento seguro: os arquivos não são sobrescritos. As marcas, as notas e os dias feitos sem internet que ainda não chegaram ao servidor são apagados ao sair, e o app avisa antes. Se a limpeza falhar, a cópia fica até a próxima vez que você abrir o app sem conta, quando ele tenta de novo, ou até você usar "Limpar armazenamento" nas configurações do Android.
 - **Depois da exclusão da conta:** o Google remove os dados dos sistemas ativos e dos backups em até cerca de **180 dias**, e guarda os IPs dos acessos ao login por algumas semanas.
 - **Outros aparelhos:** se a conta estiver aberta em outro aparelho, ele guarda a cópia local das marcas até você sair da conta nele, ou até você abrir o app de novo depois que a conta deixou de existir. Saia da conta nos outros aparelhos antes de excluir. Uma marca feita em outro aparelho logo depois da exclusão pode ficar guardada sem conta ligada a ela. A limpeza mensal apaga esses dados, e você também pode pedir por e-mail (veja a página [Excluir a conta](https://cfrdlima.github.io/ja-vi-esse-filme-suporte/excluir-conta/)).
 - **Pedidos por e-mail:** as mensagens de cada pedido ficam por **6 meses** depois do atendimento, como registro, e depois são apagadas.
@@ -178,4 +179,4 @@ O app é destinado a pessoas a partir de **13 anos** e não é direcionado a cri
 
 Quando o app passar a tratar dados novos, esta política é atualizada antes da versão do app que traz a mudança, com nova versão e data de vigência. A versão em vigor fica em <https://cfrdlima.github.io/ja-vi-esse-filme-suporte/>.
 
-A versão 2.0 substitui a 1.0, de 24 de outubro de 2026, e acrescenta a conta Google, os filmes marcados e a exclusão da conta.
+A versão 2.0 substitui a 1.0, de 24 de outubro de 2026, e acrescenta a conta Google, os filmes marcados, a nota e o dia em que você assistiu, e a exclusão da conta.

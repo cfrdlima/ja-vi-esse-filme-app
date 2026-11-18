@@ -400,7 +400,7 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get profileUnsyncedWarning =>
-      'Algumas marcas ainda não chegaram ao servidor. Se sair agora, elas serão apagadas deste aparelho e não vão para a sua conta.';
+      'Algumas marcas, notas ou dias ainda não chegaram ao servidor. Se sair agora, eles serão apagados deste aparelho e não vão para a sua conta.';
 
   @override
   String get profileSignOutAnyway => 'Sair mesmo assim';

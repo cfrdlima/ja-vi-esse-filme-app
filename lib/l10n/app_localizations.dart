@@ -706,10 +706,10 @@ abstract class AppLocalizations {
   /// **'Excluindo a conta'**
   String get profileDeletingAccount;
 
-  /// Aviso no Perfil quando o logout acharia marcas feitas offline e ainda não sincronizadas
+  /// Aviso no Perfil quando o logout acharia marcas, notas ou dias feitos offline e ainda não sincronizados
   ///
   /// In pt, this message translates to:
-  /// **'Algumas marcas ainda não chegaram ao servidor. Se sair agora, elas serão apagadas deste aparelho e não vão para a sua conta.'**
+  /// **'Algumas marcas, notas ou dias ainda não chegaram ao servidor. Se sair agora, eles serão apagados deste aparelho e não vão para a sua conta.'**
   String get profileUnsyncedWarning;
 
   /// Confirma o logout apesar das marcas não sincronizadas
