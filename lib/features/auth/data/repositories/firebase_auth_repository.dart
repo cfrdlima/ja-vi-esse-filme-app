@@ -5,6 +5,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 
 import '../../../../core/error/error_handlers.dart';
 import '../../../../core/error/failures.dart';
+import '../../../../core/firestore/user_data_write_lock.dart';
 import '../../domain/entities/account_deletion_outcome.dart';
 import '../../domain/entities/auth_state.dart';
 import '../../domain/entities/sign_in_outcome.dart';
@@ -18,6 +19,7 @@ final class FirebaseAuthRepository implements AuthRepository {
     required this._cache,
     required this._documents,
     required this._reportError,
+    required this._writeLock,
   });
 
   final FirebaseAuthGateway _firebase;
@@ -25,6 +27,10 @@ final class FirebaseAuthRepository implements AuthRepository {
   final AccountCacheGateway _cache;
   final AccountDocumentsGateway _documents;
   final ErrorReporter _reportError;
+
+  /// Compartilhada com a Estante: travada enquanto os documentos são
+  /// apagados (decisão 015).
+  final UserDataWriteLock _writeLock;
 
   @override
   Future<bool> syncPendingChanges() async {
@@ -108,8 +114,7 @@ final class FirebaseAuthRepository implements AuthRepository {
       final user = _firebase.currentUser;
       if (user == null) throw const SignInRequiredFailure();
       if (!await _reauthenticate()) return const AccountDeletionCancelled();
-      await _documents.deleteAll(user.uid);
-      await _firebase.deleteCurrentUser();
+      await _deleteWithWritesLocked(user.uid);
     } on Failure {
       rethrow;
     } on Object catch (error) {
@@ -117,6 +122,22 @@ final class FirebaseAuthRepository implements AuthRepository {
     }
     await _finishDeletion();
     return const AccountDeleted();
+  }
+
+  // Com as escritas da Estante travadas e as pendentes já no servidor, a
+  // última leitura vazia do `deleteAll` é mesmo a última (`/revisar` da
+  // sessão 024). Depois do `delete()`, sem conta, a Estante já recusa.
+  Future<void> _deleteWithWritesLocked(String uid) async {
+    _writeLock.lock();
+    try {
+      await _cache.waitForPendingWrites().timeout(
+        AuthRepository.deleteStepTimeout,
+      );
+      await _documents.deleteAll(uid);
+      await _firebase.deleteCurrentUser();
+    } finally {
+      _writeLock.unlock();
+    }
   }
 
   // Antes de apagar qualquer documento (decisão 015): sem isso, um

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ja_vi_esse_filme/core/error/failures.dart';
+import 'package:ja_vi_esse_filme/core/firestore/user_data_write_lock.dart';
 import 'package:ja_vi_esse_filme/features/shelf/data/gateways/shelf_gateway.dart';
 import 'package:ja_vi_esse_filme/features/shelf/data/models/shelf_movie_model.dart';
 import 'package:ja_vi_esse_filme/features/shelf/data/repositories/firestore_shelf_repository.dart';
@@ -92,12 +93,16 @@ void main() {
     marks: {for (final mark in marks) mark: watchedAt},
   );
 
+  late UserDataWriteLock writeLock;
+
   setUp(() {
     gateway = _FakeShelfGateway();
     uid = 'alice';
+    writeLock = UserDataWriteLock();
     repository = FirestoreShelfRepository(
       gateway: gateway,
       currentUid: () => uid,
+      writeLock: writeLock,
     );
   });
 
@@ -382,6 +387,50 @@ void main() {
         repository.renewCopy(copy),
         throwsA(isA<RateLimitFailure>()),
       );
+    });
+  });
+
+  // Enquanto a exclusão da conta apaga os documentos (decisão 015).
+  group('com as escritas travadas', () {
+    setUp(() => writeLock.lock());
+
+    test('deve recusar a marca sem tocar no Firestore', () async {
+      await repository
+          .addMark(copy, ShelfMark.watched)
+          .then<void>((_) {}, onError: (Object _) {});
+
+      expect(gateway.calls, isEmpty);
+    });
+
+    test('deve falhar a marca com UnexpectedFailure', () async {
+      await expectLater(
+        repository.addMark(copy, ShelfMark.watched),
+        throwsA(isA<UnexpectedFailure>()),
+      );
+    });
+
+    test('deve recusar desmarcar sem tocar no Firestore', () async {
+      await repository
+          .removeMark(movieWith({ShelfMark.watched}), ShelfMark.watched)
+          .then<void>((_) {}, onError: (Object _) {});
+
+      expect(gateway.calls, isEmpty);
+    });
+
+    test('deve recusar a renovação da cópia sem tocar no Firestore', () async {
+      await repository
+          .renewCopy(copy)
+          .then<void>((_) {}, onError: (Object _) {});
+
+      expect(gateway.calls, isEmpty);
+    });
+
+    test('deve voltar a gravar depois de destravar', () async {
+      writeLock.unlock();
+
+      await repository.addMark(copy, ShelfMark.watched);
+
+      expect(gateway.calls, ['merge alice 550']);
     });
   });
 

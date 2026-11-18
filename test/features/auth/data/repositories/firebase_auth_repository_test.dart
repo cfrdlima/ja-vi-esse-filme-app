@@ -5,12 +5,14 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:ja_vi_esse_filme/core/error/failures.dart';
+import 'package:ja_vi_esse_filme/core/firestore/user_data_write_lock.dart';
 import 'package:ja_vi_esse_filme/features/auth/data/gateways/auth_gateways.dart';
 import 'package:ja_vi_esse_filme/features/auth/data/repositories/firebase_auth_repository.dart';
 import 'package:ja_vi_esse_filme/features/auth/domain/entities/account_deletion_outcome.dart';
 import 'package:ja_vi_esse_filme/features/auth/domain/entities/app_user.dart';
 import 'package:ja_vi_esse_filme/features/auth/domain/entities/auth_state.dart';
 import 'package:ja_vi_esse_filme/features/auth/domain/entities/sign_in_outcome.dart';
+import 'package:ja_vi_esse_filme/features/auth/domain/repositories/auth_repository.dart';
 
 /// Ordem das chamadas da exclusão, compartilhada pelos fakes.
 typedef _Log = List<String>;
@@ -89,9 +91,13 @@ class _FakeGoogleAccountGateway implements GoogleAccountGateway {
   var signOutCalls = 0;
   Object? signOutError;
 
+  /// Chamado ao abrir o seletor, para o teste olhar o estado nessa hora.
+  void Function()? onAuthenticate;
+
   @override
   Future<String?> authenticate() async {
     _log.add('authenticate');
+    onAuthenticate?.call();
     authenticateCalls++;
     if (authenticateError case final error?) throw error;
     return idToken;
@@ -113,15 +119,21 @@ class _FakeGoogleAccountGateway implements GoogleAccountGateway {
 }
 
 class _FakeAccountDocuments implements AccountDocumentsGateway {
-  _FakeAccountDocuments(this._log);
+  _FakeAccountDocuments(this._log, this._writeLock);
 
   final _Log _log;
+  final UserDataWriteLock _writeLock;
   String? deletedUid;
   Object? deleteError;
+
+  /// Se as escritas da Estante estavam travadas quando os documentos foram
+  /// apagados.
+  bool? lockedWhileDeleting;
 
   @override
   Future<void> deleteAll(String uid) async {
     _log.add('deleteDocuments');
+    lockedWhileDeleting = _writeLock.isLocked;
     deletedUid = uid;
     if (deleteError case final error?) throw error;
   }
@@ -155,6 +167,7 @@ class _FakeAccountCache implements AccountCacheGateway {
 
   @override
   Future<void> waitForPendingWrites() async {
+    _log.add('waitPendingWrites');
     if (waitError case final Object error) throw error;
     await pendingWrites?.future;
   }
@@ -168,6 +181,7 @@ void main() {
   late FirebaseAuthRepository repository;
   late _Log log;
   late List<Object> reported;
+  late UserDataWriteLock writeLock;
 
   final ana = AppUser(uid: 'abc123', displayName: 'Ana');
 
@@ -177,13 +191,15 @@ void main() {
     firebase = _FakeFirebaseAuthGateway(log);
     google = _FakeGoogleAccountGateway(log);
     cache = _FakeAccountCache(firebase, log);
-    documents = _FakeAccountDocuments(log);
+    writeLock = UserDataWriteLock();
+    documents = _FakeAccountDocuments(log, writeLock);
     repository = FirebaseAuthRepository(
       firebase: firebase,
       google: google,
       cache: cache,
       documents: documents,
       reportError: (error, _) => reported.add(error),
+      writeLock: writeLock,
     );
   });
 
@@ -545,6 +561,7 @@ void main() {
       expect(log, [
         'authenticate',
         'reauthenticate',
+        'waitPendingWrites',
         'deleteDocuments',
         'deleteUser',
         'disconnect',
@@ -703,7 +720,71 @@ void main() {
 
           await deleteIgnoringFailure();
 
-          expect(log, ['authenticate', 'reauthenticate', 'deleteDocuments']);
+          expect(log, [
+            'authenticate',
+            'reauthenticate',
+            'waitPendingWrites',
+            'deleteDocuments',
+          ]);
+        },
+      );
+    });
+
+    // Uma marca que chegasse ao servidor depois da última leitura vazia
+    // ficaria órfã (`/revisar` da sessão 024).
+    group('escritas da Estante', () {
+      test('deve travar as escritas enquanto apaga os documentos', () async {
+        await repository.deleteAccount();
+
+        expect(documents.lockedWhileDeleting, isTrue);
+      });
+
+      test('deve destravar as escritas depois da exclusão', () async {
+        await repository.deleteAccount();
+
+        expect(writeLock.isLocked, isFalse);
+      });
+
+      test('deve destravar as escritas quando a exclusão falha', () async {
+        documents.deleteError = TimeoutException('lote');
+
+        await deleteIgnoringFailure();
+
+        expect(writeLock.isLocked, isFalse);
+      });
+
+      test('não deve travar as escritas quando o seletor é fechado', () async {
+        google.authenticateError = const GoogleSignInException(
+          code: GoogleSignInExceptionCode.canceled,
+        );
+        var lockedAtSomePoint = false;
+        google.onAuthenticate = () => lockedAtSomePoint |= writeLock.isLocked;
+
+        await repository.deleteAccount();
+
+        expect([lockedAtSomePoint, writeLock.isLocked], [false, false]);
+      });
+
+      test(
+        'deve falhar com NetworkFailure sem apagar quando as escritas pendentes passam do prazo',
+        () {
+          fakeAsync((async) {
+            cache.pendingWrites = Completer<void>();
+            Object? error;
+            unawaited(
+              repository.deleteAccount().then<void>(
+                (_) {},
+                onError: (Object e) => error = e,
+              ),
+            );
+
+            async.elapse(AuthRepository.deleteStepTimeout);
+
+            expect(
+              [error, log.contains('deleteDocuments')],
+              [isA<NetworkFailure>(), false],
+            );
+          });
         },
       );
     });
