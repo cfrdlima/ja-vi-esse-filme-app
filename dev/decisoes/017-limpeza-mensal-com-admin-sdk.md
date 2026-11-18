@@ -28,6 +28,8 @@ Opção 1.
 - **Saída sem dado pessoal:** o script só imprime contagens (documentos limpos, contas órfãs apagadas), nunca `uid`, e-mail ou títulos.
 - **A política 2.0 só é publicada depois do script pronto e da primeira execução**, porque ela promete a limpeza mensal.
 
+- **Emenda (sessão 027): escolhas da implementação.** A cópia vencida é **renovada pelo TMDB** no próprio script (título em pt-BR com o original de reserva, cortado em 300 caracteres, pôster só no formato do TMDB, `cachedAt` com a hora do servidor), com o token de leitura v4 numa variável de ambiente (`TMDB_READ_TOKEN`), nunca em arquivo nem argumento. O app e as regras não mudam, e um teste confere pelas regras que o documento renovado aceita a próxima marca do app. Um filme que **sumiu do TMDB (404) é apagado**, porque o app já não consegue mostrá-lo. No limite de requisições (429), o script para e sai com código 1, e o resto fica para a próxima execução. A credencial é a **ADC do `gcloud`** da conta dona do projeto, sem arquivo de chave. O `firebase-admin` 14.5.0 entra como dependência do `firestore/` (a 14.5.1 tinha menos de duas semanas). Instruções e registro das execuções em `dev/LIMPEZA-MENSAL.md`.
+
 Esta decisão complementa a 013 e a 015 e não substitui nenhuma.
 
 ## Consequências
