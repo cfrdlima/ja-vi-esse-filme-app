@@ -3,9 +3,9 @@
 > Fonte da verdade do que construir. Atualizado por `/fechar-sessao`.
 
 ## Última sessão
-**024 — Fase 2: excluir a conta pelo app** (fechada em 2026-11-18) · [log](sessoes/024-excluir-conta.md)
-O Perfil ganhou "Excluir conta", que confirma, reautentica com o Google, trava as escritas da Estante e apaga os documentos da lista fixa em lotes confirmados pelo servidor. Depois vêm o `user.delete()`, o `disconnect()` e a limpeza do aparelho (decisão 015). A verificação foi no emulador e no console, com uma conta de teste.
-**Próximo passo:** excluir a conta pela web (sessão 025): página no Pages com o pedido por e-mail, o endereço de suporte e o prazo de atendimento.
+**025 — Fase 2: excluir a conta pela web** (fechada em 2026-11-18) · [log](sessoes/025-excluir-conta-web.md)
+A página de exclusão está no ar em `cfrdlima.github.io/ja-vi-esse-filme-suporte/excluir-conta/`: pedido por e-mail ao `xbtechnologies.app@gmail.com` com confirmação do remetente, atendimento em até 15 dias e guarda de 6 meses, com o procedimento em `dev/ATENDIMENTO-EXCLUSAO.md` (decisão 015 emendada). O `/revisar` achou o repositório do app público, e ele voltou a privado (decisão 006 emendada).
+**Próximo passo:** política de privacidade 2.0 (portão de release), com o conteúdo acumulado no item dela; antes, conferir no console os backups do Firestore (S7 da 025).
 
 ## Fase 0 — Fundação
 - [x] Criar projeto (`io.github.cfrdlima.ja_vi_esse_filme`), `analysis_options.yaml`, `.gitignore` com `env/*.json` (exceto `example.json`)

@@ -1,6 +1,6 @@
 # Sessão 025 — Fase 2: excluir a conta pela web
 
-**Data**: 2026-11-18 · **Branch**: `feature/025-excluir-conta-web` · **Status**: aberta
+**Data**: 2026-11-18 · **Branch**: `feature/025-excluir-conta-web` · **Status**: fechada
 
 ## Objetivo
 Publicar no Pages (repositório `cfrdlima/ja-vi-esse-filme-suporte`, decisão 006) a página de exclusão da conta exigida pelo Google Play: o que é apagado, como pedir por e-mail (decisão 015), o endereço de suporte e o prazo de atendimento. Fecha o portão do Play da sessão 024 e deixa registrado o que a política 2.0 precisa declarar sobre o pedido.
@@ -34,9 +34,10 @@ Publicar no Pages (repositório `cfrdlima/ja-vi-esse-filme-suporte`, decisão 00
 - [x] (S1–S6, S8, S9) Passo certo sem conta, rótulos do console, lixeira e enviados, LGPD (19, II e 7º, VI), botão de confirmar, datas do Auth, o que o console mostra, cdnjs/Pages na 2.0, `description` próprio no front matter
 - [ ] (S7) Conferir no console se o Firestore tem backup agendado, PITR ou export: o `firebase` CLI da máquina está em outra conta (403 no projeto). Pendência para o usuário, também no item da 2.0
 - [x] Republicar a página corrigida (decisão 006), com `gitleaks` e o noreply. **Feito:** `b39bf96` no repositório público, no ar com HTTP 200 e o `description` próprio
-- [ ] `/fechar-sessao`
+- [x] `/fechar-sessao`. **Feito:** format (0 de 222 mudados), analyze limpo, 1397 verdes, `gitleaks` em container sem vazamento
 
 ## Decisões
+- Emenda na [006](../decisoes/006-politica-de-privacidade-publica.md): o repositório do app estava público e voltou a privado; visibilidade conferida antes de cada publicação.
 - Emenda na [015](../decisoes/015-exclusao-da-conta.md): endereço, prazo de 15 dias, guarda de 6 meses, caminho da página, sem link no app e a ordem do atendimento no console.
 
 ## Commits
@@ -46,6 +47,8 @@ Publicar no Pages (repositório `cfrdlima/ja-vi-esse-filme-suporte`, decisão 00
 - Repositório público: `ddc12a6` docs: página de exclusão da conta (autor e committer noreply, sem atribuição, a pedido do usuário)
 - `607ca7e` fix: atendimento da exclusão com confirmação do remetente, ordem no console e dados sem conta, achados do /revisar da sessão 025
 - Repositório público: `b39bf96` docs: confirmação do pedido, revogação do acesso e dados sem conta na exclusão da conta
+- `96f30dd` docs: republicação da página de exclusão da conta com os achados do /revisar
+- (este) docs: fecha sessão 025
 
 ## Notas
 - **Exigência do Play** (Central de Ajuda, "Understanding Google Play's app account deletion requirements"): link funcional; nome do app ou do desenvolvedor igual ao da ficha da loja; caminho de exclusão em destaque; pedido sem precisar do app (e-mail aceito); dados ligados à conta apagados; o que fica guardado e por quê informado; prazo "razoavelmente rápido", sem número. A URL vai no formulário de Segurança dos dados, mesmo com a exclusão no app. **Pendência para a loja:** o nome "Claudinei de Lima" precisa bater com o nome do desenvolvedor no Play Console (o usuário manteve o nome).
@@ -55,3 +58,4 @@ Publicar no Pages (repositório `cfrdlima/ja-vi-esse-filme-suporte`, decisão 00
 - **`/revisar`:** `code-reviewer` (1 bloqueante, 5 importantes, 7 sugestões) e `security-auditor` (1 bloqueante, 3 importantes, 6 sugestões), consolidados em B1–B2, I1–I6 e S1–S9.
 - **Repositório público (B1):** `gh api` mostrava `visibility: public`, sem fork, sem estrelas, sem Pages; a página respondia 200 sem login. Depois do `gh repo edit --visibility private`, 404 sem login. O ruleset `checks` (enforcement `active`) passou a responder 403 "Upgrade to GitHub Pro or make this repository public to enable this feature.": o CI continua rodando nos PRs, mas o merge sem os checks não é mais bloqueado.
 - A política 1.0 publicada não mudou: ela descreve o app sem login, e a 2.0 aponta para a página nova.
+- **Pendências:** (S7) conferir no console se o Firestore tem backup agendado, PITR ou export; o `firebase` CLI da máquina está logado em outra conta. Ruleset `checks` sem efeito no repositório privado (Free): conferir os checks à mão antes do merge ou assinar o Pro (`BACKLOG.md`). Antes da loja: URL da página no formulário de Segurança dos dados e nome do desenvolvedor no Play Console igual ao da página.
