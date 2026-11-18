@@ -1,6 +1,6 @@
 # Sessão 027 — Fase 2: limpeza mensal do Firestore com o Admin SDK
 
-**Data**: 2026-11-18 · **Branch**: `feature/027-limpeza-mensal` (empilhada na `feature/026-politica-2-0`) · **Status**: aberta
+**Data**: 2026-11-18 · **Branch**: `feature/027-limpeza-mensal` (empilhada na `feature/026-politica-2-0`) · **Status**: fechada
 
 ## Objetivo
 Criar o script local da decisão 017 em `firestore/`: apagar os dados de `users/{uid}` sem conta no Firebase Authentication e não deixar nenhuma cópia do TMDB com mais de 180 dias, sem perder as marcas. Testado no emulador (Auth e Firestore, projeto `demo-`), com saída só de contagens, e rodado uma vez contra o projeto real pelo usuário. Isso destrava a publicação da política 2.0.
@@ -26,11 +26,11 @@ Criar o script local da decisão 017 em `firestore/`: apagar os dados de `users/
 - [x] Entrada única (`npm run cleanup`), que recusa rodar sem projeto explícito e imprime só contagens, nunca `uid`, e-mail, título ou token. **Feito:** `cleanup.js` (argumentos, ordem, relatório; 12 testes) e `run.js`; erro inesperado mostra só o tipo e o código, porque a mensagem do Firestore pode ter o caminho com o `uid`
 - [x] Modo de simulação (`--dry-run`) que só conta (fumaça no emulador)
 - [x] Instruções curtas (no `firestore/` ou em `dev/`) de como rodar todo mês e onde anotar a execução. **Feito:** `dev/LIMPEZA-MENSAL.md`
-- [ ] Primeira execução contra o projeto real, pelo usuário, com a saída (só contagens) no log
+- [ ] Primeira execução contra o projeto real, pelo usuário, com a saída (só contagens) no log. **Adiada pelo usuário:** fica para depois do fechamento, registrada em `dev/LIMPEZA-MENSAL.md`
 
 ### Entrega
 - [x] CI: o job das regras roda os testes novos (emulador do Auth junto). **Feito:** o job já roda `npm test`; o nome `Regras do Firestore` fica, porque o ruleset exige esse check
-- [ ] `PLANO.md`: item do script marcado; política 2.0 com a limpeza feita
+- [x] `PLANO.md`: item do script marcado; política 2.0 com a limpeza feita. **Mudou:** script pronto, primeira execução pendente no item
 - [x] Tríade (format, analyze, `flutter test`), `npm test` em `firestore/` e `gitleaks`. **Feito:** format 0 de 222, analyze limpo, 1398 verdes; 133 verdes no `firestore/`; `gitleaks` em container sem vazamento
 - [x] `/revisar` (Admin SDK, credencial, exclusão de dados). **Feito:** `code-reviewer` (1 bloqueante, 6 importantes, 11 sugestões) e `security-auditor` (1 bloqueante, 4 importantes, 7 sugestões)
 
@@ -45,15 +45,42 @@ Criar o script local da decisão 017 em `firestore/`: apagar os dados de `users/
 - [x] (I6) Teste do `cachedAt` com o `NOW` em 2040 e a hora do servidor perto do `Date.now()`
 - [x] Sugestões: simulação sem as cópias dos órfãos, "sem título" fora do código de saída, `deleteApp` no `finally`, lista do app só nos testes, `MOVIES` nos helpers, aviso do `--test-concurrency=1`, ids ao TMDB na política, diferença do título em branco na 017 e no backlog, erro de digitação. **Não entrou:** a credencial falsa nos testes (o Firestore do Admin SDK recusa; os avisos de rede ficam, com comentário)
 - [x] (escala) `collectionGroup` com índice no backlog
-- [ ] `/fechar-sessao`: PR com base na `feature/026-politica-2-0`
+- [x] `/fechar-sessao`: PR com base na `feature/026-politica-2-0`. **Feito:** format 0 de 222, analyze limpo, 1398 verdes; 168 verdes no `firestore/`; `gitleaks` sem vazamento; `npm audit --omit=dev` com 0
 
 ## Decisões
 - Emenda na [017](../decisoes/017-limpeza-mensal-com-admin-sdk.md): renovar pelo TMDB, apagar no 404, parar no 429, ADC do `gcloud`, `firebase-admin` 14.5.0.
 
 ## Commits
+- `8f779e6` docs: abre a sessão 027
+- `7ae28fe` chore: firebase-admin 14.5.0, emulador do Auth e lista de subcoleções compartilhada para a limpeza mensal
+- `ef7b555` test: cópia do filme pelo TMDB para a limpeza mensal
+- `4f1d587` add: cópia do filme pelo TMDB para a limpeza mensal, como o app faz
+- `ee524df` test: limpeza mensal apaga os dados de users/{uid} sem conta no Auth
+- `acda3ec` add: limpeza mensal apaga os dados de users/{uid} sem conta no Auth
+- `50f1b63` test: limpeza mensal renova as cópias vencidas do TMDB e apaga os filmes que sumiram
+- `33d5a72` add: limpeza mensal renova as cópias vencidas do TMDB e apaga os filmes que sumiram
+- `2571c2b` test: argumentos, relatório e ordem da limpeza mensal
+- `b5a4e2b` add: argumentos, relatório só com contagens e ordem da limpeza mensal
+- `a536a2d` add: entrada npm run cleanup da limpeza mensal e instruções do mês
+- `a6cb503` test: simulação diz encontrados e as cópias ficam numa subcoleção que o app conhece
+- `e20654d` refactor: simulação diz encontrados e a subcoleção dos filmes amarrada à lista do app
+- `c924c51` docs: emenda na decisão 017 com as escolhas da implementação e andamento da sessão 027
+- `3aab68c` test: título em UTF-16, 404 só com o código 34, 401 e resposta que não é JSON na cópia do TMDB
+- `74a442b` fix: cópia do TMDB corta o título em UTF-16, só trata como sumido o 404 com o código 34 e tem prazo
+- `8e582ed` test: renovação das cópias para no 401, na sequência de 404, na cota e no teto de escritas, e pula o filme desmarcado
+- `c1dae3b` fix: renovação das cópias para no 401, na sequência de 404, na cota e no teto de escritas, e pula o filme desmarcado
+- `e5d5544` test: travas da limpeza dos dados sem conta (Auth vazio, limite com confirmação, conta criada durante a limpeza)
+- `dc7f426` fix: limpeza dos dados sem conta recusa Auth vazio, pede confirmação acima do limite e confere a conta antes de apagar
+- `41af7c3` test: limpeza recusa emulador e projeto demo-, lê a confirmação, explica as paradas e leva o relatório parcial no erro
+- `2d5588e` fix: limpeza recusa emulador e projeto demo-, pede a confirmação dos dados sem conta, explica as paradas e leva o relatório parcial no erro
+- `c6aa474` fix: entrada da limpeza com a confirmação, o relatório parcial no erro e o deleteApp no fim
+- `c199011` refactor: lista do app só nos testes, MOVIES nos helpers e aviso do --test-concurrency=1
+- `c597ec6` docs: instruções seguras da limpeza mensal, emenda na 017 e política com o filme que sumiu do TMDB
+- (este) docs: fecha sessão 027
 
 ## Notas
 - **Empilhada:** 025 (PR #21) e 026 (PR #22) esperam o CI destravar (cobrança da conta no GitHub).
 - **JDK:** o padrão da máquina é o 17; os testes do `firestore/` rodam com `JAVA_HOME=/usr/lib/jvm/java-21-openjdk`.
 - **Suíte do `firestore/`:** 133 verdes (89 das regras e 44 da limpeza).
 - **Suíte do `firestore/` depois dos achados:** 168 verdes (89 das regras e 79 da limpeza).
+- **Pendências:** primeira execução da limpeza pelo usuário (`dev/LIMPEZA-MENSAL.md`), que destrava a publicação da 2.0 junto com o S7 e o aceite dos termos de tratamento de dados no console. Integração das 025, 026 e 027 espera o CI destravar.
