@@ -9,13 +9,13 @@ Permitir que o usuário dê a um filme assistido uma nota de 0,5 a 5 estrelas (`
 ### Preparação
 - [x] Decisão (`/decisao`): `rating` e `watchedOn` no documento do filme, a escala, o formato da data, o vínculo com o Assistido e a emenda na 013 (o cliente escolhe o `watchedOn`, mas nunca os `<marca>At`)
 - [ ] Consultar a `ui-ux-pro-max` (stack Flutter) para o seletor de estrelas e o de data nos Detalhes; override em `pages/` se precisar
-- [ ] Conferir o `firestore/cleanup` (a renovação usa `update` e preserva os campos novos) e a exclusão da conta (a subcoleção `movies` já está na lista)
+- [x] Conferir o `firestore/cleanup` (a renovação usa `update` e preserva os campos novos) e a exclusão da conta (a subcoleção `movies` já está na lista). **Feito:** teste no emulador de que a renovação mantém `rating` e `watchedOn` (passou de primeira, porque o Admin SDK ignora as regras e o `update` só toca na cópia); a exclusão apaga o documento inteiro
 
 ### Regras do Firestore (RED/GREEN/REFACTOR, no emulador)
-- [ ] Aceita `rating` inteiro de 1 a 10 e recusa 0, 11, fracionário e string
-- [ ] Aceita `watchedOn` no formato `AAAA-MM-DD`, com dia válido, e recusa outros formatos
-- [ ] Recusa `rating` ou `watchedOn` sem o `watchedAt`
-- [ ] `rules-file.test.js` e os testes de chaves fixas cobrem os campos novos
+- [x] Aceita `rating` inteiro de 1 a 10 e recusa 0, 11, fracionário e string
+- [x] Aceita `watchedOn` no formato `AAAA-MM-DD`, com mês de 01 a 12, dia de 01 a 31 e ano de 1888 em diante, e recusa outros formatos (o dia fora do calendário fica no domínio)
+- [x] Recusa `rating` ou `watchedOn` sem o `watchedAt`; tirar o Assistido exige tirar os dois no mesmo `update`
+- [x] `rules-file.test.js` e os testes de chaves fixas cobrem os campos novos. **Feito:** sem mudança no `rules-file.test.js` (nenhum `match` novo); `firestore/test/movie-rating.test.js` com 31 testes
 
 ### Domínio (RED/GREEN/REFACTOR)
 - [ ] `Rating` (meia estrela de 0,5 a 5): recusa valores fora da escala, converte de e para o inteiro de 1 a 10
@@ -49,5 +49,7 @@ Permitir que o usuário dê a um filme assistido uma nota de 0,5 a 5 estrelas (`
 ## Commits
 
 ## Notas
+- **Suíte do `firestore/`:** 200 verdes (121 das regras e 79 da limpeza, com 1 novo).
+- **JDK no PATH:** além do `JAVA_HOME`, o `firebase-tools` só achou o 21 com `PATH=/usr/lib/jvm/java-21-openjdk/bin:$PATH`.
 - **Empilhada:** 025 (PR #21), 026 (PR #22) e 027 (PR #23) esperam o CI destravar (cobrança da conta no GitHub).
 - **JDK:** os testes do `firestore/` rodam com `JAVA_HOME=/usr/lib/jvm/java-21-openjdk`.
