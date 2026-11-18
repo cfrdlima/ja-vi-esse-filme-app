@@ -38,13 +38,14 @@ Se você não tem mais o app ou não consegue abri-lo, peça a exclusão por e-m
 
 Se o pedido vier de outro endereço, pedimos que você escreva de novo do endereço da conta. Não excluímos uma conta sem essa confirmação.
 
-Para atender o pedido, o responsável pelo app vê no console do Firebase o e-mail e o identificador da conta e os filmes marcados, só para apagá-los.
+Para atender o pedido, o responsável pelo app vê no console do Firebase o e-mail e o identificador da conta e os filmes marcados, com as notas e os dias, só para apagá-los.
 
 No pedido por e-mail, o acesso do app à sua conta Google continua lá até você removê-lo em <https://myaccount.google.com/permissions>. Pelo app, essa remoção é tentada sozinha.
 
 ## O que é apagado
 
 - os filmes que você marcou como **assistidos**, **quero assistir** e **favoritos**, com as datas em que cada marca entrou;
+- a nota e o dia em que você assistiu, nos filmes assistidos em que você os deu;
 - o título e o caminho do pôster de cada filme marcado, copiados do TMDB (o app nunca guarda a imagem);
 - a sua conta no app, no Firebase Authentication: nome, e-mail, endereço da foto, o identificador da sua conta Google, o identificador da conta no app e as datas de criação e do último acesso.
 

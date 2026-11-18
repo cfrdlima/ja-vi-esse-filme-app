@@ -70,15 +70,16 @@ Com a conta, cada filme que você marca como **assistido**, **quero assistir** o
 
 - o identificador do filme no TMDB;
 - as **datas** em que cada marca entrou;
-- uma **cópia do título e do caminho do pôster** do filme, vinda do TMDB, com a data da cópia. O app nunca guarda a imagem do pôster no Firestore.
+- uma **cópia do título e do caminho do pôster** do filme, vinda do TMDB, com a data da cópia. O app nunca guarda a imagem do pôster no Firestore;
+- se você quiser, num filme assistido, a sua **nota** (de meia a cinco estrelas) e o **dia em que assistiu**. O dia só é guardado quando você o escolhe. A nota e o dia só existem com a marca de assistido e são apagados quando você a tira.
 
-Quando você desmarca a última marca de um filme, o registro dele é apagado. A cópia do título e do pôster é escrita quando você marca o filme. Depois de 6 meses ela fica vencida e não aparece como atual: quando o filme aparece na Estante com a cópia vencida (só nas páginas carregadas, até 200 filmes por aba), o app a renova pelo TMDB (seção 3.1). Uma limpeza feita uma vez por mês renova pelo TMDB as cópias vencidas que a Estante não renovou; nela, o TMDB recebe só os identificadores desses filmes, sem nenhum dado da conta. Se o TMDB informar que um filme não existe mais, ele sai da sua Estante, com as marcas (seção 7).
+Quando você desmarca a última marca de um filme, o registro dele é apagado. A cópia do título e do pôster é escrita quando você marca o filme. Depois de 6 meses ela fica vencida e não aparece como atual: quando o filme aparece na Estante com a cópia vencida (só nas páginas carregadas, até 200 filmes por aba), o app a renova pelo TMDB (seção 3.1). Uma limpeza feita uma vez por mês renova pelo TMDB as cópias vencidas que a Estante não renovou; nela, o TMDB recebe só os identificadores desses filmes, sem nenhum dado da conta. Se o TMDB informar que um filme não existe mais, ele sai da sua Estante, com as marcas, a nota e o dia (seção 7).
 
-No aparelho, o app guarda uma **cópia local** das marcas, dos títulos e dos caminhos dos pôsteres, e as marcas feitas sem internet ficam guardadas até chegarem ao servidor. A sessão da conta (o token do login, com o nome, o e-mail e o endereço da foto) fica nos arquivos privados do app, protegidos pelo sistema do Android. Ao sair da conta, o app remove essa cópia local (seção 7).
+No aparelho, o app guarda uma **cópia local** das marcas, das notas, dos dias, dos títulos e dos caminhos dos pôsteres, e as marcas, as notas e os dias escolhidos sem internet ficam guardadas até chegarem ao servidor. A sessão da conta (o token do login, com o nome, o e-mail e o endereço da foto) fica nos arquivos privados do app, protegidos pelo sistema do Android. Ao sair da conta, o app remove essa cópia local (seção 7).
 
 O SDK do Firebase Authentication escreve o identificador da conta no log do sistema do aparelho. O app não envia esse log a ninguém.
 
-<!-- A REVISAR (Fase 3): listas personalizadas, nota pessoal e data em que assistiu entram nesta seção e na tabela da seção 4 (decisão 010). -->
+<!-- A REVISAR (Fase 3): as listas personalizadas entram nesta seção e na tabela da seção 4 (decisão 010). A nota e o dia em que assistiu entraram na sessão 028 (decisão 018). -->
 
 ### 3.3 Erros e falhas
 
@@ -97,7 +98,7 @@ Quando você escreve para o e-mail da seção 10 (por exemplo, para pedir a excl
 | IP, termos de busca, filmes abertos e imagens que aparecem na tela, recebidos pelo TMDB | Buscar e exibir as informações de filmes que você pede | Execução de contrato ou de procedimentos ligados a ele, a seu pedido (inciso V): o app só envia ao TMDB o necessário para entregar o conteúdo que você pede |
 | IP e filmes marcados com a cópia vencida, recebidos pelo TMDB ao abrir a Estante | Manter atualizados o título e o pôster dos filmes da sua Estante | Execução de contrato (inciso V): é parte do serviço da Estante que você usa com a conta |
 | Nome, e-mail, endereço da foto, identificadores e datas da conta | Entrar com o Google, mostrar a conta no Perfil e ligar as marcas a ela | Execução de contrato (inciso V) |
-| Filmes marcados, datas das marcas e cópias do título e do pôster | Guardar e mostrar a sua Estante em qualquer aparelho em que você entrar | Execução de contrato (inciso V) |
+| Filmes marcados, datas das marcas, nota e dia em que assistiu, e cópias do título e do pôster | Guardar e mostrar a sua Estante em qualquer aparelho em que você entrar | Execução de contrato (inciso V) |
 | Cópia local das marcas e sessão da conta no aparelho | Mostrar a Estante rápido e guardar marcas feitas sem internet | Execução de contrato (inciso V) |
 | Mensagens dos pedidos por e-mail | Atender o pedido e guardar o registro de que ele foi atendido | Atender um pedido sobre os seus dados: cumprimento de obrigação legal (inciso II). Guardar o registro: exercício regular de direitos (inciso VI) |
 | Registros locais de erro | Diagnosticar falhas do app | Legítimo interesse (inciso IX) |
@@ -148,10 +149,10 @@ Pela LGPD (art. 18), você pode pedir:
 
 Você também pode se opor a um tratamento baseado em legítimo interesse.
 
-- **Excluir a conta:** no app, vá em **Perfil › Excluir conta**, confirme e escolha a sua conta Google de novo. O app apaga os filmes marcados, as cópias do TMDB e a conta no Firebase, tenta revogar o acesso do app à sua conta Google e remove a cópia local do aparelho. Se a revogação não acontecer, remova o acesso em <https://myaccount.google.com/permissions>. Se a conexão cair no meio, a conta pode continuar existindo com parte dos filmes, ou sem nenhum, até você tentar de novo. Sem o app, peça por e-mail. O passo a passo, o que é apagado e o que fica por um tempo estão na página [Excluir a conta](https://cfrdlima.github.io/ja-vi-esse-filme-suporte/excluir-conta/).
+- **Excluir a conta:** no app, vá em **Perfil › Excluir conta**, confirme e escolha a sua conta Google de novo. O app apaga os filmes marcados, com as notas e os dias, as cópias do TMDB e a conta no Firebase, tenta revogar o acesso do app à sua conta Google e remove a cópia local do aparelho. Se a revogação não acontecer, remova o acesso em <https://myaccount.google.com/permissions>. Se a conexão cair no meio, a conta pode continuar existindo com parte dos filmes, ou sem nenhum, até você tentar de novo. Sem o app, peça por e-mail. O passo a passo, o que é apagado e o que fica por um tempo estão na página [Excluir a conta](https://cfrdlima.github.io/ja-vi-esse-filme-suporte/excluir-conta/).
 - **Sair da conta:** em **Perfil › Sair**. As marcas continuam na conta e voltam quando você entrar de novo.
 - **Corrigir os dados da conta:** o nome, o e-mail e a foto vêm da sua conta Google. Corrija-os na própria conta Google. Se o app continuar mostrando o dado antigo, peça a correção por e-mail.
-- **Portabilidade e acesso:** peça por e-mail, e mandamos os seus filmes marcados, com as datas, num arquivo.
+- **Portabilidade e acesso:** peça por e-mail, e mandamos os seus filmes marcados, com as datas, as notas e os dias, num arquivo.
 - **Dados no aparelho:** para apagar todos os dados locais, use "Limpar armazenamento" nas configurações do Android ou desinstale o app. "Limpar cache" apaga as imagens guardadas, e o índice delas só sai com "Limpar armazenamento".
 - **Outros pedidos sobre este app:** use o e-mail da seção 10. A resposta sai em até 15 dias.
 
