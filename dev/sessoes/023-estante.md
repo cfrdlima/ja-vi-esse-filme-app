@@ -1,6 +1,6 @@
 # Sessão 023 — Fase 2: Estante com Assistidos, Quero assistir e Favoritos
 
-**Data**: 2026-11-17 · **Branch**: `feature/023-estante` · **Status**: aberta
+**Data**: 2026-11-17 · **Branch**: `feature/023-estante` · **Status**: fechada
 
 ## Objetivo
 Trocar o placeholder da aba Estante por três abas (**Assistidos**, **Quero assistir**, **Favoritos**) lidas do Firestore, com a mais recente primeiro, paginação e os 4 estados. A cópia do TMDB vencida (mais de 6 meses desde o `cachedAt`, decisão 013) não aparece como atual e é renovada com o TMDB pelo `renewCopy`. Sem conta, a aba convida a entrar.
@@ -50,16 +50,32 @@ Trocar o placeholder da aba Estante por três abas (**Assistidos**, **Quero assi
 - [x] (7, 9, 11, 12, 13) Para o `BACKLOG.md`: renovador por conta compartilhado, `retryAfter` no renovador, relógio único da cópia vencida, `index` redundante do `ShelfTab`, `PosterGrid`/`MoviesMessage` em `core/widgets`
 
 ### Entrega
-- [ ] Tríade: format, analyze limpo, `flutter test` verde, `npm test` das regras se mudarem
+- [x] Tríade: format sem mudança, analyze limpo, `flutter test` com 1285 verdes; `npm test` das regras com 80 verdes (regras sem mudança, sem deploy)
 - [x] Emulador: abas, paginação, marcar nos Detalhes e ver na aba, offline, logout. **Feito com o Maestro** (fluxos fora do repositório), no `Pixel_9_Pro` (Android 16, API 36), contra o projeto real: as três abas leem do Firestore; o vazio com "Descobrir filmes"; o mesmo filme vivo nas três abas abre os Detalhes sem quebrar o Hero; marcar nos Detalhes aparece ao vivo na aba, com o mais recente primeiro; a marca feita em modo avião entra no topo e fica lá quando a rede volta; o logout volta ao convite; o login pelo convite abre em Assistidos com as marcas do servidor; com `font_scale` 1.5, o `TabBar` rola; desmarcar esvazia a aba ao vivo. As marcas de teste foram desfeitas. **Não deu para ver no aparelho:** a paginação (precisa de mais de 20 filmes numa marca) e a cópia vencida (as regras não deixam o cliente escolher o `cachedAt`); as duas ficaram nos widget tests
-- [ ] `PLANO.md` e `docs/PRIVACIDADE.md` se o texto mudar
-- [ ] `/revisar` (`code-reviewer` e `security-auditor`: storage, rede)
-- [ ] `/fechar-sessao`
+- [x] `PLANO.md` e `docs/PRIVACIDADE.md` se o texto mudar. **Feito:** item da política 2.0 no `PLANO.md`; o `PRIVACIDADE.md` não mudou (a 2.0 é que vai cobrir a Estante)
+- [x] `/revisar` (`code-reviewer` e `security-auditor`: storage, rede)
+- [x] `/fechar-sessao`
 
 ## Decisões
 - [014](../decisoes/014-consulta-das-abas-da-estante.md): a consulta das abas usa só o `orderBy` descendente, com limite crescente e teto de 200, e emenda a 013. Segue as decisões [010](../decisoes/010-conta-propria-com-firebase.md) e [013](../decisoes/013-documento-do-filme-no-firestore.md)
 
 ## Commits
+- `2af3863` docs: abre a sessão 023
+- `1d1770f` docs: override da Estante e preparação da sessão 023
+- `a03d19d` add: ShelfPage, renewCopy e ExpiredCopyRenewer para renovar as cópias vencidas da Estante
+- `71b62cd` add: watchShelf com a consulta por marca, a mais recente primeiro, e o limite crescente
+- `915333b` test: consulta de cada aba da Estante nas regras do Firestore
+- `09e5b78` add: TmdbMovieCopySource busca a cópia atual do filme nos detalhes do TMDB
+- `390713a` add: ShelfTabNotifier com a aba da Estante ao vivo, limite crescente e renovação das cópias vencidas
+- `ab53916` refactor: grade e skeleton de pôsteres fora do PagedMoviesView, para a Estante usar os mesmos
+- `fb00d87` add: tela da Estante com as abas Assistidos, Quero assistir e Favoritos e o convite sem conta
+- `ad378f6` add: aba Estante no router com os Detalhes e a renovação pelo TMDB, sem o placeholder
+- `e0e4ac3` docs: override da Estante e progresso da sessão 023
+- `65fc9d6` docs: verificação no emulador da sessão 023 e título da Estante no override
+- `1f53167` fix: aba da Estante não fura o erro do rodapé, para no teto de 200 e mostra o erro na aba vazia
+- `d6f8966` fix: Estante sai de cena ao começar o logout, avisa a saída que falhou e o renovador não trava nem grava depois do fim do stream
+- `a808850` docs: decisão 014, emenda na 013, política 2.0 e backlog com os achados do /revisar da sessão 023
+- `771f837` docs: verificação no emulador da saída com a Estante aberta
 
 ## Notas
 - **`where(isNotEqualTo: null)` no `cloud_firestore` 7.1.0** (código do pacote no pub-cache, `query.dart`): o `where` só põe a condição `!=` quando `isNotEqualTo != null`, então passar `null` **não filtra nada** e a consulta traz todos os documentos. O `!= null` sai com `isNull: false`. A decisão 013 cita `where('<marca>At', '!=', null)`; o `orderBy('<marca>At', descending: true)` sozinho já basta, porque o Firestore deixa fora do resultado o documento sem o campo ordenado, e evita o `!=`. **A conferir no emulador:** se uma marca offline (`serverTimestamp()` pendente) aparece na consulta local e em que posição.
@@ -68,3 +84,4 @@ Trocar o placeholder da aba Estante por três abas (**Assistidos**, **Quero assi
 - **Emulador:** o `Pixel_9` ficou sem espaço (96% do `/data`, com apps de outros projetos, que não foram mexidos); a verificação foi no `Pixel_9_Pro` (10 GB), que já tinha o app e a conta da 022.
 - **`/revisar`:** o `code-reviewer` achou 1 bloqueante, 2 importantes e 10 sugestões; o `security-auditor`, 3 importantes e 2 sugestões. Consolidados em 16; o usuário seguiu a recomendação: 1 a 6 e as sugestões 8, 10, 14, 15 e 16 nesta sessão, e 7, 9, 11, 12 e 13 no backlog.
 - **Emulador depois dos achados:** com a Estante aberta, sair pelo Perfil termina no convite, sem erro, e o login pelo convite devolve as abas com as marcas do servidor. O aviso de saída que falhou ficou só nos widget tests (não dá para forçar a falha do `terminate` no aparelho).
+- **Gitleaks:** não está instalado na máquina; o check `Gitleaks` do CI cobre o PR.
