@@ -12,6 +12,20 @@ import 'package:ja_vi_esse_filme/features/shelf/presentation/state/watched_diary
 
 import '../../../../helpers/fake_shelf_repository.dart';
 
+/// Conta quem ouve, para o teste ver o dispose tirar o ouvinte.
+class _CountingListenable implements ValueListenable<ShelfMovie?> {
+  int listeners = 0;
+
+  @override
+  ShelfMovie? get value => null;
+
+  @override
+  void addListener(VoidCallback listener) => listeners++;
+
+  @override
+  void removeListener(VoidCallback listener) => listeners--;
+}
+
 void main() {
   // Meio-dia local: longe da virada do dia em qualquer fuso de teste.
   final now = DateTime(2026, 11, 18, 12);
@@ -401,16 +415,14 @@ void main() {
 
   group('depois do dispose', () {
     test('deve parar de ouvir o filme', () {
-      final own = ValueNotifier<ShelfMovie?>(null);
+      final own = _CountingListenable();
       WatchedDiaryNotifier(
         shelf: shelf,
         chooseWatchedOn: ChooseWatchedOn(shelf: shelf, now: () => now),
         watchedMovie: own,
       ).dispose();
 
-      own.value = watched();
-
-      expect(own.hasListeners, isFalse);
+      expect(own.listeners, 0);
     });
 
     test('deve ignorar a recusa que chega depois', () async {
