@@ -1,4 +1,5 @@
 import '../../../../core/error/failures.dart';
+import '../../../movies/presentation/state/paged_movies_state.dart';
 import '../../domain/entities/shelf_movie.dart';
 
 /// Uma aba da Estante. A tela faz `switch` exaustivo nele.
@@ -32,17 +33,17 @@ final class ShelfTabReady extends ShelfTabState {
   ShelfTabReady({
     required List<ShelfMovie> movies,
     required this.hasMore,
-    this.loadingMore = false,
-    this.failure,
+    this.nextPage = const NextPageIdle(),
+    this.capped = false,
   }) : movies = List.unmodifiable(movies);
 
   final List<ShelfMovie> movies;
   final bool hasMore;
 
-  /// O limite maior foi pedido e ainda não chegou.
-  final bool loadingMore;
+  /// O rodapé: o limite maior a caminho ou o erro que chegou com os filmes
+  /// já na tela, que ficam.
+  final NextPageStatus nextPage;
 
-  /// O erro que chegou com os filmes já na tela, para o rodapé. Os filmes
-  /// ficam.
-  final Failure? failure;
+  /// Há mais filmes, mas a aba chegou ao `ShelfTabNotifier.maxLimit`.
+  final bool capped;
 }

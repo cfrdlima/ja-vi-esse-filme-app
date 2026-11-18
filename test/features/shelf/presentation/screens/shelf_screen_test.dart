@@ -20,7 +20,7 @@ import '../../../../helpers/fake_auth_repository.dart';
 import '../../../../helpers/fake_shelf_repository.dart';
 import '../../../../helpers/test_app.dart';
 
-/// Nunca responde: a renovação fica pendente e não mexe na tela.
+/// Falha na hora sem rede: a renovação para e não mexe na tela.
 class _SilentCopySource implements MovieCopySource {
   final List<int> requestedIds = [];
 
@@ -229,7 +229,10 @@ void main() {
         shelf.emitShelfError(const NetworkFailure());
         await tester.pump();
 
-        expect(find.text('Tentar de novo'), findsOneWidget);
+        expect(
+          find.text('Sem conexão com a internet. Confira sua rede.'),
+          findsOneWidget,
+        );
       });
 
       testWidgets('deve assinar de novo no tentar de novo', (tester) async {
@@ -339,6 +342,45 @@ void main() {
         await tester.pump();
 
         expect(find.text('Não deu para atualizar a Estante.'), findsOneWidget);
+      });
+
+      testWidgets('deve mostrar o spinner no rodapé enquanto pede mais', (
+        tester,
+      ) async {
+        await pumpSignedIn(tester);
+
+        await emitPage(tester, page([movie(7)], hasMore: true));
+
+        expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      });
+
+      testWidgets('deve assinar de novo no tentar de novo do rodapé', (
+        tester,
+      ) async {
+        await pumpSignedIn(tester);
+        await emitPage(tester, page([movie(7)]));
+        shelf.emitShelfError(const NetworkFailure());
+        await tester.pump();
+        await tester.pump();
+
+        await tester.tap(find.text('Tentar de novo'));
+        await tester.pump();
+
+        expect(shelf.shelfCalls, hasLength(2));
+      });
+
+      testWidgets('deve avisar no rodapé que chegou ao teto', (tester) async {
+        await pumpSignedIn(tester);
+
+        // Com mais filmes e a tela sem encher, cada página pede a próxima.
+        for (var i = 0; i < 10; i++) {
+          await emitPage(tester, page([movie(7)], hasMore: true));
+        }
+
+        expect(
+          find.text('Mostrando os 200 filmes mais recentes.'),
+          findsOneWidget,
+        );
       });
 
       testWidgets('deve voltar ao convite ao sair da conta', (tester) async {

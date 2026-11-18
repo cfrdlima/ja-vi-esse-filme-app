@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:ja_vi_esse_filme/core/error/failures.dart';
 import 'package:ja_vi_esse_filme/features/auth/domain/entities/app_user.dart';
 import 'package:ja_vi_esse_filme/features/auth/domain/entities/auth_state.dart';
+import 'package:ja_vi_esse_filme/features/movies/presentation/state/paged_movies_state.dart';
 import 'package:ja_vi_esse_filme/features/shelf/domain/entities/movie_copy.dart';
 import 'package:ja_vi_esse_filme/features/shelf/domain/entities/shelf_mark.dart';
 import 'package:ja_vi_esse_filme/features/shelf/domain/entities/shelf_movie.dart';
@@ -231,7 +232,34 @@ void main() {
 
         await emitError(const NetworkFailure());
 
-        expect(ready().failure, isA<NetworkFailure>());
+        expect(
+          ready().nextPage,
+          isA<NextPageFailed>().having(
+            (s) => s.failure,
+            'failure',
+            isA<NetworkFailure>(),
+          ),
+        );
+      });
+
+      test('deve mostrar o erro quando a aba vazia recebe um erro', () async {
+        await signInAs(ana);
+        await emitPage(page([]));
+
+        await emitError(const NetworkFailure());
+
+        expect(notifier.state, isA<ShelfTabError>());
+      });
+
+      test('deve carregar no tentar de novo da aba vazia com erro', () async {
+        await signInAs(ana);
+        await emitPage(page([]));
+        await emitError(const NetworkFailure());
+
+        notifier.retry();
+        await pumpEventQueue();
+
+        expect(notifier.state, isA<ShelfTabLoading>());
       });
 
       test('deve voltar a carregar quando o stream acaba', () async {
@@ -275,7 +303,7 @@ void main() {
         notifier.loadMore();
         await pumpEventQueue();
 
-        expect(ready().loadingMore, isTrue);
+        expect(ready().nextPage, isA<NextPageLoading>());
       });
 
       test('deve parar de carregar mais quando a página nova chega', () async {
@@ -285,7 +313,7 @@ void main() {
 
         await emitPage(page([1, 2]));
 
-        expect(ready().loadingMore, isFalse);
+        expect(ready().nextPage, isA<NextPageIdle>());
       });
 
       test('não deve pedir o mesmo limite duas vezes', () async {
@@ -330,6 +358,58 @@ void main() {
         expect(shelf.shelfCalls.last.limit, ShelfTabNotifier.pageSize * 2);
       });
 
+      test('não deve pedir mais com o erro no rodapé', () async {
+        await showFirstPage();
+        await emitError(const RateLimitFailure());
+
+        notifier.loadMore();
+        await pumpEventQueue();
+
+        expect(shelf.shelfCalls, hasLength(1));
+      });
+
+      test('deve parar no teto de filmes por aba', () async {
+        await signInAs(ana);
+        for (
+          var limit = ShelfTabNotifier.pageSize;
+          limit < ShelfTabNotifier.maxLimit;
+          limit += ShelfTabNotifier.pageSize
+        ) {
+          await emitPage(page([1], hasMore: true));
+          notifier.loadMore();
+          await pumpEventQueue();
+        }
+        await emitPage(page([1], hasMore: true));
+
+        notifier.loadMore();
+        await pumpEventQueue();
+
+        expect(shelf.shelfCalls.last.limit, ShelfTabNotifier.maxLimit);
+      });
+
+      test('deve dizer que chegou ao teto quando ainda há mais', () async {
+        await signInAs(ana);
+        for (
+          var limit = ShelfTabNotifier.pageSize;
+          limit < ShelfTabNotifier.maxLimit;
+          limit += ShelfTabNotifier.pageSize
+        ) {
+          await emitPage(page([1], hasMore: true));
+          notifier.loadMore();
+          await pumpEventQueue();
+        }
+
+        await emitPage(page([1], hasMore: true));
+
+        expect(ready().capped, isTrue);
+      });
+
+      test('não deve dizer que chegou ao teto antes dele', () async {
+        await showFirstPage();
+
+        expect(ready().capped, isFalse);
+      });
+
       test('deve tirar o erro do rodapé no tentar de novo', () async {
         await showFirstPage();
         await emitError(const NetworkFailure());
@@ -337,7 +417,7 @@ void main() {
         notifier.retry();
         await pumpEventQueue();
 
-        expect(ready().failure, isNull);
+        expect(ready().nextPage, isNot(isA<NextPageFailed>()));
       });
     });
 

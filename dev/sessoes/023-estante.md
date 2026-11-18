@@ -35,6 +35,20 @@ Trocar o placeholder da aba Estante por três abas (**Assistidos**, **Quero assi
 ### Composição
 - [x] Rota `/estante` com a tela real no `app_router.dart`, dependências montadas no `main.dart`; fakes em `test/helpers/` atualizados. **Feito:** o `MovieCopySource` nasce no router, sobre o `MovieRepository`; o `main.dart` não mudou (a Estante e a conta já vinham por `Provider`); sai o `PlaceholderScreen`, a última aba provisória, com a string `comingSoon`
 
+### Achados aceitos do `/revisar` (o usuário seguiu a recomendação)
+- [ ] (1, bloqueante) `loadMore` não fura o erro do rodapé (laço de reassinatura com limite crescente)
+- [ ] (2) Nada da Estante grava ou assina depois do `closeStreams()`: abas só em `SessionSignedIn`, mortas no `SigningOut`; o `_onDone` descarta o renovador
+- [ ] (3) Sem skeleton eterno depois de um logout que falhou: aviso com "Ir para o Perfil" no `SessionSignOutFailed`
+- [ ] (4) Teto de 200 filmes por aba no limite crescente, com aviso no rodapé, e o custo de leitura registrado em decisão
+- [ ] (5) Aba vazia que recebe erro mostra o erro com "tentar de novo", e não uma grade em branco
+- [ ] (6) Política 2.0 no `PLANO.md`: consulta automática ao TMDB (ids e IP), base legal e "renovada quando o filme aparece na Estante"
+- [ ] (8) `try`/`finally` no `_drain` do renovador
+- [ ] (10) Rodapé com estado selado (`NextPageStatus`) no lugar de `bool` + `Failure?`
+- [ ] (14) Comentário do `_SilentCopySource` no teste
+- [ ] (15) Widget tests do spinner e do "Tentar de novo" do rodapé e da mensagem do erro da primeira página
+- [ ] (16) Decisão nova (só `orderBy`, limite crescente com teto) e comentários com mais de 80 colunas
+- [ ] (7, 9, 11, 12, 13) Para o `BACKLOG.md`: renovador por conta compartilhado, `retryAfter` no renovador, relógio único da cópia vencida, `index` redundante do `ShelfTab`, `PosterGrid`/`MoviesMessage` em `core/widgets`
+
 ### Entrega
 - [ ] Tríade: format, analyze limpo, `flutter test` verde, `npm test` das regras se mudarem
 - [x] Emulador: abas, paginação, marcar nos Detalhes e ver na aba, offline, logout. **Feito com o Maestro** (fluxos fora do repositório), no `Pixel_9_Pro` (Android 16, API 36), contra o projeto real: as três abas leem do Firestore; o vazio com "Descobrir filmes"; o mesmo filme vivo nas três abas abre os Detalhes sem quebrar o Hero; marcar nos Detalhes aparece ao vivo na aba, com o mais recente primeiro; a marca feita em modo avião entra no topo e fica lá quando a rede volta; o logout volta ao convite; o login pelo convite abre em Assistidos com as marcas do servidor; com `font_scale` 1.5, o `TabBar` rola; desmarcar esvazia a aba ao vivo. As marcas de teste foram desfeitas. **Não deu para ver no aparelho:** a paginação (precisa de mais de 20 filmes numa marca) e a cópia vencida (as regras não deixam o cliente escolher o `cachedAt`); as duas ficaram nos widget tests

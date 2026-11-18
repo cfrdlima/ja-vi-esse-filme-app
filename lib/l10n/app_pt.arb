@@ -239,5 +239,7 @@
   "shelfUpdateFailed": "Não deu para atualizar a Estante.",
   "@shelfUpdateFailed": { "description": "Erro no rodapé da Estante, com os filmes já na tela, ao lado do Tentar de novo" },
   "shelfSignInBody": "Entre para guardar os filmes que você viu, quer ver e mais gosta.",
-  "@shelfSignInBody": { "description": "Convite para entrar na aba Estante sem conta" }
+  "@shelfSignInBody": { "description": "Convite para entrar na aba Estante sem conta" },
+  "shelfCapped": "Mostrando os {count} filmes mais recentes.",
+  "@shelfCapped": { "description": "Rodapé da aba da Estante quando ela chega ao teto de filmes por aba e ainda há mais", "placeholders": { "count": { "type": "int" } } }
 }

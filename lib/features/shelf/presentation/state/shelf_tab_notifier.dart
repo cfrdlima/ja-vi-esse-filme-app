@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 
 import '../../../../core/error/failures.dart';
 import '../../../auth/domain/entities/auth_state.dart';
+import '../../../movies/presentation/state/paged_movies_state.dart';
 import '../../domain/entities/shelf_mark.dart';
 import '../../domain/entities/shelf_movie.dart';
 import '../../domain/entities/shelf_page.dart';
@@ -35,6 +36,10 @@ class ShelfTabNotifier extends ChangeNotifier {
   /// Quantos filmes cada passo da paginação acrescenta.
   static const pageSize = 20;
 
+  /// O maior limite: cada passo relê a aba inteira no Firestore, e o custo
+  /// cresce com o quadrado dos filmes mostrados (decisão 014).
+  static const maxLimit = 200;
+
   final ShelfMark _mark;
   final ShelfRepository _shelf;
 
@@ -60,7 +65,10 @@ class ShelfTabNotifier extends ChangeNotifier {
 
   /// Pede mais filmes quando há mais e o pedido anterior já chegou.
   void loadMore() {
-    if (_state case ShelfTabReady(hasMore: true, loadingMore: false)) {
+    if (_state case ShelfTabReady(
+      hasMore: true,
+      nextPage: NextPageIdle(),
+    ) when _limit < maxLimit) {
       _limit += pageSize;
       _subscribe();
     }
@@ -100,12 +108,12 @@ class ShelfTabNotifier extends ChangeNotifier {
   void _subscribe() {
     unawaited(_shelfSubscription?.cancel());
     _emit(switch (_movies) {
-      final List<ShelfMovie> movies => ShelfTabReady(
+      final List<ShelfMovie> movies when movies.isNotEmpty => ShelfTabReady(
         movies: movies,
         hasMore: _hasMore,
-        loadingMore: true,
+        nextPage: const NextPageLoading(),
       ),
-      null => const ShelfTabLoading(),
+      _ => const ShelfTabLoading(),
     });
     _shelfSubscription = _shelf
         .watchShelf(_mark, limit: _limit)
@@ -119,7 +127,11 @@ class ShelfTabNotifier extends ChangeNotifier {
     _emit(
       page.movies.isEmpty && !page.hasMore
           ? const ShelfTabEmpty()
-          : ShelfTabReady(movies: page.movies, hasMore: page.hasMore),
+          : ShelfTabReady(
+              movies: page.movies,
+              hasMore: page.hasMore,
+              capped: page.hasMore && _limit >= maxLimit,
+            ),
     );
   }
 
@@ -127,13 +139,14 @@ class ShelfTabNotifier extends ChangeNotifier {
     final failure = error is Failure
         ? error
         : const UnexpectedFailure('erro fora da Estante na aba');
+    // Sem filmes na tela, o erro ocupa a aba, com o "tentar de novo".
     _emit(switch (_movies) {
-      final List<ShelfMovie> movies => ShelfTabReady(
+      final List<ShelfMovie> movies when movies.isNotEmpty => ShelfTabReady(
         movies: movies,
         hasMore: _hasMore,
-        failure: failure,
+        nextPage: NextPageFailed(failure),
       ),
-      null => ShelfTabError(failure),
+      _ => ShelfTabError(failure),
     });
   }
 

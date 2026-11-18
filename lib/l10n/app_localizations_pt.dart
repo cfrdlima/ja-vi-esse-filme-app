@@ -355,4 +355,9 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String get shelfSignInBody =>
       'Entre para guardar os filmes que você viu, quer ver e mais gosta.';
+
+  @override
+  String shelfCapped(int count) {
+    return 'Mostrando os $count filmes mais recentes.';
+  }
 }

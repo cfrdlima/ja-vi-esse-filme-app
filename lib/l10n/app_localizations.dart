@@ -657,6 +657,12 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Entre para guardar os filmes que você viu, quer ver e mais gosta.'**
   String get shelfSignInBody;
+
+  /// Rodapé da aba da Estante quando ela chega ao teto de filmes por aba e ainda há mais
+  ///
+  /// In pt, this message translates to:
+  /// **'Mostrando os {count} filmes mais recentes.'**
+  String shelfCapped(int count);
 }
 
 class _AppLocalizationsDelegate

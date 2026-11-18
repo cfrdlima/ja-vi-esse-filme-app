@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
-import '../../../../core/error/failures.dart';
 import '../../../../core/error/retry_wait.dart';
 import '../../../../core/l10n/failure_message.dart';
 import '../../../../core/routing/app_routes.dart';
@@ -11,6 +10,7 @@ import '../../../../core/widgets/retry_button.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../auth/domain/repositories/auth_repository.dart';
 import '../../../movies/domain/entities/movie.dart';
+import '../../../movies/presentation/state/paged_movies_state.dart';
 import '../../../movies/presentation/widgets/movie_poster.dart';
 import '../../../movies/presentation/widgets/paged_movies_view.dart';
 import '../../../movies/presentation/widgets/poster_grid.dart';
@@ -254,25 +254,39 @@ class _Footer extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final spacing = theme.extension<AppThemeTokens>()!.spacing;
-    final failure = state.failure;
     return Padding(
       padding: EdgeInsets.only(bottom: spacing.lg),
-      child: switch ((state.loadingMore, failure)) {
-        (_, final Failure failure) => Column(
+      child: switch (state.nextPage) {
+        NextPageFailed(:final failure) => Column(
           children: [
-            Text(
-              AppLocalizations.of(context).shelfUpdateFailed,
-              textAlign: TextAlign.center,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
-            ),
+            _FooterText(AppLocalizations.of(context).shelfUpdateFailed),
             RetryButton.text(onPressed: onRetry, wait: retryWaitOf(failure)),
           ],
         ),
-        (true, null) => const Center(child: CircularProgressIndicator()),
-        (false, null) => const SizedBox.shrink(),
+        NextPageLoading() => const Center(child: CircularProgressIndicator()),
+        NextPageIdle() when state.capped => _FooterText(
+          AppLocalizations.of(context).shelfCapped(ShelfTabNotifier.maxLimit),
+        ),
+        NextPageIdle() => const SizedBox.shrink(),
       },
+    );
+  }
+}
+
+class _FooterText extends StatelessWidget {
+  const _FooterText(this.text);
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Text(
+      text,
+      textAlign: TextAlign.center,
+      style: theme.textTheme.bodyMedium?.copyWith(
+        color: theme.colorScheme.onSurfaceVariant,
+      ),
     );
   }
 }
