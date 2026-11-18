@@ -27,10 +27,10 @@ Excluir a conta pelo app, na ordem da decisão 010: login recente, os documentos
 - [x] Estante sai de cena quando a exclusão começa, como no logout. **Feito:** skeleton "Excluindo a conta" durante a exclusão, abas de volta na falha, convite depois; 5 widget tests, conferidos por mutação
 
 ### UI (RED/GREEN/REFACTOR, widget tests)
-- [ ] "Excluir conta" no Perfil, com diálogo de confirmação explícita (o que é apagado, sem volta), progresso, erro com "tentar de novo", strings no ARB, `Semantics`, alvo ≥ 48dp, fonte grande
+- [x] "Excluir conta" no Perfil, com diálogo de confirmação explícita (o que é apagado, sem volta), progresso, erro com "tentar de novo", strings no ARB, `Semantics`, alvo ≥ 48dp, fonte grande. **Feito:** `DeleteAccountSection` e `DeleteAccountDialog`; `SignOutButton.disabled`; aviso no `SignedOutPanel`; 23 widget tests e os 3 estados novos no "em todos os estados" (fonte 2x, 48dp, contraste AA). **Achado:** sair depois de uma exclusão que falhou não esperava o servidor; corrigido com teste no notifier
 
 ### Composição
-- [ ] Gateways novos montados no `main.dart`; fakes em `test/helpers/` atualizados
+- [x] Gateways novos montados no `main.dart`; fakes em `test/helpers/` atualizados. **Feito:** `cloudFirestoreAccountDocuments` e o `logUnhandledError` no `FirebaseAuthRepository`; `FakeAuthRepository` com exclusão pendente
 
 ### Entrega
 - [ ] Tríade: format, analyze limpo, `flutter test`; `npm test` das regras (deploy se `firestore.rules` mudar)

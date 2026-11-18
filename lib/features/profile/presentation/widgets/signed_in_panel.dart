@@ -60,19 +60,24 @@ class SignedInPanel extends StatelessWidget {
 }
 
 /// O "Sair" do Perfil. Enquanto o app espera as marcas chegarem ao servidor,
-/// fica desabilitado com "Saindo" e o indicador no lugar do ícone.
+/// fica desabilitado com "Saindo" e o indicador no lugar do ícone. Durante
+/// a exclusão da conta, só fica desabilitado.
 class SignOutButton extends StatelessWidget {
-  const SignOutButton({required VoidCallback this.onPressed, super.key});
+  const SignOutButton({required VoidCallback this.onPressed, super.key})
+    : loading = false;
 
-  const SignOutButton.loading({super.key}) : onPressed = null;
+  const SignOutButton.loading({super.key}) : onPressed = null, loading = true;
 
-  /// `null` só no [SignOutButton.loading].
+  const SignOutButton.disabled({super.key}) : onPressed = null, loading = false;
+
+  /// `null` no [SignOutButton.loading] e no [SignOutButton.disabled].
   final VoidCallback? onPressed;
+
+  final bool loading;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final loading = onPressed == null;
     return OutlinedButton.icon(
       onPressed: onPressed,
       icon: loading

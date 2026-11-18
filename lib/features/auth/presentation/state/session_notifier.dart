@@ -84,7 +84,10 @@ class SessionNotifier extends ChangeNotifier {
     if (_disposed || _busy) return;
     _signingOut = true;
     try {
-      if (_state case SessionSignedIn(:final user)) {
+      // Depois de uma exclusão que falhou, a conta continua aberta.
+      if (_state
+          case SessionSignedIn(:final user) ||
+              SessionDeleteAccountFailed(:final user)) {
         _emit(SessionSigningOut(user));
         final synced =
             await _repository.syncPendingChanges() &&

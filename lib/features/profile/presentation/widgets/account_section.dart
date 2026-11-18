@@ -29,6 +29,11 @@ class AccountSection extends StatelessWidget {
     );
     final panel = switch (state) {
       SessionLoading() => const AccountSkeleton(),
+      // Antes do deslogado, do qual é um subtipo.
+      SessionAccountDeleted() => SignedOutPanel(
+        notice: AppLocalizations.of(context).profileAccountDeleted,
+        action: signInButton,
+      ),
       SessionSignedOut() => SignedOutPanel(action: signInButton),
       SessionSigningIn() => const SignedOutPanel(
         action: GoogleSignInButton.loading(),
@@ -56,7 +61,7 @@ class AccountSection extends StatelessWidget {
       ),
       SessionDeletingAccount(:final user) => SignedInPanel(
         user: user,
-        action: const SignOutButton.loading(),
+        action: const SignOutButton.disabled(),
       ),
       SessionDeleteAccountFailed(:final user) => SignedInPanel(
         user: user,

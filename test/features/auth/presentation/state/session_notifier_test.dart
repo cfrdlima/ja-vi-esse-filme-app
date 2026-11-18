@@ -764,6 +764,21 @@ void main() {
       },
     );
 
+    // A conta continua aberta depois da falha, e sair segue o caminho do
+    // logado: espera as marcas chegarem ao servidor antes de limpar.
+    test(
+      'deve esperar o servidor ao sair depois da exclusão que falhou',
+      () async {
+        await startDeletion();
+        await fail(offline);
+
+        unawaited(notifier.signOut());
+        await pumpEventQueue();
+
+        expect(repository.syncCalls, greaterThan(0));
+      },
+    );
+
     test('deve deixar entrar de novo depois da exclusão', () async {
       await startDeletion();
       await answer(const AccountDeleted());

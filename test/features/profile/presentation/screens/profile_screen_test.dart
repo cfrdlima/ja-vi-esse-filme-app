@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:ja_vi_esse_filme/core/error/failures.dart';
 import 'package:ja_vi_esse_filme/core/l10n/app_locale.dart';
 import 'package:ja_vi_esse_filme/core/widgets/retry_button.dart';
+import 'package:ja_vi_esse_filme/features/auth/domain/entities/account_deletion_outcome.dart';
 import 'package:ja_vi_esse_filme/features/auth/domain/entities/app_user.dart';
 import 'package:ja_vi_esse_filme/features/auth/domain/entities/auth_state.dart';
 import 'package:ja_vi_esse_filme/features/auth/presentation/state/session_notifier.dart';
@@ -366,6 +367,281 @@ void main() {
     });
   });
 
+  group('excluir a conta', () {
+    final ana = AppUser(uid: 'abc123', displayName: 'Ana Souza');
+
+    Future<void> pumpSignedIn(WidgetTester tester) async {
+      repository.emit(SignedIn(ana));
+      await pumpProfile(tester);
+      await tester.pump();
+    }
+
+    // O Excluir conta fica no fim da lista, que pode passar da tela.
+    Future<void> tapDeleteEntry(WidgetTester tester) async {
+      final entry = find.widgetWithText(TextButton, l10n.profileDeleteAccount);
+      await tester.ensureVisible(entry);
+      await tester.pumpAndSettle();
+      await tester.tap(entry);
+      await tester.pumpAndSettle();
+    }
+
+    Future<void> confirm(WidgetTester tester) async {
+      await tester.tap(
+        find.descendant(
+          of: find.byType(AlertDialog),
+          matching: find.text(l10n.profileDeleteAccount),
+        ),
+      );
+      // O spinner do "Excluindo" gira sem parar, e o `pumpAndSettle` não
+      // terminaria: só o tempo de o diálogo fechar.
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 1));
+    }
+
+    Future<void> pumpDeleting(WidgetTester tester) async {
+      await pumpSignedIn(tester);
+      await tapDeleteEntry(tester);
+      await confirm(tester);
+    }
+
+    Future<void> pumpFailed(WidgetTester tester) async {
+      await pumpDeleting(tester);
+      repository.failDeletion(const NetworkFailure());
+      await tester.pumpAndSettle();
+    }
+
+    Future<void> pumpDeleted(WidgetTester tester) async {
+      await pumpDeleting(tester);
+      repository.completeDeletion(const AccountDeleted());
+      await tester.pumpAndSettle();
+    }
+
+    group('com a conta aberta', () {
+      testWidgets('deve mostrar Excluir conta', (tester) async {
+        await pumpSignedIn(tester);
+
+        expect(
+          find.widgetWithText(TextButton, l10n.profileDeleteAccount),
+          findsOneWidget,
+        );
+      });
+
+      testWidgets('deve dizer o que a exclusão apaga', (tester) async {
+        await pumpSignedIn(tester);
+
+        expect(find.text(l10n.profileDeleteAccountHint), findsOneWidget);
+      });
+
+      testWidgets('deve mostrar Excluir conta depois do Sobre o app', (
+        tester,
+      ) async {
+        await pumpSignedIn(tester);
+
+        final about = tester.getTopLeft(find.text(l10n.profileAboutEntry));
+        final delete = tester.getTopLeft(find.text(l10n.profileDeleteAccount));
+        expect(delete.dy, greaterThan(about.dy));
+      });
+
+      testWidgets('deve abrir a confirmação ao tocar em Excluir conta', (
+        tester,
+      ) async {
+        await pumpSignedIn(tester);
+
+        await tapDeleteEntry(tester);
+
+        expect(find.text(l10n.deleteAccountDialogTitle), findsOneWidget);
+      });
+
+      testWidgets('deve explicar na confirmação que não dá para desfazer', (
+        tester,
+      ) async {
+        await pumpSignedIn(tester);
+
+        await tapDeleteEntry(tester);
+
+        expect(find.text(l10n.deleteAccountDialogBody), findsOneWidget);
+      });
+
+      testWidgets('não deve excluir antes de confirmar', (tester) async {
+        await pumpSignedIn(tester);
+
+        await tapDeleteEntry(tester);
+
+        expect(repository.pendingDeletions, 0);
+      });
+
+      testWidgets('deve fechar sem excluir ao tocar em Cancelar', (
+        tester,
+      ) async {
+        await pumpSignedIn(tester);
+        await tapDeleteEntry(tester);
+
+        await tester.tap(find.text(l10n.deleteAccountDialogCancel));
+        await tester.pumpAndSettle();
+
+        expect(
+          [
+            find.byType(AlertDialog).evaluate().length,
+            repository.pendingDeletions,
+          ],
+          [0, 0],
+        );
+      });
+
+      testWidgets('deve excluir ao confirmar', (tester) async {
+        await pumpSignedIn(tester);
+        await tapDeleteEntry(tester);
+
+        await confirm(tester);
+
+        expect(repository.pendingDeletions, 1);
+      });
+
+      testWidgets('deve caber a confirmação com fonte 2x', (tester) async {
+        tester.view.physicalSize = const Size(360, 640);
+        tester.view.devicePixelRatio = 1;
+        addTearDown(tester.view.reset);
+        repository.emit(SignedIn(ana));
+        await pumpProfile(tester, textScaler: const TextScaler.linear(2));
+        await tester.pump();
+
+        await tapDeleteEntry(tester);
+
+        expect(tester.takeException(), isNull);
+      });
+    });
+
+    testWidgets('não deve mostrar Excluir conta sem conta', (tester) async {
+      repository.emit(const SignedOut());
+      await pumpProfile(tester);
+      await tester.pump();
+
+      expect(find.text(l10n.profileDeleteAccount), findsNothing);
+    });
+
+    group('excluindo', () {
+      testWidgets('deve mostrar Excluindo a conta', (tester) async {
+        await pumpDeleting(tester);
+
+        expect(find.text(l10n.profileDeletingAccount), findsOneWidget);
+      });
+
+      testWidgets('deve continuar mostrando a conta', (tester) async {
+        await pumpDeleting(tester);
+
+        expect(find.text('Ana Souza'), findsOneWidget);
+      });
+
+      testWidgets('deve desabilitar o Sair enquanto exclui', (tester) async {
+        await pumpDeleting(tester);
+
+        final signOut = tester.widget<OutlinedButton>(
+          find.widgetWithText(OutlinedButton, l10n.profileSignOut),
+        );
+        expect(signOut.onPressed, isNull);
+      });
+
+      testWidgets('não deve excluir de novo enquanto exclui', (tester) async {
+        await pumpDeleting(tester);
+
+        final entry = tester.widget<TextButton>(
+          find.widgetWithText(TextButton, l10n.profileDeletingAccount),
+        );
+        expect(entry.onPressed, isNull);
+      });
+    });
+
+    group('falha na exclusão', () {
+      testWidgets('deve mostrar a mensagem da falha', (tester) async {
+        await pumpFailed(tester);
+
+        expect(find.text(l10n.failureNetwork), findsOneWidget);
+      });
+
+      testWidgets('deve anunciar a falha ao leitor de tela', (tester) async {
+        final semantics = tester.ensureSemantics();
+        await pumpFailed(tester);
+
+        expect(
+          tester.getSemantics(find.text(l10n.failureNetwork)),
+          matchesSemantics(label: l10n.failureNetwork, isLiveRegion: true),
+        );
+        semantics.dispose();
+      });
+
+      testWidgets('deve continuar mostrando a conta', (tester) async {
+        await pumpFailed(tester);
+
+        expect(find.text('Ana Souza'), findsOneWidget);
+      });
+
+      // A pessoa já confirmou: tentar de novo não abre outro diálogo.
+      testWidgets('deve tentar excluir de novo sem a confirmação', (
+        tester,
+      ) async {
+        await pumpFailed(tester);
+
+        final retry = find.text(l10n.profileDeleteAccountRetry);
+        await tester.ensureVisible(retry);
+        await tester.pumpAndSettle();
+        await tester.tap(retry);
+        await tester.pump();
+
+        expect(
+          [
+            find.byType(AlertDialog).evaluate().length,
+            repository.pendingDeletions,
+          ],
+          [0, 1],
+        );
+      });
+
+      testWidgets('deve deixar sair da conta', (tester) async {
+        await pumpFailed(tester);
+
+        await tester.tap(find.text(l10n.profileSignOut));
+        await tester.pump();
+
+        // Como no logado: espera as marcas chegarem ao servidor (sessão 022).
+        expect(repository.syncCalls, greaterThan(0));
+      });
+    });
+
+    group('conta excluída', () {
+      testWidgets('deve avisar que a conta foi excluída', (tester) async {
+        await pumpDeleted(tester);
+
+        expect(find.text(l10n.profileAccountDeleted), findsOneWidget);
+      });
+
+      testWidgets('deve anunciar o aviso ao leitor de tela', (tester) async {
+        final semantics = tester.ensureSemantics();
+        await pumpDeleted(tester);
+
+        expect(
+          tester.getSemantics(find.text(l10n.profileAccountDeleted)),
+          matchesSemantics(
+            label: l10n.profileAccountDeleted,
+            isLiveRegion: true,
+          ),
+        );
+        semantics.dispose();
+      });
+
+      testWidgets('deve convidar a entrar de novo', (tester) async {
+        await pumpDeleted(tester);
+
+        expect(find.text(l10n.signInWithGoogle), findsOneWidget);
+      });
+
+      testWidgets('não deve mostrar Excluir conta', (tester) async {
+        await pumpDeleted(tester);
+
+        expect(find.text(l10n.profileDeleteAccount), findsNothing);
+      });
+    });
+  });
+
   group('em todos os estados', () {
     final ana = AppUser(
       uid: 'abc123',
@@ -427,6 +703,43 @@ void main() {
           ..signOutError = const NetworkFailure();
         await tester.pump();
         await tapVisible(tester, find.text(l10n.profileSignOut));
+        await tester.pump();
+      },
+      'excluindo a conta': (tester) async {
+        repository.emit(SignedIn(ana));
+        await tester.pump();
+        unawaited(
+          tester
+              .element(find.byType(ProfileScreen))
+              .read<SessionNotifier>()
+              .deleteAccount(),
+        );
+        await tester.pump();
+      },
+      'falha na exclusão': (tester) async {
+        repository.emit(SignedIn(ana));
+        await tester.pump();
+        unawaited(
+          tester
+              .element(find.byType(ProfileScreen))
+              .read<SessionNotifier>()
+              .deleteAccount(),
+        );
+        await tester.pump();
+        repository.failDeletion(const NetworkFailure());
+        await tester.pump();
+      },
+      'conta excluída': (tester) async {
+        repository.emit(SignedIn(ana));
+        await tester.pump();
+        unawaited(
+          tester
+              .element(find.byType(ProfileScreen))
+              .read<SessionNotifier>()
+              .deleteAccount(),
+        );
+        await tester.pump();
+        repository.completeDeletion(const AccountDeleted());
         await tester.pump();
       },
     };
