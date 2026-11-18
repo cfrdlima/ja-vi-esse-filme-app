@@ -51,6 +51,18 @@ void main() {
     expect(find.text(l10n.aboutPrivacySummary), findsOneWidget);
   });
 
+  // O resumo acompanha a política 2.0 (sessão 026): a conta Google existe.
+  test('deve dizer no resumo que a conta é opcional e só com o Google', () {
+    expect(
+      l10n.aboutPrivacySummary,
+      allOf(contains('conta é opcional'), contains('Google')),
+    );
+  });
+
+  test('não deve dizer no resumo que o app não tem login', () {
+    expect(l10n.aboutPrivacySummary, isNot(contains('não tem login')));
+  });
+
   testWidgets('deve abrir a política publicada ao tocar no link', (
     tester,
   ) async {
