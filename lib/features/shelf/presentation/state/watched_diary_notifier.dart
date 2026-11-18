@@ -50,13 +50,13 @@ class WatchedDiaryNotifier extends ChangeNotifier {
   /// cheias, meia a menos.
   void tapStar(int star) {
     final full = star * 2;
-    _rate(Rating(_shownRating()?.halfStars == full ? full - 1 : full));
+    _writeRating(Rating(_shownRating()?.halfStars == full ? full - 1 : full));
   }
 
   /// Meia estrela a mais, para o leitor de tela.
   void increase() {
     final halfStars = _shownRating()?.halfStars ?? 0;
-    if (halfStars < Rating.maxHalfStars) _rate(Rating(halfStars + 1));
+    if (halfStars < Rating.maxHalfStars) _writeRating(Rating(halfStars + 1));
   }
 
   /// Meia estrela a menos; de meia estrela, tira a nota.
@@ -64,7 +64,7 @@ class WatchedDiaryNotifier extends ChangeNotifier {
     final halfStars = _shownRating()?.halfStars;
     if (halfStars == null) return;
     if (halfStars == 1) return clearRating();
-    _rate(Rating(halfStars - 1));
+    _writeRating(Rating(halfStars - 1));
   }
 
   void clearRating() => _writeRating(null);
@@ -85,8 +85,6 @@ class WatchedDiaryNotifier extends ChangeNotifier {
 
   /// Repete a última escrita recusada.
   void retryWrite() => _failed?.retry();
-
-  void _rate(Rating rating) => _writeRating(rating);
 
   void _writeRating(Rating? rating) {
     final movie = _movie;

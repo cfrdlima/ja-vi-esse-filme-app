@@ -68,18 +68,5 @@ void main() {
     test('deve dizer qual é o dia de hoje para o seletor', () {
       expect(choose.today(), today);
     });
-
-    test('deve sugerir o dia escolhido antes', () {
-      final day = WatchedOn(year: 2026, month: 11, day: 1);
-
-      expect(choose.suggestionFor(watched(watchedOn: day)), day);
-    });
-
-    test('deve sugerir o dia local em que o Assistido entrou', () {
-      expect(
-        choose.suggestionFor(watched()),
-        WatchedOn(year: 2026, month: 11, day: 10),
-      );
-    });
   });
 }

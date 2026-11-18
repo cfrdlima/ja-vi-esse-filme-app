@@ -1,4 +1,3 @@
-import '../entities/shelf_mark.dart';
 import '../entities/shelf_movie.dart';
 import '../entities/watched_on.dart';
 import '../repositories/shelf_repository.dart';
@@ -24,17 +23,4 @@ class ChooseWatchedOn {
 
   /// O último dia que o seletor deixa escolher.
   WatchedOn today() => WatchedOn.fromLocal(_now());
-
-  /// O dia que o seletor abre: o escolhido antes ou, sem ele, o dia local
-  /// em que a marca Assistido entrou, que não é gravado (decisão 018).
-  ///
-  /// Lança [ArgumentError] se o [movie] não tem a marca Assistido.
-  WatchedOn suggestionFor(ShelfMovie movie) {
-    if (movie.watchedOn case final WatchedOn day) return day;
-    final watchedAt = movie.markedAt(ShelfMark.watched);
-    if (watchedAt == null) {
-      throw ArgumentError('só no filme assistido', 'movie');
-    }
-    return WatchedOn.fromLocal(watchedAt);
-  }
 }
