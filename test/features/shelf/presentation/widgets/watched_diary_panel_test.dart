@@ -158,6 +158,65 @@ void main() {
       semantics.dispose();
     });
 
+    testWidgets('deve ler as estrelas como controle deslizante', (
+      tester,
+    ) async {
+      final semantics = tester.ensureSemantics();
+      await pumpPanel(tester, initial: watched(rating: Rating(7)));
+
+      expect(
+        tester.getSemantics(find.byKey(const ValueKey('diary-stars'))),
+        isSemantics(isSlider: true),
+      );
+      semantics.dispose();
+    });
+
+    testWidgets('deve descer meia estrela pelo leitor de tela', (tester) async {
+      final semantics = tester.ensureSemantics();
+      await pumpPanel(tester, initial: watched(rating: Rating(7)));
+
+      tester.semantics.decrease(find.semantics.byLabel('Sua nota'));
+      await tester.pump();
+
+      expect(shelf.personalWrites.single.value, Rating(6));
+      semantics.dispose();
+    });
+
+    testWidgets('não deve oferecer subir com cinco estrelas', (tester) async {
+      final semantics = tester.ensureSemantics();
+      await pumpPanel(tester, initial: watched(rating: Rating(10)));
+
+      expect(
+        tester.getSemantics(find.byKey(const ValueKey('diary-stars'))),
+        isSemantics(hasIncreaseAction: false, hasDecreaseAction: true),
+      );
+      semantics.dispose();
+    });
+
+    testWidgets('não deve oferecer descer sem nota', (tester) async {
+      final semantics = tester.ensureSemantics();
+      await pumpPanel(tester, initial: watched());
+
+      expect(
+        tester.getSemantics(find.byKey(const ValueKey('diary-stars'))),
+        isSemantics(hasIncreaseAction: true, hasDecreaseAction: false),
+      );
+      semantics.dispose();
+    });
+
+    testWidgets('deve dizer ao leitor de tela que o botão escolhe o dia', (
+      tester,
+    ) async {
+      final semantics = tester.ensureSemantics();
+      await pumpPanel(tester, initial: watched());
+
+      expect(
+        find.bySemanticsLabel(RegExp('Escolher quando assistiu')),
+        findsOneWidget,
+      );
+      semantics.dispose();
+    });
+
     testWidgets('não deve mostrar "Tirar nota" sem nota', (tester) async {
       await pumpPanel(tester, initial: watched());
 
@@ -273,6 +332,22 @@ void main() {
       await tester.pump();
 
       expect(shelf.personalWrites.last.value, Rating(4));
+    });
+
+    testWidgets('deve caber com a fonte grande e o dia sugerido', (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(360, 800);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+
+      await pumpPanel(
+        tester,
+        initial: watched(rating: Rating(7)),
+        textScaler: const TextScaler.linear(2),
+      );
+
+      expect(tester.takeException(), isNull);
     });
 
     testWidgets('deve caber com a fonte grande', (tester) async {

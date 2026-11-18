@@ -28,7 +28,7 @@ class _CountingListenable implements ValueListenable<ShelfMovie?> {
 
 void main() {
   // Meio-dia local: longe da virada do dia em qualquer fuso de teste.
-  final now = DateTime(2026, 11, 18, 12);
+  var now = DateTime(2026, 11, 18, 12);
   final watchedAt = DateTime(2026, 11, 10, 20);
   final markedOn = WatchedOn(year: 2026, month: 11, day: 10);
   final chosenDay = WatchedOn(year: 2026, month: 11, day: 1);
@@ -51,6 +51,7 @@ void main() {
   };
 
   setUp(() {
+    now = DateTime(2026, 11, 18, 12);
     shelf = FakeShelfRepository();
     movie = ValueNotifier(null);
     notifier = WatchedDiaryNotifier(
@@ -92,7 +93,16 @@ void main() {
     test('deve dar o dia de hoje para o seletor', () {
       movie.value = watched();
 
-      expect(ready().today, WatchedOn(year: 2026, month: 11, day: 18));
+      expect(notifier.today(), WatchedOn(year: 2026, month: 11, day: 18));
+    });
+
+    // A tela pode ficar aberta de um dia para o outro.
+    test('deve dar o hoje do relógio na hora em que é pedido', () {
+      movie.value = watched();
+
+      now = DateTime(2026, 11, 19, 0, 30);
+
+      expect(notifier.today(), WatchedOn(year: 2026, month: 11, day: 19));
     });
 
     test('deve começar sem falha', () {
@@ -327,15 +337,60 @@ void main() {
       expect(ready().rating, Rating(8));
     });
 
-    test('deve seguir a Estante depois de confirmada', () {
+    test('deve seguir a Estante depois que o servidor confirma', () async {
       movie.value = watched();
       notifier.tapStar(4);
       movie.value = watched(rating: Rating(8));
+      shelf.personalWrites.single.complete();
+      await pumpEventQueue();
 
       movie.value = watched(rating: Rating(3));
 
       expect(ready().rating, Rating(3));
     });
+
+    // O Firestore mostra a escrita no aparelho antes de o servidor
+    // responder: a recusa chega depois de a Estante já ter o valor.
+    test(
+      'deve mostrar a recusa que chega depois de a Estante mostrar a nota',
+      () async {
+        movie.value = watched();
+        notifier.tapStar(2);
+        movie.value = watched(rating: Rating(4));
+
+        shelf.personalWrites.single.fail(const NetworkFailure());
+        await pumpEventQueue();
+
+        expect(ready().failure, isA<NetworkFailure>());
+      },
+    );
+
+    test(
+      'deve mostrar a recusa do dia que chega depois de a Estante mostrá-lo',
+      () async {
+        movie.value = watched();
+        notifier.chooseWatchedOn(chosenDay);
+        movie.value = watched(watchedOn: chosenDay);
+
+        shelf.personalWrites.single.fail(const NetworkFailure());
+        await pumpEventQueue();
+
+        expect(ready().failure, isA<NetworkFailure>());
+      },
+    );
+
+    test(
+      'deve manter a última nota pedida quando a Estante mostra a anterior',
+      () {
+        movie.value = watched(rating: Rating(6));
+        notifier.tapStar(4);
+        notifier.tapStar(3);
+
+        movie.value = watched(rating: Rating(8));
+
+        expect(ready().rating, Rating(6));
+      },
+    );
 
     test('deve voltar a nota quando o servidor recusa', () async {
       movie.value = watched(rating: Rating(7));
@@ -414,6 +469,28 @@ void main() {
   });
 
   group('depois do dispose', () {
+    for (final (name, write) in <(String, void Function(WatchedDiaryNotifier))>[
+      ('a estrela', (n) => n.tapStar(2)),
+      ('a nota a mais', (n) => n.increase()),
+      ('tirar a nota', (n) => n.clearRating()),
+      ('o dia', (n) => n.chooseWatchedOn(chosenDay)),
+      ('tirar o dia', (n) => n.clearWatchedOn()),
+    ]) {
+      test('não deve gravar $name', () {
+        final own = WatchedDiaryNotifier(
+          shelf: shelf,
+          chooseWatchedOn: ChooseWatchedOn(shelf: shelf, now: () => now),
+          watchedMovie: movie,
+        );
+        movie.value = watched(rating: Rating(4), watchedOn: chosenDay);
+        own.dispose();
+
+        write(own);
+
+        expect(shelf.personalWrites, isEmpty);
+      });
+    }
+
     test('deve parar de ouvir o filme', () {
       final own = _CountingListenable();
       WatchedDiaryNotifier(

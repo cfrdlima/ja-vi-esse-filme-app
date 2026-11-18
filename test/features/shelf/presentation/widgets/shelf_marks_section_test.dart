@@ -141,6 +141,53 @@ void main() {
       expect(shelf.writes.single.mark, ShelfMark.watched);
     });
 
+    // Outro aparelho tirou o Assistido com o diálogo aberto: o "Tirar" não
+    // pode pôr a marca de volta.
+    testWidgets('não deve pôr o Assistido de volta ao confirmar', (
+      tester,
+    ) async {
+      await pumpSection(
+        tester,
+        marks: {ShelfMark.watched, ShelfMark.favorite},
+        rating: Rating(7),
+      );
+      await tapWatched(tester);
+      shelf.emit(
+        OnShelf(
+          ShelfMovie(
+            copy: MovieCopy(movieId: 550, title: 'Clube da Luta'),
+            cachedAt: watchedAt,
+            marks: {ShelfMark.favorite: watchedAt},
+          ),
+        ),
+      );
+      await tester.pump();
+
+      await tester.tap(find.text('Tirar'));
+      await tester.pumpAndSettle();
+
+      expect(shelf.writes, isEmpty);
+    });
+
+    testWidgets('deve caber a confirmação com a fonte grande', (tester) async {
+      tester.view.physicalSize = const Size(360, 800);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      tester.platformDispatcher.textScaleFactorTestValue = 2;
+      addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+      await pumpSection(tester, marks: {ShelfMark.watched}, rating: Rating(7));
+
+      await tapWatched(tester);
+
+      expect(
+        (
+          find.text('Tirar dos assistidos?').evaluate().length,
+          tester.takeException(),
+        ),
+        (1, null),
+      );
+    });
+
     testWidgets('não deve perguntar ao tirar o Favorito com nota', (
       tester,
     ) async {

@@ -397,11 +397,21 @@ void main() {
         expect(gateway.lastFields, fields);
       });
 
-      test('deve recusar o filme sem a marca Assistido', () async {
-        await expectLater(
-          write(movieWith({ShelfMark.favorite})),
+      // Síncrono, como no `ChooseWatchedOn`: é erro de quem chama.
+      test('deve recusar na hora o filme sem a marca Assistido', () {
+        expect(
+          () => write(movieWith({ShelfMark.favorite})),
           throwsArgumentError,
         );
+      });
+
+      test('não deve tocar no Firestore sem a marca Assistido', () {
+        try {
+          unawaited(write(movieWith({ShelfMark.favorite})));
+        } on ArgumentError {
+          // Esperado.
+        }
+
         expect(gateway.calls, isEmpty);
       });
 
