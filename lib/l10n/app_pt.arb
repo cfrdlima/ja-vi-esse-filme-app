@@ -261,7 +261,7 @@
   "@profileAccountDeleted": { "description": "Aviso no Perfil logo depois da exclusão da conta" },
   "deleteAccountDialogTitle": "Excluir a conta?",
   "@deleteAccountDialogTitle": { "description": "Título do diálogo de confirmação da exclusão" },
-  "deleteAccountDialogBody": "Vamos apagar seus assistidos, quero assistir e favoritos e a sua conta no app. Não dá para desfazer. Para confirmar, escolha a sua conta Google de novo.",
+  "deleteAccountDialogBody": "Vamos apagar seus assistidos, quero assistir e favoritos, com as notas e os dias em que assistiu, e a sua conta no app. Não dá para desfazer. Para confirmar, escolha a sua conta Google de novo.",
   "@deleteAccountDialogBody": { "description": "Texto do diálogo: o que é apagado, que não tem volta e que o seletor do Google abre" },
   "deleteAccountDialogCancel": "Cancelar",
   "@deleteAccountDialogCancel": { "description": "Fecha o diálogo da exclusão sem fazer nada" },

@@ -70,7 +70,7 @@ Permitir que o usuário dê a um filme assistido uma nota de 0,5 a 5 estrelas (`
   - **Regras desatualizadas no projeto real (como na 022):** a primeira nota deu `PERMISSION_DENIED`. A tela mostrou "Algo deu errado." com "Tentar de novo", e as estrelas voltaram ao vazio: o caminho do B1 com o Firestore real. Com a confirmação do usuário, as regras desta branch foram publicadas (`firebase deploy --only firestore:rules --project ja-vi-esse-filme --account` da conta dona do projeto; a conta padrão da CLI deu 403).
   - Depois do deploy: "Tentar de novo" grava 4 estrelas; tocar de novo na quarta dá 3,5 (meia estrela desenhada); o seletor abre no dia sugerido, com os dias depois de hoje desabilitados; escolher 12 mostra "12/11/2026" com "Tirar dia".
   - Tirar o Assistido com nota abre "Tirar dos assistidos?"; "Cancelar" mantém tudo; "Tirar" desmarca e some com o painel. Com o Favorito ligado, tirar o Assistido mantém o Favorito sem erro, e remarcar o Assistido mostra as estrelas vazias (a nota saiu no servidor).
-  - A exclusão da conta pelo app terminou em "Sua conta foi excluída.". **Achado:** o diálogo da exclusão diz "Vamos apagar seus assistidos, quero assistir e favoritos", sem a nota e o dia.
+  - A exclusão da conta pelo app terminou em "Sua conta foi excluída.". **Achado:** o diálogo da exclusão dizia "Vamos apagar seus assistidos, quero assistir e favoritos", sem a nota e o dia; corrigido a pedido do usuário (texto no ARB, o teste usa a chave).
 - **Suíte do `firestore/` depois dos achados:** 203 verdes.
 - **Suíte do `firestore/`:** 200 verdes (120 das regras, com 31 novos, e 80 da limpeza, com 1 novo).
 - **JDK no PATH:** além do `JAVA_HOME`, o `firebase-tools` só achou o 21 com `PATH=/usr/lib/jvm/java-21-openjdk/bin:$PATH`.

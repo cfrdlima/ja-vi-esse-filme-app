@@ -390,7 +390,7 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get deleteAccountDialogBody =>
-      'Vamos apagar seus assistidos, quero assistir e favoritos e a sua conta no app. Não dá para desfazer. Para confirmar, escolha a sua conta Google de novo.';
+      'Vamos apagar seus assistidos, quero assistir e favoritos, com as notas e os dias em que assistiu, e a sua conta no app. Não dá para desfazer. Para confirmar, escolha a sua conta Google de novo.';
 
   @override
   String get deleteAccountDialogCancel => 'Cancelar';

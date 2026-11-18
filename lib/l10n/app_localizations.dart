@@ -691,7 +691,7 @@ abstract class AppLocalizations {
   /// Texto do diálogo: o que é apagado, que não tem volta e que o seletor do Google abre
   ///
   /// In pt, this message translates to:
-  /// **'Vamos apagar seus assistidos, quero assistir e favoritos e a sua conta no app. Não dá para desfazer. Para confirmar, escolha a sua conta Google de novo.'**
+  /// **'Vamos apagar seus assistidos, quero assistir e favoritos, com as notas e os dias em que assistiu, e a sua conta no app. Não dá para desfazer. Para confirmar, escolha a sua conta Google de novo.'**
   String get deleteAccountDialogBody;
 
   /// Fecha o diálogo da exclusão sem fazer nada
