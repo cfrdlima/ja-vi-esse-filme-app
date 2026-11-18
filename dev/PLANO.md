@@ -3,9 +3,9 @@
 > Fonte da verdade do que construir. Atualizado por `/fechar-sessao`.
 
 ## Última sessão
-**025 — Fase 2: excluir a conta pela web** (fechada em 2026-11-18) · [log](sessoes/025-excluir-conta-web.md)
-A página de exclusão está no ar em `cfrdlima.github.io/ja-vi-esse-filme-suporte/excluir-conta/`: pedido por e-mail ao `xbtechnologies.app@gmail.com` com confirmação do remetente, atendimento em até 15 dias e guarda de 6 meses, com o procedimento local, fora do git (decisões 015 e 016). O `/revisar` achou o repositório do app público; ele fica público (decisão 016).
-**Próximo passo:** política de privacidade 2.0 (portão de release), com o conteúdo acumulado no item dela; antes, conferir no console os backups do Firestore (S7 da 025).
+**026 — Fase 2: política de privacidade 2.0** (fechada em 2026-11-18) · [log](sessoes/026-politica-2-0.md)
+O texto da 2.0 está pronto em `docs/PRIVACIDADE.md` (conta Google, marcas no Firestore, exclusão, bases legais, permissões do manifesto de release), e o resumo do Sobre acompanha. A publicação espera a limpeza mensal da decisão 017 e as conferências no console. Branch empilhada na 025, cujo PR espera o CI destravar (cobrança da conta no GitHub).
+**Próximo passo:** script local de limpeza mensal com o Admin SDK (sessão 027, decisão 017), testado no emulador.
 
 ## Fase 0 — Fundação
 - [x] Criar projeto (`io.github.cfrdlima.ja_vi_esse_filme`), `analysis_options.yaml`, `.gitignore` com `env/*.json` (exceto `example.json`)

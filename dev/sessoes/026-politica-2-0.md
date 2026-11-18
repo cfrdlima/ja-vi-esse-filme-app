@@ -1,6 +1,6 @@
 # Sessão 026 — Fase 2: política de privacidade 2.0
 
-**Data**: 2026-11-18 · **Branch**: `feature/026-politica-2-0` (empilhada na `feature/025-excluir-conta-web`) · **Status**: aberta
+**Data**: 2026-11-18 · **Branch**: `feature/026-politica-2-0` (empilhada na `feature/025-excluir-conta-web`) · **Status**: fechada
 
 ## Objetivo
 Escrever a versão 2.0 do `docs/PRIVACIDADE.md`, que cobre a conta Google (Firebase Auth), as marcas no Firestore, a exclusão da conta e tudo o que o item da política 2.0 do `PLANO.md` acumulou das sessões 020 a 025, e publicá-la no repositório de suporte (decisão 006). Esse é o portão de release: nenhum APK com login sai do ambiente de desenvolvimento antes da 2.0 publicada.
@@ -26,7 +26,7 @@ Escrever a versão 2.0 do `docs/PRIVACIDADE.md`, que cobre a conta Google (Fireb
 - [ ] README do suporte atualizado se precisar
 
 ### Entrega
-- [ ] `PLANO.md` (item da 2.0 marcado; portão de release)
+- [x] `PLANO.md` (item da 2.0 marcado; portão de release). **Mudou:** o item continua aberto (texto pronto, publicação pendente) e ganhou antes dele o script da 017
 - [x] Tríade (format, analyze, `flutter test`) e `gitleaks`. **Antes do `/revisar`:** format 0 de 222, analyze limpo, 1399 verdes. **Depois dos achados:** format 0 de 222, analyze limpo, 1398 verdes (os dois testes do resumo viraram um)
 - [x] `/revisar` (publica conteúdo sobre auth e storage). **Feito:** `code-reviewer` (1 bloqueante, 7 importantes, 8 sugestões) e `security-auditor` (2 bloqueantes, 9 importantes, 8 sugestões)
 
@@ -36,7 +36,7 @@ Escrever a versão 2.0 do `docs/PRIVACIDADE.md`, que cobre a conta Google (Fireb
 - [x] Importantes: outros aparelhos e dados sem conta na seção 7 (link certo para a página), exclusão interrompida sem contradição, pôsteres da Estante ao TMDB, log mascara "credenciais e o e-mail", identificador da conta Google e e-mail verificado (também na página de exclusão), perfil junto do token no aparelho, inciso II para atender pedido, 6 meses para todos os pedidos, Gmail na seção 6 e na transferência, `USE_FINGERPRINT` e a origem da biometria (`androidx.credentials` 1.6.0, puxado pelo `firebase-auth`), marcador do App Check para uma 2.1
 - [x] Sugestões: login também ao marcar um filme, renovação só da cópia vencida, fotos do elenco no cache, resumo do Sobre com a conta (RED/GREEN, teste único), frases reescritas, confirmação no endereço da conta na seção 10, menores de 13 nem com conta supervisionada, adesão ao serviço, correção na conta Google, portabilidade por e-mail, vigência com marcador para a data real
 - [ ] Prova empírica: sem conta, nenhuma conexão a `*.googleapis.com` (proxy ou logcat de rede), antes de publicar
-- [ ] `/fechar-sessao`: PR com base na `feature/025-excluir-conta-web`; merge só depois do CI destravar e da 025 integrada
+- [x] `/fechar-sessao`: PR com base na `feature/025-excluir-conta-web`; merge só depois do CI destravar e da 025 integrada. **Feito:** format 0 de 222, analyze limpo, 1398 verdes, `gitleaks` em container sem vazamento
 
 ## Decisões
 - [017](../decisoes/017-limpeza-mensal-com-admin-sdk.md): limpeza mensal do Firestore com um script local do Admin SDK (cópias vencidas e dados sem conta); a 2.0 só é publicada depois do script pronto e da primeira execução.
@@ -51,9 +51,13 @@ Escrever a versão 2.0 do `docs/PRIVACIDADE.md`, que cobre a conta Google (Fireb
 - `9581ea2` add: resumo de privacidade do Sobre cita a conta no Firebase
 - `ac58ad2` docs: decisão 017 e política 2.0 com os achados do /revisar da sessão 026
 
+- `26f9076` docs: achados do /revisar da sessão 026 no log e script da decisão 017 no plano
+- (este) docs: fecha sessão 026
+
 ## Notas
 - **Empilhada:** o CI da conta está travado por cobrança (sessão 025, decisão 016). Quando destravar, a 025 entra primeiro na `main` e o PR desta é reapontado para a `main`.
 - **Conferido no código para a 2.0:** cópia vencida com 180 dias (`ShelfMovie.copyMaxAge`), até 200 por aba (`ShelfTabNotifier.maxLimit`), `clearPersistence` + `terminate()` no logout (`FirestoreAccountCache`), `clearStaleAccountCache` só com o primeiro estado `SignedOut`, `data_extraction_rules.xml` excluindo tudo de backup e transferência, rótulos "Entrar com o Google", "Sair" e "Excluir conta" no ARB.
 - **Permissões do manifesto mesclado de release** (`./gradlew :app:processReleaseMainManifest`): `INTERNET`, `ACCESS_NETWORK_STATE` (`firebase-auth` 25.0.0), `USE_BIOMETRIC` e `USE_FINGERPRINT` (`androidx.biometric` 1.1.0), `READ_GSERVICES` (`recaptcha` 18.6.1) e a `DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION` do próprio app. A 1.0 dizia "só internet"; a 2.0 lista as de instalação e diz que nenhuma é pedida durante o uso.
 - **Antes do `/revisar`, fora da 2.0:** a varredura do Admin SDK e o S7 (backups/PITR do Firestore), que espera a conferência do usuário no console.
 - **Sem conta, nada vai ao Google** (`security-auditor`): o `ComponentDiscoveryService` do manifesto de release só registra core, common, auth e firestore (sem Installations nem `datatransport`), o `GoogleSignIn.initialize` é preguiçoso e, sem conta, o Firestore só faz o `clearPersistence` local. Falta a prova empírica de rede.
+- **Pendências para publicar a 2.0:** script da decisão 017 e a primeira execução (sessão 027); no console, o S7 (backup, PITR, export) e o aceite dos termos de tratamento de dados do Firebase; prova de rede sem conta; conferir o resumo novo do Sobre no emulador; vigência com a data real; republicar a página de exclusão junto (frase da limpeza mensal e identificador da conta Google).
