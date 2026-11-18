@@ -1,12 +1,14 @@
 import '../../domain/entities/movie_copy.dart';
+import '../../domain/entities/rating.dart';
 import '../../domain/entities/shelf_entry.dart';
 import '../../domain/entities/shelf_mark.dart';
 import '../../domain/entities/shelf_movie.dart';
 import '../../domain/entities/shelf_page.dart';
+import '../../domain/entities/watched_on.dart';
 import '../gateways/shelf_gateway.dart';
 
-/// Converte o documento `users/{uid}/movies/{movieId}` (decisão 013), já com
-/// as datas em `DateTime`, na entidade do domínio.
+/// Converte o documento `users/{uid}/movies/{movieId}` (decisões 013 e
+/// 018), já com as datas em `DateTime`, na entidade do domínio.
 abstract final class ShelfMovieModel {
   /// O campo de data de cada marca, com o nome usado no `firestore.rules`.
   static String fieldOf(ShelfMark mark) => switch (mark) {
@@ -18,15 +20,20 @@ abstract final class ShelfMovieModel {
   /// Sem cachedAt legível, a cópia conta como vencida e é renovada.
   static final _expiredCopy = DateTime.utc(1970);
 
+  static const _rating = 'rating';
+  static const _watchedOn = 'watchedOn';
+
   /// Parse defensivo: uma marca que não é data é ignorada, e o documento sem
-  /// nenhuma marca é [NotOnShelf]. Lança [FormatException] sem `title`
-  /// legível, porque sem ele o filme não aparece na Estante.
+  /// nenhuma marca é [NotOnShelf]. A nota ou o dia ilegível, ou sem a marca
+  /// Assistido, é ignorado. Lança [FormatException] sem `title` legível,
+  /// porque sem ele o filme não aparece na Estante.
   static ShelfEntry fromDocument(int movieId, Map<String, Object?> data) {
     final marks = {
       for (final mark in ShelfMark.values)
         if (data[fieldOf(mark)] case final DateTime at) mark: at,
     };
     if (marks.isEmpty) return const NotOnShelf();
+    final watched = marks.containsKey(ShelfMark.watched);
     return OnShelf(
       ShelfMovie(
         copy: _copyOf(movieId, data),
@@ -35,8 +42,36 @@ abstract final class ShelfMovieModel {
           _ => _expiredCopy,
         },
         marks: marks,
+        rating: watched ? _ratingOf(data[_rating]) : null,
+        watchedOn: watched ? _watchedOnOf(data[_watchedOn]) : null,
       ),
     );
+  }
+
+  static Rating? _ratingOf(Object? value) => switch (value) {
+    final int halfStars
+        when halfStars >= 1 && halfStars <= Rating.maxHalfStars =>
+      Rating(halfStars),
+    _ => null,
+  };
+
+  // Igual à `isWatchedOn` do `firestore.rules`, que deixa passar o dia fora
+  // do calendário; o `WatchedOn` o recusa.
+  static final _isoDay = RegExp(r'^(\d{4})-(\d{2})-(\d{2})$');
+
+  static WatchedOn? _watchedOnOf(Object? value) {
+    if (value is! String) return null;
+    final match = _isoDay.firstMatch(value);
+    if (match == null) return null;
+    try {
+      return WatchedOn(
+        year: int.parse(match[1]!),
+        month: int.parse(match[2]!),
+        day: int.parse(match[3]!),
+      );
+    } on ArgumentError {
+      return null;
+    }
   }
 
   /// A página de uma aba a partir da consulta com [limit]. Um documento
@@ -88,10 +123,39 @@ abstract final class ShelfMovieModel {
   };
 
   /// Atualização que tira a [mark] quando sobra outra. Sem nenhuma, o
-  /// documento é apagado, e não atualizado (decisão 013).
+  /// documento é apagado, e não atualizado (decisão 013). Sem o Assistido,
+  /// a nota e o dia saem juntos, mesmo que o aparelho não os veja: eles
+  /// podem ter vindo de outro aparelho, e as regras os recusam sem o
+  /// `watchedAt` (decisão 018).
   static Map<String, FieldWrite> unmarkFields(ShelfMark mark) => {
     fieldOf(mark): const DeleteField(),
+    if (mark == ShelfMark.watched) ...{
+      ...noRatingFields(),
+      ...noWatchedOnFields(),
+    },
   };
+
+  static Map<String, FieldWrite> ratingFields(Rating rating) => {
+    _rating: SetField(rating.halfStars),
+  };
+
+  static Map<String, FieldWrite> noRatingFields() => {
+    _rating: const DeleteField(),
+  };
+
+  /// No formato `AAAA-MM-DD` das regras.
+  static Map<String, FieldWrite> watchedOnFields(WatchedOn day) => {
+    _watchedOn: SetField(
+      '${_digits(day.year, 4)}-${_digits(day.month, 2)}-${_digits(day.day, 2)}',
+    ),
+  };
+
+  static Map<String, FieldWrite> noWatchedOnFields() => {
+    _watchedOn: const DeleteField(),
+  };
+
+  static String _digits(int value, int width) =>
+      value.toString().padLeft(width, '0');
 
   static MovieCopy _copyOf(int movieId, Map<String, Object?> data) {
     final title = data['title'];

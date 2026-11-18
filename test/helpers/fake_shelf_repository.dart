@@ -1,10 +1,12 @@
 import 'dart:async';
 
 import 'package:ja_vi_esse_filme/features/shelf/domain/entities/movie_copy.dart';
+import 'package:ja_vi_esse_filme/features/shelf/domain/entities/rating.dart';
 import 'package:ja_vi_esse_filme/features/shelf/domain/entities/shelf_entry.dart';
 import 'package:ja_vi_esse_filme/features/shelf/domain/entities/shelf_mark.dart';
 import 'package:ja_vi_esse_filme/features/shelf/domain/entities/shelf_movie.dart';
 import 'package:ja_vi_esse_filme/features/shelf/domain/entities/shelf_page.dart';
+import 'package:ja_vi_esse_filme/features/shelf/domain/entities/watched_on.dart';
 import 'package:ja_vi_esse_filme/features/shelf/domain/repositories/shelf_repository.dart';
 
 /// Uma escrita que o teste completa quando quiser, como o Firestore offline,
@@ -28,6 +30,25 @@ final class FakeShelfWrite {
 
   void fail(Object error) => _completer.completeError(error);
 }
+
+/// Uma escrita da nota ou do dia (decisão 018), pendente como a
+/// [FakeShelfWrite]. O [value] é a `Rating` ou o `WatchedOn` gravado, e é
+/// nulo quando a escrita tira o campo.
+final class FakePersonalWrite {
+  FakePersonalWrite._(this.field, {required this.movie, required this.value});
+
+  final PersonalField field;
+  final ShelfMovie movie;
+  final Object? value;
+
+  final _completer = Completer<void>();
+
+  void complete() => _completer.complete();
+
+  void fail(Object error) => _completer.completeError(error);
+}
+
+enum PersonalField { rating, watchedOn }
 
 /// Estante controlada pelo teste: cada `watchMovie` abre um stream que o
 /// teste alimenta por [emit] e [emitError], e cada escrita fica pendente em
@@ -97,6 +118,30 @@ class FakeShelfRepository implements ShelfRepository {
     writes.add(write);
     return write._completer.future;
   }
+
+  final List<FakePersonalWrite> personalWrites = [];
+
+  Future<void> _personal(PersonalField field, ShelfMovie movie, Object? value) {
+    final write = FakePersonalWrite._(field, movie: movie, value: value);
+    personalWrites.add(write);
+    return write._completer.future;
+  }
+
+  @override
+  Future<void> rate(ShelfMovie movie, Rating rating) =>
+      _personal(PersonalField.rating, movie, rating);
+
+  @override
+  Future<void> clearRating(ShelfMovie movie) =>
+      _personal(PersonalField.rating, movie, null);
+
+  @override
+  Future<void> setWatchedOn(ShelfMovie movie, WatchedOn day) =>
+      _personal(PersonalField.watchedOn, movie, day);
+
+  @override
+  Future<void> clearWatchedOn(ShelfMovie movie) =>
+      _personal(PersonalField.watchedOn, movie, null);
 
   /// As cópias passadas ao `renewCopy`, em ordem.
   final List<MovieCopy> renewedCopies = [];

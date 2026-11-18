@@ -6,10 +6,12 @@ import 'package:flutter/foundation.dart';
 import '../../../../core/error/failures.dart';
 import '../../../../core/firestore/user_data_write_lock.dart';
 import '../../domain/entities/movie_copy.dart';
+import '../../domain/entities/rating.dart';
 import '../../domain/entities/shelf_entry.dart';
 import '../../domain/entities/shelf_mark.dart';
 import '../../domain/entities/shelf_movie.dart';
 import '../../domain/entities/shelf_page.dart';
+import '../../domain/entities/watched_on.dart';
 import '../../domain/repositories/shelf_repository.dart';
 import '../gateways/shelf_gateway.dart';
 import '../models/shelf_movie_model.dart';
@@ -161,18 +163,51 @@ class FirestoreShelfRepository implements ShelfRepository {
   }
 
   @override
-  Future<void> renewCopy(MovieCopy copy) => _write((uid) async {
+  Future<void> renewCopy(MovieCopy copy) => _write(
+    // O filme saiu da Estante enquanto a cópia nova vinha do TMDB.
+    (uid) =>
+        _updateIfPresent(uid, copy.movieId, ShelfMovieModel.copyFields(copy)),
+  );
+
+  @override
+  Future<void> rate(ShelfMovie movie, Rating rating) =>
+      _writePersonal(movie, ShelfMovieModel.ratingFields(rating));
+
+  @override
+  Future<void> clearRating(ShelfMovie movie) =>
+      _writePersonal(movie, ShelfMovieModel.noRatingFields());
+
+  @override
+  Future<void> setWatchedOn(ShelfMovie movie, WatchedOn day) =>
+      _writePersonal(movie, ShelfMovieModel.watchedOnFields(day));
+
+  @override
+  Future<void> clearWatchedOn(ShelfMovie movie) =>
+      _writePersonal(movie, ShelfMovieModel.noWatchedOnFields());
+
+  /// A nota e o dia só existem com o Assistido (decisão 018). O `update`
+  /// não recria o documento de um filme que saiu da Estante.
+  Future<void> _writePersonal(
+    ShelfMovie movie,
+    Map<String, FieldWrite> fields,
+  ) async {
+    if (!movie.isMarked(ShelfMark.watched)) {
+      throw ArgumentError('nota e dia só no filme assistido', 'movie');
+    }
+    return _write((uid) => _updateIfPresent(uid, movie.copy.movieId, fields));
+  }
+
+  Future<void> _updateIfPresent(
+    String uid,
+    int movieId,
+    Map<String, FieldWrite> fields,
+  ) async {
     try {
-      await _gateway.updateMovie(
-        uid,
-        copy.movieId,
-        ShelfMovieModel.copyFields(copy),
-      );
+      await _gateway.updateMovie(uid, movieId, fields);
     } on FirebaseException catch (e) {
-      // O filme saiu da Estante enquanto a cópia nova vinha do TMDB.
       if (e.code != 'not-found') rethrow;
     }
-  });
+  }
 
   /// Um `Error` é bug e sobe como está, para o relatório de erros.
   Future<void> _write(Future<void> Function(String uid) write) async {
