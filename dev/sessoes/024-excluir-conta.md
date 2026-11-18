@@ -61,4 +61,10 @@ Excluir a conta pelo app, na ordem da decisão 010: login recente, os documentos
 - **Seletor do Google com o logo do Flutter:** vem da marca da tela de consentimento OAuth no Google Cloud, não do código. Para a Fase 4 (ícone e nome do app).
 - **`/revisar`:** o `code-reviewer` achou 3 importantes e 5 sugestões; o `security-auditor`, 3 importantes e 3 sugestões. Consolidados em 11 (as marcas durante a exclusão e o prazo do `delete()` vieram dos dois). Os dois divergiram no prazo do `user.delete()`: valeu o do auditor (sem prazo próprio, decisão corrigida). O usuário seguiu a recomendação: 1, 3, 6, 8, 10 e 11 corrigidos; 2, 4, 5, 7 e 9 registrados.
 - **Lote na fila depois do prazo:** o `timeout` não cancela o `commit()`, e o lote continua na fila local (ver a emenda na decisão 015).
+- **Emulador depois dos achados do `/revisar` (a pedido do usuário, com a mesma conta de teste descartável):**
+  - reabrir o app depois da primeira exclusão: deslogado, e entrar de novo cria outra conta no Auth (data de hoje) com as três abas vazias, sem nada da conta anterior;
+  - o Google pediu o consentimento de novo ("Allow Google to sign you in"), prova de que o `disconnect()` revogou o acesso;
+  - antes de excluir, o usuário conferiu no console o `users/{uid}/movies` com as marcas no servidor; a exclusão mostrou "Excluindo a conta" e terminou em "Sua conta foi excluída.", sem falha registrada no log (o `disconnect()` e a limpeza dentro do prazo);
+  - **trava das escritas solta:** sem reiniciar o app, entrar de novo e marcar um filme funcionou, e a Estante mostrou só essa marca; depois, a conta foi excluída outra vez, também sem falha no log.
+  - Não dá para forçar no aparelho uma marca no meio da exclusão (o seletor cobre a tela, e os lotes levam menos de 2 s) nem um `disconnect()` que não responde: os dois ficaram nos testes.
 
