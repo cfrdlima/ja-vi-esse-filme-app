@@ -1,6 +1,6 @@
 # 006 — Política de privacidade: fonte no repositório, publicação em repositório público separado
 
-**Data**: 2026-10-23 · **Status**: aceita
+**Data**: 2026-10-23 · **Status**: aceita (a premissa de repositório do app privado foi substituída pela [016](016-repositorio-do-app-publico.md))
 
 ## Contexto
 A Play Store exige uma política de privacidade numa URL pública, e a política precisa estar acessível também de dentro do app. A LGPD (art. 9º) pede que o titular tenha acesso fácil às informações sobre o tratamento dos dados e a um canal de contato. O contato escolhido tem dois canais: as Issues do GitHub, para dúvidas gerais, e o e-mail `xbtechnologies.app@gmail.com`, canal privado para pedidos do titular. Uma Issue é sempre pública, e quem faz um pedido pela LGPD tende a se identificar nela (revisão da sessão 007).
@@ -25,6 +25,8 @@ Opção 2.
   - `gitleaks detect` roda no repositório público antes de cada push;
   - os commits do repositório público usam o e-mail noreply do GitHub (`82839130+cfrdlima@users.noreply.github.com`), e não o e-mail da config de git do repositório privado (revisão da sessão 014);
   - o repositório público não recebe workflows nem secrets do privado.
+
+- **Emenda (sessão 025):** o `security-auditor` achou o repositório do app **público** (`visibility: public`, sem fork, sem Pages), ao contrário do que esta decisão pressupõe. Ele chegou a voltar a privado, mas isso desligou o ruleset `checks` (plano Free) e travou o Actions por cobrança; o usuário decidiu mantê-lo **público** (decisão 016).
 
 ## Consequências
 - Até o repositório público existir, a política não tem URL pública e as Issues não funcionam para quem está de fora. O e-mail já funciona.
