@@ -3,9 +3,9 @@
 > Fonte da verdade do que construir. Atualizado por `/fechar-sessao`.
 
 ## Última sessão
-**023 — Fase 2: Estante com Assistidos, Quero assistir e Favoritos** (fechada em 2026-11-17) · [log](sessoes/023-estante.md)
-A aba Estante trocou o placeholder por três abas ao vivo no Firestore, a marca mais recente primeiro, com limite crescente de 20 em 20 até 200 (decisão 014), os 4 estados e o convite sem conta; as cópias vencidas do TMDB são renovadas ao aparecer. As abas saem de cena quando o logout começa, e a saída que falha avisa e leva ao Perfil.
-**Próximo passo:** excluir a conta pelo app e pela web, na ordem da decisão 010.
+**024 — Fase 2: excluir a conta pelo app** (fechada em 2026-11-18) · [log](sessoes/024-excluir-conta.md)
+O Perfil ganhou "Excluir conta", que confirma, reautentica com o Google, trava as escritas da Estante e apaga os documentos da lista fixa em lotes confirmados pelo servidor. Depois vêm o `user.delete()`, o `disconnect()` e a limpeza do aparelho (decisão 015). A verificação foi no emulador e no console, com uma conta de teste.
+**Próximo passo:** excluir a conta pela web (sessão 025): página no Pages com o pedido por e-mail, o endereço de suporte e o prazo de atendimento.
 
 ## Fase 0 — Fundação
 - [x] Criar projeto (`io.github.cfrdlima.ja_vi_esse_filme`), `analysis_options.yaml`, `.gitignore` com `env/*.json` (exceto `example.json`)

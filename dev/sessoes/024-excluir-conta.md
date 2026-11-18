@@ -1,6 +1,6 @@
 # Sessão 024 — Fase 2: excluir a conta pelo app
 
-**Data**: 2026-11-18 · **Branch**: `feature/024-excluir-conta` · **Status**: aberta
+**Data**: 2026-11-18 · **Branch**: `feature/024-excluir-conta` · **Status**: fechada
 
 ## Objetivo
 Excluir a conta pelo app, na ordem da decisão 010: login recente, os documentos das subcoleções de uma lista fixa (esperando o servidor confirmar), `user.delete()`, `disconnect()` do Google e a limpeza local. Também fica registrado em decisão o mecanismo da exclusão pela web (página com o Firebase JS ou pedido por formulário/e-mail), que é implementado na sessão 025.
@@ -42,16 +42,38 @@ Excluir a conta pelo app, na ordem da decisão 010: login recente, os documentos
 - [x] (2, 4, 5, 7, 9) Registrar: o `delete()` sem prazo próprio (decisão 015 corrigida); outros aparelhos e a varredura do Admin SDK (`PLANO.md`/`BACKLOG.md`); o que a política 2.0 declara; o lote que fica na fila depois do prazo (015 e "Notas"); dois estados (reautenticando e apagando) no `BACKLOG.md`. **Feito:** três emendas na 015, política 2.0 e varredura do Admin SDK no `PLANO.md`, dois itens no `BACKLOG.md`
 
 ### Entrega
-- [x] Tríade: format, analyze limpo, `flutter test`; `npm test` das regras (deploy se `firestore.rules` mudar). **Feito:** format sem mudança, analyze limpo, 1375 verdes; 88 verdes nas regras; `firestore.rules` sem mudança, sem deploy
+- [x] Tríade: format, analyze limpo, `flutter test`; `npm test` das regras (deploy se `firestore.rules` mudar). **Feito:** format sem mudança, analyze limpo, 1375 verdes; 88 verdes nas regras. **No fechamento:** 1397 verdes e 89 nas regras, depois dos achados do `/revisar`; `firestore.rules` sem mudança, sem deploy
 - [x] Emulador, **com conta Google de teste descartável**: excluir com marcas na Estante, conferir no console que não sobrou nada em `users/{uid}` nem no Auth; cancelar o seletor da reautenticação; exclusão offline. **Feito:** ver "Notas"; o usuário conferiu no console que o Firestore ficou sem documentos e a conta de teste sumiu do Authentication. A exclusão offline aparece como cancelamento (ver "Notas")
 - [x] `PLANO.md` (item da exclusão e política 2.0) e `docs/PRIVACIDADE.md` se o texto mudar. **Feito:** o item da exclusão foi dividido (app feito, web na 025, com o portão do Play) e a política 2.0 ganhou a exclusão; o `PRIVACIDADE.md` não mudou (a 2.0 cobre); 4 itens novos no `BACKLOG.md`
-- [ ] `/revisar` (`code-reviewer` e `security-auditor`: auth, storage, rede)
-- [ ] `/fechar-sessao`
+- [x] `/revisar` (`code-reviewer` e `security-auditor`: auth, storage, rede)
+- [x] `/fechar-sessao`. **Gitleaks:** não está instalado na máquina; o check `Gitleaks` do CI cobre o PR
 
 ## Decisões
 - [015](../decisoes/015-exclusao-da-conta.md): reautenticar sempre antes de apagar, lotes de 500 lidos do servidor, prazo de 15 s por passo, lista fixa das subcoleções e, na web, pedido por e-mail (sessão 025). Complementa a [010](../decisoes/010-conta-propria-com-firebase.md)
 
 ## Commits
+- `5325417` docs: abre a sessão 024
+- `7f516af` docs: decisão 015 sobre a exclusão da conta
+- `ab3d957` docs: override do Perfil para excluir a conta
+- `ecf36b9` add: lista fixa das subcoleções de users/{uid}, conferida com as regras do Firestore
+- `6185c3c` add: FirestoreAccountDocuments apaga as subcoleções da conta em lotes confirmados pelo servidor, com prazo por passo
+- `fc2e62d` add: deleteAccount reautentica, apaga os documentos e exclui a conta no Auth, na ordem das decisões 010 e 015
+- `4d216cb` test: exclusão dos documentos da conta nas regras do Firestore, com a lista fixa do app
+- `29a4a83` add: SessionNotifier exclui a conta, com os estados de exclusão, falha e conta excluída
+- `dcaf5d7` add: Estante sai de cena durante a exclusão da conta e volta às abas quando ela falha
+- `c6a1917` add: Excluir conta no Perfil, com a confirmação, o progresso, a falha e o aviso da conta excluída
+- `ff097e0` fix: Excluir conta alinhado à esquerda com o Sair, na largura de leitura
+- `72f9935` docs: verificação no emulador da exclusão da conta
+- `6117233` docs: plano, backlog e conferência no console da exclusão da conta
+- `1962828` docs: tríade verde da sessão 024
+- `0e27132` fix: nenhuma marca grava enquanto a exclusão da conta apaga os documentos
+- `fdda41c` fix: exclusão termina mesmo quando o disconnect ou a limpeza não respondem
+- `ddd2465` fix: deadline-exceeded, conta apagada por fora e sessão expirada com falhas próprias na exclusão
+- `ff87dd9` test: regras do Firestore só com match no formato que a exclusão da conta conhece
+- `7699bb0` test: conta que chega durante a exclusão e foto fora do cache na conta excluída
+- `b4d3c9d` docs: emendas na decisão 015, política 2.0 e backlog com os achados do /revisar da sessão 024
+- `a043eff` docs: verificação no emulador da exclusão da conta depois dos achados do /revisar
+- (este) docs: fecha sessão 024
 
 ## Notas
 - **`node --test` e erro no `describe`** (Node 22): uma exceção no corpo do `describe` (ex.: `readFileSync` de arquivo que não existe) aparece como `not ok` da suíte, mas não conta em `fail`, e o processo sai com 0. Leitura de arquivo vai dentro do `test`.
@@ -67,4 +89,5 @@ Excluir a conta pelo app, na ordem da decisão 010: login recente, os documentos
   - antes de excluir, o usuário conferiu no console o `users/{uid}/movies` com as marcas no servidor; a exclusão mostrou "Excluindo a conta" e terminou em "Sua conta foi excluída.", sem falha registrada no log (o `disconnect()` e a limpeza dentro do prazo);
   - **trava das escritas solta:** sem reiniciar o app, entrar de novo e marcar um filme funcionou, e a Estante mostrou só essa marca; depois, a conta foi excluída outra vez, também sem falha no log.
   - Não dá para forçar no aparelho uma marca no meio da exclusão (o seletor cobre a tela, e os lotes levam menos de 2 s) nem um `disconnect()` que não responde: os dois ficaram nos testes.
+- **Pendente:** exclusão pela web (sessão 025, pedido por e-mail, decisão 015) e a política 2.0 com os pontos desta sessão; os dois são portões de release no `PLANO.md`. A conferência final no console depois da segunda exclusão não foi registrada na conversa: o usuário seguiu para o fechamento.
 
