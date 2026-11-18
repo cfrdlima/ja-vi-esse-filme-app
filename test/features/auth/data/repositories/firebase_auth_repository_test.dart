@@ -7,11 +7,18 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:ja_vi_esse_filme/core/error/failures.dart';
 import 'package:ja_vi_esse_filme/features/auth/data/gateways/auth_gateways.dart';
 import 'package:ja_vi_esse_filme/features/auth/data/repositories/firebase_auth_repository.dart';
+import 'package:ja_vi_esse_filme/features/auth/domain/entities/account_deletion_outcome.dart';
 import 'package:ja_vi_esse_filme/features/auth/domain/entities/app_user.dart';
 import 'package:ja_vi_esse_filme/features/auth/domain/entities/auth_state.dart';
 import 'package:ja_vi_esse_filme/features/auth/domain/entities/sign_in_outcome.dart';
 
+/// Ordem das chamadas da exclusão, compartilhada pelos fakes.
+typedef _Log = List<String>;
+
 class _FakeFirebaseAuthGateway implements FirebaseAuthGateway {
+  _FakeFirebaseAuthGateway(this._log);
+
+  final _Log _log;
   final _users = StreamController<AppUser?>.broadcast();
 
   /// Usuário que o login devolve.
@@ -52,9 +59,30 @@ class _FakeFirebaseAuthGateway implements FirebaseAuthGateway {
     signOutCalls++;
     if (signOutError case final error?) throw error;
   }
+
+  String? reauthenticatedIdToken;
+  Object? reauthenticateError;
+
+  @override
+  Future<void> reauthenticateWithGoogleIdToken(String idToken) async {
+    _log.add('reauthenticate');
+    reauthenticatedIdToken = idToken;
+    if (reauthenticateError case final error?) throw error;
+  }
+
+  Object? deleteError;
+
+  @override
+  Future<void> deleteCurrentUser() async {
+    _log.add('deleteUser');
+    if (deleteError case final error?) throw error;
+  }
 }
 
 class _FakeGoogleAccountGateway implements GoogleAccountGateway {
+  _FakeGoogleAccountGateway(this._log);
+
+  final _Log _log;
   String? idToken = 'id-token-do-google';
   Object? authenticateError;
   var authenticateCalls = 0;
@@ -63,6 +91,7 @@ class _FakeGoogleAccountGateway implements GoogleAccountGateway {
 
   @override
   Future<String?> authenticate() async {
+    _log.add('authenticate');
     authenticateCalls++;
     if (authenticateError case final error?) throw error;
     return idToken;
@@ -73,12 +102,36 @@ class _FakeGoogleAccountGateway implements GoogleAccountGateway {
     signOutCalls++;
     if (signOutError case final error?) throw error;
   }
+
+  Object? disconnectError;
+
+  @override
+  Future<void> disconnect() async {
+    _log.add('disconnect');
+    if (disconnectError case final error?) throw error;
+  }
+}
+
+class _FakeAccountDocuments implements AccountDocumentsGateway {
+  _FakeAccountDocuments(this._log);
+
+  final _Log _log;
+  String? deletedUid;
+  Object? deleteError;
+
+  @override
+  Future<void> deleteAll(String uid) async {
+    _log.add('deleteDocuments');
+    deletedUid = uid;
+    if (deleteError case final error?) throw error;
+  }
 }
 
 class _FakeAccountCache implements AccountCacheGateway {
-  _FakeAccountCache(this._firebase);
+  _FakeAccountCache(this._firebase, this._log);
 
   final _FakeFirebaseAuthGateway _firebase;
+  final _Log _log;
   Object? clearError;
   var clearCalls = 0;
 
@@ -91,6 +144,7 @@ class _FakeAccountCache implements AccountCacheGateway {
 
   @override
   Future<void> clear() async {
+    _log.add('clearCache');
     clearCalls++;
     firebaseSignOutsWhenCleared = _firebase.signOutCalls;
     if (clearError case final Object error) throw error;
@@ -110,18 +164,26 @@ void main() {
   late _FakeFirebaseAuthGateway firebase;
   late _FakeAccountCache cache;
   late _FakeGoogleAccountGateway google;
+  late _FakeAccountDocuments documents;
   late FirebaseAuthRepository repository;
+  late _Log log;
+  late List<Object> reported;
 
   final ana = AppUser(uid: 'abc123', displayName: 'Ana');
 
   setUp(() {
-    firebase = _FakeFirebaseAuthGateway();
-    google = _FakeGoogleAccountGateway();
-    cache = _FakeAccountCache(firebase);
+    log = [];
+    reported = [];
+    firebase = _FakeFirebaseAuthGateway(log);
+    google = _FakeGoogleAccountGateway(log);
+    cache = _FakeAccountCache(firebase, log);
+    documents = _FakeAccountDocuments(log);
     repository = FirebaseAuthRepository(
       firebase: firebase,
       google: google,
       cache: cache,
+      documents: documents,
+      reportError: (error, _) => reported.add(error),
     );
   });
 
@@ -467,26 +529,253 @@ void main() {
   });
 
   group('deleteAccount', () {
-    test(
-      'deve falhar com UnexpectedFailure enquanto a exclusão não existe',
-      () async {
+    setUp(() => firebase.signedInUser = ana);
+
+    // Ignora a falha, para o teste olhar só o efeito.
+    Future<void> deleteIgnoringFailure() =>
+        repository.deleteAccount().then<void>((_) {}, onError: (Object _) {});
+
+    test('deve devolver AccountDeleted quando tudo termina', () async {
+      expect(await repository.deleteAccount(), const AccountDeleted());
+    });
+
+    test('deve seguir a ordem das decisões 010 e 015', () async {
+      await repository.deleteAccount();
+
+      expect(log, [
+        'authenticate',
+        'reauthenticate',
+        'deleteDocuments',
+        'deleteUser',
+        'disconnect',
+        'clearCache',
+      ]);
+    });
+
+    test('deve reautenticar com o idToken novo do Google', () async {
+      await repository.deleteAccount();
+
+      expect(firebase.reauthenticatedIdToken, 'id-token-do-google');
+    });
+
+    test('deve apagar os documentos da conta logada', () async {
+      await repository.deleteAccount();
+
+      expect(documents.deletedUid, 'abc123');
+    });
+
+    group('antes de apagar qualquer coisa', () {
+      test('deve falhar com SignInRequiredFailure sem conta', () async {
+        firebase.signedInUser = null;
+
+        await expectLater(
+          repository.deleteAccount(),
+          throwsA(isA<SignInRequiredFailure>()),
+        );
+      });
+
+      test('não deve abrir o seletor sem conta', () async {
+        firebase.signedInUser = null;
+
+        await deleteIgnoringFailure();
+
+        expect(log, isEmpty);
+      });
+
+      test(
+        'deve devolver AccountDeletionCancelled quando o seletor é fechado',
+        () async {
+          google.authenticateError = const GoogleSignInException(
+            code: GoogleSignInExceptionCode.canceled,
+          );
+
+          expect(
+            await repository.deleteAccount(),
+            const AccountDeletionCancelled(),
+          );
+        },
+      );
+
+      test('não deve apagar nada quando o seletor é fechado', () async {
+        google.authenticateError = const GoogleSignInException(
+          code: GoogleSignInExceptionCode.canceled,
+        );
+
+        await repository.deleteAccount();
+
+        expect(log, ['authenticate']);
+      });
+
+      test(
+        'deve falhar sem apagar nada quando o Google não manda idToken',
+        () async {
+          google.idToken = null;
+
+          await expectLater(
+            repository.deleteAccount(),
+            throwsA(isA<UnexpectedFailure>()),
+          );
+          expect(log, ['authenticate']);
+        },
+      );
+
+      test(
+        'deve falhar com AccountMismatchFailure quando a conta escolhida é outra',
+        () async {
+          firebase.reauthenticateError = FirebaseAuthException(
+            code: 'user-mismatch',
+          );
+
+          await expectLater(
+            repository.deleteAccount(),
+            throwsA(isA<AccountMismatchFailure>()),
+          );
+        },
+      );
+
+      test('não deve apagar nada quando a reautenticação falha', () async {
+        firebase.reauthenticateError = FirebaseAuthException(
+          code: 'user-mismatch',
+        );
+
+        await deleteIgnoringFailure();
+
+        expect(log, ['authenticate', 'reauthenticate']);
+      });
+
+      test(
+        'deve falhar com NetworkFailure quando a reautenticação fica sem rede',
+        () async {
+          firebase.reauthenticateError = FirebaseAuthException(
+            code: 'network-request-failed',
+          );
+
+          await expectLater(
+            repository.deleteAccount(),
+            throwsA(isA<NetworkFailure>()),
+          );
+        },
+      );
+    });
+
+    group('ao apagar os documentos', () {
+      test('deve falhar com NetworkFailure quando o prazo acaba', () async {
+        documents.deleteError = TimeoutException('lote');
+
+        await expectLater(
+          repository.deleteAccount(),
+          throwsA(isA<NetworkFailure>()),
+        );
+      });
+
+      test(
+        'deve falhar com NetworkFailure quando o Firestore está offline',
+        () async {
+          documents.deleteError = FirebaseException(
+            plugin: 'cloud_firestore',
+            code: 'unavailable',
+          );
+
+          await expectLater(
+            repository.deleteAccount(),
+            throwsA(isA<NetworkFailure>()),
+          );
+        },
+      );
+
+      test('deve traduzir a recusa das regras em UnexpectedFailure', () async {
+        documents.deleteError = FirebaseException(
+          plugin: 'cloud_firestore',
+          code: 'permission-denied',
+        );
+
         await expectLater(
           repository.deleteAccount(),
           throwsA(isA<UnexpectedFailure>()),
         );
-      },
-    );
+      });
 
-    test(
-      'não deve sair de nenhuma conta enquanto a exclusão não existe',
-      () async {
-        await repository.deleteAccount().then<void>(
-          (_) {},
-          onError: (Object _) {},
+      // Sem os documentos apagados, excluir o Auth os deixaria órfãos.
+      test(
+        'não deve excluir a conta no Auth quando a exclusão falha',
+        () async {
+          documents.deleteError = TimeoutException('lote');
+
+          await deleteIgnoringFailure();
+
+          expect(log, ['authenticate', 'reauthenticate', 'deleteDocuments']);
+        },
+      );
+    });
+
+    group('ao excluir no Auth', () {
+      test(
+        'deve falhar com RecentLoginRequiredFailure quando o Auth ainda pede',
+        () async {
+          firebase.deleteError = FirebaseAuthException(
+            code: 'requires-recent-login',
+          );
+
+          await expectLater(
+            repository.deleteAccount(),
+            throwsA(isA<RecentLoginRequiredFailure>()),
+          );
+        },
+      );
+
+      test('não deve desconectar nem limpar quando o Auth falha', () async {
+        firebase.deleteError = FirebaseAuthException(
+          code: 'network-request-failed',
         );
 
-        expect([firebase.signOutCalls, google.signOutCalls], [0, 0]);
-      },
-    );
+        await deleteIgnoringFailure();
+
+        expect(log.last, 'deleteUser');
+      });
+    });
+
+    // Depois do `user.delete()`, a conta já não existe (decisão 015).
+    group('depois de excluir no Auth', () {
+      test('deve terminar quando o disconnect falha', () async {
+        google.disconnectError = const GoogleSignInException(
+          code: GoogleSignInExceptionCode.unknownError,
+        );
+
+        expect(await repository.deleteAccount(), const AccountDeleted());
+      });
+
+      test('deve limpar o cache mesmo quando o disconnect falha', () async {
+        google.disconnectError = const GoogleSignInException(
+          code: GoogleSignInExceptionCode.unknownError,
+        );
+
+        await repository.deleteAccount();
+
+        expect(log.last, 'clearCache');
+      });
+
+      test('deve terminar quando a limpeza do cache falha', () async {
+        cache.clearError = FirebaseException(
+          plugin: 'cloud_firestore',
+          code: 'failed-precondition',
+        );
+
+        expect(await repository.deleteAccount(), const AccountDeleted());
+      });
+
+      test('deve registrar as falhas já traduzidas', () async {
+        google.disconnectError = const GoogleSignInException(
+          code: GoogleSignInExceptionCode.unknownError,
+        );
+        cache.clearError = FirebaseException(
+          plugin: 'cloud_firestore',
+          code: 'failed-precondition',
+        );
+
+        await repository.deleteAccount();
+
+        expect(reported, [isA<UnexpectedFailure>(), isA<UnexpectedFailure>()]);
+      });
+    });
   });
 }

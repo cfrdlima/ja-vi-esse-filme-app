@@ -19,6 +19,7 @@ import 'core/links/url_launcher_link_opener.dart';
 import 'core/network/tmdb_client.dart';
 import 'core/routing/app_router.dart';
 import 'core/theme/app_theme.dart';
+import 'features/auth/data/gateways/cloud_firestore_account_documents.dart';
 import 'features/auth/data/gateways/firebase_auth_sdk_gateway.dart';
 import 'features/auth/data/gateways/firestore_account_cache.dart';
 import 'features/auth/data/gateways/google_sign_in_sdk_gateway.dart';
@@ -116,6 +117,8 @@ AuthRepository _connectFirebaseAuth(ShelfRepository shelf) {
     firebase: FirebaseAuthSdkGateway(FirebaseAuth.instance),
     google: GoogleSignInSdkGateway(GoogleSignIn.instance),
     cache: cache,
+    documents: cloudFirestoreAccountDocuments(firestore),
+    reportError: logUnhandledError,
   );
   unawaited(
     clearStaleAccountCache(account: repository.authStateChanges, cache: cache),

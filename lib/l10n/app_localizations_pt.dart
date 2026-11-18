@@ -106,6 +106,10 @@ class AppLocalizationsPt extends AppLocalizations {
       'Por segurança, entre de novo com o Google para continuar.';
 
   @override
+  String get failureAccountMismatch =>
+      'Essa não é a conta que está no app. Escolha a mesma conta Google para confirmar.';
+
+  @override
   String get failureSignInRequired =>
       'Entre com o Google para guardar seus filmes.';
 

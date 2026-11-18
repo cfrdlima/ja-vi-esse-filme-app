@@ -1,3 +1,4 @@
+import '../entities/account_deletion_outcome.dart';
 import '../entities/auth_state.dart';
 import '../entities/sign_in_outcome.dart';
 
@@ -40,20 +41,22 @@ abstract interface class AuthRepository {
   /// mostrar o erro.
   Future<void> signOut();
 
-  /// Exclui a conta, na ordem da decisão 010:
-  /// 1. confere o login recente. Sem ele, falha com
-  ///    `RecentLoginRequiredFailure` **antes** de apagar qualquer documento;
-  /// 2. apaga os documentos das subcoleções da lista fixa em `users/{uid}` e
-  ///    espera o servidor confirmar;
+  /// Exclui a conta, na ordem das decisões 010 e 015:
+  /// 1. abre o seletor do Google e reautentica com o `idToken` novo, antes
+  ///    de apagar qualquer documento. Fechar o seletor é
+  ///    [AccountDeletionCancelled], e não falha;
+  /// 2. apaga os documentos das subcoleções da lista fixa em `users/{uid}`,
+  ///    esperando o servidor confirmar cada lote, com até
+  ///    [deleteStepTimeout] por passo;
   /// 3. `user.delete()` no Firebase Auth;
   /// 4. `disconnect()` no Google;
   /// 5. a mesma limpeza local do [signOut].
   ///
-  /// No sucesso, [authStateChanges] emite [SignedOut]. Pode falhar também
-  /// com `NetworkFailure` ou `UnexpectedFailure`.
-  ///
-  /// Até o item da exclusão no `dev/PLANO.md`, sempre falha com
-  /// `UnexpectedFailure` sem tocar em nada: apagar só o Auth deixaria os
-  /// documentos órfãos em `users/{uid}`.
-  Future<void> deleteAccount();
+  /// Antes do passo 3, uma falha não apaga a conta, e repetir termina o que
+  /// faltou: `SignInRequiredFailure` (sem conta), `AccountMismatchFailure`
+  /// (outra conta no seletor), `NetworkFailure` (sem rede ou prazo
+  /// esgotado), `RecentLoginRequiredFailure` ou `UnexpectedFailure`. Depois
+  /// do passo 3 a conta já não existe: as falhas dos passos 4 e 5 são
+  /// registradas e não sobem, e [authStateChanges] emite [SignedOut].
+  Future<AccountDeletionOutcome> deleteAccount();
 }

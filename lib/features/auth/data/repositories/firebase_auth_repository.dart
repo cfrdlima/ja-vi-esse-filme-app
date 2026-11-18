@@ -1,7 +1,11 @@
+import 'dart:async';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
+import '../../../../core/error/error_handlers.dart';
 import '../../../../core/error/failures.dart';
+import '../../domain/entities/account_deletion_outcome.dart';
 import '../../domain/entities/auth_state.dart';
 import '../../domain/entities/sign_in_outcome.dart';
 import '../../domain/repositories/auth_repository.dart';
@@ -12,11 +16,15 @@ final class FirebaseAuthRepository implements AuthRepository {
     required this._firebase,
     required this._google,
     required this._cache,
+    required this._documents,
+    required this._reportError,
   });
 
   final FirebaseAuthGateway _firebase;
   final GoogleAccountGateway _google;
   final AccountCacheGateway _cache;
+  final AccountDocumentsGateway _documents;
+  final ErrorReporter _reportError;
 
   @override
   Future<bool> syncPendingChanges() async {
@@ -94,11 +102,50 @@ final class FirebaseAuthRepository implements AuthRepository {
     if (firstError != null) throw _toFailure(firstError);
   }
 
-  // Apagar só o Auth deixaria os documentos órfãos em `users/{uid}`. A
-  // exclusão completa é um item próprio do `dev/PLANO.md`.
   @override
-  Future<void> deleteAccount() async =>
-      throw const UnexpectedFailure('auth: exclusão ainda não disponível');
+  Future<AccountDeletionOutcome> deleteAccount() async {
+    try {
+      final user = _firebase.currentUser;
+      if (user == null) throw const SignInRequiredFailure();
+      if (!await _reauthenticate()) return const AccountDeletionCancelled();
+      await _documents.deleteAll(user.uid);
+      await _firebase.deleteCurrentUser();
+    } on Failure {
+      rethrow;
+    } on Object catch (error) {
+      throw _toFailure(error);
+    }
+    await _finishDeletion();
+    return const AccountDeleted();
+  }
+
+  // Antes de apagar qualquer documento (decisão 015): sem isso, um
+  // `requires-recent-login` no `user.delete()` viria com os documentos já
+  // apagados. Falso quando a pessoa fecha o seletor.
+  Future<bool> _reauthenticate() async {
+    final String? idToken;
+    try {
+      idToken = await _google.authenticate();
+    } on GoogleSignInException catch (e) {
+      if (e.code == GoogleSignInExceptionCode.canceled) return false;
+      rethrow;
+    }
+    if (idToken == null) throw const UnexpectedFailure('google: sem idToken');
+    await _firebase.reauthenticateWithGoogleIdToken(idToken);
+    return true;
+  }
+
+  // A conta já não existe: uma falha aqui não a reabre, e só é registrada.
+  // A limpeza roda mesmo se o `disconnect()` falhar.
+  Future<void> _finishDeletion() async {
+    for (final step in [_google.disconnect, _cache.clear]) {
+      try {
+        await step();
+      } on Object catch (error, stack) {
+        _reportError(_toFailure(error), stack);
+      }
+    }
+  }
 }
 
 // No stream, o erro também chega já traduzido, como nos outros métodos.
@@ -114,10 +161,19 @@ Failure _toFailure(Object error) => switch (error) {
   FirebaseAuthException(code: 'network-request-failed') =>
     const NetworkFailure(),
   FirebaseAuthException(code: 'too-many-requests') => const RateLimitFailure(),
+  FirebaseAuthException(code: 'user-mismatch') =>
+    const AccountMismatchFailure(),
+  FirebaseAuthException(code: 'requires-recent-login') =>
+    const RecentLoginRequiredFailure(),
   FirebaseAuthException(:final code) => UnexpectedFailure(
     'firebase_auth: $code',
   ),
-  // A limpeza do cache, no logout.
+  // Os lotes da exclusão da conta: sem rede ou sem a confirmação do servidor
+  // no prazo (decisão 015).
+  TimeoutException() => const NetworkFailure(),
+  FirebaseException(plugin: 'cloud_firestore', code: 'unavailable') =>
+    const NetworkFailure(),
+  // A limpeza do cache, no logout, e a recusa das regras na exclusão.
   FirebaseException(:final plugin, :final code) => UnexpectedFailure(
     '$plugin: $code',
   ),

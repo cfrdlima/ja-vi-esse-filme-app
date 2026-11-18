@@ -11,6 +11,13 @@ abstract interface class FirebaseAuthGateway {
 
   Future<AppUser> signInWithGoogleIdToken(String idToken);
 
+  /// `reauthenticateWithCredential` do usuário atual com o `idToken` do
+  /// Google. Com outra conta, o SDK falha com `user-mismatch`.
+  Future<void> reauthenticateWithGoogleIdToken(String idToken);
+
+  /// `delete()` do usuário atual. Também encerra a sessão do Firebase.
+  Future<void> deleteCurrentUser();
+
   Future<void> signOut();
 }
 
@@ -22,6 +29,10 @@ abstract interface class GoogleAccountGateway {
   Future<String?> authenticate();
 
   Future<void> signOut();
+
+  /// Revoga o acesso do app à conta e sai dela. No Android, só revoga as
+  /// contas autenticadas no mesmo processo (decisão 015).
+  Future<void> disconnect();
 }
 
 /// O cache da conta no aparelho (o do Firestore), que o logout limpa

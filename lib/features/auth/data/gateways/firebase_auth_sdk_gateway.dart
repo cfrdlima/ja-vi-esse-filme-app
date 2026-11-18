@@ -27,6 +27,20 @@ final class FirebaseAuthSdkGateway implements FirebaseAuthGateway {
   }
 
   @override
+  Future<void> reauthenticateWithGoogleIdToken(String idToken) async {
+    final credential = GoogleAuthProvider.credential(idToken: idToken);
+    await _signedInUser().reauthenticateWithCredential(credential);
+  }
+
+  @override
+  Future<void> deleteCurrentUser() => _signedInUser().delete();
+
+  // O mesmo código que o SDK usa nos métodos do `User` sem ninguém logado.
+  User _signedInUser() =>
+      _auth.currentUser ??
+      (throw FirebaseAuthException(code: 'no-current-user'));
+
+  @override
   Future<void> signOut() => _auth.signOut();
 }
 

@@ -17,9 +17,9 @@ Excluir a conta pelo app, na ordem da decisão 010: login recente, os documentos
 
 ### Data (RED/GREEN/REFACTOR)
 - [x] Gateway da exclusão dos documentos: lê `users/{uid}/movies` do servidor e apaga em lotes até não sobrar nada, esperando a confirmação, com prazo. **Feito:** `FirestoreAccountDocuments` (laço, lote de 500 e prazo, 11 testes com `fakeAsync`); as chamadas do SDK entram na composição
-- [ ] `FirebaseAuthGateway`: reautenticar com o `idToken` e `delete()`; `GoogleAccountGateway`: `disconnect()`
-- [ ] Repositório: login recente → documentos → `user.delete()` → `disconnect()` → limpeza local; sem login recente, `RecentLoginRequiredFailure` sem apagar nada
-- [ ] Repositório: falhas tipadas (seletor cancelado, sem rede ou prazo esgotado, `requires-recent-login`, erro do SDK sem `message`/`email`/`credential`); repetir depois de uma falha no meio termina a exclusão
+- [x] `FirebaseAuthGateway`: reautenticar com o `idToken` e `delete()`; `GoogleAccountGateway`: `disconnect()`. **Feito:** repasse direto ao SDK, sem teste próprio (como os outros gateways do SDK); o `cloudFirestoreAccountDocuments` monta a leitura do servidor e o `WriteBatch`
+- [x] Repositório: login recente → documentos → `user.delete()` → `disconnect()` → limpeza local; sem login recente, `RecentLoginRequiredFailure` sem apagar nada. **Feito:** o `deleteAccount` devolve `AccountDeleted` ou `AccountDeletionCancelled`; falhas depois do `user.delete()` vão para o `ErrorReporter` injetado
+- [x] Repositório: falhas tipadas (seletor cancelado, sem rede ou prazo esgotado, `requires-recent-login`, erro do SDK sem `message`/`email`/`credential`); repetir depois de uma falha no meio termina a exclusão. **Feito:** `AccountMismatchFailure` nova (com texto no ARB); `TimeoutException` e `unavailable` do Firestore viram `NetworkFailure`; 22 testes
 - [ ] Regras: testes no emulador de que o dono apaga todos os documentos e não sobra nada em `users/{uid}`, de que outro `uid` não apaga, e de que a lista fixa bate com as coleções das regras (`rules-file.test.js`)
 
 ### Estado (RED/GREEN/REFACTOR)

@@ -66,6 +66,8 @@
   "@failureAccountDisabled": { "description": "Login recusado porque a conta foi desativada no Firebase (user-disabled)" },
   "failureRecentLoginRequired": "Por segurança, entre de novo com o Google para continuar.",
   "@failureRecentLoginRequired": { "description": "Ação sensível, como excluir a conta, que pede login recente (requires-recent-login)" },
+  "failureAccountMismatch": "Essa não é a conta que está no app. Escolha a mesma conta Google para confirmar.",
+  "@failureAccountMismatch": { "description": "Na reautenticação para excluir a conta, a pessoa escolheu outra conta Google (user-mismatch)" },
   "failureSignInRequired": "Entre com o Google para guardar seus filmes.",
   "@failureSignInRequired": { "description": "Ação que precisa de conta, como marcar um filme, sem ninguém logado" },
   "failureGeneric": "Algo deu errado. Tente de novo em instantes.",

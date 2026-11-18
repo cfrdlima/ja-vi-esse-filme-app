@@ -256,6 +256,12 @@ abstract class AppLocalizations {
   /// **'Por segurança, entre de novo com o Google para continuar.'**
   String get failureRecentLoginRequired;
 
+  /// Na reautenticação para excluir a conta, a pessoa escolheu outra conta Google (user-mismatch)
+  ///
+  /// In pt, this message translates to:
+  /// **'Essa não é a conta que está no app. Escolha a mesma conta Google para confirmar.'**
+  String get failureAccountMismatch;
+
   /// Ação que precisa de conta, como marcar um filme, sem ninguém logado
   ///
   /// In pt, this message translates to:
