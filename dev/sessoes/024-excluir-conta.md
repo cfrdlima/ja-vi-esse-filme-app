@@ -33,7 +33,7 @@ Excluir a conta pelo app, na ordem da decisão 010: login recente, os documentos
 - [x] Gateways novos montados no `main.dart`; fakes em `test/helpers/` atualizados. **Feito:** `cloudFirestoreAccountDocuments` e o `logUnhandledError` no `FirebaseAuthRepository`; `FakeAuthRepository` com exclusão pendente
 
 ### Entrega
-- [ ] Tríade: format, analyze limpo, `flutter test`; `npm test` das regras (deploy se `firestore.rules` mudar)
+- [x] Tríade: format, analyze limpo, `flutter test`; `npm test` das regras (deploy se `firestore.rules` mudar). **Feito:** format sem mudança, analyze limpo, 1375 verdes; 88 verdes nas regras; `firestore.rules` sem mudança, sem deploy
 - [x] Emulador, **com conta Google de teste descartável**: excluir com marcas na Estante, conferir no console que não sobrou nada em `users/{uid}` nem no Auth; cancelar o seletor da reautenticação; exclusão offline. **Feito:** ver "Notas"; o usuário conferiu no console que o Firestore ficou sem documentos e a conta de teste sumiu do Authentication. A exclusão offline aparece como cancelamento (ver "Notas")
 - [x] `PLANO.md` (item da exclusão e política 2.0) e `docs/PRIVACIDADE.md` se o texto mudar. **Feito:** o item da exclusão foi dividido (app feito, web na 025, com o portão do Play) e a política 2.0 ganhou a exclusão; o `PRIVACIDADE.md` não mudou (a 2.0 cobre); 4 itens novos no `BACKLOG.md`
 - [ ] `/revisar` (`code-reviewer` e `security-auditor`: auth, storage, rede)
