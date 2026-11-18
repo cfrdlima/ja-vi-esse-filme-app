@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ja_vi_esse_filme/core/error/failures.dart';
@@ -127,7 +126,7 @@ void main() {
 
       expect(
         tester.getSemantics(find.byKey(const ValueKey('diary-stars'))),
-        containsSemantics(
+        isSemantics(
           label: 'Sua nota',
           value: '3,5 de 5 estrelas',
           hasIncreaseAction: true,
@@ -143,7 +142,7 @@ void main() {
 
       expect(
         tester.getSemantics(find.byKey(const ValueKey('diary-stars'))),
-        containsSemantics(label: 'Sua nota', value: 'Sem nota'),
+        isSemantics(label: 'Sua nota', value: 'Sem nota'),
       );
       semantics.dispose();
     });
@@ -152,7 +151,7 @@ void main() {
       final semantics = tester.ensureSemantics();
       await pumpPanel(tester, initial: watched(rating: Rating(7)));
 
-      tester.semantics.increase(find.byKey(const ValueKey('diary-stars')));
+      tester.semantics.increase(find.semantics.byLabel('Sua nota'));
       await tester.pump();
 
       expect(shelf.personalWrites.single.value, Rating(8));
