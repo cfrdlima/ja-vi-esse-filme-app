@@ -100,3 +100,4 @@ Ideias que surgiram e não estão no plano imediato. Marque **[prioritário]** o
 - Separar o "Excluindo a conta" em dois estados, reautenticando e apagando, e só tirar a Estante de cena no segundo: hoje fechar o seletor desmonta as abas, que perdem a rolagem e a paginação (`code-reviewer` da 024, S7)
 - CI obrigatório na `main` com o repositório privado: o ruleset `checks` só vale no GitHub Pro (resposta 403 no Free). Decidir entre assinar o Pro ou conferir os checks à mão antes de cada merge (sessão 025)
 - `firebase` CLI da máquina logado em outra conta: sem acesso ao projeto, não dá para conferir backups, PITR ou fazer deploy das regras pelo terminal. Entrar com a conta do projeto (`firebase login:add` / `firebase login:use`) (sessão 025)
+- Prova de rede da política 2.0: num aparelho sem conta, conferir com proxy ou logcat de rede que o app não fala com `*.googleapis.com` (sessão 026)

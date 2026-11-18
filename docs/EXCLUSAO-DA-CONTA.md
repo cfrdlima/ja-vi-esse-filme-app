@@ -7,6 +7,8 @@ Publicada em https://cfrdlima.github.io/ja-vi-esse-filme-suporte/excluir-conta/
 pelo procedimento da decisão 006: cópia só do conteúdo, sem este comentário.
 O endereço desta página vai no campo de URL de exclusão do formulário
 "Segurança dos dados" do Play Console.
+A frase da limpeza mensal só vai para a cópia publicada junto com a política
+2.0, depois do script da decisão 017 pronto.
 -->
 # Excluir a conta — Já Vi Esse Filme
 
@@ -44,7 +46,7 @@ No pedido por e-mail, o acesso do app à sua conta Google continua lá até voc�
 
 - os filmes que você marcou como **assistidos**, **quero assistir** e **favoritos**, com as datas em que cada marca entrou;
 - o título e o caminho do pôster de cada filme marcado, copiados do TMDB (o app nunca guarda a imagem);
-- a sua conta no app, no Firebase Authentication: nome, e-mail, endereço da foto, o identificador da conta e as datas de criação e do último acesso.
+- a sua conta no app, no Firebase Authentication: nome, e-mail, endereço da foto, o identificador da sua conta Google, o identificador da conta no app e as datas de criação e do último acesso.
 
 Pelo app, ele também tenta revogar o acesso do app à sua conta Google e apaga a cópia local desses dados no aparelho. Se a revogação não acontecer, você pode removê-la em <https://myaccount.google.com/permissions>.
 
@@ -53,7 +55,7 @@ O app não envia dados da sua conta ao TMDB, então não há nada para apagar l�
 ## O que fica guardado por um tempo
 
 - **Backups e registros do Google.** Os dados ficam no Firebase, um serviço do Google. Depois da exclusão, o Google os remove dos sistemas ativos e dos backups em até cerca de **180 dias**, e guarda os endereços IP dos acessos ao login por algumas semanas. Por isso não prometemos um apagamento imediato de todas as cópias.
-- **Outros aparelhos.** Se a conta estiver aberta em outro aparelho, ele guarda uma cópia local das marcas até você sair da conta nele, ou até o app perceber que a conta não existe mais e você abri-lo de novo. Saia da conta nos outros aparelhos antes de excluir. Uma marca feita em outro aparelho logo depois da exclusão pode ficar guardada sem conta ligada a ela. Se isso acontecer, peça por e-mail: apagamos todos os dados que ficaram sem conta.
+- **Outros aparelhos.** Se a conta estiver aberta em outro aparelho, ele guarda uma cópia local das marcas até você sair da conta nele, ou até o app perceber que a conta não existe mais e você abri-lo de novo. Saia da conta nos outros aparelhos antes de excluir. Uma marca feita em outro aparelho logo depois da exclusão pode ficar guardada sem conta ligada a ela. Uma limpeza feita uma vez por mês apaga esses dados, e você também pode pedir por e-mail: apagamos todos os dados que ficaram sem conta.
 - **O seu e-mail de pedido.** Se você pediu por e-mail, guardamos as mensagens do pedido por **6 meses** depois do atendimento, como registro de que ele foi atendido. Depois desse prazo, elas são apagadas.
 
 ## Dúvidas

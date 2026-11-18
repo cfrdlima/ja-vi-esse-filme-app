@@ -51,6 +51,20 @@ void main() {
     expect(find.text(l10n.aboutPrivacySummary), findsOneWidget);
   });
 
+  // O resumo acompanha a política 2.0 (sessão 026): a conta Google existe.
+  test(
+    'deve dizer no resumo que a conta é opcional, só com o Google, e que ela e as marcas ficam no Firebase',
+    () {
+      expect(
+        l10n.aboutPrivacySummary,
+        allOf(
+          contains('conta é opcional e só com o Google'),
+          contains('a sua conta e os filmes que você marca ficam no Firebase'),
+        ),
+      );
+    },
+  );
+
   testWidgets('deve abrir a política publicada ao tocar no link', (
     tester,
   ) async {
