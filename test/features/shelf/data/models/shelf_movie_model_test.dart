@@ -2,10 +2,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:ja_vi_esse_filme/features/shelf/data/gateways/shelf_gateway.dart';
 import 'package:ja_vi_esse_filme/features/shelf/data/models/shelf_movie_model.dart';
 import 'package:ja_vi_esse_filme/features/shelf/domain/entities/movie_copy.dart';
+import 'package:ja_vi_esse_filme/features/shelf/domain/entities/rating.dart';
 import 'package:ja_vi_esse_filme/features/shelf/domain/entities/shelf_entry.dart';
 import 'package:ja_vi_esse_filme/features/shelf/domain/entities/shelf_mark.dart';
 import 'package:ja_vi_esse_filme/features/shelf/domain/entities/shelf_movie.dart';
 import 'package:ja_vi_esse_filme/features/shelf/domain/entities/shelf_page.dart';
+import 'package:ja_vi_esse_filme/features/shelf/domain/entities/watched_on.dart';
 
 void main() {
   final cachedAt = DateTime.utc(2026, 11, 1);
@@ -128,6 +130,110 @@ void main() {
     });
   });
 
+  // Parse defensivo da decisão 018: um valor estragado vira "sem nota" ou
+  // "sem dia", sem derrubar o filme.
+  group('ShelfMovieModel.fromDocument com a nota e o dia', () {
+    test('deve ler a nota em meias estrelas', () {
+      final data = document()..['rating'] = 7;
+
+      final movie = onShelf(ShelfMovieModel.fromDocument(550, data));
+
+      expect(movie.rating, Rating(7));
+    });
+
+    test('deve ler o dia em que assistiu', () {
+      final data = document()..['watchedOn'] = '2026-11-01';
+
+      final movie = onShelf(ShelfMovieModel.fromDocument(550, data));
+
+      expect(movie.watchedOn, WatchedOn(year: 2026, month: 11, day: 1));
+    });
+
+    for (final rating in <Object?>[0, 11, 3.5, '7', null]) {
+      test('deve ignorar a nota ${rating.runtimeType} $rating', () {
+        final data = document()..['rating'] = rating;
+
+        final movie = onShelf(ShelfMovieModel.fromDocument(550, data));
+
+        expect(movie.rating, isNull);
+      });
+    }
+
+    for (final watchedOn in <Object?>[
+      '2026-02-30',
+      '2026-13-01',
+      '1887-12-31',
+      '2026-1-1',
+      '2026-11-01T00:00:00Z',
+      20261101,
+      null,
+    ]) {
+      test('deve ignorar o dia ${watchedOn.runtimeType} $watchedOn', () {
+        final data = document()..['watchedOn'] = watchedOn;
+
+        final movie = onShelf(ShelfMovieModel.fromDocument(550, data));
+
+        expect(movie.watchedOn, isNull);
+      });
+    }
+
+    test('deve ignorar a nota do filme sem a marca Assistido', () {
+      final data = document()
+        ..remove('watchedAt')
+        ..['rating'] = 7;
+
+      final movie = onShelf(ShelfMovieModel.fromDocument(550, data));
+
+      expect(movie.rating, isNull);
+    });
+
+    test('deve ignorar o dia do filme sem a marca Assistido', () {
+      final data = document()
+        ..remove('watchedAt')
+        ..['watchedOn'] = '2026-11-01';
+
+      final movie = onShelf(ShelfMovieModel.fromDocument(550, data));
+
+      expect(movie.watchedOn, isNull);
+    });
+  });
+
+  group('ShelfMovieModel com a nota e o dia', () {
+    test('deve gravar a nota em meias estrelas', () {
+      expect(ShelfMovieModel.ratingFields(Rating(7)), {
+        'rating': const SetField(7),
+      });
+    });
+
+    test('deve apagar a nota', () {
+      expect(ShelfMovieModel.noRatingFields(), {'rating': const DeleteField()});
+    });
+
+    test('deve gravar o dia no formato das regras', () {
+      final day = WatchedOn(year: 1999, month: 3, day: 5);
+
+      expect(ShelfMovieModel.watchedOnFields(day), {
+        'watchedOn': const SetField('1999-03-05'),
+      });
+    });
+
+    test('deve apagar o dia', () {
+      expect(ShelfMovieModel.noWatchedOnFields(), {
+        'watchedOn': const DeleteField(),
+      });
+    });
+
+    test('deve ler o dia que gravou', () {
+      final day = WatchedOn(year: 1999, month: 3, day: 5);
+      final written = ShelfMovieModel.watchedOnFields(day)['watchedOn'];
+      final data = document()..['watchedOn'] = (written! as SetField).value;
+
+      final movie = onShelf(ShelfMovieModel.fromDocument(550, data));
+
+      expect(movie.watchedOn, day);
+    });
+  });
+
   group('ShelfMovieModel.markFields', () {
     test('deve marcar com a hora do servidor e renovar a cópia', () {
       final copy = MovieCopy(
@@ -172,6 +278,17 @@ void main() {
       expect(ShelfMovieModel.unmarkFields(ShelfMark.favorite), {
         'favoriteAt': const DeleteField(),
       });
+    });
+  });
+
+  // As regras recusam a nota e o dia sem o watchedAt (decisão 018). O
+  // apagamento vai sempre, mesmo que o aparelho não veja nota: ela pode ter
+  // vindo de outro aparelho.
+  test('deve apagar a nota e o dia junto com o Assistido', () {
+    expect(ShelfMovieModel.unmarkFields(ShelfMark.watched), {
+      'watchedAt': const DeleteField(),
+      'rating': const DeleteField(),
+      'watchedOn': const DeleteField(),
     });
   });
 
