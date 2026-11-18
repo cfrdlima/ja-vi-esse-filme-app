@@ -668,6 +668,32 @@ void main() {
         expect(log, ['authenticate', 'reauthenticate']);
       });
 
+      // A conta foi apagada ou desativada por fora (console, outro app).
+      test(
+        'deve falhar com AccountDisabledFailure quando a conta já não existe',
+        () async {
+          firebase.reauthenticateError = FirebaseAuthException(
+            code: 'user-not-found',
+          );
+
+          await expectLater(
+            repository.deleteAccount(),
+            throwsA(isA<AccountDisabledFailure>()),
+          );
+        },
+      );
+
+      test('deve pedir login de novo quando a sessão expirou', () async {
+        firebase.reauthenticateError = FirebaseAuthException(
+          code: 'user-token-expired',
+        );
+
+        await expectLater(
+          repository.deleteAccount(),
+          throwsA(isA<RecentLoginRequiredFailure>()),
+        );
+      });
+
       test(
         'deve falhar com NetworkFailure quando a reautenticação fica sem rede',
         () async {
@@ -707,6 +733,18 @@ void main() {
           );
         },
       );
+
+      test('deve falhar com NetworkFailure no deadline-exceeded', () async {
+        documents.deleteError = FirebaseException(
+          plugin: 'cloud_firestore',
+          code: 'deadline-exceeded',
+        );
+
+        await expectLater(
+          repository.deleteAccount(),
+          throwsA(isA<NetworkFailure>()),
+        );
+      });
 
       test('deve traduzir a recusa das regras em UnexpectedFailure', () async {
         documents.deleteError = FirebaseException(

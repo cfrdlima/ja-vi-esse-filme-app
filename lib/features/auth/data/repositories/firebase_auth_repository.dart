@@ -178,14 +178,17 @@ Never _rethrowAsFailure(Object error) =>
 // `FirebaseAuthException` e a `description` da `GoogleSignInException` podem
 // ter dados pessoais ou tokens (CLAUDE.md, segurança).
 Failure _toFailure(Object error) => switch (error) {
-  FirebaseAuthException(code: 'user-disabled') =>
+  // Na reautenticação, `user-not-found` é a conta apagada por fora.
+  FirebaseAuthException(code: 'user-disabled' || 'user-not-found') =>
     const AccountDisabledFailure(),
   FirebaseAuthException(code: 'network-request-failed') =>
     const NetworkFailure(),
   FirebaseAuthException(code: 'too-many-requests') => const RateLimitFailure(),
   FirebaseAuthException(code: 'user-mismatch') =>
     const AccountMismatchFailure(),
-  FirebaseAuthException(code: 'requires-recent-login') =>
+  FirebaseAuthException(
+    code: 'requires-recent-login' || 'user-token-expired',
+  ) =>
     const RecentLoginRequiredFailure(),
   FirebaseAuthException(:final code) => UnexpectedFailure(
     'firebase_auth: $code',
@@ -193,7 +196,10 @@ Failure _toFailure(Object error) => switch (error) {
   // Os lotes da exclusão da conta: sem rede ou sem a confirmação do servidor
   // no prazo (decisão 015).
   TimeoutException() => const NetworkFailure(),
-  FirebaseException(plugin: 'cloud_firestore', code: 'unavailable') =>
+  FirebaseException(
+    plugin: 'cloud_firestore',
+    code: 'unavailable' || 'deadline-exceeded',
+  ) =>
     const NetworkFailure(),
   // A limpeza do cache, no logout, e a recusa das regras na exclusão.
   FirebaseException(:final plugin, :final code) => UnexpectedFailure(
