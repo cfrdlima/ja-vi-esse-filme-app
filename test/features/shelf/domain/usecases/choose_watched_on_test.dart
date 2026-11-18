@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ja_vi_esse_filme/features/shelf/domain/entities/movie_copy.dart';
 import 'package:ja_vi_esse_filme/features/shelf/domain/entities/shelf_mark.dart';
@@ -30,7 +32,7 @@ void main() {
 
   group('ChooseWatchedOn', () {
     test('deve gravar o dia de hoje', () {
-      choose(watched(), today);
+      unawaited(choose(watched(), today));
 
       expect(shelf.personalWrites.single.value, today);
     });
@@ -38,7 +40,7 @@ void main() {
     test('deve gravar um dia passado', () {
       final day = WatchedOn(year: 1999, month: 3, day: 5);
 
-      choose(watched(), day);
+      unawaited(choose(watched(), day));
 
       expect(shelf.personalWrites.single.value, day);
     });
