@@ -43,20 +43,20 @@ Permitir que o usuário dê a um filme assistido uma nota de 0,5 a 5 estrelas (`
 - [x] `/revisar` (regras do Firestore e dado pessoal novo). **Feito:** `code-reviewer` (1 bloqueante, 4 importantes, 6 sugestões) e `security-auditor` (nenhum bloqueante, 2 importantes, 4 sugestões); o usuário aceitou todos
 
 ### Achados aceitos do `/revisar`
-- [ ] (B1) A recusa do servidor some quando o Firestore já mostrou o valor: id da última escrita por campo, separado do pendente, e o pendente descartado só pela confirmação da última escrita (junto a S11)
-- [ ] (I2) Nada é gravado depois do dispose, e o seletor confere o `context.mounted`
-- [ ] (I3) Override `detalhes.md`: o bloco aparece só com o Assistido confirmado pela Estante
-- [ ] (I4) Estrelas com `slider: true`, sem `onIncrease` no máximo nem `onDecrease` sem nota; teste do `decrease` pelo leitor de tela
-- [ ] (I5) Depois do diálogo, tira o Assistido só se ele ainda estiver ligado
-- [ ] (I6) `PRIVACIDADE.md`: histórico da 2.0 e seção 7 com a nota e o dia
-- [ ] (S7) "Hoje" do seletor calculado na hora de abrir
-- [ ] (S8) `ArgumentError` síncrono no `_writePersonal`
-- [ ] (S9) Comentário da regex do `watchedOn` no model
-- [ ] (S10) Botão do dia com o rótulo "Escolher quando assistiu" para o leitor de tela
-- [ ] (S11) Fonte grande com a sugestão "(dia da marca)" e com o `UnwatchDialog`
-- [ ] (S12) Regras: `updateDoc` da nota sem o Assistido, `merge` da nota num documento inexistente e nota com `watchedAt` antigo, todos negados
-- [ ] (S13) Aviso do logout cita as notas e os dias
-- [ ] (S14) `EXCLUSAO-DA-CONTA.md` (cópia local nos outros aparelhos) e concordância na `PRIVACIDADE.md`
+- [x] (B1) A recusa do servidor some quando o Firestore já mostrou o valor: id da última escrita por campo, separado do pendente, e o pendente descartado só pela confirmação da última escrita (junto a S11). **Feito:** o pendente fica até a escrita dele terminar, e o snapshot não o tira mais
+- [x] (I2) Nada é gravado depois do dispose, e o seletor confere o `context.mounted`
+- [x] (I3) Override `detalhes.md`: o bloco aparece só com o Assistido confirmado pela Estante
+- [x] (I4) Estrelas com `slider: true`, sem `onIncrease` no máximo nem `onDecrease` sem nota; teste do `decrease` pelo leitor de tela
+- [x] (I5) Depois do diálogo, tira o Assistido só se ele ainda estiver ligado
+- [x] (I6) `PRIVACIDADE.md`: histórico da 2.0 e seção 7 com a nota e o dia
+- [x] (S7) "Hoje" do seletor calculado na hora de abrir
+- [x] (S8) `ArgumentError` síncrono no `_writePersonal`
+- [x] (S9) Comentário da regex do `watchedOn` no model
+- [x] (S10) Botão do dia com o rótulo "Escolher quando assistiu" para o leitor de tela
+- [x] (S11) Fonte grande com a sugestão "(dia da marca)" e com o `UnwatchDialog`
+- [x] (S12) Regras: `updateDoc` da nota sem o Assistido, `merge` da nota num documento inexistente e nota com `watchedAt` antigo, todos negados. **Feito:** passaram de primeira (as regras já negavam); conferido por mutação (sem o `watchedAt` na regra da nota, 3 falham)
+- [x] (S13) Aviso do logout cita as notas e os dias
+- [x] (S14) `EXCLUSAO-DA-CONTA.md` (cópia local nos outros aparelhos) e concordância na `PRIVACIDADE.md`
 
 ## Decisões
 - [018 — Nota pessoal e data em que assistiu](../decisoes/018-nota-e-data-em-que-assistiu.md) (emenda na 013)
@@ -65,6 +65,7 @@ Permitir que o usuário dê a um filme assistido uma nota de 0,5 a 5 estrelas (`
 ## Commits
 
 ## Notas
+- **Suíte do `firestore/` depois dos achados:** 203 verdes.
 - **Suíte do `firestore/`:** 200 verdes (120 das regras, com 31 novos, e 80 da limpeza, com 1 novo).
 - **JDK no PATH:** além do `JAVA_HOME`, o `firebase-tools` só achou o 21 com `PATH=/usr/lib/jvm/java-21-openjdk/bin:$PATH`.
 - **Empilhada:** 025 (PR #21), 026 (PR #22) e 027 (PR #23) esperam o CI destravar (cobrança da conta no GitHub).
