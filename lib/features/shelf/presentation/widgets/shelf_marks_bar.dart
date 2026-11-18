@@ -17,7 +17,11 @@ import '../state/shelf_marks_state.dart';
 /// As marcas do filme nos Detalhes, com os 4 estados (override `detalhes.md`,
 /// "Marcas"). Lê o [ShelfMarksNotifier] do contexto.
 class ShelfMarksBar extends StatelessWidget {
-  const ShelfMarksBar({super.key});
+  const ShelfMarksBar({this.confirmUnwatch, super.key});
+
+  /// Perguntado antes de tirar o Assistido; sem ele, tira na hora. Com
+  /// `false`, o Assistido fica (decisão 018: a nota e o dia saem junto).
+  final Future<bool> Function(BuildContext context)? confirmUnwatch;
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +40,10 @@ class ShelfMarksBar extends StatelessWidget {
       ShelfMarksReady(:final failedWrite) && final ready => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _MarkChips(isMarked: ready.isMarked, onTap: notifier.toggle),
+          _MarkChips(
+            isMarked: ready.isMarked,
+            onTap: (mark) => unawaited(_toggle(context, ready, mark)),
+          ),
           if (failedWrite != null)
             _MarksMessage(
               message: failureMessage(l10n, failedWrite.failure),
@@ -45,6 +52,22 @@ class ShelfMarksBar extends StatelessWidget {
         ],
       ),
     };
+  }
+
+  // O notifier é lido antes do diálogo, como antes da folha de login.
+  Future<void> _toggle(
+    BuildContext context,
+    ShelfMarksReady ready,
+    ShelfMark mark,
+  ) async {
+    final notifier = context.read<ShelfMarksNotifier>();
+    final confirm = confirmUnwatch;
+    final unwatching = mark == ShelfMark.watched && ready.isMarked(mark);
+    if (unwatching && confirm != null) {
+      final confirmed = await confirm(context);
+      if (!confirmed || !context.mounted) return;
+    }
+    notifier.toggle(mark);
   }
 
   // O notifier é lido antes da folha: o contexto pode sumir enquanto ela
