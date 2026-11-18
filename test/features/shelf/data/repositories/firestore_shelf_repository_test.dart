@@ -27,6 +27,18 @@ class _FakeShelfGateway implements ShelfGateway {
     return documents.stream;
   }
 
+  final shelfDocuments = StreamController<List<ShelfDocument>>.broadcast();
+
+  @override
+  Stream<List<ShelfDocument>> watchShelf(
+    String uid,
+    String orderField,
+    int limit,
+  ) {
+    calls.add('shelf $uid $orderField $limit');
+    return shelfDocuments.stream;
+  }
+
   @override
   Future<void> mergeMovie(
     String uid,
@@ -48,7 +60,10 @@ class _FakeShelfGateway implements ShelfGateway {
   Future<void> deleteMovie(String uid, int movieId) =>
       _record('delete $uid $movieId', null);
 
-  Future<void> close() => documents.close();
+  Future<void> close() async {
+    await documents.close();
+    await shelfDocuments.close();
+  }
 
   Future<void> _record(String call, Map<String, FieldWrite>? fields) async {
     calls.add(call);
@@ -138,6 +153,87 @@ void main() {
 
       expect(entries, emitsError(isA<NetworkFailure>()));
       gateway.documents.addError(_firestoreError('unavailable'));
+    });
+  });
+
+  group('watchShelf', () {
+    ShelfDocument doc(String id) => (
+      id: id,
+      fields: {
+        'title': 'Filme $id',
+        'cachedAt': DateTime.utc(2026, 11),
+        'watchedAt': watchedAt,
+      },
+    );
+
+    test('deve falhar com SignInRequiredFailure sem ninguém logado', () {
+      uid = null;
+
+      expect(
+        repository.watchShelf(ShelfMark.watched, limit: 20),
+        emitsError(isA<SignInRequiredFailure>()),
+      );
+    });
+
+    test('deve recusar um limite menor que 1', () {
+      expect(
+        () => repository.watchShelf(ShelfMark.watched, limit: 0),
+        throwsArgumentError,
+      );
+    });
+
+    test('deve consultar pelo campo da marca com o limite', () async {
+      repository.watchShelf(ShelfMark.favorite, limit: 40).listen(null);
+      await pumpEventQueue();
+
+      expect(gateway.calls, ['shelf alice favoriteAt 40']);
+    });
+
+    test('deve emitir a página montada pelo model', () {
+      final documents = [doc('13'), doc('550')];
+
+      expect(
+        repository.watchShelf(ShelfMark.watched, limit: 2),
+        emits(ShelfMovieModel.pageFrom(documents, limit: 2)),
+      );
+      gateway.shelfDocuments.add(documents);
+    });
+
+    test('deve traduzir o erro do Firestore no stream', () {
+      expect(
+        repository.watchShelf(ShelfMark.watched, limit: 20),
+        emitsError(isA<NetworkFailure>()),
+      );
+      gateway.shelfDocuments.addError(_firestoreError('unavailable'));
+    });
+
+    test('deve ser encerrado pelo closeStreams', () async {
+      final done = Completer<void>();
+      repository
+          .watchShelf(ShelfMark.watched, limit: 20)
+          .listen(null, onDone: done.complete);
+      await pumpEventQueue();
+
+      await repository.closeStreams();
+      await pumpEventQueue();
+
+      expect(done.isCompleted, isTrue);
+    });
+
+    test('deve parar de ouvir o Firestore no closeStreams', () async {
+      repository.watchShelf(ShelfMark.watched, limit: 20).listen(null);
+      await pumpEventQueue();
+
+      await repository.closeStreams();
+
+      expect(gateway.shelfDocuments.hasListener, isFalse);
+    });
+
+    test('deve contar o stream da Estante que alguém ouve', () async {
+      repository.watchShelf(ShelfMark.watched, limit: 20).listen(null);
+      await pumpEventQueue();
+
+      expect(repository.openStreamCount, 1);
     });
   });
 
@@ -249,6 +345,44 @@ void main() {
         expect(gateway.calls, isEmpty);
       },
     );
+  });
+
+  group('renewCopy', () {
+    test('deve atualizar o filme do usuário logado', () async {
+      await repository.renewCopy(copy);
+
+      expect(gateway.calls, ['update alice 550']);
+    });
+
+    test('deve atualizar só a cópia do model', () async {
+      await repository.renewCopy(copy);
+
+      expect(gateway.lastFields, ShelfMovieModel.copyFields(copy));
+    });
+
+    test('deve aceitar o documento que já não existe', () async {
+      gateway.updateFailure = _firestoreError('not-found');
+
+      await expectLater(repository.renewCopy(copy), completes);
+    });
+
+    test('deve falhar com SignInRequiredFailure sem ninguém logado', () async {
+      uid = null;
+
+      await expectLater(
+        repository.renewCopy(copy),
+        throwsA(isA<SignInRequiredFailure>()),
+      );
+    });
+
+    test('deve traduzir o erro do Firestore', () async {
+      gateway.updateFailure = _firestoreError('resource-exhausted');
+
+      await expectLater(
+        repository.renewCopy(copy),
+        throwsA(isA<RateLimitFailure>()),
+      );
+    });
   });
 
   group('tradução dos erros do Firestore', () {

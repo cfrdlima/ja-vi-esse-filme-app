@@ -85,3 +85,11 @@ Ideias que surgiram e não estão no plano imediato. Marque **[prioritário]** o
 - Passo "publicar as regras" no `/fechar-sessao`: se `firestore.rules` mudou desde a `main`, rodar `npm test` das regras e `firebase deploy --only firestore:rules --project ja-vi-esse-filme` com confirmação. As regras da 021 ficaram sem deploy até a verificação da 022 (sessão 022)
 - Guardar os fluxos do Maestro da sessão 022 (sem conta, login pela folha, online, offline, logout com marca pendente) no repositório, em `.maestro/`, sem e-mail nem `uid` nos arquivos, para repetir a verificação no emulador (sessão 022)
 - Contorno do "Sair mesmo assim" na cor de erro, igual ao texto; hoje usa a cor de contorno do tema (sessão 022)
+- Um `ExpiredCopyRenewer` por conta, compartilhado pelas três abas da Estante: hoje um filme vencido em duas abas gera dois GETs no TMDB e duas escritas (`security-auditor` da 023, S4)
+- Respeitar o `retryAfter` do 429 no `ExpiredCopyRenewer`: hoje a fila parada é liberada no próximo snapshot, ainda dentro da janela do limite (`code-reviewer` da 023, S6)
+- Um relógio só para a cópia vencida: o `_ShelfPoster` usa `DateTime.now()` no `build`, e o renovador recebe o `now` injetado; o notifier pode expor se a cópia está vencida (`code-reviewer` da 023, S7)
+- Tirar o parâmetro `index` do `ShelfTab`/`ShelfTabView`, que é sempre o `mark.index` (`code-reviewer` da 023, S8)
+- Mover `PosterGrid*` e `MoviesMessage` para `core/widgets/`, agora que a Estante usa os dois (`code-reviewer` da 023, S9)
+- Estante além de 200 filmes por aba: cursor (`startAfterDocument` + `get()`) depois do teto, sem reler a aba inteira (decisão 014)
+- Guardar os fluxos do Maestro da sessão 023 (abas, marcar e ver na aba, offline, logout, login pelo convite) junto com os da 022 em `.maestro/` (sessão 023)
+

@@ -18,6 +18,7 @@ import 'package:ja_vi_esse_filme/features/movies/presentation/screens/search_scr
 import 'package:ja_vi_esse_filme/features/movies/presentation/state/search_notifier.dart';
 import 'package:ja_vi_esse_filme/features/movies/presentation/widgets/movie_poster.dart';
 import 'package:ja_vi_esse_filme/features/shelf/domain/repositories/shelf_repository.dart';
+import 'package:ja_vi_esse_filme/features/shelf/presentation/screens/shelf_screen.dart';
 import 'package:ja_vi_esse_filme/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
@@ -191,6 +192,25 @@ void main() {
       await tapDestination(tester, 'Descobrir');
 
       expect(discoverScaffoldState(tester), same(before));
+    });
+  });
+
+  group('Estante', () {
+    testWidgets('deve mostrar a Estante na aba Estante', (tester) async {
+      await pumpAppRouter(tester);
+
+      await tapDestination(tester, 'Estante');
+
+      expect(find.byType(ShelfScreen), findsOneWidget);
+    });
+
+    testWidgets('deve abrir os Detalhes dentro da aba Estante', (tester) async {
+      final router = await pumpAppRouter(tester);
+
+      router.go(AppRoutes.movieDetails(AppRoutes.shelf, 550));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(MovieDetailsScreen), findsOneWidget);
     });
   });
 

@@ -5,6 +5,7 @@ import 'package:ja_vi_esse_filme/features/shelf/domain/entities/movie_copy.dart'
 import 'package:ja_vi_esse_filme/features/shelf/domain/entities/shelf_entry.dart';
 import 'package:ja_vi_esse_filme/features/shelf/domain/entities/shelf_mark.dart';
 import 'package:ja_vi_esse_filme/features/shelf/domain/entities/shelf_movie.dart';
+import 'package:ja_vi_esse_filme/features/shelf/domain/entities/shelf_page.dart';
 
 void main() {
   final cachedAt = DateTime.utc(2026, 11, 1);
@@ -171,6 +172,110 @@ void main() {
       expect(ShelfMovieModel.unmarkFields(ShelfMark.favorite), {
         'favoriteAt': const DeleteField(),
       });
+    });
+  });
+
+  group('ShelfMovieModel.copyFields', () {
+    test('deve regravar a cópia e o cachedAt sem tocar nas marcas', () {
+      final copy = MovieCopy(
+        movieId: 550,
+        title: 'Clube da Luta',
+        posterPath: '/a.jpg',
+      );
+
+      expect(ShelfMovieModel.copyFields(copy), {
+        'title': const SetField('Clube da Luta'),
+        'posterPath': const SetField('/a.jpg'),
+        'cachedAt': const ServerTime(),
+      });
+    });
+
+    test('deve apagar o pôster salvo quando a cópia nova não tem', () {
+      final copy = MovieCopy(movieId: 550, title: 'Clube da Luta');
+
+      expect(
+        ShelfMovieModel.copyFields(copy)['posterPath'],
+        const DeleteField(),
+      );
+    });
+  });
+
+  group('ShelfMovieModel.fieldOf', () {
+    test('deve usar o nome do campo das regras para cada marca', () {
+      expect(ShelfMark.values.map(ShelfMovieModel.fieldOf), [
+        'watchedAt',
+        'watchlistAt',
+        'favoriteAt',
+      ]);
+    });
+  });
+
+  group('ShelfMovieModel.pageFrom', () {
+    ShelfDocument doc(String id, [Map<String, Object?>? fields]) =>
+        (id: id, fields: fields ?? document());
+
+    List<int> idsOf(ShelfPage page) =>
+        page.movies.map((m) => m.copy.movieId).toList();
+
+    test('deve montar os filmes na ordem da consulta', () {
+      final page = ShelfMovieModel.pageFrom([doc('13'), doc('550')], limit: 20);
+
+      expect(idsOf(page), [13, 550]);
+    });
+
+    test('deve ler o filme como no documento sozinho', () {
+      final page = ShelfMovieModel.pageFrom([doc('550')], limit: 20);
+
+      expect(
+        page.movies.single,
+        onShelf(ShelfMovieModel.fromDocument(550, document())),
+      );
+    });
+
+    test('deve dizer que há mais quando veio o limite inteiro', () {
+      final page = ShelfMovieModel.pageFrom([doc('13'), doc('550')], limit: 2);
+
+      expect(page.hasMore, isTrue);
+    });
+
+    test('deve dizer que acabou quando veio menos que o limite', () {
+      final page = ShelfMovieModel.pageFrom([doc('13')], limit: 2);
+
+      expect(page.hasMore, isFalse);
+    });
+
+    test('deve pular o documento sem title legível', () {
+      final page = ShelfMovieModel.pageFrom([
+        doc('13', {...document(), 'title': 42}),
+        doc('550'),
+      ], limit: 20);
+
+      expect(idsOf(page), [550]);
+    });
+
+    test('deve pular o documento com id fora das regras', () {
+      final page = ShelfMovieModel.pageFrom([
+        doc('abc'),
+        doc('0'),
+        doc('550'),
+      ], limit: 20);
+
+      expect(idsOf(page), [550]);
+    });
+
+    test('deve pular o documento sem nenhuma marca legível', () {
+      final page = ShelfMovieModel.pageFrom([
+        doc('13', {'title': 'Sem marca', 'cachedAt': cachedAt}),
+        doc('550'),
+      ], limit: 20);
+
+      expect(idsOf(page), [550]);
+    });
+
+    test('deve contar o documento pulado para saber se há mais', () {
+      final page = ShelfMovieModel.pageFrom([doc('abc'), doc('550')], limit: 2);
+
+      expect(page.hasMore, isTrue);
     });
   });
 }

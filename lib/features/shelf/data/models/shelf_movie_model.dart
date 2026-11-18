@@ -2,13 +2,14 @@ import '../../domain/entities/movie_copy.dart';
 import '../../domain/entities/shelf_entry.dart';
 import '../../domain/entities/shelf_mark.dart';
 import '../../domain/entities/shelf_movie.dart';
+import '../../domain/entities/shelf_page.dart';
 import '../gateways/shelf_gateway.dart';
 
 /// Converte o documento `users/{uid}/movies/{movieId}` (decisão 013), já com
 /// as datas em `DateTime`, na entidade do domínio.
 abstract final class ShelfMovieModel {
   /// O campo de data de cada marca, com o nome usado no `firestore.rules`.
-  static String _fieldOf(ShelfMark mark) => switch (mark) {
+  static String fieldOf(ShelfMark mark) => switch (mark) {
     ShelfMark.watched => 'watchedAt',
     ShelfMark.watchlist => 'watchlistAt',
     ShelfMark.favorite => 'favoriteAt',
@@ -23,7 +24,7 @@ abstract final class ShelfMovieModel {
   static ShelfEntry fromDocument(int movieId, Map<String, Object?> data) {
     final marks = {
       for (final mark in ShelfMark.values)
-        if (data[_fieldOf(mark)] case final DateTime at) mark: at,
+        if (data[fieldOf(mark)] case final DateTime at) mark: at,
     };
     if (marks.isEmpty) return const NotOnShelf();
     return OnShelf(
@@ -38,11 +39,46 @@ abstract final class ShelfMovieModel {
     );
   }
 
+  /// A página de uma aba a partir da consulta com [limit]. Um documento
+  /// ilegível é pulado, para um filme estragado não derrubar a aba, mas
+  /// conta para saber se há mais.
+  static ShelfPage pageFrom(
+    List<ShelfDocument> documents, {
+    required int limit,
+  }) => ShelfPage(
+    movies: [
+      for (final (:id, :fields) in documents)
+        if (_movieOf(id, fields) case final ShelfMovie movie) movie,
+    ],
+    hasMore: documents.length >= limit,
+  );
+
+  // Igual à `isTmdbId` do `firestore.rules`.
+  static final _tmdbId = RegExp(r'^[1-9][0-9]{0,9}$');
+
+  static ShelfMovie? _movieOf(String id, Map<String, Object?> fields) {
+    if (!_tmdbId.hasMatch(id)) return null;
+    try {
+      return switch (fromDocument(int.parse(id), fields)) {
+        OnShelf(:final movie) => movie,
+        NotOnShelf() => null,
+      };
+    } on FormatException {
+      return null;
+    }
+  }
+
   /// Escrita com `merge` que põe a [mark] e regrava a [copy] com o
   /// `cachedAt` do servidor. Sem pôster, apaga o que estava salvo, para a
   /// cópia não misturar o título novo com o pôster antigo.
   static Map<String, FieldWrite> markFields(MovieCopy copy, ShelfMark mark) => {
-    _fieldOf(mark): const ServerTime(),
+    fieldOf(mark): const ServerTime(),
+    ...copyFields(copy),
+  };
+
+  /// Atualização que regrava só a [copy] com o `cachedAt` do servidor, para
+  /// renovar o prazo dela sem mexer nas marcas (decisão 013).
+  static Map<String, FieldWrite> copyFields(MovieCopy copy) => {
     'title': SetField(copy.title),
     'posterPath': switch (copy.posterPath) {
       final String path => SetField(path),
@@ -54,7 +90,7 @@ abstract final class ShelfMovieModel {
   /// Atualização que tira a [mark] quando sobra outra. Sem nenhuma, o
   /// documento é apagado, e não atualizado (decisão 013).
   static Map<String, FieldWrite> unmarkFields(ShelfMark mark) => {
-    _fieldOf(mark): const DeleteField(),
+    fieldOf(mark): const DeleteField(),
   };
 
   static MovieCopy _copyOf(int movieId, Map<String, Object?> data) {

@@ -3,17 +3,15 @@ import 'package:flutter/material.dart';
 import '../../../../core/error/failures.dart';
 import '../../../../core/error/retry_wait.dart';
 import '../../../../core/l10n/failure_message.dart';
-import '../../../../core/theme/app_sizes.dart';
 import '../../../../core/theme/app_theme_tokens.dart';
 import '../../../../core/widgets/retry_button.dart';
-import '../../../../core/widgets/skeleton_pulse.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../domain/entities/movie.dart';
 import '../state/paged_movies_notifier.dart';
 import '../state/paged_movies_state.dart';
 import 'movie_poster.dart';
+import 'poster_grid.dart';
 import 'poster_hero.dart';
-import 'poster_skeleton.dart';
 
 /// Os 4 estados de uma lista paginada de filmes, com paginação infinita. O
 /// vazio muda de tela para tela e vem em [empty].
@@ -39,13 +37,15 @@ class PagedMoviesView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => switch (notifier.state) {
-    PagedMoviesLoading() => const _GridWidthGuard(child: _LoadingView()),
+    PagedMoviesLoading() => PosterGridSkeleton(
+      label: AppLocalizations.of(context).moviesLoading,
+    ),
     PagedMoviesEmpty() => empty,
     PagedMoviesError(:final failure) => _ErrorView(
       failure: failure,
       onRetry: notifier.load,
     ),
-    final PagedMoviesLoaded state => _GridWidthGuard(
+    final PagedMoviesLoaded state => PosterGridWidthGuard(
       child: _MovieGrid(
         scrollKey: scrollKey,
         state: state,
@@ -55,66 +55,6 @@ class PagedMoviesView extends StatelessWidget {
       ),
     ),
   };
-}
-
-/// Padding e delegate comuns à grade real e ao skeleton, para o layout não
-/// pular entre os estados.
-EdgeInsets _gridPadding(AppThemeTokens tokens) =>
-    EdgeInsets.all(tokens.spacing.md);
-
-SliverGridDelegate _gridDelegate(AppThemeTokens tokens) =>
-    SliverGridDelegateWithMaxCrossAxisExtent(
-      maxCrossAxisExtent: AppSizes.posterGridMaxExtent,
-      childAspectRatio: 2 / 3,
-      mainAxisSpacing: tokens.spacing.sm,
-      crossAxisSpacing: tokens.spacing.sm,
-    );
-
-/// Só monta a grade quando sobra largura depois do padding. O Android pode
-/// fazer o primeiro layout com a janela ainda sem largura, e o
-/// `SliverGridDelegateWithMaxCrossAxisExtent` não aceita largura zero.
-class _GridWidthGuard extends StatelessWidget {
-  const _GridWidthGuard({required this.child});
-
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    final tokens = Theme.of(context).extension<AppThemeTokens>()!;
-    final horizontalPadding = _gridPadding(tokens).horizontal;
-    return LayoutBuilder(
-      builder: (_, constraints) => constraints.maxWidth > horizontalPadding
-          ? child
-          : const SizedBox.shrink(),
-    );
-  }
-}
-
-/// Grade de skeleton, com todas as células no mesmo pulso.
-class _LoadingView extends StatelessWidget {
-  const _LoadingView();
-
-  static const _cellCount = 12;
-
-  @override
-  Widget build(BuildContext context) {
-    final tokens = Theme.of(context).extension<AppThemeTokens>()!;
-    return Semantics(
-      label: AppLocalizations.of(context).moviesLoading,
-      liveRegion: true,
-      child: ExcludeSemantics(
-        child: SkeletonPulse(
-          builder: (_, opacity) => GridView.builder(
-            physics: const NeverScrollableScrollPhysics(),
-            padding: _gridPadding(tokens),
-            gridDelegate: _gridDelegate(tokens),
-            itemCount: _cellCount,
-            itemBuilder: (_, _) => PosterSkeleton(opacity: opacity),
-          ),
-        ),
-      ),
-    );
-  }
 }
 
 class _ErrorView extends StatelessWidget {
@@ -244,9 +184,9 @@ class _MovieGridState extends State<_MovieGrid> {
       controller: _controller,
       slivers: [
         SliverPadding(
-          padding: _gridPadding(tokens),
+          padding: PosterGrid.padding(tokens),
           sliver: SliverGrid.builder(
-            gridDelegate: _gridDelegate(tokens),
+            gridDelegate: PosterGrid.delegate(tokens),
             itemCount: movies.length,
             itemBuilder: (_, index) => PosterHero(
               key: ValueKey(movies[index].id),

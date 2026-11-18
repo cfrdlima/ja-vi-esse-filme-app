@@ -16,6 +16,13 @@ void main() {
     );
   });
 
+  test('deve falhar a Estante com SignInRequiredFailure', () async {
+    await expectLater(
+      repository.watchShelf(ShelfMark.watched, limit: 20),
+      emitsError(isA<SignInRequiredFailure>()),
+    );
+  });
+
   test('deve falhar a marca com SignInRequiredFailure', () async {
     await expectLater(
       repository.addMark(copy, ShelfMark.watched),
@@ -32,6 +39,13 @@ void main() {
 
     await expectLater(
       repository.removeMark(movie, ShelfMark.watched),
+      throwsA(isA<SignInRequiredFailure>()),
+    );
+  });
+
+  test('deve falhar a renovação da cópia com SignInRequiredFailure', () async {
+    await expectLater(
+      repository.renewCopy(copy),
       throwsA(isA<SignInRequiredFailure>()),
     );
   });

@@ -8,6 +8,7 @@ import '../../domain/entities/movie_copy.dart';
 import '../../domain/entities/shelf_entry.dart';
 import '../../domain/entities/shelf_mark.dart';
 import '../../domain/entities/shelf_movie.dart';
+import '../../domain/entities/shelf_page.dart';
 import '../../domain/repositories/shelf_repository.dart';
 import '../gateways/shelf_gateway.dart';
 import '../models/shelf_movie_model.dart';
@@ -31,26 +32,54 @@ class FirestoreShelfRepository implements ShelfRepository {
     if (movieId < 1 || movieId > MovieCopy.maxMovieId) {
       return Stream.error(const UnexpectedFailure('movieId fora das regras'));
     }
-    final source = _gateway
-        .watchMovie(uid, movieId)
-        .transform(
-          StreamTransformer<Map<String, Object?>, ShelfEntry>.fromHandlers(
-            handleData: (data, sink) {
-              try {
-                sink.add(ShelfMovieModel.fromDocument(movieId, data));
-              } on FormatException {
-                sink.addError(
-                  const UnexpectedFailure('documento do filme ilegível'),
-                );
-              }
-            },
-            handleError: (error, stackTrace, sink) =>
-                sink.addError(_toFailure(error), stackTrace),
+    return _track(
+      _gateway
+          .watchMovie(uid, movieId)
+          .transform(
+            StreamTransformer<Map<String, Object?>, ShelfEntry>.fromHandlers(
+              handleData: (data, sink) {
+                try {
+                  sink.add(ShelfMovieModel.fromDocument(movieId, data));
+                } on FormatException {
+                  sink.addError(
+                    const UnexpectedFailure('documento do filme ilegível'),
+                  );
+                }
+              },
+              handleError: _translateError,
+            ),
           ),
-        );
-    // Contado só com alguém ouvindo: antes disso, o Firestore nem foi
-    // assinado, e não há o que fechar.
-    late final _OpenWatch watch;
+    );
+  }
+
+  @override
+  Stream<ShelfPage> watchShelf(ShelfMark mark, {required int limit}) {
+    if (limit < 1) throw ArgumentError.value(limit, 'limit', 'menor que 1');
+    final uid = _currentUid();
+    if (uid == null) return Stream.error(const SignInRequiredFailure());
+    return _track(
+      _gateway
+          .watchShelf(uid, ShelfMovieModel.fieldOf(mark), limit)
+          .transform(
+            StreamTransformer<List<ShelfDocument>, ShelfPage>.fromHandlers(
+              handleData: (documents, sink) =>
+                  sink.add(ShelfMovieModel.pageFrom(documents, limit: limit)),
+              handleError: _translateError,
+            ),
+          ),
+    );
+  }
+
+  static void _translateError<T>(
+    Object error,
+    StackTrace stackTrace,
+    EventSink<T> sink,
+  ) => sink.addError(_toFailure(error), stackTrace);
+
+  /// Contado só com alguém ouvindo: antes disso, o Firestore nem foi
+  /// assinado, e não há o que fechar.
+  Stream<T> _track<T>(Stream<T> source) {
+    late final _OpenWatch<T> watch;
     watch = _OpenWatch(
       source,
       onStart: () => _openWatches.add(watch),
@@ -59,7 +88,7 @@ class FirestoreShelfRepository implements ShelfRepository {
     return watch.stream;
   }
 
-  final Set<_OpenWatch> _openWatches = {};
+  final Set<_OpenWatch<Object?>> _openWatches = {};
 
   @visibleForTesting
   int get openStreamCount => _openWatches.length;
@@ -123,6 +152,20 @@ class FirestoreShelfRepository implements ShelfRepository {
     }
   }
 
+  @override
+  Future<void> renewCopy(MovieCopy copy) => _write((uid) async {
+    try {
+      await _gateway.updateMovie(
+        uid,
+        copy.movieId,
+        ShelfMovieModel.copyFields(copy),
+      );
+    } on FirebaseException catch (e) {
+      // O filme saiu da Estante enquanto a cópia nova vinha do TMDB.
+      if (e.code != 'not-found') rethrow;
+    }
+  });
+
   /// Um `Error` é bug e sobe como está, para o relatório de erros.
   Future<void> _write(Future<void> Function(String uid) write) async {
     final uid = _currentUid();
@@ -146,15 +189,15 @@ Failure _toFailure(Object error) => switch (error) {
   _ => const UnexpectedFailure('erro fora do Firestore na Estante'),
 };
 
-/// Um stream do `watchMovie` que o [FirestoreShelfRepository.closeStreams]
-/// consegue encerrar por fora.
-final class _OpenWatch {
+/// Um stream do `watchMovie` ou do `watchShelf` que o
+/// [FirestoreShelfRepository.closeStreams] consegue encerrar por fora.
+final class _OpenWatch<T> {
   _OpenWatch(
-    Stream<ShelfEntry> source, {
+    Stream<T> source, {
     required void Function() onStart,
     required this._onEnd,
   }) {
-    _controller = StreamController<ShelfEntry>(
+    _controller = StreamController<T>(
       onListen: () {
         onStart();
         _subscription = source.listen(
@@ -170,11 +213,11 @@ final class _OpenWatch {
     );
   }
 
-  late final StreamController<ShelfEntry> _controller;
-  StreamSubscription<ShelfEntry>? _subscription;
+  late final StreamController<T> _controller;
+  StreamSubscription<T>? _subscription;
   final void Function() _onEnd;
 
-  Stream<ShelfEntry> get stream => _controller.stream;
+  Stream<T> get stream => _controller.stream;
 
   void _end() {
     _onEnd();
