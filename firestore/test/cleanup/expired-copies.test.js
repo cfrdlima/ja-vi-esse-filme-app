@@ -3,7 +3,8 @@ import assert from 'node:assert/strict';
 import { assertSucceeds } from '@firebase/rules-unit-testing';
 import { Timestamp } from 'firebase-admin/firestore';
 import { doc, serverTimestamp, updateDoc } from 'firebase/firestore';
-import { renewExpiredCopies } from '../../cleanup/expired-copies.js';
+import { MOVIES, renewExpiredCopies } from '../../cleanup/expired-copies.js';
+import { collectionsInApp } from '../../cleanup/user-collections.js';
 import {
   MissingTitleError,
   MovieNotFoundError,
@@ -39,6 +40,10 @@ function fakeSource(answers = {}) {
 }
 
 describe('cópias vencidas do TMDB', () => {
+  test('deve procurar as cópias numa subcoleção que o app conhece', () => {
+    assert.ok(collectionsInApp().includes(MOVIES));
+  });
+
   const admin = createAdmin();
   const { auth, db } = admin;
 

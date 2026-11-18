@@ -55,6 +55,10 @@ describe('relatório da limpeza mensal', () => {
     ].join('\n'));
   });
 
+  test('na simulação, deve dizer que os dados sem conta foram só encontrados', () => {
+    assert.match(formatReport({ ...report, dryRun: true }), /Dados sem conta encontrados: 2/);
+  });
+
   test('deve avisar que a simulação não gravou nada', () => {
     assert.match(formatReport({ ...report, dryRun: true }), /simulação: nada foi gravado/);
   });
