@@ -1,8 +1,10 @@
 import '../entities/movie_copy.dart';
+import '../entities/rating.dart';
 import '../entities/shelf_entry.dart';
 import '../entities/shelf_mark.dart';
 import '../entities/shelf_movie.dart';
 import '../entities/shelf_page.dart';
+import '../entities/watched_on.dart';
 
 /// As marcas do usuário logado em `users/{uid}/movies/{movieId}` (decisões
 /// 010 e 013). As falhas são as de `core/error/failures.dart`; a camada
@@ -40,12 +42,31 @@ abstract interface class ShelfRepository {
   Future<void> addMark(MovieCopy copy, ShelfMark mark);
 
   /// Tira a [mark] do [movie]. Se ela for a única, apaga o documento, e o
-  /// filme sai da Estante. Um documento que já não existe conta como
+  /// filme sai da Estante. Tirar o Assistido apaga também a nota e o dia
+  /// (decisão 018). Um documento que já não existe conta como
   /// sucesso, e a [mark] que já era a única no servidor (o [movie] estava
   /// velho) também apaga o documento.
   ///
   /// As mesmas falhas do [addMark].
   Future<void> removeMark(ShelfMovie movie, ShelfMark mark);
+
+  /// Dá a [rating] ao [movie] (decisão 018) sem mexer nas marcas nem na
+  /// cópia. Um documento que não existe mais conta como sucesso: o filme
+  /// saiu da Estante, e a nota não o recria.
+  ///
+  /// Lança [ArgumentError] se o [movie] não tem a marca Assistido. As
+  /// mesmas falhas do [addMark].
+  Future<void> rate(ShelfMovie movie, Rating rating);
+
+  /// Tira a nota do [movie], como o [rate].
+  Future<void> clearRating(ShelfMovie movie);
+
+  /// Grava o [day] em que o usuário assistiu ao [movie], como o [rate]. O
+  /// dia no futuro é recusado antes, pelo `ChooseWatchedOn`.
+  Future<void> setWatchedOn(ShelfMovie movie, WatchedOn day);
+
+  /// Tira o dia em que o usuário assistiu ao [movie], como o [rate].
+  Future<void> clearWatchedOn(ShelfMovie movie);
 
   /// Regrava só a cópia do TMDB e o `cachedAt`, sem mexer nas marcas, para
   /// renovar o prazo de uma cópia vencida (decisão 013). Um documento que

@@ -24,13 +24,27 @@ service cloud.firestore {
       return path is string && path.matches('^/[A-Za-z0-9_-]{1,64}[.](jpg|png)$');
     }
 
-    // Formato da decisão 013. Chaves fixas e tipos fechados limitam o
+    // Nota de meia em meia estrela: 1 = 0,5 estrela, 10 = 5 (decisão 018).
+    function isRating(rating) {
+      return rating is int && rating >= 1 && rating <= 10;
+    }
+
+    // Dia em que assistiu, escolhido pelo usuário, sem hora nem fuso
+    // (decisão 018). Aqui só o formato e os intervalos: o dia fora do
+    // calendário (30 de fevereiro) e o futuro ficam no domínio, porque as
+    // regras não sabem qual é "hoje" no fuso de quem assistiu.
+    function isWatchedOn(day) {
+      return day is string
+        && day.matches('^(18(8[89]|9[0-9])|19[0-9]{2}|[2-9][0-9]{3})-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$');
+    }
+
+    // Formato das decisões 013 e 018. Chaves fixas e tipos fechados limitam o
     // tamanho do documento, a única barreira contra abuso da cota do Spark
     // até o App Check (decisão 010). Sem nenhuma marca, o documento é
     // apagado, e não gravado.
     function isValidMovie(movie) {
       let marks = ['watchedAt', 'watchlistAt', 'favoriteAt'];
-      return movie.keys().hasOnly(marks.concat(['title', 'posterPath', 'cachedAt']))
+      return movie.keys().hasOnly(marks.concat(['title', 'posterPath', 'cachedAt', 'rating', 'watchedOn']))
         && movie.keys().hasAll(['title', 'cachedAt'])
         && movie.keys().hasAny(marks)
         && movie.title is string
@@ -40,7 +54,9 @@ service cloud.firestore {
         && movie.cachedAt is timestamp
         && (!('watchedAt' in movie) || movie.watchedAt is timestamp)
         && (!('watchlistAt' in movie) || movie.watchlistAt is timestamp)
-        && (!('favoriteAt' in movie) || movie.favoriteAt is timestamp);
+        && (!('favoriteAt' in movie) || movie.favoriteAt is timestamp)
+        && (!('rating' in movie) || ('watchedAt' in movie && isRating(movie.rating)))
+        && (!('watchedOn' in movie) || ('watchedAt' in movie && isWatchedOn(movie.watchedOn)));
     }
 
     // As datas são do servidor (decisão 013): o cliente não escolhe quando

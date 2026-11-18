@@ -307,6 +307,62 @@ class AppLocalizationsPt extends AppLocalizations {
   String get shelfMarksLoadFailed => 'Não deu para carregar suas marcas.';
 
   @override
+  String get diaryRatingLabel => 'Sua nota';
+
+  @override
+  String diaryRatingValue(double stars) {
+    final intl.NumberFormat starsNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String starsString = starsNumberFormat.format(stars);
+
+    return '$starsString de 5 estrelas';
+  }
+
+  @override
+  String get diaryNoRating => 'Sem nota';
+
+  @override
+  String get diaryClearRating => 'Tirar nota';
+
+  @override
+  String get diaryDayLabel => 'Quando assistiu';
+
+  @override
+  String diaryChosenDay(DateTime date) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat.yMd(localeName);
+    final String dateString = dateDateFormat.format(date);
+
+    return '$dateString';
+  }
+
+  @override
+  String diarySuggestedDay(DateTime date) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat.yMd(localeName);
+    final String dateString = dateDateFormat.format(date);
+
+    return '$dateString (dia da marca)';
+  }
+
+  @override
+  String get diaryChooseDay => 'Escolher quando assistiu';
+
+  @override
+  String get diaryClearDay => 'Tirar dia';
+
+  @override
+  String get unwatchDialogTitle => 'Tirar dos assistidos?';
+
+  @override
+  String get unwatchDialogBody =>
+      'Sua nota e o dia em que assistiu também serão apagados.';
+
+  @override
+  String get unwatchDialogCancel => 'Cancelar';
+
+  @override
+  String get unwatchDialogConfirm => 'Tirar';
+
+  @override
   String get signInSheetTitle => 'Entre para guardar seus filmes';
 
   @override
@@ -334,7 +390,7 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get deleteAccountDialogBody =>
-      'Vamos apagar seus assistidos, quero assistir e favoritos e a sua conta no app. Não dá para desfazer. Para confirmar, escolha a sua conta Google de novo.';
+      'Vamos apagar seus assistidos, quero assistir e favoritos, com as notas e os dias em que assistiu, e a sua conta no app. Não dá para desfazer. Para confirmar, escolha a sua conta Google de novo.';
 
   @override
   String get deleteAccountDialogCancel => 'Cancelar';
@@ -344,7 +400,7 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get profileUnsyncedWarning =>
-      'Algumas marcas ainda não chegaram ao servidor. Se sair agora, elas serão apagadas deste aparelho e não vão para a sua conta.';
+      'Algumas marcas, notas ou dias ainda não chegaram ao servidor. Se sair agora, eles serão apagados deste aparelho e não vão para a sua conta.';
 
   @override
   String get profileSignOutAnyway => 'Sair mesmo assim';

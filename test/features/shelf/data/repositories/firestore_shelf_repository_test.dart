@@ -8,9 +8,11 @@ import 'package:ja_vi_esse_filme/features/shelf/data/gateways/shelf_gateway.dart
 import 'package:ja_vi_esse_filme/features/shelf/data/models/shelf_movie_model.dart';
 import 'package:ja_vi_esse_filme/features/shelf/data/repositories/firestore_shelf_repository.dart';
 import 'package:ja_vi_esse_filme/features/shelf/domain/entities/movie_copy.dart';
+import 'package:ja_vi_esse_filme/features/shelf/domain/entities/rating.dart';
 import 'package:ja_vi_esse_filme/features/shelf/domain/entities/shelf_entry.dart';
 import 'package:ja_vi_esse_filme/features/shelf/domain/entities/shelf_mark.dart';
 import 'package:ja_vi_esse_filme/features/shelf/domain/entities/shelf_movie.dart';
+import 'package:ja_vi_esse_filme/features/shelf/domain/entities/watched_on.dart';
 
 /// Grava as chamadas e devolve o que o teste mandar.
 class _FakeShelfGateway implements ShelfGateway {
@@ -351,6 +353,106 @@ void main() {
       },
     );
   });
+
+  // Decisão 018: cada escrita mexe só no próprio campo, e só no filme
+  // assistido.
+  final day = WatchedOn(year: 2026, month: 11, day: 1);
+  final personalWrites =
+      <(String, Future<void> Function(ShelfMovie), Map<String, FieldWrite>)>[
+        (
+          'rate',
+          (movie) => repository.rate(movie, Rating(7)),
+          ShelfMovieModel.ratingFields(Rating(7)),
+        ),
+        (
+          'clearRating',
+          (movie) => repository.clearRating(movie),
+          ShelfMovieModel.noRatingFields(),
+        ),
+        (
+          'setWatchedOn',
+          (movie) => repository.setWatchedOn(movie, day),
+          ShelfMovieModel.watchedOnFields(day),
+        ),
+        (
+          'clearWatchedOn',
+          (movie) => repository.clearWatchedOn(movie),
+          ShelfMovieModel.noWatchedOnFields(),
+        ),
+      ];
+
+  for (final (name, write, fields) in personalWrites) {
+    group(name, () {
+      final watched = movieWith({ShelfMark.watched});
+
+      test('deve atualizar o filme do usuário logado', () async {
+        await write(watched);
+
+        expect(gateway.calls, ['update alice 550']);
+      });
+
+      test('deve atualizar só o próprio campo', () async {
+        await write(watched);
+
+        expect(gateway.lastFields, fields);
+      });
+
+      // Síncrono, como no `ChooseWatchedOn`: é erro de quem chama.
+      test('deve recusar na hora o filme sem a marca Assistido', () {
+        expect(
+          () => write(movieWith({ShelfMark.favorite})),
+          throwsArgumentError,
+        );
+      });
+
+      test('não deve tocar no Firestore sem a marca Assistido', () {
+        try {
+          unawaited(write(movieWith({ShelfMark.favorite})));
+        } on ArgumentError {
+          // Esperado.
+        }
+
+        expect(gateway.calls, isEmpty);
+      });
+
+      // O filme saiu da Estante em outro aparelho: a nota não recria o
+      // documento.
+      test('deve aceitar o documento que já não existe', () async {
+        gateway.updateFailure = _firestoreError('not-found');
+
+        await expectLater(write(watched), completes);
+      });
+
+      test(
+        'deve falhar com SignInRequiredFailure sem ninguém logado',
+        () async {
+          uid = null;
+
+          await expectLater(
+            write(watched),
+            throwsA(isA<SignInRequiredFailure>()),
+          );
+        },
+      );
+
+      test('deve traduzir o erro do Firestore', () async {
+        gateway.updateFailure = _firestoreError('resource-exhausted');
+
+        await expectLater(write(watched), throwsA(isA<RateLimitFailure>()));
+      });
+
+      test(
+        'deve recusar com as escritas travadas sem tocar no Firestore',
+        () async {
+          writeLock.lock();
+
+          await write(watched).then<void>((_) {}, onError: (Object _) {});
+
+          expect(gateway.calls, isEmpty);
+        },
+      );
+    });
+  }
 
   group('renewCopy', () {
     test('deve atualizar o filme do usuário logado', () async {
