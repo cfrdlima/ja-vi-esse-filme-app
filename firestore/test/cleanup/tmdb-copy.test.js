@@ -5,6 +5,7 @@ import {
   MovieNotFoundError,
   RateLimitedError,
   TmdbError,
+  UnauthorizedError,
   createTmdbCopySource,
 } from '../../cleanup/tmdb-copy.js';
 
@@ -12,11 +13,12 @@ import {
 const TOKEN = 'token-de-teste';
 const POSTER = '/pB8BM7pdSp6B6Ih7QZ4DrQ3PmJK.jpg';
 
-function fakeFetch({ status = 200, body = {} } = {}) {
+// O corpo em texto cru permite simular resposta que não é JSON.
+function fakeFetch({ status = 200, body = {}, rawBody } = {}) {
   const calls = [];
   const fetch = async (url, init) => {
     calls.push({ url: new URL(url), init });
-    return new Response(JSON.stringify(body), { status });
+    return new Response(rawBody ?? JSON.stringify(body), { status });
   };
   return { fetch, calls };
 }
@@ -64,12 +66,22 @@ describe('cópia do filme pelo TMDB', () => {
     assert.equal(copy.title, 'Fight Club');
   });
 
-  test('deve cortar o título em 300 caracteres, como o app e as regras', async () => {
-    const { source } = sourceWith({ body: { title: 'á'.repeat(301) } });
+  // As regras e o app contam unidades UTF-16 (MovieCopy._fitTitle), e um
+  // título maior impediria o app de desmarcar o filme depois.
+  test('deve cortar o título em 300 unidades UTF-16, como o app e as regras', async () => {
+    const { source } = sourceWith({ body: { title: '🎬'.repeat(151) } });
 
     const copy = await source.fetchCopy(550);
 
-    assert.equal([...copy.title].length, 300);
+    assert.equal(copy.title.length, 300);
+  });
+
+  test('não deve partir um emoji ao meio no corte do título', async () => {
+    const { source } = sourceWith({ body: { title: `${'a'.repeat(299)}🎬` } });
+
+    const copy = await source.fetchCopy(550);
+
+    assert.equal(copy.title, 'a'.repeat(299));
   });
 
   test('deve devolver o caminho do pôster no formato do TMDB', async () => {
@@ -90,10 +102,47 @@ describe('cópia do filme pelo TMDB', () => {
     assert.equal(copy.posterPath, null);
   });
 
+  // O 404 com status_code 34 é o "recurso não encontrado" do TMDB; outro
+  // 404 (rota, incidente) não pode apagar as marcas de ninguém.
   test('deve lançar MovieNotFoundError quando o filme sumiu do TMDB', async () => {
-    const { source } = sourceWith({ status: 404 });
+    const { source } = sourceWith({ status: 404, body: { status_code: 34 } });
 
     await assert.rejects(source.fetchCopy(550), MovieNotFoundError);
+  });
+
+  test('deve tratar o 404 sem o código 34 do TMDB como falha comum', async () => {
+    const { source } = sourceWith({ status: 404, rawBody: 'Not Found' });
+
+    await assert.rejects(
+      source.fetchCopy(550),
+      (error) => error instanceof TmdbError && !(error instanceof MovieNotFoundError),
+    );
+  });
+
+  test('deve lançar UnauthorizedError quando o token é recusado', async () => {
+    const { source } = sourceWith({ status: 401 });
+
+    await assert.rejects(source.fetchCopy(550), UnauthorizedError);
+  });
+
+  test('deve lançar TmdbError quando a resposta não é JSON', async () => {
+    const { source } = sourceWith({ rawBody: '<html>erro</html>' });
+
+    await assert.rejects(source.fetchCopy(550), TmdbError);
+  });
+
+  test('deve lançar TmdbError quando o JSON não é um objeto', async () => {
+    const { source } = sourceWith({ rawBody: 'null' });
+
+    await assert.rejects(source.fetchCopy(550), TmdbError);
+  });
+
+  test('deve pedir com prazo, para uma conexão presa não travar a limpeza', async () => {
+    const { source, calls } = sourceWith({ body: { title: 'Clube da Luta' } });
+
+    await source.fetchCopy(550);
+
+    assert.ok(calls[0].init.signal instanceof AbortSignal);
   });
 
   test('deve lançar RateLimitedError no limite de requisições', async () => {
