@@ -6,8 +6,8 @@ const USER_COLLECTIONS_PATH = new URL(
 );
 
 // Lê o `all` de UserCollections e troca cada constante pelo valor dela: a
-// lista fixa que a exclusão da conta apaga (decisão 015). Um lugar só para
-// o app, os testes das regras e a limpeza mensal (decisão 017).
+// lista fixa que a exclusão da conta apaga (decisão 015). Os testes das
+// regras e da limpeza mensal (decisão 017) comparam com ela.
 export function collectionsInApp() {
   const dart = readFileSync(USER_COLLECTIONS_PATH, 'utf8');
   const values = Object.fromEntries(

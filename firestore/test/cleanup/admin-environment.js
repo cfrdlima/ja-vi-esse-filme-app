@@ -2,11 +2,14 @@ import { randomUUID } from 'node:crypto';
 import { deleteApp, initializeApp } from 'firebase-admin/app';
 import { getAuth } from 'firebase-admin/auth';
 import { getFirestore } from 'firebase-admin/firestore';
+import { MOVIES } from '../../cleanup/expired-copies.js';
 
 // O mesmo projeto demo- dos testes das regras: o emulador nunca fala com o
 // projeto real (decisão 012). O `emulators:exec` exporta o
 // FIRESTORE_EMULATOR_HOST e o FIREBASE_AUTH_EMULATOR_HOST, que o Admin SDK
-// usa no lugar do Google.
+// usa no lugar do Google. Os avisos MetadataLookupWarning na saída são do SDK
+// procurando uma credencial que os emuladores não pedem (o Firestore do Admin
+// SDK recusa uma credencial falsa).
 export const PROJECT_ID = 'demo-ja-vi-esse-filme';
 
 export function requireEmulators() {
@@ -25,7 +28,10 @@ export function createAdmin() {
   };
 }
 
-// Endpoints de limpeza dos emuladores, para cada teste começar do zero.
+// Endpoints de limpeza dos emuladores, para cada teste começar do zero. Ele
+// apaga também os dados dos testes das regras, que usam o mesmo projeto: só é
+// seguro porque o npm test roda os arquivos um de cada vez
+// (--test-concurrency=1 no package.json). Não tire essa flag.
 export async function clearEmulators() {
   requireEmulators();
   const firestore = process.env.FIRESTORE_EMULATOR_HOST;
@@ -41,6 +47,6 @@ export async function createAccount(auth, uid) {
 }
 
 export async function movieIds(db, uid) {
-  const snapshot = await db.collection(`users/${uid}/movies`).get();
+  const snapshot = await db.collection(`users/${uid}/${MOVIES}`).get();
   return snapshot.docs.map((doc) => doc.id).sort();
 }

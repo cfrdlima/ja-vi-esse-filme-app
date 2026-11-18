@@ -4,7 +4,7 @@ import { assertSucceeds } from '@firebase/rules-unit-testing';
 import { Timestamp } from 'firebase-admin/firestore';
 import { doc, serverTimestamp, updateDoc } from 'firebase/firestore';
 import { MOVIES, renewExpiredCopies } from '../../cleanup/expired-copies.js';
-import { collectionsInApp } from '../../cleanup/user-collections.js';
+import { collectionsInApp } from '../user-collections.js';
 import {
   MissingTitleError,
   MovieNotFoundError,

@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { initializeTestEnvironment } from '@firebase/rules-unit-testing';
 import { serverTimestamp } from 'firebase/firestore';
 
-export { collectionsInApp } from '../cleanup/user-collections.js';
+export { collectionsInApp } from './user-collections.js';
 
 export const RULES_PATH = new URL('../../firestore.rules', import.meta.url);
 
