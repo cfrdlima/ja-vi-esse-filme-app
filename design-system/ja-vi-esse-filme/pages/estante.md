@@ -9,7 +9,7 @@
 > A stack Flutter não trouxe nada para `TabBar` nem abas (duas buscas: "TabBar tabs" e "tab"). A estrutura das abas abaixo é padrão geral (fallback).
 
 ## Estrutura
-- `Scaffold` com `AppBar` "Estante" e um `TabBar` no `bottom` com **Assistidos**, **Quero assistir** e **Favoritos**, nessa ordem, a mesma da fileira de marcas dos Detalhes. Começa em Assistidos.
+- `Scaffold` com `AppBar` "Minha estante" e um `TabBar` no `bottom` com **Assistidos**, **Quero assistir** e **Favoritos**, nessa ordem, a mesma da fileira de marcas dos Detalhes. Começa em Assistidos.
 - `TabBarView` com uma grade por aba. Cada aba carrega na primeira vez que é aberta e depois fica viva: voltar a ela mostra os filmes e a rolagem em que estava.
 - Com fonte grande (escala acima de 1), o `TabBar` fica rolável (`isScrollable`), para o rótulo não ser cortado.
 - Sem conta, não há `TabBar`, só o convite (ver "Sem conta").

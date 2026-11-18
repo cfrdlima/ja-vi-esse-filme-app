@@ -37,7 +37,7 @@ Trocar o placeholder da aba Estante por três abas (**Assistidos**, **Quero assi
 
 ### Entrega
 - [ ] Tríade: format, analyze limpo, `flutter test` verde, `npm test` das regras se mudarem
-- [ ] Emulador: abas, paginação, marcar nos Detalhes e ver na aba, offline, logout
+- [x] Emulador: abas, paginação, marcar nos Detalhes e ver na aba, offline, logout. **Feito com o Maestro** (fluxos fora do repositório), no `Pixel_9_Pro` (Android 16, API 36), contra o projeto real: as três abas leem do Firestore; o vazio com "Descobrir filmes"; o mesmo filme vivo nas três abas abre os Detalhes sem quebrar o Hero; marcar nos Detalhes aparece ao vivo na aba, com o mais recente primeiro; a marca feita em modo avião entra no topo e fica lá quando a rede volta; o logout volta ao convite; o login pelo convite abre em Assistidos com as marcas do servidor; com `font_scale` 1.5, o `TabBar` rola; desmarcar esvazia a aba ao vivo. As marcas de teste foram desfeitas. **Não deu para ver no aparelho:** a paginação (precisa de mais de 20 filmes numa marca) e a cópia vencida (as regras não deixam o cliente escolher o `cachedAt`); as duas ficaram nos widget tests
 - [ ] `PLANO.md` e `docs/PRIVACIDADE.md` se o texto mudar
 - [ ] `/revisar` (`code-reviewer` e `security-auditor`: storage, rede)
 - [ ] `/fechar-sessao`
@@ -49,3 +49,5 @@ Trocar o placeholder da aba Estante por três abas (**Assistidos**, **Quero assi
 ## Notas
 - **`where(isNotEqualTo: null)` no `cloud_firestore` 7.1.0** (código do pacote no pub-cache, `query.dart`): o `where` só põe a condição `!=` quando `isNotEqualTo != null`, então passar `null` **não filtra nada** e a consulta traz todos os documentos. O `!= null` sai com `isNull: false`. A decisão 013 cita `where('<marca>At', '!=', null)`; o `orderBy('<marca>At', descending: true)` sozinho já basta, porque o Firestore deixa fora do resultado o documento sem o campo ordenado, e evita o `!=`. **A conferir no emulador:** se uma marca offline (`serverTimestamp()` pendente) aparece na consulta local e em que posição.
 - **Erro no stream da consulta (`cloud_firestore_platform_interface` 8.1.0, `method_channel_query.dart`):** no Android, o nativo manda o erro e o `endOfStream`, mas o `Query.snapshots()` do Dart ouve o canal sem `onDone`, e o stream público não acaba. Depois de um erro, o listener nativo morreu, e o "tentar de novo" assina outra vez. O `onDone` da aba só chega pelo `closeStreams()` do logout.
+- **Marca offline na consulta (Android, `cloud_firestore` 7.1.0):** o `serverTimestamp()` pendente entra na consulta local com `orderBy(<marca>At, descending: true)` e fica **no topo** (o SDK ordena a data pendente depois de todas as datas). Quando o servidor confirma, a posição não muda. Respondido o "a conferir no emulador" da preparação.
+- **Emulador:** o `Pixel_9` ficou sem espaço (96% do `/data`, com apps de outros projetos, que não foram mexidos); a verificação foi no `Pixel_9_Pro` (10 GB), que já tinha o app e a conta da 022.
