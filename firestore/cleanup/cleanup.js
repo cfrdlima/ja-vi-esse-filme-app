@@ -44,7 +44,7 @@ export async function runCleanup({ auth, db, source, dryRun, now = new Date() })
 export function formatReport({ projectId, dryRun, orphanUsers, copies }) {
   const lines = [
     `Limpeza mensal do Firestore — projeto ${projectId}`,
-    `Dados sem conta apagados: ${orphanUsers} users/{uid}`,
+    `Dados sem conta ${dryRun ? 'encontrados' : 'apagados'}: ${orphanUsers} users/{uid}`,
     `Cópias vencidas: ${copies.expired} (renovadas: ${copies.renewed}, filmes apagados: ${copies.removed}, falhas: ${copies.failed})`,
   ];
   if (copies.rateLimited) lines.push('Parou no limite de requisições do TMDB: rode de novo em alguns minutos.');

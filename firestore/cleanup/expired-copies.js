@@ -6,8 +6,9 @@ import { MovieNotFoundError, RateLimitedError, TmdbError } from './tmdb-copy.js'
 const COPY_MAX_AGE_DAYS = 180;
 const DAY_MS = 24 * 60 * 60 * 1000;
 
-// Subcoleção dos filmes marcados (UserCollections.movies no app).
-const MOVIES = 'movies';
+// Subcoleção dos filmes marcados (UserCollections.movies no app); um teste
+// confere que ela está na lista do app.
+export const MOVIES = 'movies';
 
 // Renova pelo TMDB as cópias vencidas que a Estante não renovou (decisão
 // 017). Um filme que sumiu do TMDB é apagado, porque o app já não consegue
