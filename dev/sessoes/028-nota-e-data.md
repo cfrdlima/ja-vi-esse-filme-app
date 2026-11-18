@@ -18,16 +18,16 @@ Permitir que o usuário dê a um filme assistido uma nota de 0,5 a 5 estrelas (`
 - [x] `rules-file.test.js` e os testes de chaves fixas cobrem os campos novos. **Feito:** sem mudança no `rules-file.test.js` (nenhum `match` novo); `firestore/test/movie-rating.test.js` com 31 testes
 
 ### Domínio (RED/GREEN/REFACTOR)
-- [ ] `Rating` (meia estrela de 0,5 a 5): recusa valores fora da escala, converte de e para o inteiro de 1 a 10
-- [ ] `WatchedOn` (data civil): recusa data futura (pelo relógio injetado) e antes de 1888
-- [ ] `ShelfMovie` com nota e data opcionais, só com a marca Assistido
-- [ ] `ShelfRepository`: `rate`, `clearRating`, `setWatchedOn` (ou equivalente). Contrato decidido no ciclo
+- [x] `Rating` (meia estrela de 0,5 a 5): recusa valores fora da escala, converte de e para o inteiro de 1 a 10
+- [x] `WatchedOn` (data civil): recusa dia fora do calendário e ano fora de 1888 a 9999. **Mudou:** o futuro fica no `ChooseWatchedOn` (relógio injetado), que também dá o "hoje" do seletor e a sugestão (dia escolhido ou dia local do `watchedAt`); o model aceita o dia futuro gravado por outro aparelho, porque o fuso dele pode estar à frente (emenda na 018)
+- [x] `ShelfMovie` com nota e data opcionais, só com a marca Assistido, e `losesPersonalDataWithout(mark)` para o aviso
+- [x] `ShelfRepository`: `rate`, `clearRating`, `setWatchedOn`, `clearWatchedOn`, com `ArgumentError` sem o Assistido e o documento que sumiu contando como sucesso
 
 ### Data (RED/GREEN/REFACTOR, com fakes do gateway)
-- [ ] O model lê `rating` e `watchedOn` de forma defensiva: um valor inválido vira "sem nota" ou "sem data", sem derrubar o filme
-- [ ] O repositório grava a nota e a data só com `update`, sem mexer nas marcas nem na cópia
-- [ ] `removeMark(watched)` com outras marcas também apaga `rating` e `watchedOn`
-- [ ] `addMark(watched)` não grava o `watchedOn` (decisão 018: só quando o usuário escolhe; a tela sugere o dia do `watchedAt`)
+- [x] O model lê `rating` e `watchedOn` de forma defensiva: um valor inválido vira "sem nota" ou "sem data", sem derrubar o filme
+- [x] O repositório grava a nota e a data só com `update`, sem mexer nas marcas nem na cópia
+- [x] `removeMark(watched)` com outras marcas também apaga `rating` e `watchedOn` (sempre, mesmo sem vê-los no aparelho)
+- [x] `addMark(watched)` não grava o `watchedOn` (decisão 018: só quando o usuário escolhe; a tela sugere o dia do `watchedAt`). **Feito:** sem mudança no `markFields`
 
 ### Apresentação (RED/GREEN/REFACTOR, widget tests)
 - [ ] Estado: dar e tirar a nota e trocar a data com atualização otimista, e erro com "tentar de novo"
@@ -49,7 +49,7 @@ Permitir que o usuário dê a um filme assistido uma nota de 0,5 a 5 estrelas (`
 ## Commits
 
 ## Notas
-- **Suíte do `firestore/`:** 200 verdes (121 das regras e 79 da limpeza, com 1 novo).
+- **Suíte do `firestore/`:** 200 verdes (120 das regras, com 31 novos, e 80 da limpeza, com 1 novo).
 - **JDK no PATH:** além do `JAVA_HOME`, o `firebase-tools` só achou o 21 com `PATH=/usr/lib/jvm/java-21-openjdk/bin:$PATH`.
 - **Empilhada:** 025 (PR #21), 026 (PR #22) e 027 (PR #23) esperam o CI destravar (cobrança da conta no GitHub).
 - **JDK:** os testes do `firestore/` rodam com `JAVA_HOME=/usr/lib/jvm/java-21-openjdk`.

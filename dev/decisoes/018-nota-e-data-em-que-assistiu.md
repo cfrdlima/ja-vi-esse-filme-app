@@ -45,7 +45,7 @@ Esta decisão emenda a 013 e não substitui nenhuma.
 
 ## Consequências
 - O `isValidMovie` das regras ganha as duas chaves na lista fixa, com tipo e formato fechados. Os testes no emulador cobrem os limites (0, 11, fracionário, string, formato e ano fora do intervalo, campo sem o `watchedAt`).
-- **Dia inexistente passa nas regras.** Uma data como `2026-02-30` é aceita pelas regras e recusada pelo domínio. Se ela chegar ao servidor por outro cliente, o model do app a lê como "sem data", sem derrubar o filme. O mesmo vale para uma data futura.
+- **Dia inexistente passa nas regras.** Uma data como `2026-02-30` é aceita pelas regras e recusada pelo domínio. Se ela chegar ao servidor por outro cliente, o model do app a lê como "sem data", sem derrubar o filme. **Emenda (sessão 028):** o dia no futuro é recusado só na escolha (`ChooseWatchedOn`, pelo relógio do aparelho); o model aceita o futuro já gravado, porque outro aparelho com o fuso à frente pode ter gravado o "hoje" dele.
 - A limpeza mensal (decisão 017) renova a cópia com `update` dos três campos da cópia e preserva a nota e a data. Um teste no emulador confirma. O filme que sumiu do TMDB é apagado com a nota junto, o que a política 2.0 precisa dizer.
 - A exclusão da conta (decisão 015) já apaga o documento inteiro, sem mudança.
 - **A corrida no desmarcar (013) fica maior:** um aparelho com dado velho que tira a única marca apaga também a nota e a data dadas no outro aparelho no mesmo intervalo de sincronização. Ela continua aceita, pelo mesmo motivo: a transação falha offline.
