@@ -23,7 +23,7 @@ Excluir a conta pelo app, na ordem da decisão 010: login recente, os documentos
 - [x] Regras: testes no emulador de que o dono apaga todos os documentos e não sobra nada em `users/{uid}`, de que outro `uid` não apaga, e de que a lista fixa bate com as coleções das regras (`rules-file.test.js`) **Feito:** `account-deletion.test.js` com o mesmo laço do gateway (6 testes, 88 verdes); conferido por mutação (sem `delete` nas regras, 4 falham); regras sem mudança
 
 ### Estado (RED/GREEN/REFACTOR)
-- [ ] `SessionNotifier.deleteAccount`: estado "excluindo", sucesso (deslogado), falha com "tentar de novo"; guarda contra chamada dupla e contra login/logout em andamento
+- [x] `SessionNotifier.deleteAccount`: estado "excluindo", sucesso (deslogado), falha com "tentar de novo"; guarda contra chamada dupla e contra login/logout em andamento. **Feito:** `SessionDeletingAccount`, `SessionDeleteAccountFailed` (fora do `SessionFailed`, porque a conta continua) e `SessionAccountDeleted` (subtipo do deslogado, com o aviso no Perfil no lugar do `SnackBar`); o `SignedOut` do `user.delete()` fica guardado até o fim, como no login; 16 testes
 - [ ] Estante sai de cena quando a exclusão começa, como no logout
 
 ### UI (RED/GREEN/REFACTOR, widget tests)

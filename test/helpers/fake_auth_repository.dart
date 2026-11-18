@@ -86,7 +86,22 @@ class FakeAuthRepository implements AuthRepository {
     return synced;
   }
 
+  final List<Completer<AccountDeletionOutcome>> _pendingDeletions = [];
+
+  /// Cada exclusão fica pendente até o teste responder com
+  /// [completeDeletion] ou [failDeletion].
   @override
-  Future<AccountDeletionOutcome> deleteAccount() async =>
-      throw UnimplementedError();
+  Future<AccountDeletionOutcome> deleteAccount() {
+    final completer = Completer<AccountDeletionOutcome>();
+    _pendingDeletions.add(completer);
+    return completer.future;
+  }
+
+  int get pendingDeletions => _pendingDeletions.length;
+
+  void completeDeletion(AccountDeletionOutcome outcome) =>
+      _pendingDeletions.removeAt(0).complete(outcome);
+
+  void failDeletion(Object error) =>
+      _pendingDeletions.removeAt(0).completeError(error);
 }

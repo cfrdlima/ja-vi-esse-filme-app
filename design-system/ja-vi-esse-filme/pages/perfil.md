@@ -43,7 +43,7 @@ Não há estado "vazio": sem conta, o deslogado é o vazio, e ele já chama para
   - ações, à direita: `TextButton` "Cancelar" (fecha sem fazer nada, e o voltar do Android faz o mesmo) e `FilledButton` "Excluir conta" com fundo `error` e texto `onError`. A ação segura vem primeiro na ordem de foco;
   - com fonte grande, o texto rola dentro do diálogo e as ações quebram em coluna (o `OverflowBar` do Material), sem overflow.
 - Fechar o seletor do Google na reautenticação volta ao logado, sem mensagem: é cancelamento, não erro (decisão 015).
-- **Sucesso:** a sessão vai para o deslogado, e um `SnackBar` diz "Sua conta foi excluída" (`success-feedback`). O leitor de tela anuncia o `SnackBar`.
+- **Sucesso:** a sessão vai para o deslogado (`SessionAccountDeleted`), com o aviso "Sua conta foi excluída." em `bodyMedium` acima do título do deslogado, em região viva (`success-feedback`). O aviso fica até o próximo estado. Ele fica no painel, e não num `SnackBar`, porque o estado já diz que a conta acabou de sair, e o aviso não some antes de o leitor de tela anunciá-lo.
 - A foto sai do cache em memória, como no logout.
 
 ## Botão "Entrar com o Google"

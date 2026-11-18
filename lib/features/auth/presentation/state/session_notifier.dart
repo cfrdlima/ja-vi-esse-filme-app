@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 
 import '../../../../core/error/failures.dart';
+import '../../domain/entities/account_deletion_outcome.dart';
 import '../../domain/entities/auth_state.dart';
 import '../../domain/entities/sign_in_outcome.dart';
 import '../../domain/repositories/auth_repository.dart';
@@ -31,21 +32,24 @@ class SessionNotifier extends ChangeNotifier {
 
   bool _signingIn = false;
   bool _signingOut = false;
+  bool _deleting = false;
 
-  /// O último estado da conta que chegou durante o login, guardado para o
-  /// fim dele. `null` quando não chegou nenhum.
-  AuthState? _arrivedDuringSignIn;
+  /// O último estado da conta que chegou durante o login ou a exclusão,
+  /// guardado para o fim deles. `null` quando não chegou nenhum.
+  AuthState? _arrivedWhileBusy;
+
+  bool get _busy => _signingIn || _signingOut || _deleting;
   bool _disposed = false;
 
   /// Abre o login do Google. Serve também para "tentar de novo". Com um
   /// logout em andamento, não faz nada: o Firebase sai antes do Google, e o
   /// seletor abriria com a limpeza ainda rodando.
   Future<void> signIn() async {
-    if (_disposed || _signingIn || _signingOut) return;
+    if (_disposed || _busy) return;
     // A conta já está aberta, esperando a resposta da pergunta do logout.
     if (_state is SessionUnsyncedSignOut) return;
     _signingIn = true;
-    _arrivedDuringSignIn = null;
+    _arrivedWhileBusy = null;
     _emit(const SessionSigningIn());
     try {
       _emit(switch (await _repository.signIn()) {
@@ -77,7 +81,7 @@ class SessionNotifier extends ChangeNotifier {
   /// um login em andamento, não faz nada: o resultado dele ainda vai decidir
   /// o estado.
   Future<void> signOut() async {
-    if (_disposed || _signingIn || _signingOut) return;
+    if (_disposed || _busy) return;
     _signingOut = true;
     try {
       if (_state case SessionSignedIn(:final user)) {
@@ -102,9 +106,44 @@ class SessionNotifier extends ChangeNotifier {
     }
   }
 
+  /// Exclui a conta (decisão 015). Serve também para "tentar de novo", a
+  /// partir da falha. Só com a conta aberta e nada mais em andamento.
+  Future<void> deleteAccount() async {
+    if (_disposed || _busy) return;
+    final user = switch (_state) {
+      SessionSignedIn(:final user) ||
+      SessionDeleteAccountFailed(:final user) => user,
+      _ => null,
+    };
+    if (user == null) return;
+    _deleting = true;
+    _arrivedWhileBusy = null;
+    _emit(SessionDeletingAccount(user));
+    try {
+      _emit(switch (await _repository.deleteAccount()) {
+        AccountDeleted() => const SessionAccountDeleted(),
+        AccountDeletionCancelled() => _reconcile(SessionSignedIn(user)),
+      });
+    } on Failure catch (failure) {
+      _emit(_reconcile(SessionDeleteAccountFailed(user, failure)));
+    } on Exception {
+      _emit(_reconcile(SessionDeleteAccountFailed(user, _untypedException)));
+    } on Error {
+      _emit(
+        SessionDeleteAccountFailed(
+          user,
+          const UnexpectedFailure('erro na exclusão'),
+        ),
+      );
+      rethrow;
+    } finally {
+      _deleting = false;
+    }
+  }
+
   /// Sai mesmo com marcas sem sincronizar, depois da pergunta.
   void confirmSignOut() {
-    if (_disposed || _signingOut) return;
+    if (_disposed || _signingOut || _deleting) return;
     if (_state case SessionUnsyncedSignOut(:final user)) {
       _signingOut = true;
       _emit(SessionSigningOut(user));
@@ -137,23 +176,29 @@ class SessionNotifier extends ChangeNotifier {
   }
 
   // A conta pode ter entrado de verdade no nativo mesmo com o login do Dart
-  // cancelado ou com falha: nesse caso, vale o que a conta disse.
-  SessionState _reconcile(SessionState fallback) =>
-      switch (_arrivedDuringSignIn) {
-        SignedIn(:final user) => SessionSignedIn(user),
-        _ => fallback,
-      };
+  // cancelado ou com falha: nesse caso, vale o que a conta disse. Na
+  // exclusão cancelada ou com falha, a conta pode ter saído por fora.
+  SessionState _reconcile(SessionState fallback) => switch (_arrivedWhileBusy) {
+    SignedIn(:final user) => SessionSignedIn(user),
+    SignedOut() when _deleting => const SessionSignedOut(),
+    _ => fallback,
+  };
 
   // Durante o login, quem decide o estado é o resultado dele: um SignedOut que
   // chegue no meio não pode esconder o "entrando". O estado fica guardado para
   // o fim dele. Depois de uma falha, o SignedOut que vem em seguida não a
   // esconde: a pessoa precisa ver o erro e o "tentar de novo".
+  //
+  // Na exclusão, o `user.delete()` emite SignedOut antes de o repositório
+  // terminar, e o "excluindo" fica até o fim. Depois, um SignedOut repetido
+  // não apaga o aviso de conta excluída.
   void _onAuthState(AuthState authState) {
-    if (_signingIn) {
-      _arrivedDuringSignIn = authState;
+    if (_signingIn || _deleting) {
+      _arrivedWhileBusy = authState;
       return;
     }
     if (_state is SessionFailed && authState is SignedOut) return;
+    if (_state is SessionSignedOut && authState is SignedOut) return;
     _emit(switch (authState) {
       SignedOut() => const SessionSignedOut(),
       SignedIn(:final user) => SessionSignedIn(user),
@@ -162,7 +207,7 @@ class SessionNotifier extends ChangeNotifier {
 
   // Sem isso, um erro no stream deixaria a tela carregando para sempre.
   void _onAuthError(Object error) {
-    if (_signingIn) return;
+    if (_signingIn || _deleting) return;
     _emit(
       SessionSignInFailed(
         error is Failure

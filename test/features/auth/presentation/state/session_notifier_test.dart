@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ja_vi_esse_filme/core/error/failures.dart';
+import 'package:ja_vi_esse_filme/features/auth/domain/entities/account_deletion_outcome.dart';
 import 'package:ja_vi_esse_filme/features/auth/domain/entities/app_user.dart';
 import 'package:ja_vi_esse_filme/features/auth/domain/entities/auth_state.dart';
 import 'package:ja_vi_esse_filme/features/auth/domain/entities/sign_in_outcome.dart';
@@ -569,5 +570,208 @@ void main() {
     await disposed.signIn();
 
     expect(other.pendingSignIns, 0);
+  });
+
+  group('deleteAccount', () {
+    const offline = NetworkFailure();
+
+    Future<void> signInAs(AppUser user) async {
+      repository.emit(SignedIn(user));
+      await pumpEventQueue();
+    }
+
+    // Começa a exclusão e deixa a resposta do repositório pendente.
+    Future<void> startDeletion() async {
+      unawaited(notifier.deleteAccount());
+      await pumpEventQueue();
+    }
+
+    Future<void> answer(AccountDeletionOutcome outcome) async {
+      repository.completeDeletion(outcome);
+      await pumpEventQueue();
+    }
+
+    Future<void> fail(Object error) async {
+      repository.failDeletion(error);
+      await pumpEventQueue();
+    }
+
+    setUp(() => signInAs(ana));
+
+    test('deve mostrar a exclusão em andamento com o usuário', () async {
+      await startDeletion();
+
+      expect(
+        notifier.state,
+        isA<SessionDeletingAccount>().having((s) => s.user, 'user', ana),
+      );
+    });
+
+    test(
+      'deve terminar em SessionAccountDeleted quando a conta é excluída',
+      () async {
+        await startDeletion();
+
+        await answer(const AccountDeleted());
+
+        expect(notifier.state, isA<SessionAccountDeleted>());
+      },
+    );
+
+    test('deve voltar à conta quando a pessoa fecha o seletor', () async {
+      await startDeletion();
+
+      await answer(const AccountDeletionCancelled());
+
+      expect(
+        notifier.state,
+        isA<SessionSignedIn>().having((s) => s.user, 'user', ana),
+      );
+    });
+
+    test(
+      'deve mostrar a falha com o usuário, porque a conta continua',
+      () async {
+        await startDeletion();
+
+        await fail(offline);
+
+        expect(
+          notifier.state,
+          isA<SessionDeleteAccountFailed>()
+              .having((s) => s.user, 'user', ana)
+              .having((s) => s.failure, 'failure', offline),
+        );
+      },
+    );
+
+    test('deve tentar de novo a partir da falha', () async {
+      await startDeletion();
+      await fail(offline);
+
+      await startDeletion();
+
+      expect(repository.pendingDeletions, 1);
+    });
+
+    test('deve tratar a exceção fora das falhas tipadas como falha', () async {
+      await startDeletion();
+
+      await fail(const FormatException('inesperado'));
+
+      expect(
+        notifier.state,
+        isA<SessionDeleteAccountFailed>().having(
+          (s) => s.failure,
+          'failure',
+          isA<UnexpectedFailure>(),
+        ),
+      );
+    });
+
+    test('não deve excluir sem conta aberta', () async {
+      repository.emit(const SignedOut());
+      await pumpEventQueue();
+
+      await startDeletion();
+
+      expect(repository.pendingDeletions, 0);
+    });
+
+    test('não deve excluir duas vezes ao mesmo tempo', () async {
+      await startDeletion();
+
+      await startDeletion();
+
+      expect(repository.pendingDeletions, 1);
+    });
+
+    test('não deve sair da conta durante a exclusão', () async {
+      await startDeletion();
+
+      unawaited(notifier.signOut());
+      await pumpEventQueue();
+
+      expect(repository.syncCalls + repository.signOutCalls, 0);
+    });
+
+    test('não deve abrir o login durante a exclusão', () async {
+      await startDeletion();
+
+      unawaited(notifier.signIn());
+      await pumpEventQueue();
+
+      expect(repository.pendingSignIns, 0);
+    });
+
+    test('não deve excluir durante o logout', () async {
+      repository.syncGate = Completer<void>();
+      unawaited(notifier.signOut());
+      await pumpEventQueue();
+
+      await startDeletion();
+
+      expect(repository.pendingDeletions, 0);
+    });
+
+    // O `user.delete()` encerra a sessão no Firebase antes de o
+    // repositório terminar o `disconnect()` e a limpeza.
+    test('deve continuar excluindo quando o SignedOut chega no meio', () async {
+      await startDeletion();
+
+      repository.emit(const SignedOut());
+      await pumpEventQueue();
+
+      expect(notifier.state, isA<SessionDeletingAccount>());
+    });
+
+    test(
+      'deve manter o aviso da exclusão quando o SignedOut chega depois',
+      () async {
+        await startDeletion();
+        await answer(const AccountDeleted());
+
+        repository.emit(const SignedOut());
+        await pumpEventQueue();
+
+        expect(notifier.state, isA<SessionAccountDeleted>());
+      },
+    );
+
+    test(
+      'deve ficar deslogado quando a conta sai por fora e a pessoa cancela',
+      () async {
+        await startDeletion();
+        repository.emit(const SignedOut());
+        await pumpEventQueue();
+
+        await answer(const AccountDeletionCancelled());
+
+        expect(notifier.state, isA<SessionSignedOut>());
+      },
+    );
+
+    test(
+      'deve ficar deslogado quando a conta sai por fora e a exclusão falha',
+      () async {
+        await startDeletion();
+        repository.emit(const SignedOut());
+        await pumpEventQueue();
+
+        await fail(offline);
+
+        expect(notifier.state, isA<SessionSignedOut>());
+      },
+    );
+
+    test('deve deixar entrar de novo depois da exclusão', () async {
+      await startDeletion();
+      await answer(const AccountDeleted());
+
+      unawaited(notifier.signIn());
+      await pumpEventQueue();
+
+      expect(repository.pendingSignIns, 1);
+    });
   });
 }

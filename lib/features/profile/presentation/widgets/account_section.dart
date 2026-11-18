@@ -54,6 +54,16 @@ class AccountSection extends StatelessWidget {
           onCancel: context.read<SessionNotifier>().cancelSignOut,
         ),
       ),
+      SessionDeletingAccount(:final user) => SignedInPanel(
+        user: user,
+        action: const SignOutButton.loading(),
+      ),
+      SessionDeleteAccountFailed(:final user) => SignedInPanel(
+        user: user,
+        action: SignOutButton(
+          onPressed: () => unawaited(context.read<SessionNotifier>().signOut()),
+        ),
+      ),
       SessionSignOutFailed(:final failure) => SignOutFailedPanel(
         message: failureMessage(AppLocalizations.of(context), failure),
         onRetry: () => unawaited(context.read<SessionNotifier>().signOut()),
@@ -78,7 +88,9 @@ class AccountSection extends StatelessWidget {
     SessionSignInFailed() => 'signedOut',
     SessionSignedIn() ||
     SessionSigningOut() ||
-    SessionUnsyncedSignOut() => 'signedIn',
+    SessionUnsyncedSignOut() ||
+    SessionDeletingAccount() ||
+    SessionDeleteAccountFailed() => 'signedIn',
     SessionSignOutFailed() => 'signOutFailed',
   };
 }

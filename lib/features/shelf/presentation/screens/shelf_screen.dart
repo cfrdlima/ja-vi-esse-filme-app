@@ -36,8 +36,12 @@ class ShelfScreen extends StatelessWidget {
       // As abas nascem com a conta e morrem quando a saída começa, antes do
       // `closeStreams()`: nenhum stream nem renovação da Estante sobrevive à
       // limpeza do cache (decisão 010).
-      SessionLoading() || SessionSignedIn() => _ShelfTabs(title: title),
-      SessionSigningOut() || SessionUnsyncedSignOut() => Scaffold(
+      SessionLoading() ||
+      SessionSignedIn() ||
+      SessionDeleteAccountFailed() => _ShelfTabs(title: title),
+      SessionSigningOut() ||
+      SessionUnsyncedSignOut() ||
+      SessionDeletingAccount() => Scaffold(
         appBar: AppBar(title: title),
         body: PosterGridSkeleton(
           label: AppLocalizations.of(context).profileSigningOut,

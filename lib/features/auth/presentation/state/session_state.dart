@@ -11,8 +11,17 @@ final class SessionLoading extends SessionState {
   const SessionLoading();
 }
 
-final class SessionSignedOut extends SessionState {
+/// Sem conta. Não é `final` por causa do [SessionAccountDeleted], que é um
+/// deslogado com o aviso da exclusão: os `switch` das telas continuam
+/// tratando os dois como deslogados.
+class SessionSignedOut extends SessionState {
   const SessionSignedOut();
+}
+
+/// A conta acabou de ser excluída (decisão 015). O Perfil mostra o aviso
+/// até o próximo estado.
+final class SessionAccountDeleted extends SessionSignedOut {
+  const SessionAccountDeleted();
 }
 
 /// O seletor de contas do Google está aberto, ou a credencial está a caminho
@@ -41,6 +50,24 @@ final class SessionUnsyncedSignOut extends SessionState {
   const SessionUnsyncedSignOut(this.user);
 
   final AppUser user;
+}
+
+/// A reautenticação no seletor do Google e a exclusão estão em andamento
+/// (decisão 015). A conta continua aberta até o `user.delete()`.
+final class SessionDeletingAccount extends SessionState {
+  const SessionDeletingAccount(this.user);
+
+  final AppUser user;
+}
+
+/// A exclusão falhou antes do `user.delete()`: a conta continua aberta, e
+/// tentar de novo termina o que faltou. Fica fora do [SessionFailed], que
+/// trata a sessão como possivelmente fechada.
+final class SessionDeleteAccountFailed extends SessionState {
+  const SessionDeleteAccountFailed(this.user, this.failure);
+
+  final AppUser user;
+  final Failure failure;
 }
 
 /// O login ou o logout falhou, com a [failure] para a mensagem. A tela olha o
