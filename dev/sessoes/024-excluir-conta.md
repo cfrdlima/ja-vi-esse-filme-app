@@ -13,7 +13,7 @@ Excluir a conta pelo app, na ordem da decisão 010: login recente, os documentos
 - [x] Consultar a `ui-ux-pro-max` (stack Flutter) para a confirmação destrutiva no Perfil e gerar o override se precisar. **Feito:** seção "Excluir a conta" e dois estados no `pages/perfil.md`; nada na stack Flutter (fallback Material 3)
 
 ### Lista fixa (RED/GREEN/REFACTOR)
-- [ ] Lista fixa das subcoleções de `users/{uid}` (`movies`) num lugar só, usada pela exclusão e pelo gateway da Estante. **Mudou:** fica em `core/firestore`, e não no `domain`, porque nome de coleção é detalhe do Firestore; um teste das regras (Node) confere que ela bate com os `match` do `firestore.rules`
+- [x] Lista fixa das subcoleções de `users/{uid}` (`movies`) num lugar só, usada pela exclusão e pelo gateway da Estante. **Mudou:** fica em `core/firestore`, e não no `domain`, porque nome de coleção é detalhe do Firestore; um teste das regras (Node) confere que ela bate com os `match` do `firestore.rules`. **Feito:** `UserCollections`; mutação com a lista vazia faz o teste falhar; o `describe` que lê arquivo sai com 0 mesmo quebrado (ver "Notas")
 
 ### Data (RED/GREEN/REFACTOR)
 - [ ] Gateway da exclusão dos documentos: lê `users/{uid}/movies` do servidor e apaga em lotes até não sobrar nada, esperando a confirmação, com prazo
@@ -45,3 +45,4 @@ Excluir a conta pelo app, na ordem da decisão 010: login recente, os documentos
 ## Commits
 
 ## Notas
+- **`node --test` e erro no `describe`** (Node 22): uma exceção no corpo do `describe` (ex.: `readFileSync` de arquivo que não existe) aparece como `not ok` da suíte, mas não conta em `fail`, e o processo sai com 0. Leitura de arquivo vai dentro do `test`.

@@ -3,6 +3,10 @@ import { initializeTestEnvironment } from '@firebase/rules-unit-testing';
 import { serverTimestamp } from 'firebase/firestore';
 
 export const RULES_PATH = new URL('../../firestore.rules', import.meta.url);
+export const USER_COLLECTIONS_PATH = new URL(
+  '../../lib/core/firestore/user_collections.dart',
+  import.meta.url,
+);
 
 // O prefixo demo- impede o emulador de falar com o projeto real (decisão 012).
 export function createTestEnvironment() {
