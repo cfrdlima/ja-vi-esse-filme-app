@@ -578,4 +578,66 @@ void main() {
       expect(shelf.writes, isEmpty);
     });
   });
+
+  // O filme que a nota e o dia usam (decisão 018): o confirmado pela
+  // Estante, só enquanto a tela mostra o Assistido ligado.
+  group('filme assistido', () {
+    test('deve começar sem filme', () {
+      expect(notifier.watchedMovie.value, isNull);
+    });
+
+    test('deve dar o filme com o Assistido confirmado', () async {
+      final movie = movieWith({ShelfMark.watched});
+      await signInAs(ana);
+
+      await emitEntry(OnShelf(movie));
+
+      expect(notifier.watchedMovie.value, movie);
+    });
+
+    test('não deve dar o filme sem o Assistido', () async {
+      await signInAs(ana);
+
+      await emitEntry(OnShelf(movieWith({ShelfMark.favorite})));
+
+      expect(notifier.watchedMovie.value, isNull);
+    });
+
+    test('não deve dar o filme com o Assistido só otimista', () async {
+      await signInAs(ana);
+      await emitEntry(const NotOnShelf());
+
+      notifier.toggle(ShelfMark.watched);
+
+      expect(notifier.watchedMovie.value, isNull);
+    });
+
+    test('deve tirar o filme ao desligar o Assistido na tela', () async {
+      await signInAs(ana);
+      await emitEntry(OnShelf(movieWith({ShelfMark.watched})));
+
+      notifier.toggle(ShelfMark.watched);
+
+      expect(notifier.watchedMovie.value, isNull);
+    });
+
+    test('deve tirar o filme quando a conta sai', () async {
+      await signInAs(ana);
+      await emitEntry(OnShelf(movieWith({ShelfMark.watched})));
+
+      account.add(const SignedOut());
+      await pumpEventQueue();
+
+      expect(notifier.watchedMovie.value, isNull);
+    });
+
+    test('deve tirar o filme ao trocar de conta', () async {
+      await signInAs(ana);
+      await emitEntry(OnShelf(movieWith({ShelfMark.watched})));
+
+      await signInAs(bia);
+
+      expect(notifier.watchedMovie.value, isNull);
+    });
+  });
 }
