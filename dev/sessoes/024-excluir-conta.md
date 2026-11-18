@@ -16,7 +16,7 @@ Excluir a conta pelo app, na ordem da decisão 010: login recente, os documentos
 - [x] Lista fixa das subcoleções de `users/{uid}` (`movies`) num lugar só, usada pela exclusão e pelo gateway da Estante. **Mudou:** fica em `core/firestore`, e não no `domain`, porque nome de coleção é detalhe do Firestore; um teste das regras (Node) confere que ela bate com os `match` do `firestore.rules`. **Feito:** `UserCollections`; mutação com a lista vazia faz o teste falhar; o `describe` que lê arquivo sai com 0 mesmo quebrado (ver "Notas")
 
 ### Data (RED/GREEN/REFACTOR)
-- [ ] Gateway da exclusão dos documentos: lê `users/{uid}/movies` do servidor e apaga em lotes até não sobrar nada, esperando a confirmação, com prazo
+- [x] Gateway da exclusão dos documentos: lê `users/{uid}/movies` do servidor e apaga em lotes até não sobrar nada, esperando a confirmação, com prazo. **Feito:** `FirestoreAccountDocuments` (laço, lote de 500 e prazo, 11 testes com `fakeAsync`); as chamadas do SDK entram na composição
 - [ ] `FirebaseAuthGateway`: reautenticar com o `idToken` e `delete()`; `GoogleAccountGateway`: `disconnect()`
 - [ ] Repositório: login recente → documentos → `user.delete()` → `disconnect()` → limpeza local; sem login recente, `RecentLoginRequiredFailure` sem apagar nada
 - [ ] Repositório: falhas tipadas (seletor cancelado, sem rede ou prazo esgotado, `requires-recent-login`, erro do SDK sem `message`/`email`/`credential`); repetir depois de uma falha no meio termina a exclusão

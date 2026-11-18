@@ -8,6 +8,9 @@ abstract interface class AuthRepository {
   /// Quanto o [syncPendingChanges] espera o servidor (sessão 022).
   static const syncTimeout = Duration(seconds: 5);
 
+  /// Quanto cada passo do [deleteAccount] espera o servidor (decisão 015).
+  static const deleteStepTimeout = Duration(seconds: 15);
+
   /// Stream broadcast: aceita várias assinaturas, e cada uma recebe o estado
   /// atual ao assinar e de novo a cada login ou logout.
   Stream<AuthState> get authStateChanges;

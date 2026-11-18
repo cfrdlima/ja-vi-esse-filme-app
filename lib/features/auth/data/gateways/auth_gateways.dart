@@ -39,3 +39,13 @@ abstract interface class AccountCacheGateway {
   /// leitura: com a instância já em uso, falha.
   Future<void> clearUnused();
 }
+
+/// Os documentos da conta em `users/{uid}`, que a exclusão apaga (decisões
+/// 010 e 015). Repassa as exceções do SDK sem traduzir.
+abstract interface class AccountDocumentsGateway {
+  /// Apaga todos os documentos das subcoleções da lista fixa e só completa
+  /// quando o servidor confirma. Cada passo tem o prazo de
+  /// `AuthRepository.deleteStepTimeout`; passado o prazo, falha com
+  /// `TimeoutException`.
+  Future<void> deleteAll(String uid);
+}
