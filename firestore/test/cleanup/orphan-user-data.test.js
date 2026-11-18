@@ -1,7 +1,7 @@
 import { after, beforeEach, describe, test } from 'node:test';
 import assert from 'node:assert/strict';
 import { Timestamp } from 'firebase-admin/firestore';
-import { deleteOrphanUserData } from '../../cleanup/orphan-user-data.js';
+import { OrphanSafetyError, deleteOrphanUserData } from '../../cleanup/orphan-user-data.js';
 import { clearEmulators, createAccount, createAdmin, movieIds } from './admin-environment.js';
 
 // Dados que ficaram sem conta no Auth (decisões 015 e 017): outro aparelho
@@ -11,7 +11,12 @@ describe('dados sem conta no Auth', () => {
   const admin = createAdmin();
   const { auth, db } = admin;
 
-  beforeEach(clearEmulators);
+  // Uma conta que não tem dados, para o Auth nunca vir vazio, a não ser no
+  // teste da trava de Auth vazio.
+  beforeEach(async () => {
+    await clearEmulators();
+    await createAccount(auth, 'conta-sem-dados');
+  });
   after(() => admin.close());
 
   function addMovie(uid, movieId = '550') {
@@ -79,5 +84,75 @@ describe('dados sem conta no Auth', () => {
       { orphanUsers: report.orphanUsers, movies: await movieIds(db, 'sem-conta') },
       { orphanUsers: 1, movies: ['550'] },
     );
+  });
+
+  // Travas contra apagar em massa (`/revisar` da sessão 027): um Auth vazio
+  // ou parcial (emulador por engano, falha de API) faria todo mundo parecer
+  // sem conta.
+  test('deve recusar apagar quando o Auth não devolve nenhuma conta', async () => {
+    await addMovie('alice');
+    await auth.deleteUser('conta-sem-dados');
+
+    await assert.rejects(deleteOrphanUserData({ auth, db }), OrphanSafetyError);
+  });
+
+  test('não deve apagar nada quando o Auth não devolve nenhuma conta', async () => {
+    await addMovie('alice');
+    await auth.deleteUser('conta-sem-dados');
+
+    await deleteOrphanUserData({ auth, db }).catch(() => {});
+
+    assert.deepEqual(await movieIds(db, 'alice'), ['550']);
+  });
+
+  async function addManyOrphans() {
+    await createAccount(auth, 'alice');
+    await addMovie('alice');
+    for (let i = 1; i <= 6; i++) await addMovie(`sem-conta-${i}`);
+  }
+
+  test('deve pedir confirmação quando os sem conta passam do limite', async () => {
+    await addManyOrphans();
+
+    await assert.rejects(deleteOrphanUserData({ auth, db }), OrphanSafetyError);
+  });
+
+  test('deve apagar acima do limite com a confirmação igual à contagem', async () => {
+    await addManyOrphans();
+
+    const report = await deleteOrphanUserData({ auth, db, confirmOrphans: 6 });
+
+    assert.equal(report.orphanUsers, 6);
+  });
+
+  test('deve recusar a confirmação diferente da contagem', async () => {
+    await addManyOrphans();
+
+    await assert.rejects(deleteOrphanUserData({ auth, db, confirmOrphans: 5 }), OrphanSafetyError);
+  });
+
+  test('na simulação, deve avisar que a contagem pede confirmação', async () => {
+    await addManyOrphans();
+
+    const report = await deleteOrphanUserData({ auth, db, dryRun: true });
+
+    assert.equal(report.needsConfirmation, true);
+  });
+
+  test('não deve apagar os dados de quem ganhou conta durante a limpeza', async () => {
+    await createAccount(auth, 'alice');
+    await addMovie('novo');
+    // A conta nasce depois da listagem das contas e antes da exclusão.
+    const racingAuth = {
+      listUsers: (...args) => auth.listUsers(...args),
+      getUsers: async (identifiers) => {
+        await createAccount(auth, 'novo');
+        return auth.getUsers(identifiers);
+      },
+    };
+
+    await deleteOrphanUserData({ auth: racingAuth, db });
+
+    assert.deepEqual(await movieIds(db, 'novo'), ['550']);
   });
 });
