@@ -442,6 +442,20 @@ void main() {
         expect(delete.dy, greaterThan(about.dy));
       });
 
+      // O override pede o Excluir conta alinhado à esquerda, na mesma
+      // margem do bloco da conta.
+      testWidgets('deve alinhar Excluir conta com o Sair', (tester) async {
+        await pumpSignedIn(tester);
+
+        final signOut = tester.getTopLeft(
+          find.widgetWithText(OutlinedButton, l10n.profileSignOut),
+        );
+        final delete = tester.getTopLeft(
+          find.widgetWithText(TextButton, l10n.profileDeleteAccount),
+        );
+        expect(delete.dx, signOut.dx);
+      });
+
       testWidgets('deve abrir a confirmação ao tocar em Excluir conta', (
         tester,
       ) async {

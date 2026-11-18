@@ -48,9 +48,11 @@ class DeleteAccountSection extends StatelessWidget {
         Align(
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: AppSizes.readableWidth),
+            // Na largura de leitura toda, como o bloco da conta, para o
+            // botão ficar alinhado à esquerda com o "Sair".
             child: Padding(
               padding: EdgeInsets.symmetric(horizontal: spacing.md),
-              child: entry,
+              child: SizedBox(width: double.infinity, child: entry),
             ),
           ),
         ),
