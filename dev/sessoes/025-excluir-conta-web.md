@@ -13,7 +13,7 @@ Publicar no Pages (repositório `cfrdlima/ja-vi-esse-filme-suporte`, decisão 00
 
 ### Conteúdo
 - [x] Fonte da verdade da página em `docs/` (`docs/EXCLUSAO-DA-CONTA.md`): exclusão pelo app (passo a passo), pedido por e-mail (sai do endereço da conta Google, o que escrever), o que é apagado (marcas, cópias do TMDB, conta no Auth), o que fica (cache de outros aparelhos, backups do Google pelo prazo deles, o próprio e-mail do pedido), prazo e o que o dono do projeto vê no console
-- [x] Procedimento de atendimento do pedido (checklist interno em `dev/`, fora da cópia pública): conferir o remetente, achar o `uid`, apagar `users/{uid}/…` e a conta no Auth, responder e apagar o e-mail no prazo. **Feito:** `dev/ATENDIMENTO-EXCLUSAO.md`, com a conta desativada antes de apagar e a conferência depois de 1 h
+- [x] Procedimento de atendimento do pedido (checklist interno em `dev/`, fora da cópia pública): conferir o remetente, achar o `uid`, apagar `users/{uid}/…` e a conta no Auth, responder e apagar o e-mail no prazo. **Feito:** `dev/ATENDIMENTO-EXCLUSAO.md` (só local, fora do git desde a decisão 016), com a conta desativada antes de apagar e a conferência depois de 1 h
 
 ### Publicação (ação pública, só com o ok do usuário)
 - [x] Cópia limpa (sem comentários HTML nem "A REVISAR"), `gitleaks` no repositório público, commit com o e-mail noreply, push e conferência da URL (HTTP 200, `lang="pt-BR"`). **Feito:** ver "Notas"
@@ -24,7 +24,7 @@ Publicar no Pages (repositório `cfrdlima/ja-vi-esse-filme-suporte`, decisão 00
 - [x] `/revisar` (publica conteúdo)
 
 ### Achados aceitos do `/revisar` (o usuário mandou tratar todos, seguindo as recomendações)
-- [x] (B1) Repositório do app estava **público**: voltou a privado com o ok do usuário; emenda na 006 com a conferência da visibilidade antes de publicar. **Efeito:** o ruleset `checks` deixa de valer no plano Free (ver "Notas")
+- [x] (B1) Repositório do app estava **público**: voltou a privado com o ok do usuário, mas isso desligou o ruleset e travou o Actions por cobrança; o usuário voltou a deixá-lo público (decisão 016, procedimento fora do git)
 - [x] (B2) Dados sem conta depois de uma exclusão pelo app: passo 9 no procedimento (comparar `users` com o Authentication e apagar os sem conta); página diz "apagamos todos os dados que ficaram sem conta"
 - [x] (I1) Remetente: DMARC ou SPF/DKIM em PASS, resposta numa mensagem nova sem `Reply-To` e confirmação antes de apagar (passo 2 e página)
 - [x] (I2, I3) Ordem desativar → documentos → 1 h da desativação → excluir no Auth; e-mail exato, provedor `google.com`, `uid` conferido e só a linha desativada
@@ -37,7 +37,8 @@ Publicar no Pages (repositório `cfrdlima/ja-vi-esse-filme-suporte`, decisão 00
 - [x] `/fechar-sessao`. **Feito:** format (0 de 222 mudados), analyze limpo, 1397 verdes, `gitleaks` em container sem vazamento
 
 ## Decisões
-- Emenda na [006](../decisoes/006-politica-de-privacidade-publica.md): o repositório do app estava público e voltou a privado; visibilidade conferida antes de cada publicação.
+- Emenda na [006](../decisoes/006-politica-de-privacidade-publica.md): o repositório do app estava público.
+- [016](../decisoes/016-repositorio-do-app-publico.md): o repositório do app fica público, o procedimento de atendimento só local e o histórico sem reescrita.
 - Emenda na [015](../decisoes/015-exclusao-da-conta.md): endereço, prazo de 15 dias, guarda de 6 meses, caminho da página, sem link no app e a ordem do atendimento no console.
 
 ## Commits
@@ -59,3 +60,4 @@ Publicar no Pages (repositório `cfrdlima/ja-vi-esse-filme-suporte`, decisão 00
 - **Repositório público (B1):** `gh api` mostrava `visibility: public`, sem fork, sem estrelas, sem Pages; a página respondia 200 sem login. Depois do `gh repo edit --visibility private`, 404 sem login. O ruleset `checks` (enforcement `active`) passou a responder 403 "Upgrade to GitHub Pro or make this repository public to enable this feature.": o CI continua rodando nos PRs, mas o merge sem os checks não é mais bloqueado.
 - A política 1.0 publicada não mudou: ela descreve o app sem login, e a 2.0 aponta para a página nova.
 - **Pendências:** (S7) conferir no console se o Firestore tem backup agendado, PITR ou export; o `firebase` CLI da máquina está logado em outra conta. Ruleset `checks` sem efeito no repositório privado (Free): conferir os checks à mão antes do merge ou assinar o Pro (`BACKLOG.md`). Antes da loja: URL da página no formulário de Segurança dos dados e nome do desenvolvedor no Play Console igual ao da página.
+- **Depois do fechamento (integração):** o CI do PR #21 falhou ao iniciar: primeiro `startup_failure` com o repositório privado, depois "The job was not started because your account is locked due to a billing issue." A conta tinha orçamentos de US$ 0 com "Usage blocked" (inclusive Actions); sem pagamento falhado e com o cartão válido. O usuário deixou o repositório público e apagou o orçamento de Actions, e a trava continuou. Decisão 016: repositório público, procedimento de atendimento só local (`.gitignore`), histórico sem reescrita.

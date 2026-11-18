@@ -61,3 +61,6 @@ __pycache__/
 node_modules/
 firestore-debug.log
 firebase-debug.log
+
+# Procedimento interno de atendimento: só local (decisão 016)
+dev/ATENDIMENTO-EXCLUSAO.md
