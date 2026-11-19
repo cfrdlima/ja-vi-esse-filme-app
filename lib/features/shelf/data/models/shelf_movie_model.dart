@@ -7,8 +7,8 @@ import '../../domain/entities/shelf_page.dart';
 import '../../domain/entities/watched_on.dart';
 import '../gateways/shelf_gateway.dart';
 
-/// Converte o documento `users/{uid}/movies/{movieId}` (decisões 013 e
-/// 018), já com as datas em `DateTime`, na entidade do domínio.
+/// Converte o documento `users/{uid}/movies/{movieId}` (decisões 013, 018
+/// e 019), já com as datas em `DateTime`, na entidade do domínio.
 abstract final class ShelfMovieModel {
   /// O campo de data de cada marca, com o nome usado no `firestore.rules`.
   static String fieldOf(ShelfMark mark) => switch (mark) {
@@ -22,17 +22,23 @@ abstract final class ShelfMovieModel {
 
   static const _rating = 'rating';
   static const _watchedOn = 'watchedOn';
+  static const _lists = 'lists';
+
+  // Igual à `isListId` do `firestore.rules`: o id automático do Firestore.
+  static final _listId = RegExp(r'^[A-Za-z0-9]{20}$');
 
   /// Parse defensivo: uma marca que não é data é ignorada, e o documento sem
-  /// nenhuma marca é [NotOnShelf]. A nota ou o dia ilegível, ou sem a marca
-  /// Assistido, é ignorado. Lança [FormatException] sem `title` legível,
-  /// porque sem ele o filme não aparece na Estante.
+  /// nenhuma marca nem lista é [NotOnShelf]. A nota ou o dia ilegível, ou
+  /// sem a marca Assistido, é ignorado, e também a lista com a chave fora do
+  /// formato ou o valor que não é data. Lança [FormatException] sem `title`
+  /// legível, porque sem ele o filme não aparece na Estante.
   static ShelfEntry fromDocument(int movieId, Map<String, Object?> data) {
     final marks = {
       for (final mark in ShelfMark.values)
         if (data[fieldOf(mark)] case final DateTime at) mark: at,
     };
-    if (marks.isEmpty) return const NotOnShelf();
+    final lists = _listsOf(data[_lists]);
+    if (marks.isEmpty && lists.isEmpty) return const NotOnShelf();
     final watched = marks.containsKey(ShelfMark.watched);
     return OnShelf(
       ShelfMovie(
@@ -44,8 +50,55 @@ abstract final class ShelfMovieModel {
         marks: marks,
         rating: watched ? _ratingOf(data[_rating]) : null,
         watchedOn: watched ? _watchedOnOf(data[_watchedOn]) : null,
+        lists: lists,
       ),
     );
+  }
+
+  static Map<String, DateTime> _listsOf(Object? value) => switch (value) {
+    final Map<String, Object?> lists => {
+      for (final MapEntry(:key, :value) in lists.entries)
+        if (_listId.hasMatch(key) && value is DateTime) key: value,
+    },
+    _ => const {},
+  };
+
+  /// O campo que ordena os filmes da lista [listId], o mais recente
+  /// primeiro. Lança [ArgumentError] com o id fora do formato: ele vira
+  /// caminho de campo, e um ponto apontaria para outro campo.
+  static String listOrderField(String listId) =>
+      '$_lists.${_checkedListId(listId)}';
+
+  static String _checkedListId(String listId) {
+    if (!_listId.hasMatch(listId)) {
+      throw ArgumentError.value(listId, 'listId', 'fora do formato do id');
+    }
+    return listId;
+  }
+
+  /// Escrita com `merge` que põe o filme na lista [listId] com a hora do
+  /// servidor e regrava a [copy], como o [markFields]. O `merge` mantém as
+  /// outras listas.
+  static Map<String, FieldWrite> addToListFields(
+    MovieCopy copy,
+    String listId,
+  ) => {
+    _lists: MapFields({_checkedListId(listId): const ServerTime()}),
+    ...copyFields(copy),
+  };
+
+  /// Atualização que tira o [movie] da lista [listId] quando ele continua no
+  /// documento ([ShelfMovie.staysWithoutList]). Com a última lista, sai o
+  /// mapa inteiro, porque as regras recusam o mapa vazio.
+  static Map<String, FieldWrite> removeFromListFields(
+    ShelfMovie movie,
+    String listId,
+  ) {
+    final field = listOrderField(listId);
+    if (movie.listIds.every((id) => id == listId)) {
+      return {_lists: const DeleteField()};
+    }
+    return {field: const DeleteField()};
   }
 
   static Rating? _ratingOf(Object? value) => switch (value) {
