@@ -42,6 +42,20 @@ Permitir que o usuário logado crie, renomeie e apague listas próprias e adicio
 - [x] Confirmação antes de apagar uma lista com filmes. **Mudou:** sempre pergunta, porque saber se a lista tem filmes custaria uma leitura
 - [x] Strings no ARB, `Semantics`, alvo ≥ 48dp e fonte grande sem overflow
 
+### Achados do /revisar (aceitos)
+- [ ] I1: tirar o filme da lista com `permission-denied` relê o filme do servidor e refaz a escrita, sem apagar marcas, nota e dia
+- [ ] I2: chave de lista órfã: o "Nova lista" recusado tira o filme da lista nova, a limpeza mensal tira as chaves sem lista e apaga o filme que fica sem motivo, e a política e a 019 contam o caso
+- [ ] I3: "Nova lista" com a folha fechada no meio ainda põe o filme e trata a recusa
+- [ ] I4: o "tentar de novo" da folha só aparece para a caixa recusada, e nunca no teto
+- [ ] I5: o "Desfazer" aparece na hora, sem esperar o servidor
+- [ ] I6: o desfazer com a cópia vencida busca uma cópia nova no TMDB antes de pôr de volta
+- [ ] I7: apagar pela tela da lista mostra andamento e ignora o toque repetido
+- [ ] I9: testes das regras com a escrita exata do `addToListFields` (merge), o mapa vazio recusado, update/delete de outro `uid`, escrita sem login e nomes com C1 e DEL
+- [ ] S1: `closeUserDataStreams` fecha as listas mesmo se a Estante falhar
+- [ ] S2: a tela da lista esquece a lista no logout
+- [ ] S3: texto próprio da tela da lista no logout
+- [ ] S8: política (tabela da cópia local, emojis que contam 2) e página de exclusão ("marca ou lista")
+
 ### Fechamento
 - [x] Política 2.0 (`docs/PRIVACIDADE.md`), página de exclusão (`docs/EXCLUSAO-DA-CONTA.md`) e diálogo da exclusão da conta citando as listas
 - [x] Rotas novas no `go_router` e montagem no `main.dart`. **Feito:** `/estante/listas/:listId` com os Detalhes empilhados; o logout fecha os streams da Estante e das listas (`closeUserDataStreams`)
