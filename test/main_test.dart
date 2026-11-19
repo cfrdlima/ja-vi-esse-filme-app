@@ -216,6 +216,28 @@ void main() {
       expect(shelfRepository.closeStreamsCalls, 1);
     });
 
+    test('deve fechar as listas mesmo se a Estante falhar', () async {
+      final failing = _FailingShelfRepository();
+      addTearDown(failing.close);
+
+      await closeUserDataStreams(
+        failing,
+        movieListsRepository,
+      ).catchError((Object _) {});
+
+      expect(movieListsRepository.closeStreamsCalls, 1);
+    });
+
+    test('deve repassar a falha da Estante', () async {
+      final failing = _FailingShelfRepository();
+      addTearDown(failing.close);
+
+      await expectLater(
+        closeUserDataStreams(failing, movieListsRepository),
+        throwsStateError,
+      );
+    });
+
     test('deve fechar os streams das listas', () async {
       await closeUserDataStreams(shelfRepository, movieListsRepository);
 
@@ -245,4 +267,9 @@ void main() {
       expect(repository, same(connected));
     });
   });
+}
+
+class _FailingShelfRepository extends FakeShelfRepository {
+  @override
+  Future<void> closeStreams() async => throw StateError('falha ao fechar');
 }
