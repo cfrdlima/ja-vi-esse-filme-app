@@ -126,13 +126,14 @@ class FirestoreShelfRepository implements ShelfRepository {
   @override
   Future<void> removeMark(ShelfMovie movie, ShelfMark mark) => _write((uid) {
     final movieId = movie.copy.movieId;
-    if (movie.marksWithout(mark).isEmpty) return _delete(uid, movieId);
+    if (!movie.staysWithoutMark(mark)) return _delete(uid, movieId);
     return _unmark(uid, movieId, mark);
   });
 
   /// O [movie] do aparelho pode estar velho (decisão 013, corrida aceita).
-  /// Se no servidor a [mark] já era a única, as regras negam o documento sem
-  /// marcas, e o delete termina o que o desmarcar queria.
+  /// Se no servidor a [mark] já era o único motivo do documento (sem outra
+  /// marca nem lista, decisão 019), as regras o negam, e o delete termina o
+  /// que o desmarcar queria.
   Future<void> _unmark(String uid, int movieId, ShelfMark mark) async {
     try {
       await _gateway.updateMovie(
