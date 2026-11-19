@@ -89,6 +89,33 @@ describe('users/{uid}/lists/{listId}', () => {
     await assertFails(setDoc(listRef(db), { name: 'Terror' }));
   });
 
+  test('deve negar renomear a lista de outro usuário', async () => {
+    await seedList();
+    const db = googleContext(testEnv, OTHER_UID).firestore();
+
+    await assertFails(updateDoc(listRef(db), { name: 'Suspense' }));
+  });
+
+  test('deve negar apagar a lista de outro usuário', async () => {
+    await seedList();
+    const db = googleContext(testEnv, OTHER_UID).firestore();
+
+    await assertFails(deleteDoc(listRef(db)));
+  });
+
+  test('deve negar a criação sem login', async () => {
+    const db = testEnv.unauthenticatedContext().firestore();
+
+    await assertFails(setDoc(listRef(db), { name: 'Terror' }));
+  });
+
+  test('deve negar apagar sem login', async () => {
+    await seedList();
+    const db = testEnv.unauthenticatedContext().firestore();
+
+    await assertFails(deleteDoc(listRef(db)));
+  });
+
   test('deve negar a leitura sem login', async () => {
     await seedList();
     const db = testEnv.unauthenticatedContext().firestore();
@@ -128,7 +155,7 @@ describe('users/{uid}/lists/{listId}', () => {
     });
   }
 
-  for (const name of ['', '   ', 'a'.repeat(51), '😀'.repeat(26), 'Ter\nror', 'Ter\tror', 'Ter\u0000ror', 7, null]) {
+  for (const name of ['', '   ', 'a'.repeat(51), '😀'.repeat(26), 'Ter\nror', 'Ter\tror', 'Ter\u0000ror', 'Ter\u007Fror', 'Ter\u0085ror', 'Ter\u009Fror', 7, null]) {
     test(`deve negar o nome ${JSON.stringify(name)}`, async () => {
       await assertFails(setDoc(listRef(ownerDb()), { name }));
     });

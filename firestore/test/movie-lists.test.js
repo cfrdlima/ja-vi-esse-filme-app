@@ -1,3 +1,4 @@
+import assert from 'node:assert/strict';
 import { after, before, beforeEach, describe, test } from 'node:test';
 import { assertFails, assertSucceeds } from '@firebase/rules-unit-testing';
 import {
@@ -5,6 +6,7 @@ import {
   deleteDoc,
   deleteField,
   doc,
+  getDoc,
   serverTimestamp,
   setDoc,
   updateDoc,
@@ -199,6 +201,58 @@ describe('mapa lists no documento do filme', () => {
     await seed({ ...seededCopy(), lists });
 
     await assertFails(updateDoc(movieRef(), { [`lists.${listIdAt(50)}`]: serverTimestamp() }));
+  });
+
+  // A escrita exata do addToListFields do app: set com merge, com a cópia
+  // do TMDB renovada (`/revisar` da sessão 029).
+  function addToListWrite(listId) {
+    return {
+      lists: { [listId]: serverTimestamp() },
+      title: 'Clube da Luta',
+      posterPath: deleteField(),
+      cachedAt: serverTimestamp(),
+    };
+  }
+
+  test('deve aceitar a escrita do app num filme novo', async () => {
+    await assertSucceeds(setDoc(movieRef(), addToListWrite(LIST_ID), { merge: true }));
+  });
+
+  test('deve aceitar a escrita do app num filme marcado e em outra lista', async () => {
+    await seed({ ...seededCopy(), watchedAt: ADDED, rating: 8, lists: { [LIST_ID]: ADDED } });
+
+    await assertSucceeds(
+      setDoc(movieRef(), addToListWrite(OTHER_LIST_ID), { merge: true }),
+    );
+  });
+
+  test('deve manter a marca, a nota e a outra lista na escrita do app', async () => {
+    await seed({ ...seededCopy(), watchedAt: ADDED, rating: 8, lists: { [LIST_ID]: ADDED } });
+
+    await setDoc(movieRef(), addToListWrite(OTHER_LIST_ID), { merge: true });
+
+    let stored;
+    await testEnv.withSecurityRulesDisabled(async (context) => {
+      stored = (await getDoc(movieRef(context.firestore()))).data();
+    });
+    assert.deepEqual(
+      { watchedAt: stored.watchedAt, rating: stored.rating, kept: stored.lists[LIST_ID] },
+      { watchedAt: ADDED, rating: 8, kept: ADDED },
+    );
+  });
+
+  // O aparelho via outra lista que no servidor já tinha saído: o mapa
+  // ficaria vazio, e as regras recusam (o app relê e refaz a escrita).
+  test('deve negar tirar a única chave deixando o mapa vazio', async () => {
+    await seed({ ...seededCopy(), watchedAt: ADDED, lists: { [LIST_ID]: ADDED } });
+
+    await assertFails(updateDoc(movieRef(), { [`lists.${LIST_ID}`]: deleteField() }));
+  });
+
+  test('deve negar tirar o mapa com duas listas', async () => {
+    await seed({ ...seededCopy(), watchedAt: ADDED, lists: { [LIST_ID]: ADDED, [OTHER_LIST_ID]: ADDED } });
+
+    await assertFails(updateDoc(movieRef(), { lists: deleteField() }));
   });
 
   test('deve negar a escrita que mantém uma chave inválida já salva', async () => {
