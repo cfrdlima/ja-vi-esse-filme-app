@@ -102,11 +102,11 @@
 ### Adicionar à lista (sessão 029, decisão 019)
 > Consulta à `ui-ux-pro-max` na sessão 029: ver a seção "Aba Listas" do `estante.md`. A folha com caixas de seleção é padrão geral (fallback).
 
-- **Onde:** um `OutlinedButton.icon` logo abaixo dos chips das marcas (e do bloco da nota, se ele aparecer): `playlist_add` com "Adicionar à lista" quando o filme não está em nenhuma, e `playlist_add_check` com "Em 2 listas" quando está. Alvo de 48dp.
+- **Onde:** um `OutlinedButton.icon` logo abaixo dos chips das marcas (e do bloco da nota, se ele aparecer): `playlist_add` com "Adicionar à lista" quando o filme não está em nenhuma, e `playlist_add_check` com "Nas suas listas" quando está. Sem a contagem: o filme pode guardar a chave de uma lista apagada em outro aparelho, que contaria a mais. Alvo de 48dp.
 - **Sem conta:** o toque abre a folha de login, como as marcas. Depois de entrar, abre a folha das listas.
-- **Folha:** `showModalBottomSheet` com o mesmo visual da folha de login. Título "Adicionar à lista" em `titleLarge` e um `CheckboxListTile` por lista, em ordem alfabética, com o nome numa linha. A folha cresce com a lista (`isScrollControlled`, até 90% da altura), e o "Nova lista" fica no fim.
+- **Folha:** `showModalBottomSheet` com o mesmo visual da folha de login. Título "Adicionar à lista" em `titleLarge`, com o `CloseButton` ao lado, e um `CheckboxListTile` por lista, em ordem alfabética, com o nome numa linha. A folha fica na altura padrão do Material e rola por dentro, e o "Nova lista" fica no fim.
   - **Marcar e desmarcar são otimistas:** a caixa muda na hora. Se o servidor recusar, a caixa volta, e a mensagem da falha aparece abaixo da lista com o `RetryButton.text`, como região viva.
-  - **Lista cheia (200 filmes):** se o filme não está nela, a caixa fica desabilitada e o subtítulo diz "Lista cheia". Como o app sabe quantos filmes a lista tem fica para o ciclo do domínio.
+  - **Lista cheia (200 filmes):** o app só conta os filmes da lista no toque (contar todas ao abrir custaria uma leitura por lista). A caixa marca, volta, e a mensagem "Esta lista chegou ao limite de 200 filmes." aparece abaixo das caixas.
   - **Nova lista:** um `ListTile` com o ícone `add` abre o diálogo do nome do `estante.md`. Criar a lista também põe o filme nela, e a caixa nova já aparece marcada.
   - **Sem listas:** "Você ainda não tem listas." no lugar das caixas, com o "Nova lista" logo abaixo.
   - **Carregando:** um skeleton de três linhas. **Erro:** a mensagem e "Tentar de novo".

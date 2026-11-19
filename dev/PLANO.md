@@ -73,7 +73,7 @@ Nota de 0,5 a 5 estrelas e dia em que assistiu no documento do filme, só com o 
 
 ## Fase 3 — "Já vi esse filme"
 - [x] Nota pessoal e data em que assistiu, no documento do filme (sessão 028, decisão 018: `rating` de 1 a 10 em meias estrelas e `watchedOn` escolhido pelo usuário, só com o Assistido)
-- [ ] Listas personalizadas (criar, renomear, apagar, adicionar e remover filme), com o nome validado e o tamanho máximo no domínio, e as regras do Firestore cobrindo as listas. A exclusão da conta passa a apagar os `items` de cada lista antes da lista (exclusão aninhada: o `FirestoreAccountDocuments` hoje só apaga `users/{uid}/<coleção>`), e o teste `rules-file.test.js` aceita o `match` aninhado das listas (decisão 015, `/revisar` da sessão 024)
+- [ ] Listas personalizadas (criar, renomear, apagar, adicionar e remover filme), com o nome validado e o tamanho máximo no domínio, e as regras do Firestore cobrindo as listas. **Decisão 019 (sessão 029):** o vínculo é o mapa `lists` no documento do filme, e as listas ficam em `users/{uid}/lists/{listId}` só com o nome; não há `items` nem exclusão aninhada, e a exclusão da conta só ganha a coleção `lists`
 
 ## Fase 4 — Polimento e release
 - [ ] Acessibilidade e fonte grande
