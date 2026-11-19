@@ -17,13 +17,16 @@ import 'package:ja_vi_esse_filme/features/movies/presentation/screens/movie_deta
 import 'package:ja_vi_esse_filme/features/movies/presentation/screens/search_screen.dart';
 import 'package:ja_vi_esse_filme/features/movies/presentation/state/search_notifier.dart';
 import 'package:ja_vi_esse_filme/features/movies/presentation/widgets/movie_poster.dart';
+import 'package:ja_vi_esse_filme/features/shelf/domain/repositories/movie_lists_repository.dart';
 import 'package:ja_vi_esse_filme/features/shelf/domain/repositories/shelf_repository.dart';
+import 'package:ja_vi_esse_filme/features/shelf/presentation/screens/movie_list_screen.dart';
 import 'package:ja_vi_esse_filme/features/shelf/presentation/screens/shelf_screen.dart';
 import 'package:ja_vi_esse_filme/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
 import '../../helpers/back_navigation.dart';
 import '../../helpers/fake_auth_repository.dart';
+import '../../helpers/fake_movie_lists_repository.dart';
 import '../../helpers/fake_shelf_repository.dart';
 import '../../helpers/stub_movie_repository.dart';
 import '../../helpers/test_app.dart';
@@ -49,6 +52,7 @@ Future<GoRouter> pumpAppRouter(
     MultiProvider(
       providers: [
         Provider<ShelfRepository>.value(value: shelf),
+        Provider<MovieListsRepository>.value(value: FakeMovieListsRepository()),
         Provider<AuthRepository>.value(value: account),
         ChangeNotifierProvider(
           create: (_) => SessionNotifier(repository: account),
@@ -208,6 +212,29 @@ void main() {
       final router = await pumpAppRouter(tester);
 
       router.go(AppRoutes.movieDetails(AppRoutes.shelf, 550));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(MovieDetailsScreen), findsOneWidget);
+    });
+
+    testWidgets('deve abrir uma lista dentro da aba Estante', (tester) async {
+      final router = await pumpAppRouter(tester);
+
+      router.go(AppRoutes.shelfList('Lst0aBcDeFgHiJkLmNoP'));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(MovieListScreen), findsOneWidget);
+    });
+
+    testWidgets('deve abrir os Detalhes dentro de uma lista', (tester) async {
+      final router = await pumpAppRouter(tester);
+
+      router.go(
+        AppRoutes.movieDetails(
+          AppRoutes.shelfList('Lst0aBcDeFgHiJkLmNoP'),
+          550,
+        ),
+      );
       await tester.pumpAndSettle();
 
       expect(find.byType(MovieDetailsScreen), findsOneWidget);
