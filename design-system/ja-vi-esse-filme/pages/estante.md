@@ -9,7 +9,7 @@
 > A stack Flutter não trouxe nada para `TabBar` nem abas (duas buscas: "TabBar tabs" e "tab"). A estrutura das abas abaixo é padrão geral (fallback).
 
 ## Estrutura
-- `Scaffold` com `AppBar` "Minha estante" e um `TabBar` no `bottom` com **Assistidos**, **Quero assistir** e **Favoritos**, nessa ordem, a mesma da fileira de marcas dos Detalhes. Começa em Assistidos.
+- `Scaffold` com `AppBar` "Minha estante" e um `TabBar` no `bottom` com **Assistidos**, **Quero assistir**, **Favoritos** e **Listas**, nessa ordem: as três primeiras seguem a fileira de marcas dos Detalhes, e Listas fica por último (decisão 019). Começa em Assistidos.
 - `TabBarView` com uma grade por aba. Cada aba carrega na primeira vez que é aberta e depois fica viva: voltar a ela mostra os filmes e a rolagem em que estava.
 - Com fonte grande (escala acima de 1), o `TabBar` fica rolável (`isScrollable`), para o rótulo não ser cortado.
 - Sem conta, não há `TabBar`, só o convite (ver "Sem conta").
@@ -43,3 +43,21 @@
 ## Saindo da conta
 - Quando a saída começa (inclusive na pergunta das marcas sem sincronizar), as abas saem de cena, com os streams e a renovação: no lugar, o skeleton com "Saindo". Se a pessoa ficar na conta, as abas voltam e assinam de novo.
 - Se a saída falhar, a Estante não volta às abas, que reabririam o Firestore no cache que ficou: aviso "Não deu para sair da conta. Tente de novo no Perfil." com o botão "Ir para o Perfil".
+
+## Aba Listas (sessão 029, decisão 019)
+> Consulta à `ui-ux-pro-max` (stack Flutter) na sessão 029: `ux` "Confirmation Dialogs" (confirmar antes de apagar), "Confirmation Messages" (aviso curto do sucesso), "Empty States" (mensagem e ação), "Input Labels" (rótulo visível, não só o placeholder), "Gesture Conflicts" (nada de deslizar para o lado no conteúdo, que briga com as abas) e stack Flutter "Use ListView.builder" e "Use keys for stateful items". As buscas por folha com caixas de seleção ("bottom sheet checkbox list", "modal sheet") e por limite de caracteres não trouxeram regra específica; a folha e o contador abaixo são padrão geral (fallback).
+
+- **Lista das listas:** `ListView.builder` de `ListTile` com `ValueKey` do id, o ícone `list` e o nome em uma linha, com reticências e o nome inteiro no `Semantics`. Ordem alfabética, sem diferenciar maiúsculas e acentos. Sem contagem de filmes (pediria uma leitura por lista).
+  - Toque abre a tela da lista, empilhada na aba Estante.
+  - `IconButton` `more_vert` à direita (alvo de 48dp, tooltip "Opções da lista <nome>") abre o menu com **Renomear** e **Apagar**. Sem deslizar para apagar.
+- **Nova lista:** `FilledButton.tonal.icon` (`add`) "Nova lista" no topo da aba, acima das listas. Com 50 listas, o botão fica desabilitado e o texto "Você chegou ao limite de 50 listas." aparece abaixo dele.
+- **Diálogo do nome** (criar e renomear): `AlertDialog` com o título "Nova lista" ou "Renomear lista", um `TextField` com o rótulo visível "Nome da lista", `autofocus`, a primeira letra maiúscula e o contador do `maxLength` (50) à vista. O erro aparece embaixo do campo ("Dê um nome à lista."), e não no topo. O botão "Criar" ou "Salvar" fica desabilitado com o nome inválido, e o Enter do teclado confirma. "Cancelar" fecha sem gravar.
+- **Criar e renomear são otimistas**, como as marcas: a lista aparece ou muda na hora. Se o servidor recusar, a mudança volta, e um `SnackBar` mostra a falha com "Tentar de novo".
+- **Apagar:** sempre com `AlertDialog` "Apagar a lista <nome>?", o texto "Os filmes saem desta lista, mas continuam nas suas marcas e nas outras listas." e as ações "Cancelar" e "Apagar" (cor `error`). Apagar **não** é otimista, porque precisa do servidor (decisão 019): a linha fica desabilitada, com um indicador pequeno no lugar do menu. Sucesso: a linha some, e o `SnackBar` diz "Lista apagada.". Falha (sem rede): a linha volta, e o `SnackBar` mostra a falha com "Tentar de novo".
+- **Estados:** carregando com o skeleton de linhas; vazio com "Nenhuma lista ainda." e o botão "Criar lista", que abre o diálogo; erro com a mensagem e "Tentar de novo"; sucesso com a lista.
+
+## Tela da lista
+- `AppBar` com o nome da lista (uma linha, reticências) e o mesmo menu `more_vert` com Renomear e Apagar. Depois de apagar, a tela volta para a aba Listas.
+- **Grade** igual à das abas: os mais recentes primeiro (`lists.<id>` descendente), o mesmo limite crescente com teto de 200, a mesma cópia vencida com placeholder e renovação, e o Hero só na tela visível.
+- **Tirar o filme:** um toque longo na célula abre uma folha com o título do filme e a ação "Tirar da lista". O leitor de tela recebe a mesma ação como ação própria da célula ("Tirar da lista"). Depois de tirar, o `SnackBar` diz "Filme tirado da lista." com "Desfazer". Desfazer põe o filme de volta, mas no topo, porque a hora em que entrou é a do servidor (decisão 019).
+- **Estados:** carregando com o skeleton da grade; vazio com "Nenhum filme nesta lista." e "Descobrir filmes"; erro com "Tentar de novo"; sucesso com a grade. Se a lista for apagada em outro aparelho com a tela aberta: "Esta lista foi apagada." e o botão "Voltar para as listas".

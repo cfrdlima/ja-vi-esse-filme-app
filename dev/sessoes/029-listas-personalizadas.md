@@ -8,7 +8,7 @@ Permitir que o usuário logado crie, renomeie e apague listas próprias e adicio
 ## Checklist
 ### Preparação
 - [x] Decisão (`/decisao`): modelo das listas, campos, tetos, ordem e onde a UI mora. **Feito:** decisão 019, com o mapa `lists` no documento do filme no lugar da subcoleção `items`, nome de 1 a 50, tetos de 50 listas e 200 filmes, e a 4ª aba da Estante
-- [ ] Consultar a `ui-ux-pro-max` (stack Flutter) para a tela das listas, a da lista e a folha "Adicionar à lista" nos Detalhes; override em `pages/` se precisar
+- [x] Consultar a `ui-ux-pro-max` (stack Flutter) para a tela das listas, a da lista e a folha "Adicionar à lista" nos Detalhes; override em `pages/` se precisar. **Feito:** seções "Aba Listas" e "Tela da lista" no `estante.md` e "Adicionar à lista" no `detalhes.md`; para a folha com caixas de seleção e o contador de caracteres, a busca não achou regra (fallback). Ponto aberto: como saber que a lista está cheia (200) para desabilitar a caixa
 - [ ] Conferir a limpeza mensal (`firestore/cleanup`): filme só em lista (sem marca) é renovado e, se sumiu do TMDB, apagado; órfãos com `lists`
 
 ### Regras do Firestore (RED/GREEN/REFACTOR, no emulador)
