@@ -28,24 +28,24 @@ Permitir que o usuário logado crie, renomeie e apague listas próprias e adicio
 - [x] Gateway fino sobre o `cloud_firestore` e repositório, com o `UserDataWriteLock` da exclusão. **Feito:** `MovieListsGateway` e `FirestoreMovieListsRepository` (escritas no filme pelo `ShelfGateway`), `UnavailableMovieListsRepository`, e a tradução de erro e os streams abertos num `firestore_support.dart` comum; as contagens usam o `count()` do servidor e caem no cache do aparelho sem rede ou depois de 5 s
 - [x] Adicionar grava a cópia do TMDB e a chave; tirar da última lista sem marca apaga o documento; `removeMark` da última marca com `lists` vira `update`
 - [x] Apagar a lista tira a chave dos filmes (do servidor, lotes de 500, 15 s por passo) e só depois apaga a lista
-- [ ] Aba da lista renova a cópia vencida pelo `ExpiredCopyRenewer`
+- [x] Aba da lista renova a cópia vencida pelo `ExpiredCopyRenewer`. **Feito:** o `ShelfTabNotifier` recebe a fonte da página (refactor) e serve à tela da lista com o mesmo renovador
 
 ### Exclusão da conta (RED/GREEN/REFACTOR)
 - [x] `UserCollections.all` com `lists` (o comentário da exclusão aninhada sai) e teste de que a exclusão apaga as listas
 - [x] Limpeza mensal: teste no emulador do filme só em lista. **Feito:** renovação e 404 do filme só numa lista, e órfão só com listas; passaram de primeira (a limpeza não olha as marcas, e os órfãos saem pelo `recursiveDelete`)
 
 ### Estado e UI (RED/GREEN/REFACTOR, widget tests)
-- [ ] Notifier das listas (4 estados, criar/renomear/apagar otimistas com erro e "tentar de novo")
-- [ ] Tela das listas: vazio com chamada para criar, erro, skeleton, sucesso; diálogo de nome com o limite visível
-- [ ] 4ª aba da Estante "Listas" e tela da lista: filmes com limite crescente, tirar filme, os 4 estados
-- [ ] Detalhes: "Adicionar à lista" com as listas marcadas, login opcional (`SignInRequiredFailure`) e volta para onde estava
-- [ ] Confirmação antes de apagar uma lista com filmes
-- [ ] Strings no ARB, `Semantics`, alvo ≥ 48dp e fonte grande sem overflow
+- [x] Notifier das listas (4 estados, criar/renomear otimistas, apagar com espera, com erro e "tentar de novo"). **Feito:** `MovieListsNotifier` (aba), `MovieListNotifier` (tela da lista) e `AddToListNotifier` (folha); o `CreateMovieList` devolve a escrita pendente num record, para pôr o filme na lista nova sem esperar o servidor
+- [x] Tela das listas: vazio com chamada para criar, erro, skeleton, sucesso; diálogo de nome com o limite visível. **Feito:** o contador conta unidades UTF-16, como as regras; o campo de uma linha já troca a quebra de linha por espaço, e o tab é recusado
+- [x] 4ª aba da Estante "Listas" e tela da lista: filmes com limite crescente, tirar filme, os 4 estados. **Feito:** grade num `ShelfMoviesView` comum (refactor); tirar pelo toque longo e pela ação do leitor de tela, com "Desfazer"
+- [x] Detalhes: "Adicionar à lista" com as listas marcadas, login opcional (`SignInRequiredFailure`) e volta para onde estava
+- [x] Confirmação antes de apagar uma lista com filmes. **Mudou:** sempre pergunta, porque saber se a lista tem filmes custaria uma leitura
+- [x] Strings no ARB, `Semantics`, alvo ≥ 48dp e fonte grande sem overflow
 
 ### Fechamento
-- [ ] Política 2.0 (`docs/PRIVACIDADE.md`), página de exclusão (`docs/EXCLUSAO-DA-CONTA.md`) e diálogo da exclusão da conta citando as listas
-- [ ] Rotas novas no `go_router` e montagem no `main.dart`
-- [ ] `PLANO.md`: o item das listas sem a exclusão aninhada dos `items` (decisão 019)
+- [x] Política 2.0 (`docs/PRIVACIDADE.md`), página de exclusão (`docs/EXCLUSAO-DA-CONTA.md`) e diálogo da exclusão da conta citando as listas
+- [x] Rotas novas no `go_router` e montagem no `main.dart`. **Feito:** `/estante/listas/:listId` com os Detalhes empilhados; o logout fecha os streams da Estante e das listas (`closeUserDataStreams`)
+- [x] `PLANO.md`: o item das listas sem a exclusão aninhada dos `items` (decisão 019)
 - [ ] Verificação no emulador (screenshot via MCP do Flutter) e deploy das regras no projeto real, com confirmação
 - [ ] `/revisar` (`code-reviewer` e `security-auditor`)
 
