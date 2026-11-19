@@ -73,9 +73,11 @@ class AddToListNotifier extends ChangeNotifier {
   }
 
   /// Cria a lista e põe o filme nela, sem esperar o servidor confirmar a
-  /// lista. No teto, só mostra a falha.
+  /// lista. No teto, só mostra a falha. Com a folha fechada no meio, o
+  /// filme entra do mesmo jeito: foi o que a pessoa pediu.
   Future<void> createAndAdd(ListName name) async {
     final list = _lists.newList(name);
+    _failedToggle = null;
     final ({Future<void> saved}) created;
     try {
       created = await _createList(list);
@@ -84,20 +86,29 @@ class AddToListNotifier extends ChangeNotifier {
       _emit();
       return;
     }
-    if (_disposed) return;
     _created[list.id] = list;
     unawaited(_write(list, wanted: true));
     unawaited(
       created.saved.then<void>(
         (_) {},
-        onError: (Object error) {
-          _created.remove(list.id);
-          _optimistic.remove(list.id);
-          _failure = _asFailure(error);
-          _emit();
-        },
+        onError: (Object error) => _onCreateRefused(list, error),
       ),
     );
+  }
+
+  /// Sem a lista no servidor, a chave dela no filme ficaria órfã (decisão
+  /// 019, `/revisar` da sessão 029): o filme sai da lista recusada.
+  void _onCreateRefused(MovieList list, Object error) {
+    _created.remove(list.id);
+    _optimistic.remove(list.id);
+    _failure = _asFailure(error);
+    _failedToggle = null;
+    if (_entry.value case OnShelf(:final movie) when movie.isInList(list.id)) {
+      unawaited(
+        _lists.removeFromList(movie, list).then<void>((_) {}, onError: (_) {}),
+      );
+    }
+    _emit();
   }
 
   void _subscribe() {
@@ -127,7 +138,7 @@ class AddToListNotifier extends ChangeNotifier {
 
   Future<void> _write(MovieList list, {required bool wanted}) async {
     final entry = _entry.value;
-    if (_disposed || entry == null) return;
+    if (entry == null) return;
     final Future<void> write;
     if (wanted) {
       write = _addMovie(_copy, list, current: entry);
@@ -175,13 +186,20 @@ class AddToListNotifier extends ChangeNotifier {
     } else if (confirmed == null || _entry.value == null) {
       _state = const AddToListLoading();
     } else {
-      _state = AddToListReady([
-        for (final list in MovieList.sortedByName([
-          ...confirmed,
-          ..._created.values,
-        ]))
-          AddToListItem(list, checked: _isChecked(list)),
-      ], failure: _failure);
+      _state = AddToListReady(
+        [
+          for (final list in MovieList.sortedByName([
+            ...confirmed,
+            ..._created.values,
+          ]))
+            AddToListItem(list, checked: _isChecked(list)),
+        ],
+        failure: _failure,
+        canRetry:
+            _failedToggle != null &&
+            _failure is! ListFullFailure &&
+            _failure is! ListLimitFailure,
+      );
     }
     notifyListeners();
   }

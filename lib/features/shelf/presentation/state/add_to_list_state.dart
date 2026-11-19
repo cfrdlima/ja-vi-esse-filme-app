@@ -26,8 +26,11 @@ final class AddToListError extends AddToListState {
 }
 
 final class AddToListReady extends AddToListState {
-  AddToListReady(List<AddToListItem> items, {this.failure})
-    : items = List.unmodifiable(items);
+  AddToListReady(
+    List<AddToListItem> items, {
+    this.failure,
+    this.canRetry = false,
+  }) : items = List.unmodifiable(items);
 
   /// Em ordem alfabética.
   final List<AddToListItem> items;
@@ -35,4 +38,8 @@ final class AddToListReady extends AddToListState {
   /// A última escrita recusada (lista cheia, teto, servidor), abaixo das
   /// caixas.
   final Failure? failure;
+
+  /// Se o [failure] é de uma caixa que vale tentar de novo: no teto (lista
+  /// cheia, limite de listas) e na criação da lista, não vale.
+  final bool canRetry;
 }

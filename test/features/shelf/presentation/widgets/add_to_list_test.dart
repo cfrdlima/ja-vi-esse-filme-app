@@ -209,6 +209,18 @@ void main() {
     );
   });
 
+  testWidgets('não deve oferecer tentar de novo na lista cheia', (tester) async {
+    await pumpDetails(tester, account: SignedIn(ana), entry: const NotOnShelf());
+    lists.moviesCount[terror.id] = MovieList.maxMovies;
+    await openSheet(tester, [terror]);
+
+    await tester.tap(find.widgetWithText(CheckboxListTile, 'Terror'));
+    await tester.pump();
+    await tester.pump();
+
+    expect(find.text(l10n.retry), findsNothing);
+  });
+
   testWidgets('deve caber a folha com a fonte grande', (tester) async {
     await pumpDetails(
       tester,

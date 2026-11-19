@@ -198,7 +198,7 @@ class _SheetLists extends StatelessWidget {
         if (failure != null)
           _SheetMessage(
             message: failureMessage(l10n, failure),
-            onRetry: notifier.retryToggle,
+            onRetry: state.canRetry ? notifier.retryToggle : null,
           ),
       ],
     );
@@ -215,7 +215,9 @@ class _SheetMessage extends StatelessWidget {
   const _SheetMessage({required this.message, required this.onRetry});
 
   final String message;
-  final VoidCallback onRetry;
+
+  /// Sem ele, só a mensagem: tentar de novo não mudaria nada.
+  final VoidCallback? onRetry;
 
   @override
   Widget build(BuildContext context) {
@@ -230,7 +232,7 @@ class _SheetMessage extends StatelessWidget {
           spacing: spacing.sm,
           children: [
             Text(message, style: theme.textTheme.bodyMedium),
-            RetryButton.text(onPressed: onRetry),
+            if (onRetry case final retry?) RetryButton.text(onPressed: retry),
           ],
         ),
       ),
