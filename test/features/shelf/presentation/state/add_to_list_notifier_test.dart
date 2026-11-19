@@ -259,4 +259,108 @@ void main() {
       expect(checks().keys, ['Terror']);
     });
   });
+
+  group('achados do /revisar da 029', () {
+    setUp(() async {
+      entry.value = const NotOnShelf();
+      await emitLists([terror]);
+    });
+
+    test('deve tirar o filme da lista cuja criação foi recusada', () async {
+      await notifier.createAndAdd(ListName('Ação'));
+      await pumpEventQueue();
+      final created = lists.writes.first.list;
+      entry.value = inLists({created});
+
+      lists.writes.first.fail(const RateLimitFailure());
+      await pumpEventQueue();
+
+      expect(lists.writes.last.kind, ListWriteKind.remove);
+    });
+
+    test('deve pôr o filme mesmo com a folha fechada no meio', () async {
+      final closing = AddToListNotifier(
+        lists: lists,
+        createList: CreateMovieList(lists),
+        addMovie: AddMovieToList(lists),
+        copy: copy,
+        entry: entry,
+      );
+
+      final created = closing.createAndAdd(ListName('Ação'));
+      closing.dispose();
+      await created;
+      await pumpEventQueue();
+
+      expect(
+        [for (final write in lists.writes) write.kind],
+        [ListWriteKind.create, ListWriteKind.add],
+      );
+    });
+
+    test('não deve deixar erro solto com a folha fechada', () async {
+      final closing = AddToListNotifier(
+        lists: lists,
+        createList: CreateMovieList(lists),
+        addMovie: AddMovieToList(lists),
+        copy: copy,
+        entry: entry,
+      );
+      final created = closing.createAndAdd(ListName('Ação'));
+      closing.dispose();
+      await created;
+      await pumpEventQueue();
+
+      for (final write in [...lists.writes]) {
+        write.fail(const RateLimitFailure());
+      }
+      await pumpEventQueue();
+
+      expect(lists.writes, hasLength(2));
+    });
+
+    test('deve oferecer tentar de novo na caixa recusada', () async {
+      notifier.toggle(terror);
+      await pumpEventQueue();
+
+      lists.writes.single.fail(const RateLimitFailure());
+      await pumpEventQueue();
+
+      expect(ready().canRetry, isTrue);
+    });
+
+    test('não deve oferecer tentar de novo na lista cheia', () async {
+      lists.moviesCount[terror.id] = MovieList.maxMovies;
+
+      notifier.toggle(terror);
+      await pumpEventQueue();
+
+      expect(ready().canRetry, isFalse);
+    });
+
+    test('não deve oferecer tentar de novo no teto de listas', () async {
+      lists.listsCount = MovieList.maxPerAccount;
+
+      await notifier.createAndAdd(ListName('Ação'));
+
+      expect(ready().canRetry, isFalse);
+    });
+
+    test(
+      'não deve repetir uma caixa antiga depois da falha ao criar',
+      () async {
+        notifier.toggle(terror);
+        await pumpEventQueue();
+        lists.writes.single.fail(const RateLimitFailure());
+        await pumpEventQueue();
+        lists.listsCount = MovieList.maxPerAccount;
+        await notifier.createAndAdd(ListName('Ação'));
+
+        notifier.retryToggle();
+        await pumpEventQueue();
+
+        expect(lists.writes, hasLength(1));
+      },
+    );
+  });
 }
