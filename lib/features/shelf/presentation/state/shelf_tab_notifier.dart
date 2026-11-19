@@ -5,23 +5,21 @@ import 'package:flutter/foundation.dart';
 import '../../../../core/error/failures.dart';
 import '../../../auth/domain/entities/auth_state.dart';
 import '../../../movies/presentation/state/paged_movies_state.dart';
-import '../../domain/entities/shelf_mark.dart';
 import '../../domain/entities/shelf_movie.dart';
 import '../../domain/entities/shelf_page.dart';
-import '../../domain/repositories/shelf_repository.dart';
 import '../../domain/usecases/expired_copy_renewer.dart';
 import 'shelf_tab_state.dart';
 
-/// Uma aba da Estante: os filmes com a [ShelfMark] da aba, a marca mais
-/// recente primeiro. Segue o `watchShelf` da conta logada e assina de novo
-/// quando a conta muda, como o `ShelfMarksNotifier`.
+/// Uma grade da Estante: os filmes de uma aba (o `watchShelf` de uma marca)
+/// ou de uma lista personalizada (o `watchList`, decisão 019), o mais
+/// recente primeiro. Segue a página da conta logada e assina de novo quando
+/// a conta muda, como o `ShelfMarksNotifier`.
 ///
 /// Para mostrar mais filmes, assina de novo com o limite maior
 /// (`pageSize` a mais por vez): a lista inteira continua ao vivo.
 class ShelfTabNotifier extends ChangeNotifier {
   ShelfTabNotifier({
-    required this._mark,
-    required this._shelf,
+    required this._watchPage,
     required Stream<AuthState> account,
     required this._newRenewer,
   }) {
@@ -40,8 +38,8 @@ class ShelfTabNotifier extends ChangeNotifier {
   /// cresce com o quadrado dos filmes mostrados (decisão 014).
   static const maxLimit = 200;
 
-  final ShelfMark _mark;
-  final ShelfRepository _shelf;
+  /// A página até o limite pedido, ao vivo.
+  final Stream<ShelfPage> Function(int limit) _watchPage;
 
   /// Uma renovação por conta: o que uma conta já pediu não vale para outra.
   final ExpiredCopyRenewer Function() _newRenewer;
@@ -115,9 +113,9 @@ class ShelfTabNotifier extends ChangeNotifier {
       ),
       _ => const ShelfTabLoading(),
     });
-    _shelfSubscription = _shelf
-        .watchShelf(_mark, limit: _limit)
-        .listen(_onPage, onError: _onError, onDone: _onDone);
+    _shelfSubscription = _watchPage(
+      _limit,
+    ).listen(_onPage, onError: _onError, onDone: _onDone);
   }
 
   void _onPage(ShelfPage page) {

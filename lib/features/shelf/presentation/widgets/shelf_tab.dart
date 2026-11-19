@@ -50,8 +50,7 @@ class _ShelfTabState extends State<ShelfTab>
         final shelf = context.read<ShelfRepository>();
         final source = context.read<MovieCopySource>();
         return ShelfTabNotifier(
-          mark: widget.mark,
-          shelf: shelf,
+          watchPage: (limit) => shelf.watchShelf(widget.mark, limit: limit),
           account: context.read<AuthRepository>().authStateChanges,
           newRenewer: () => ExpiredCopyRenewer(
             shelf: shelf,
