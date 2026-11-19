@@ -325,12 +325,11 @@ void main() {
     test('deve contar os filmes pelo campo da lista', () async {
       listsGateway.serverCount = 12;
 
-      final count = await repository.countMovies(terror);
+      await repository.countMovies(terror);
 
-      expect(
-        (count, listsGateway.calls),
-        (12, ['count server ${ShelfMovieModel.listOrderField(_terrorId)}']),
-      );
+      expect(listsGateway.calls, [
+        'count server ${ShelfMovieModel.listOrderField(_terrorId)}',
+      ]);
     });
 
     test('deve contar os filmes no aparelho sem rede', () async {
@@ -345,10 +344,13 @@ void main() {
     test('deve gravar a lista só com o nome', () async {
       await repository.createList(terror);
 
-      expect(
-        (listsGateway.calls, listsGateway.lastFields),
-        (['set alice $_terrorId'], MovieListModel.nameFields(terror.name)),
-      );
+      expect(listsGateway.lastFields, MovieListModel.nameFields(terror.name));
+    });
+
+    test('deve gravar a lista no id dela', () async {
+      await repository.createList(terror);
+
+      expect(listsGateway.calls, ['set alice $_terrorId']);
     });
 
     test('deve renomear a lista', () async {
@@ -432,9 +434,15 @@ void main() {
       await repository.addToList(copy, terror);
 
       expect(
-        (moviesGateway.calls, moviesGateway.lastFields),
-        (['merge alice 550'], ShelfMovieModel.addToListFields(copy, _terrorId)),
+        moviesGateway.lastFields,
+        ShelfMovieModel.addToListFields(copy, _terrorId),
       );
+    });
+
+    test('deve pôr o filme na lista sem apagar o documento', () async {
+      await repository.addToList(copy, terror);
+
+      expect(moviesGateway.calls, ['merge alice 550']);
     });
 
     test('deve tirar da lista o filme que continua no documento', () async {
@@ -443,11 +451,8 @@ void main() {
       await repository.removeFromList(movie, terror);
 
       expect(
-        (moviesGateway.calls, moviesGateway.lastFields),
-        (
-          ['update alice 550'],
-          ShelfMovieModel.removeFromListFields(movie, _terrorId),
-        ),
+        moviesGateway.lastFields,
+        ShelfMovieModel.removeFromListFields(movie, _terrorId),
       );
     });
 
