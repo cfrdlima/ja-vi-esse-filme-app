@@ -518,7 +518,7 @@ void main() {
         await repository.deleteList(terror);
 
         expect(listsGateway.committed.single, [
-          UpdateMovieInBatch(550, {'lists': const DeleteField()}),
+          const UpdateMovieInBatch(550, {'lists': DeleteField()}),
           UpdateMovieInBatch(551, {
             ShelfMovieModel.listOrderField(_terrorId): const DeleteField(),
           }),
