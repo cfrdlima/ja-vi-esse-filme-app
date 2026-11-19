@@ -115,6 +115,35 @@ describe('cópias vencidas do TMDB', () => {
     assert.deepEqual({ rating, watchedOn }, { rating: 7, watchedOn: '2039-06-15' });
   });
 
+  // Decisão 019: o filme pode estar só numa lista, sem marca nenhuma.
+  function addListOnlyMovie(movieId) {
+    return db.doc(`users/alice/movies/${movieId}`).set({
+      title: 'Título antigo',
+      cachedAt: daysAgo(200),
+      lists: { Lst0aBcDeFgHiJkLmNoP: daysAgo(210) },
+    });
+  }
+
+  test('deve renovar a cópia do filme só numa lista e manter a lista', async () => {
+    await addListOnlyMovie('550');
+
+    await renew(fakeSource());
+
+    const { title, lists } = await movie('550');
+    assert.deepEqual(
+      { title, lists },
+      { title: 'Título novo', lists: { Lst0aBcDeFgHiJkLmNoP: daysAgo(210) } },
+    );
+  });
+
+  test('deve apagar o filme só numa lista que sumiu do TMDB', async () => {
+    await addListOnlyMovie('550');
+
+    await renew(fakeSource({ 550: NOT_FOUND() }));
+
+    assert.deepEqual(await movieIds(db, 'alice'), []);
+  });
+
   test('deve tirar o pôster quando o TMDB não manda um', async () => {
     await addMovie('550');
 

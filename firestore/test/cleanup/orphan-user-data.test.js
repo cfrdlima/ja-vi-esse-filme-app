@@ -35,6 +35,16 @@ describe('dados sem conta no Auth', () => {
     assert.deepEqual(await movieIds(db, 'sem-conta'), []);
   });
 
+  // Decisão 019: a conta pode ter só listas, sem nenhum filme.
+  test('deve apagar as listas de um users/{uid} sem conta no Auth', async () => {
+    await db.doc('users/sem-conta/lists/Lst0aBcDeFgHiJkLmNoP').set({ name: 'Terror' });
+
+    await deleteOrphanUserData({ auth, db });
+
+    const lists = await db.collection('users/sem-conta/lists').get();
+    assert.equal(lists.size, 0);
+  });
+
   test('não deve apagar os filmes de quem tem conta', async () => {
     await createAccount(auth, 'alice');
     await addMovie('alice');

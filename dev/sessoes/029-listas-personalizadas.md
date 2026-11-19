@@ -9,7 +9,7 @@ Permitir que o usuário logado crie, renomeie e apague listas próprias e adicio
 ### Preparação
 - [x] Decisão (`/decisao`): modelo das listas, campos, tetos, ordem e onde a UI mora. **Feito:** decisão 019, com o mapa `lists` no documento do filme no lugar da subcoleção `items`, nome de 1 a 50, tetos de 50 listas e 200 filmes, e a 4ª aba da Estante
 - [x] Consultar a `ui-ux-pro-max` (stack Flutter) para a tela das listas, a da lista e a folha "Adicionar à lista" nos Detalhes; override em `pages/` se precisar. **Feito:** seções "Aba Listas" e "Tela da lista" no `estante.md` e "Adicionar à lista" no `detalhes.md`; para a folha com caixas de seleção e o contador de caracteres, a busca não achou regra (fallback). Ponto aberto: como saber que a lista está cheia (200) para desabilitar a caixa
-- [ ] Conferir a limpeza mensal (`firestore/cleanup`): filme só em lista (sem marca) é renovado e, se sumiu do TMDB, apagado; órfãos com `lists`
+- [x] Conferir a limpeza mensal (`firestore/cleanup`): filme só em lista (sem marca) é renovado e, se sumiu do TMDB, apagado; órfãos com `lists`
 
 ### Regras do Firestore (RED/GREEN/REFACTOR, no emulador)
 - [x] `lists/{listId}`: só o dono; id automático (20 `[A-Za-z0-9]`); só `name`, de 1 a 50, não só espaços, sem caractere de controle
@@ -24,15 +24,15 @@ Permitir que o usuário logado crie, renomeie e apague listas próprias e adicio
 - [x] Contrato: listas em stream (ordem alfabética sem acento/caixa), criar (teto de 50), renomear, apagar, adicionar filme (teto de 200 por lista) e tirar, filmes de uma lista com limite crescente; falhas tipadas (sem conta, sem rede, teto atingido). **Feito:** `MovieListsRepository` com `newList` (id local, sem gravar) e as contagens; `CreateMovieList` e `AddMovieToList` com os tetos e `ListLimitFailure`/`ListFullFailure` no `core`. A lista cheia é descoberta ao tocar, e não antes (contar cada lista ao abrir a folha custaria uma leitura por lista): o override do `detalhes.md` muda junto com a UI
 
 ### Data (RED/GREEN/REFACTOR, com fakes do gateway)
-- [ ] Model da lista e `lists` do filme com parse defensivo (nome inválido, chave fora do formato, valor que não é data)
-- [ ] Gateway fino sobre o `cloud_firestore` e repositório, com o `UserDataWriteLock` da exclusão
-- [ ] Adicionar grava a cópia do TMDB e a chave; tirar da última lista sem marca apaga o documento; `removeMark` da última marca com `lists` vira `update`
-- [ ] Apagar a lista tira a chave dos filmes (do servidor, lotes de 500, 15 s por passo) e só depois apaga a lista
+- [x] Model da lista e `lists` do filme com parse defensivo (nome inválido, chave fora do formato, valor que não é data)
+- [x] Gateway fino sobre o `cloud_firestore` e repositório, com o `UserDataWriteLock` da exclusão. **Feito:** `MovieListsGateway` e `FirestoreMovieListsRepository` (escritas no filme pelo `ShelfGateway`), `UnavailableMovieListsRepository`, e a tradução de erro e os streams abertos num `firestore_support.dart` comum; as contagens usam o `count()` do servidor e caem no cache do aparelho sem rede ou depois de 5 s
+- [x] Adicionar grava a cópia do TMDB e a chave; tirar da última lista sem marca apaga o documento; `removeMark` da última marca com `lists` vira `update`
+- [x] Apagar a lista tira a chave dos filmes (do servidor, lotes de 500, 15 s por passo) e só depois apaga a lista
 - [ ] Aba da lista renova a cópia vencida pelo `ExpiredCopyRenewer`
 
 ### Exclusão da conta (RED/GREEN/REFACTOR)
-- [ ] `UserCollections.all` com `lists` (o comentário da exclusão aninhada sai) e teste de que a exclusão apaga as listas
-- [ ] Limpeza mensal: teste no emulador do filme só em lista
+- [x] `UserCollections.all` com `lists` (o comentário da exclusão aninhada sai) e teste de que a exclusão apaga as listas
+- [x] Limpeza mensal: teste no emulador do filme só em lista. **Feito:** renovação e 404 do filme só numa lista, e órfão só com listas; passaram de primeira (a limpeza não olha as marcas, e os órfãos saem pelo `recursiveDelete`)
 
 ### Estado e UI (RED/GREEN/REFACTOR, widget tests)
 - [ ] Notifier das listas (4 estados, criar/renomear/apagar otimistas com erro e "tentar de novo")
