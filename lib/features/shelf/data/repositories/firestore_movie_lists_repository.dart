@@ -174,9 +174,11 @@ class FirestoreMovieListsRepository implements MovieListsRepository {
         return _removeKey(uid, movie, list.id);
       });
 
-  /// O [movie] do aparelho pode estar velho, como no desmarcar (decisão
-  /// 013). Se no servidor a lista era o único motivo do documento, as regras
-  /// o negam, e o delete termina o que o tirar queria.
+  /// O [movie] do aparelho pode estar velho. Se as regras recusam, a escrita
+  /// foi montada com listas que o servidor já não tem (o mapa ficaria vazio,
+  /// ou mudariam duas chaves): apagar levaria as marcas, a nota e o dia. O
+  /// filme é relido do servidor, e a escrita, refeita com ele (`/revisar` da
+  /// sessão 029).
   Future<void> _removeKey(String uid, ShelfMovie movie, String listId) async {
     final movieId = movie.copy.movieId;
     try {
@@ -190,11 +192,38 @@ class FirestoreMovieListsRepository implements MovieListsRepository {
         case 'not-found':
           return;
         case 'permission-denied':
-          return _delete(uid, movieId);
+          return _removeKeyFromServer(uid, movieId, listId);
         default:
           rethrow;
       }
     }
+  }
+
+  Future<void> _removeKeyFromServer(
+    String uid,
+    int movieId,
+    String listId,
+  ) async {
+    final fields = await _step(_lists.fetchMovieFromServer(uid, movieId));
+    final ShelfMovie fresh;
+    try {
+      switch (ShelfMovieModel.fromDocument(movieId, fields)) {
+        case OnShelf(:final movie) when movie.isInList(listId):
+          fresh = movie;
+        case _:
+          // O filme já saiu da lista, ou do servidor.
+          return;
+      }
+    } on FormatException {
+      // Sem título legível, o update seria recusado de novo.
+      return _delete(uid, movieId);
+    }
+    if (!fresh.staysWithoutList(listId)) return _delete(uid, movieId);
+    await _movies.updateMovie(
+      uid,
+      movieId,
+      ShelfMovieModel.removeFromListFields(fresh, listId),
+    );
   }
 
   Future<void> _delete(String uid, int movieId) async {

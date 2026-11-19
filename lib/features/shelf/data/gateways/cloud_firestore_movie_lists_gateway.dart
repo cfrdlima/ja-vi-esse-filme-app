@@ -86,6 +86,17 @@ class CloudFirestoreMovieListsGateway implements MovieListsGateway {
     return _documentsOf(query);
   }
 
+  @override
+  Future<Map<String, Object?>> fetchMovieFromServer(
+    String uid,
+    int movieId,
+  ) async {
+    final snapshot = await _movies(
+      uid,
+    ).doc('$movieId').get(const GetOptions(source: Source.server));
+    return FirestoreFields.read(snapshot.data(), pendingAt: null);
+  }
+
   /// O `commit()` só completa quando o servidor confirma.
   @override
   Future<void> commitMovies(String uid, List<MovieBatchWrite> writes) {

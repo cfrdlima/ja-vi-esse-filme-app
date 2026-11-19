@@ -90,6 +90,11 @@ abstract interface class MovieListsGateway {
     int limit,
   );
 
+  /// Os campos do filme lidos do servidor (nunca do cache), como o
+  /// [ShelfGateway.watchMovie] os entrega; vazio sem documento. Offline,
+  /// falha com `unavailable`.
+  Future<Map<String, Object?>> fetchMovieFromServer(String uid, int movieId);
+
   /// Um `WriteBatch` com as [writes], que só completa quando o servidor
   /// confirma.
   Future<void> commitMovies(String uid, List<MovieBatchWrite> writes);
