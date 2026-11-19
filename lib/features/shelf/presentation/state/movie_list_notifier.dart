@@ -8,6 +8,7 @@ import '../../domain/entities/list_name.dart';
 import '../../domain/entities/movie_list.dart';
 import '../../domain/entities/shelf_entry.dart';
 import '../../domain/entities/shelf_movie.dart';
+import '../../domain/repositories/movie_copy_source.dart';
 import '../../domain/repositories/movie_lists_repository.dart';
 import '../../domain/usecases/add_movie_to_list.dart';
 import 'movie_list_state.dart';
@@ -21,6 +22,8 @@ class MovieListNotifier extends ChangeNotifier {
     required MovieList? initial,
     required this._lists,
     required this._addMovie,
+    required this._copySource,
+    required this._now,
     required Stream<AuthState> account,
   }) : _confirmed = initial {
     if (initial != null) _state = MovieListFound(initial);
@@ -33,6 +36,8 @@ class MovieListNotifier extends ChangeNotifier {
   final String _listId;
   final MovieListsRepository _lists;
   final AddMovieToList _addMovie;
+  final MovieCopySource _copySource;
+  final DateTime Function() _now;
   late final StreamSubscription<AuthState> _accountSubscription;
   StreamSubscription<List<MovieList>>? _listsSubscription;
 
@@ -41,6 +46,7 @@ class MovieListNotifier extends ChangeNotifier {
   /// A lista do último evento, sem o nome otimista.
   MovieList? _confirmed;
   ListName? _renamed;
+  bool _deleting = false;
   bool _disposed = false;
 
   MovieListState _state = const MovieListLoading();
@@ -65,9 +71,19 @@ class MovieListNotifier extends ChangeNotifier {
     }
   }
 
-  /// Espera o servidor (decisão 019); a tela sai quando completa.
+  /// Espera o servidor (decisão 019); a tela sai quando completa. Um
+  /// segundo pedido com o primeiro a caminho não faz nada.
   Future<void> delete() async {
-    if (_confirmed case final list?) await _lists.deleteList(list);
+    final list = _confirmed;
+    if (list == null || _deleting) return;
+    _deleting = true;
+    _emitFound();
+    try {
+      await _lists.deleteList(list);
+    } finally {
+      _deleting = false;
+      _emitFound();
+    }
   }
 
   /// Tira o [movie] da lista; ele some da grade pelo stream.
@@ -78,10 +94,15 @@ class MovieListNotifier extends ChangeNotifier {
   }
 
   /// Põe de volta o filme tirado, que entra no topo: a hora é a do servidor.
+  /// Com a cópia vencida, busca outra no TMDB: regravar a velha renovaria o
+  /// prazo de dados de mais de 6 meses (decisão 013).
   Future<void> undoRemove(ShelfMovie movie) async {
-    if (_confirmed case final list?) {
-      await _addMovie(movie.copy, list, current: const NotOnShelf());
-    }
+    final list = _confirmed;
+    if (list == null) return;
+    final copy = movie.isCopyExpired(_now())
+        ? await _copySource.fetchCopy(movie.copy.movieId)
+        : movie.copy;
+    await _addMovie(copy, list, current: const NotOnShelf());
   }
 
   void _onAccount(AuthState account) {
@@ -95,6 +116,8 @@ class MovieListNotifier extends ChangeNotifier {
         unawaited(_listsSubscription?.cancel());
         _listsSubscription = null;
         _uid = null;
+        // Um "Desfazer" depois do logout cairia na conta seguinte.
+        _confirmed = null;
         _renamed = null;
         _emit(const MovieListSignedOut());
     }
@@ -135,7 +158,7 @@ class MovieListNotifier extends ChangeNotifier {
       MovieListFound(switch (_renamed) {
         final ListName name => list.rename(name),
         null => list,
-      }),
+      }, deleting: _deleting),
     );
   }
 

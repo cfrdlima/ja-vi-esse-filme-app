@@ -28,14 +28,19 @@ final class MovieListGone extends MovieListState {
 }
 
 final class MovieListFound extends MovieListState {
-  const MovieListFound(this.list);
+  const MovieListFound(this.list, {this.deleting = false});
 
   final MovieList list;
 
-  @override
-  bool operator ==(Object other) =>
-      other is MovieListFound && other.list == list;
+  /// Apagar espera o servidor (decisão 019): o menu fica desabilitado.
+  final bool deleting;
 
   @override
-  int get hashCode => list.hashCode;
+  bool operator ==(Object other) =>
+      other is MovieListFound &&
+      other.list == list &&
+      other.deleting == deleting;
+
+  @override
+  int get hashCode => Object.hash(list, deleting);
 }

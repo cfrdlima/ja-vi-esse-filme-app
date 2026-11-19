@@ -49,6 +49,8 @@ class MovieListScreen extends StatelessWidget {
           initial: initial?.id == listId ? initial : null,
           lists: lists,
           addMovie: AddMovieToList(lists),
+          copySource: context.read<MovieCopySource>(),
+          now: () => DateTime.now().toUtc(),
           account: context.read<AuthRepository>().authStateChanges,
         );
       },
