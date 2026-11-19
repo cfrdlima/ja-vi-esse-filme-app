@@ -1,7 +1,8 @@
 import { after, beforeEach, describe, test } from 'node:test';
 import assert from 'node:assert/strict';
 import { Timestamp } from 'firebase-admin/firestore';
-import { removeOrphanListKeys } from '../../cleanup/orphan-list-keys.js';
+import { LISTS, removeOrphanListKeys } from '../../cleanup/orphan-list-keys.js';
+import { collectionsInApp } from '../user-collections.js';
 import { clearEmulators, createAccount, createAdmin, movieIds } from './admin-environment.js';
 
 // Uma chave do mapa lists sem o users/{uid}/lists/{id} dela: filme posto
@@ -33,6 +34,10 @@ describe('chaves de lista sem lista', () => {
   async function movie(movieId) {
     return (await db.doc(`users/alice/movies/${movieId}`).get()).data();
   }
+
+  test('deve procurar as listas numa subcoleção que o app conhece', () => {
+    assert.ok(collectionsInApp().includes(LISTS));
+  });
 
   test('deve tirar a chave sem lista e manter a que tem lista', async () => {
     await addMovie('550', { lists: { [LIVE]: AT, [GONE]: AT } });

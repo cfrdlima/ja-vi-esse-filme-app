@@ -74,12 +74,16 @@ describe('relatório da limpeza mensal', () => {
   const copies = {
     expired: 6, renewed: 3, removed: 1, failed: 1, noTitle: 1, skipped: 0, stopped: null,
   };
-  const report = { projectId: 'meu-projeto', dryRun: false, orphanUsers: 2, needsConfirmation: false, copies };
+  const listKeys = { keys: 2, movies: 2, removed: 1 };
+  const report = {
+    projectId: 'meu-projeto', dryRun: false, orphanUsers: 2, needsConfirmation: false, listKeys, copies,
+  };
 
   test('deve mostrar só as contagens e o projeto', () => {
     assert.equal(formatReport(report), [
       'Limpeza mensal do Firestore — projeto meu-projeto',
       'Dados sem conta apagados: 2 users/{uid}',
+      'Chaves de lista sem lista tiradas: 2, em 2 filmes (filmes apagados: 1)',
       'Cópias vencidas: 6 (renovadas: 3, filmes apagados: 1, falhas: 1, sem título no TMDB: 1, puladas: 0)',
     ].join('\n'));
   });
@@ -109,6 +113,17 @@ describe('relatório da limpeza mensal', () => {
       assert.match(formatReport({ ...report, copies: { ...copies, stopped } }), text);
     });
   }
+
+  test('na simulação, deve dizer que as chaves sem lista foram só encontradas', () => {
+    assert.match(formatReport({ ...report, dryRun: true }), /Chaves de lista sem lista encontradas: 2/);
+  });
+
+  test('deve dizer quando a etapa das chaves sem lista não terminou', () => {
+    assert.match(
+      formatReport({ ...report, listKeys: null, copies: null }),
+      /Chaves de lista sem lista: a etapa não terminou/,
+    );
+  });
 
   test('deve dizer quando a etapa das cópias não terminou', () => {
     assert.match(formatReport({ ...report, copies: null }), /Cópias vencidas: a etapa não terminou/);
@@ -153,8 +168,26 @@ describe('limpeza mensal completa', () => {
     assert.deepEqual(report, {
       orphanUsers: 1,
       needsConfirmation: false,
+      listKeys: { keys: 0, movies: 0, removed: 0 },
       copies: { expired: 1, renewed: 1, removed: 0, failed: 0, noTitle: 0, skipped: 0, stopped: null },
     });
+  });
+
+  // O filme que só estava numa lista apagada sai antes, sem gastar uma
+  // requisição ao TMDB (decisão 019).
+  test('deve tirar as chaves sem lista antes de renovar cópias', async () => {
+    await db.doc('users/alice/movies/550').set({
+      title: 'Antigo', cachedAt: OLD, lists: { Lst1aBcDeFgHiJkLmNoP: OLD },
+    });
+    const requested = [];
+    const source = { fetchCopy: async (id) => requested.push(id) };
+
+    await runCleanup({ auth, db, source, dryRun: false });
+
+    assert.deepEqual(
+      { requested, movies: await movieIds(db, 'alice') },
+      { requested: [], movies: [] },
+    );
   });
 
   test('na simulação, não deve contar as cópias de quem vai ser apagado', async () => {
