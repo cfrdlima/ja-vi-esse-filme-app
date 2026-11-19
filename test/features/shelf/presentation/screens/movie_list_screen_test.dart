@@ -216,8 +216,7 @@ void main() {
     await removeByLongPress(tester);
 
     lists.writes.single.fail(const RateLimitFailure());
-    await tester.pump();
-    await tester.pump(const Duration(seconds: 10));
+    await tester.pumpAndSettle();
 
     expect(
       find.text(failureMessage(l10n, const RateLimitFailure())),

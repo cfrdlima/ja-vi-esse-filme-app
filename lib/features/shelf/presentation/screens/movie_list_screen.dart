@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../core/error/failures.dart';
 import '../../../../core/error/retry_wait.dart';
 import '../../../../core/l10n/failure_message.dart';
 import '../../../../core/routing/app_routes.dart';
@@ -78,7 +79,8 @@ class _MovieListScaffold extends StatelessWidget {
           _ => Text(l10n.shelfTabLists),
         },
         actions: [
-          if (state case MovieListFound(:final list)) _ListMenu(list: list),
+          if (state case MovieListFound(:final list, deleting: false))
+            _ListMenu(list: list),
         ],
       ),
       body: switch (state) {
@@ -90,21 +92,41 @@ class _MovieListScaffold extends StatelessWidget {
             wait: retryWaitOf(failure),
           ),
         ),
-        MovieListGone() || MovieListSignedOut() => MoviesMessage(
-          message: l10n.listGone,
-          action: FilledButton(
-            onPressed: () => context.go(AppRoutes.shelf),
-            child: Text(l10n.listBackToLists),
-          ),
-        ),
-        MovieListFound(:final list) => _ListMovies(
-          // Outra lista é outro notifier, com outra assinatura.
-          key: ValueKey(list.id),
-          list: list,
+        MovieListGone() => _BackToLists(message: l10n.listGone),
+        MovieListSignedOut() => _BackToLists(message: l10n.listSignedOut),
+        MovieListFound(:final list, :final deleting) => Column(
+          children: [
+            if (deleting)
+              LinearProgressIndicator(
+                semanticsLabel: l10n.listsDeleting(list.name.value),
+              ),
+            Expanded(
+              child: _ListMovies(
+                // Outra lista é outro notifier, com outra assinatura.
+                key: ValueKey(list.id),
+                list: list,
+              ),
+            ),
+          ],
         ),
       },
     );
   }
+}
+
+class _BackToLists extends StatelessWidget {
+  const _BackToLists({required this.message});
+
+  final String message;
+
+  @override
+  Widget build(BuildContext context) => MoviesMessage(
+    message: message,
+    action: FilledButton(
+      onPressed: () => context.go(AppRoutes.shelf),
+      child: Text(AppLocalizations.of(context).listBackToLists),
+    ),
+  );
 }
 
 class _ListMovies extends StatelessWidget {
@@ -152,11 +174,11 @@ class _ListMovies extends StatelessWidget {
     final notifier = context.read<MovieListNotifier>();
     final messenger = ScaffoldMessenger.of(context);
     final l10n = AppLocalizations.of(context);
-    await runWithNotice(
-      messenger,
-      l10n,
-      () => notifier.removeMovie(movie),
-      onSuccess: SnackBar(
+    // O aviso com o "Desfazer" sai na hora: offline, o servidor pode levar
+    // horas para confirmar, e o filme já some da grade (`/revisar` da
+    // sessão 029). Só a recusa aparece depois.
+    messenger.showSnackBar(
+      SnackBar(
         content: Text(l10n.listMovieRemoved),
         action: SnackBarAction(
           label: l10n.listUndo,
@@ -166,6 +188,15 @@ class _ListMovies extends StatelessWidget {
         ),
       ),
     );
+    await runWithNotice(messenger, l10n, () async {
+      try {
+        await notifier.removeMovie(movie);
+      } on Failure {
+        // O filme voltou à grade: o "Desfazer" não vale mais.
+        messenger.removeCurrentSnackBar();
+        rethrow;
+      }
+    });
   }
 }
 

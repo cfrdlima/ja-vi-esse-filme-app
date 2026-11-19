@@ -1005,6 +1005,12 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Você ainda não tem listas.'**
   String get addToListNone;
+
+  /// Tela de uma lista aberta quando a conta sai
+  ///
+  /// In pt, this message translates to:
+  /// **'Você saiu da conta. Suas listas voltam quando você entrar.'**
+  String get listSignedOut;
 }
 
 class _AppLocalizationsDelegate

@@ -366,5 +366,7 @@
   "addToListInLists": "Nas suas listas",
   "@addToListInLists": {"description": "Botão nos Detalhes quando o filme está em alguma lista"},
   "addToListNone": "Você ainda não tem listas.",
-  "@addToListNone": {"description": "Folha Adicionar à lista sem nenhuma lista"}
+  "@addToListNone": {"description": "Folha Adicionar à lista sem nenhuma lista"},
+  "listSignedOut": "Você saiu da conta. Suas listas voltam quando você entrar.",
+  "@listSignedOut": {"description": "Tela de uma lista aberta quando a conta sai"}
 }

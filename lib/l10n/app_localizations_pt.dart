@@ -566,4 +566,8 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get addToListNone => 'Você ainda não tem listas.';
+
+  @override
+  String get listSignedOut =>
+      'Você saiu da conta. Suas listas voltam quando você entrar.';
 }
