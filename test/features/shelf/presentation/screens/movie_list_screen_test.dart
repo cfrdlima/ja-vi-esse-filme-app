@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ja_vi_esse_filme/core/error/failures.dart';
 import 'package:ja_vi_esse_filme/core/l10n/app_locale.dart';
+import 'package:ja_vi_esse_filme/core/l10n/failure_message.dart';
 import 'package:ja_vi_esse_filme/features/auth/domain/entities/app_user.dart';
 import 'package:ja_vi_esse_filme/features/auth/domain/entities/auth_state.dart';
 import 'package:ja_vi_esse_filme/features/auth/domain/repositories/auth_repository.dart';
@@ -196,6 +197,34 @@ void main() {
     ], everyElement(findsOneWidget));
   });
 
+  // Offline, o servidor pode demorar horas (`/revisar` da sessão 029).
+  testWidgets('deve mostrar o desfazer antes de o servidor confirmar', (
+    tester,
+  ) async {
+    await pumpScreen(tester);
+    await emitPage(tester, [movie(550)]);
+
+    await removeByLongPress(tester);
+    await tester.pump();
+
+    expect(find.text(l10n.listUndo), findsOneWidget);
+  });
+
+  testWidgets('deve avisar a recusa ao tirar o filme', (tester) async {
+    await pumpScreen(tester);
+    await emitPage(tester, [movie(550)]);
+    await removeByLongPress(tester);
+
+    lists.writes.single.fail(const RateLimitFailure());
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 10));
+
+    expect(
+      find.text(failureMessage(l10n, const RateLimitFailure())),
+      findsOneWidget,
+    );
+  });
+
   testWidgets('deve pôr o filme de volta no desfazer', (tester) async {
     await pumpScreen(tester);
     await emitPage(tester, [movie(550)]);
@@ -235,6 +264,39 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('estante'), findsOneWidget);
+  });
+
+  testWidgets('deve mostrar o andamento enquanto apaga', (tester) async {
+    await pumpScreen(tester);
+    await emitPage(tester, []);
+    await openMenuItem(tester, l10n.listsDelete);
+
+    await tester.tap(find.widgetWithText(TextButton, l10n.listsDelete));
+    await tester.pump();
+
+    expect(find.byType(LinearProgressIndicator), findsOneWidget);
+  });
+
+  testWidgets('deve tirar o menu enquanto apaga', (tester) async {
+    await pumpScreen(tester);
+    await emitPage(tester, []);
+    await openMenuItem(tester, l10n.listsDelete);
+
+    await tester.tap(find.widgetWithText(TextButton, l10n.listsDelete));
+    await tester.pump();
+
+    expect(find.byTooltip(l10n.listsOptions('Terror')), findsNothing);
+  });
+
+  testWidgets('deve dizer que a conta saiu, e não que a lista foi apagada', (
+    tester,
+  ) async {
+    await pumpScreen(tester);
+
+    auth.emit(const SignedOut());
+    await tester.pump();
+
+    expect(find.text(l10n.listSignedOut), findsOneWidget);
   });
 
   testWidgets('deve dizer que a lista foi apagada em outro aparelho', (
