@@ -47,10 +47,7 @@ void main() {
   });
 
   test('deve avisar que a lista está cheia', () {
-    expect(
-      failureMessage(l10n, const ListFullFailure()),
-      l10n.failureListFull,
-    );
+    expect(failureMessage(l10n, const ListFullFailure()), l10n.failureListFull);
   });
 
   test('deve usar a mensagem genérica nas outras falhas', () {
