@@ -23,14 +23,11 @@ import 'firestore_support.dart';
 /// da Estante, porque o vínculo é um campo do documento do filme.
 class FirestoreMovieListsRepository implements MovieListsRepository {
   FirestoreMovieListsRepository({
-    required MovieListsGateway lists,
-    required ShelfGateway movies,
-    required String? Function() currentUid,
-    required UserDataWriteLock writeLock,
-  }) : _lists = lists,
-       _movies = movies,
-       _currentUid = currentUid,
-       _writeLock = writeLock;
+    required this._lists,
+    required this._movies,
+    required this._currentUid,
+    required this._writeLock,
+  });
 
   final MovieListsGateway _lists;
   final ShelfGateway _movies;

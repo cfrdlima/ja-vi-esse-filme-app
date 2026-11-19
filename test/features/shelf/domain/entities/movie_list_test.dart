@@ -6,8 +6,9 @@ void main() {
   MovieList listNamed(String name, {String id = 'Lst0aBcDeFgHiJkLmNoP'}) =>
       MovieList(id: id, name: ListName(name));
 
-  List<String> namesOf(List<MovieList> lists) =>
-      [for (final list in lists) list.name.value];
+  List<String> namesOf(List<MovieList> lists) => [
+    for (final list in lists) list.name.value,
+  ];
 
   group('MovieList', () {
     test('deve recusar o id vazio', () {
@@ -76,10 +77,10 @@ void main() {
         listNamed('terror', id: 'Lst0aBcDeFgHiJkLmNoP'),
       ]);
 
-      expect([for (final list in sorted) list.id], [
-        'Lst0aBcDeFgHiJkLmNoP',
-        'Lst1aBcDeFgHiJkLmNoP',
-      ]);
+      expect(
+        [for (final list in sorted) list.id],
+        ['Lst0aBcDeFgHiJkLmNoP', 'Lst1aBcDeFgHiJkLmNoP'],
+      );
     });
   });
 }

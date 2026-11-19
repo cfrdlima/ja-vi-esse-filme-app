@@ -8,10 +8,8 @@ void main() {
   const terror = 'Lst0aBcDeFgHiJkLmNoP';
   const comedy = 'Lst1aBcDeFgHiJkLmNoP';
 
-  ShelfDocument document(String id, Object? name) => (
-    id: id,
-    fields: {'name': name},
-  );
+  ShelfDocument document(String id, Object? name) =>
+      (id: id, fields: {'name': name});
 
   group('MovieListModel.listsFrom', () {
     test('deve ler as listas em ordem alfabética', () {

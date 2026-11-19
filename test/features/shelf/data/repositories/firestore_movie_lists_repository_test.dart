@@ -112,6 +112,8 @@ class _FakeListsGateway implements MovieListsGateway {
     lastFields = fields;
     if (failure case final Object error) throw error;
   }
+
+  Future<void> close() => lists.close();
 }
 
 class _FakeMoviesGateway implements ShelfGateway {
@@ -161,6 +163,8 @@ class _FakeMoviesGateway implements ShelfGateway {
   Future<void> deleteMovie(String uid, int movieId) async {
     calls.add('delete $uid $movieId');
   }
+
+  Future<void> close() => shelf.close();
 }
 
 FirebaseException _firestoreError(String code) => FirebaseException(
@@ -216,8 +220,8 @@ void main() {
   });
 
   tearDown(() async {
-    await listsGateway.lists.close();
-    await moviesGateway.shelf.close();
+    await listsGateway.close();
+    await moviesGateway.close();
   });
 
   group('watchLists', () {

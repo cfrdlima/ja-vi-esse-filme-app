@@ -450,7 +450,10 @@ void main() {
 
     test('deve ignorar lists que não é mapa', () {
       final movie = onShelf(
-        ShelfMovieModel.fromDocument(550, {...document(), 'lists': [terror]}),
+        ShelfMovieModel.fromDocument(550, {
+          ...document(),
+          'lists': [terror],
+        }),
       );
 
       expect(movie.listIds, isEmpty);
