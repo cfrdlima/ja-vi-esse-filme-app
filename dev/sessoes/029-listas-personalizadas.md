@@ -16,7 +16,7 @@ Permitir que o usuário logado crie, renomeie e apague listas próprias e adicio
 - [x] `movies.lists`: mapa de até 50 chaves no formato do id, nunca vazio, uma chave mudada por escrita, a nova com `request.time` e as antigas intactas
 - [x] `movies` sem marca com `lists` é aceito; sem marca e sem `lists`, recusado; nota e dia ainda exigem o `watchedAt`
 - [x] Negados: outro `uid`, sem login, outro provedor, `collectionGroup('lists')`, chave extra
-- [ ] `rules-file.test.js` confere `lists` na lista fixa; exclusão: o dono apaga listas e filmes, e não sobra nada em `users/{uid}`
+- [x] `rules-file.test.js` confere `lists` na lista fixa; exclusão: o dono apaga listas e filmes, e não sobra nada em `users/{uid}`. **Feito:** o `rules-file.test.js` não mudou (a comparação com o app pegou a falta de `lists`, que entrou no `UserCollections`); o teste da exclusão ganhou listas e um filme só numa lista, e passou de primeira depois das regras
 
 ### Domínio (RED/GREEN/REFACTOR)
 - [ ] `ListName`: recusa vazio, só espaços e acima do máximo; tira espaços das pontas
