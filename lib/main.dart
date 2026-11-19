@@ -119,8 +119,13 @@ Future<void> closeUserDataStreams(
   ShelfRepository shelf,
   MovieListsRepository lists,
 ) async {
-  await shelf.closeStreams();
-  await lists.closeStreams();
+  // Uma falha na Estante não pode deixar as listas ouvindo durante o
+  // `terminate()`.
+  try {
+    await shelf.closeStreams();
+  } finally {
+    await lists.closeStreams();
+  }
 }
 
 /// Sem o Firebase, [connect] não é chamado: o `FirebaseAuth.instance`
