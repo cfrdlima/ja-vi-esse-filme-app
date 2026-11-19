@@ -39,6 +39,20 @@ void main() {
     );
   });
 
+  test('deve avisar que a conta chegou ao teto de listas', () {
+    expect(
+      failureMessage(l10n, const ListLimitFailure()),
+      l10n.failureListLimit,
+    );
+  });
+
+  test('deve avisar que a lista está cheia', () {
+    expect(
+      failureMessage(l10n, const ListFullFailure()),
+      l10n.failureListFull,
+    );
+  });
+
   test('deve usar a mensagem genérica nas outras falhas', () {
     const others = <Failure>[
       UnauthorizedFailure(),
