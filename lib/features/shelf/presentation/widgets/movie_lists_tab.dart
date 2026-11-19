@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
-import '../../../../core/error/failures.dart';
 import '../../../../core/error/retry_wait.dart';
 import '../../../../core/l10n/failure_message.dart';
 import '../../../../core/routing/app_routes.dart';
@@ -21,6 +20,7 @@ import '../state/movie_lists_state.dart';
 import 'delete_list_dialog.dart';
 import 'list_name_dialog.dart';
 import 'list_rows_skeleton.dart';
+import 'write_notice.dart';
 
 /// A aba Listas da Estante com o notifier dela (decisão 019). Fica viva no
 /// `TabBarView`, como as abas das marcas. Lê do contexto o
@@ -95,56 +95,11 @@ Future<void> createList(BuildContext context) async {
   final notifier = context.read<MovieListsNotifier>();
   final name = await ListNameDialog.show(context);
   if (name == null || !context.mounted) return;
-  await _withNotice(context, () => notifier.create(name));
-}
-
-/// Roda a [action] e, se ela falhar, mostra a falha com "tentar de novo",
-/// que roda a [action] outra vez. Com [success], avisa também o sucesso.
-Future<void> _withNotice(
-  BuildContext context,
-  Future<void> Function() action, {
-  String? success,
-}) async {
-  // Pegos antes da espera: a tela pode sair antes de o servidor responder.
-  final messenger = ScaffoldMessenger.of(context);
-  final l10n = AppLocalizations.of(context);
-  try {
-    await action();
-    if (success != null) {
-      messenger.showSnackBar(SnackBar(content: Text(success)));
-    }
-  } on Failure catch (failure) {
-    messenger.showSnackBar(
-      SnackBar(
-        content: Text(failureMessage(l10n, failure)),
-        action: SnackBarAction(
-          label: l10n.retry,
-          onPressed: () => unawaited(
-            _withNoticeOn(messenger, l10n, action, success: success),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// O mesmo [_withNotice], sem o contexto, para o "tentar de novo" do aviso.
-Future<void> _withNoticeOn(
-  ScaffoldMessengerState messenger,
-  AppLocalizations l10n,
-  Future<void> Function() action, {
-  String? success,
-}) async {
-  try {
-    await action();
-    if (success != null) {
-      messenger.showSnackBar(SnackBar(content: Text(success)));
-    }
-  } on Failure catch (failure) {
-    messenger.showSnackBar(
-      SnackBar(content: Text(failureMessage(l10n, failure))),
-    );
-  }
+  await runWithNotice(
+    ScaffoldMessenger.of(context),
+    AppLocalizations.of(context),
+    () => notifier.create(name),
+  );
 }
 
 class _ListsView extends StatelessWidget {
@@ -264,14 +219,20 @@ class _ListTile extends StatelessWidget {
       case _ListAction.rename:
         final name = await ListNameDialog.show(context, initial: list.name);
         if (name == null || name == list.name || !context.mounted) return;
-        await _withNotice(context, () => notifier.rename(list, name));
+        await runWithNotice(
+          ScaffoldMessenger.of(context),
+          AppLocalizations.of(context),
+          () => notifier.rename(list, name),
+        );
       case _ListAction.delete:
         if (!await DeleteListDialog.confirm(context, list)) return;
         if (!context.mounted) return;
-        await _withNotice(
-          context,
+        final l10n = AppLocalizations.of(context);
+        await runWithNotice(
+          ScaffoldMessenger.of(context),
+          l10n,
           () => notifier.delete(list),
-          success: AppLocalizations.of(context).listsDeleted,
+          onSuccess: SnackBar(content: Text(l10n.listsDeleted)),
         );
     }
   }

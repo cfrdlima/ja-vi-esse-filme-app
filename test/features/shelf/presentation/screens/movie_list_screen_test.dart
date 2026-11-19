@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
@@ -181,7 +179,7 @@ void main() {
 
     await removeByLongPress(tester);
 
-    expect(lists.writes.single.movie, movie(550));
+    expect(lists.writes.single.movie?.copy.movieId, 550);
   });
 
   testWidgets('deve avisar o filme tirado com o desfazer', (tester) async {
@@ -213,6 +211,8 @@ void main() {
 
   testWidgets('deve renomear pelo menu', (tester) async {
     await pumpScreen(tester);
+    // Sem página, o skeleton pulsa e o `pumpAndSettle` não termina.
+    await emitPage(tester, []);
 
     await openMenuItem(tester, l10n.listsRename);
     await tester.enterText(find.byType(TextField), 'Suspense');
@@ -225,6 +225,8 @@ void main() {
 
   testWidgets('deve voltar para a Estante depois de apagar', (tester) async {
     await pumpScreen(tester);
+    // Sem página, o skeleton pulsa e o `pumpAndSettle` não termina.
+    await emitPage(tester, []);
     await openMenuItem(tester, l10n.listsDelete);
     await tester.tap(find.widgetWithText(TextButton, l10n.listsDelete));
     await tester.pump();
