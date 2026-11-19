@@ -19,9 +19,9 @@ Permitir que o usuário logado crie, renomeie e apague listas próprias e adicio
 - [x] `rules-file.test.js` confere `lists` na lista fixa; exclusão: o dono apaga listas e filmes, e não sobra nada em `users/{uid}`. **Feito:** o `rules-file.test.js` não mudou (a comparação com o app pegou a falta de `lists`, que entrou no `UserCollections`); o teste da exclusão ganhou listas e um filme só numa lista, e passou de primeira depois das regras
 
 ### Domínio (RED/GREEN/REFACTOR)
-- [ ] `ListName`: recusa vazio, só espaços e acima do máximo; tira espaços das pontas
-- [ ] Entidade `MovieList` (id, nome) e `ShelfMovie` com os ids das listas, sem conhecer o JSON
-- [ ] Contrato: listas em stream (ordem alfabética sem acento/caixa), criar (teto de 50), renomear, apagar, adicionar filme (teto de 200 por lista) e tirar, filmes de uma lista com limite crescente; falhas tipadas (sem conta, sem rede, teto atingido)
+- [x] `ListName`: recusa vazio, só espaços e acima do máximo; tira espaços das pontas
+- [x] Entidade `MovieList` (id, nome) e `ShelfMovie` com os ids das listas, sem conhecer o JSON
+- [x] Contrato: listas em stream (ordem alfabética sem acento/caixa), criar (teto de 50), renomear, apagar, adicionar filme (teto de 200 por lista) e tirar, filmes de uma lista com limite crescente; falhas tipadas (sem conta, sem rede, teto atingido). **Feito:** `MovieListsRepository` com `newList` (id local, sem gravar) e as contagens; `CreateMovieList` e `AddMovieToList` com os tetos e `ListLimitFailure`/`ListFullFailure` no `core`. A lista cheia é descoberta ao tocar, e não antes (contar cada lista ao abrir a folha custaria uma leitura por lista): o override do `detalhes.md` muda junto com a UI
 
 ### Data (RED/GREEN/REFACTOR, com fakes do gateway)
 - [ ] Model da lista e `lists` do filme com parse defensivo (nome inválido, chave fora do formato, valor que não é data)
