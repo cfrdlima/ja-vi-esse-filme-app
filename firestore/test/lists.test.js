@@ -120,13 +120,15 @@ describe('users/{uid}/lists/{listId}', () => {
     });
   }
 
-  for (const name of ['A', 'a'.repeat(50), 'Filmes de 2026 ✨', '😀'.repeat(50)]) {
+  // As regras contam unidades UTF-16, como o length do Dart: um emoji
+  // fora do plano básico conta 2 (conferido no emulador na sessão 029).
+  for (const name of ['A', 'a'.repeat(50), 'Filmes de 2026 ✨', '😀'.repeat(25)]) {
     test(`deve aceitar o nome ${JSON.stringify(name)}`, async () => {
       await assertSucceeds(setDoc(listRef(ownerDb()), { name }));
     });
   }
 
-  for (const name of ['', '   ', 'a'.repeat(51), 'Ter\nror', 'Ter\tror', 'Ter\u0000ror', 7, null]) {
+  for (const name of ['', '   ', 'a'.repeat(51), '😀'.repeat(26), 'Ter\nror', 'Ter\tror', 'Ter\u0000ror', 7, null]) {
     test(`deve negar o nome ${JSON.stringify(name)}`, async () => {
       await assertFails(setDoc(listRef(ownerDb()), { name }));
     });

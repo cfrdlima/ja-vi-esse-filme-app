@@ -12,10 +12,10 @@ Permitir que o usuário logado crie, renomeie e apague listas próprias e adicio
 - [ ] Conferir a limpeza mensal (`firestore/cleanup`): filme só em lista (sem marca) é renovado e, se sumiu do TMDB, apagado; órfãos com `lists`
 
 ### Regras do Firestore (RED/GREEN/REFACTOR, no emulador)
-- [ ] `lists/{listId}`: só o dono; id automático (20 `[A-Za-z0-9]`); só `name`, de 1 a 50, não só espaços, sem caractere de controle
-- [ ] `movies.lists`: mapa de até 50 chaves no formato do id, nunca vazio, uma chave mudada por escrita, a nova com `request.time` e as antigas intactas
-- [ ] `movies` sem marca com `lists` é aceito; sem marca e sem `lists`, recusado; nota e dia ainda exigem o `watchedAt`
-- [ ] Negados: outro `uid`, sem login, outro provedor, `collectionGroup('lists')`, chave extra
+- [x] `lists/{listId}`: só o dono; id automático (20 `[A-Za-z0-9]`); só `name`, de 1 a 50, não só espaços, sem caractere de controle
+- [x] `movies.lists`: mapa de até 50 chaves no formato do id, nunca vazio, uma chave mudada por escrita, a nova com `request.time` e as antigas intactas
+- [x] `movies` sem marca com `lists` é aceito; sem marca e sem `lists`, recusado; nota e dia ainda exigem o `watchedAt`
+- [x] Negados: outro `uid`, sem login, outro provedor, `collectionGroup('lists')`, chave extra
 - [ ] `rules-file.test.js` confere `lists` na lista fixa; exclusão: o dono apaga listas e filmes, e não sobra nada em `users/{uid}`
 
 ### Domínio (RED/GREEN/REFACTOR)
@@ -55,5 +55,6 @@ Permitir que o usuário logado crie, renomeie e apague listas próprias e adicio
 ## Commits
 
 ## Notas
+- **Regras (sessão 029):** o `keys().join(',')` existe e serve para validar as chaves do mapa; a junção também confere o tamanho exato, para uma chave com vírgula não se passar por duas. O `size()` de string conta unidades UTF-16 (25 emojis cabem em 50, 26 não), o mesmo que o `length` do Dart.
 - **Empilhada:** base na `feature/028-nota-e-data`; o PR vai com essa base, como a 026 a 028 (PRs #21 a #24 esperam o CI destravar).
 - **Tamanho:** se a sessão crescer demais, a UI (Estado e UI) pode ir para a 030, com domínio, regras, data e exclusão fechados aqui.

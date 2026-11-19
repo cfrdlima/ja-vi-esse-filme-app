@@ -7,10 +7,14 @@ abstract final class UserCollections {
   /// Um documento por filme marcado (decisão 013).
   static const movies = 'movies';
 
+  /// Uma lista personalizada, só com o nome. Os filmes dela ficam no mapa
+  /// `lists` do documento do filme (decisão 019).
+  static const lists = 'lists';
+
   /// As subcoleções de `users/{uid}`. Toda subcoleção nova entra aqui, nas
   /// regras e nos testes delas no mesmo ciclo. O teste
   /// `firestore/test/rules-file.test.js` confere esta lista com os `match`
-  /// do `firestore.rules`. Só um nível: os `items` das listas (Fase 3)
-  /// vão pedir exclusão aninhada no `FirestoreAccountDocuments`.
-  static const all = [movies];
+  /// do `firestore.rules`. Só um nível: nenhuma subcoleção tem outra dentro
+  /// (decisão 019).
+  static const all = [movies, lists];
 }

@@ -21,7 +21,7 @@ O que pesou na sessão 029:
 Opção 2.
 
 - **Lista:** `users/{uid}/lists/{listId}`, com só o campo `name`. O `listId` é o id automático do Firestore (`doc()`, 20 caracteres `[A-Za-z0-9]`), conferido nas regras. As listas aparecem em ordem alfabética, ordenadas no aparelho sem diferenciar maiúsculas e acentos, porque o `orderBy` do Firestore compara bytes. Com o teto de 50, a aba lê todas.
-- **Nome:** o domínio tira os espaços das pontas e exige de 1 a 50 caracteres, sem caractere de controle (quebra de linha, tab). As regras repetem o tamanho e o "não só espaços". Nomes repetidos são permitidos.
+- **Nome:** o domínio tira os espaços das pontas e exige de 1 a 50 unidades UTF-16 (o `length` do Dart, que é como as regras contam o `size()`, conferido no emulador: um emoji fora do plano básico conta 2), sem caractere de controle (quebra de linha, tab). As regras repetem o tamanho, o "não só espaços" e o caractere de controle (`\p{Cc}`). Nomes repetidos são permitidos. O contador do campo segue a mesma conta, e não a de grafemas, que é o padrão do `maxLength` do Flutter.
 - **Filme na lista:** o campo `lists` do documento do filme é um mapa de `listId` para a hora do servidor em que o filme entrou na lista. Ele é ausente quando o filme não está em lista nenhuma: as regras recusam o mapa vazio, e tirar o filme da última lista remove o campo. As regras exigem, a cada escrita:
   - no máximo 50 chaves (`lists.size() <= 50`), cada uma no formato do id da lista (`keys().join(',')` com regex; conferir no emulador no RED);
   - no máximo uma chave mudada por escrita (`diff().affectedKeys().size() <= 1`), sem mudar a hora de uma chave que já existe (`changedKeys()` vazio);

@@ -91,7 +91,15 @@ describe('mapa lists no documento do filme', () => {
     await assertFails(setDoc(movieRef(), { ...copyOnly(), lists: { [LIST_ID]: true } }));
   });
 
-  for (const listId of ['curta', 'Lst0aBcDeFgHiJkLmNoPQ', 'Lst0aBcDeFgHiJk-mNoP', 'Lst0aBcDeFgHiJk,mNoP']) {
+  // A última é um par de ids válidos numa chave só: a junção com vírgulas
+  // não pode se passar por duas chaves.
+  for (const listId of [
+    'curta',
+    'Lst0aBcDeFgHiJkLmNoPQ',
+    'Lst0aBcDeFgHiJk-mNoP',
+    'Lst0aBcDeFgHiJk,mNoP',
+    `${'a'.repeat(20)},${'b'.repeat(20)}`,
+  ]) {
     test(`deve negar a chave ${JSON.stringify(listId)}`, async () => {
       await assertFails(setDoc(movieRef(), { ...copyOnly(), lists: { [listId]: serverTimestamp() } }));
     });
@@ -114,6 +122,12 @@ describe('mapa lists no documento do filme', () => {
     await seed({ ...seededCopy(), lists: { [LIST_ID]: ADDED } });
 
     await assertFails(updateDoc(movieRef(), { [`lists.${OTHER_LIST_ID}`]: Timestamp.now() }));
+  });
+
+  test('deve negar mais uma lista com a hora de outra que já estava', async () => {
+    await seed({ ...seededCopy(), lists: { [LIST_ID]: ADDED } });
+
+    await assertFails(updateDoc(movieRef(), { [`lists.${OTHER_LIST_ID}`]: ADDED }));
   });
 
   test('deve negar mudar a hora de uma lista que já tem o filme', async () => {
