@@ -10,12 +10,15 @@ class CreateMovieList {
   final MovieListsRepository _lists;
 
   /// Grava a [list] do `MovieListsRepository.newList`. Falha com
-  /// [ListLimitFailure] no teto, sem gravar nada; as outras falhas são as
-  /// do `createList`. Offline, só completa quando o servidor confirma.
-  Future<void> call(MovieList list) async {
+  /// [ListLimitFailure] no teto, sem gravar nada. Passado o teto, completa
+  /// com a escrita em [saved], que só completa quando o servidor confirma
+  /// (offline, pode demorar horas) e traz as falhas do `createList`: quem
+  /// chama pode pôr um filme na lista nova sem esperar por ela. O record
+  /// impede que o `async` junte as duas esperas numa só.
+  Future<({Future<void> saved})> call(MovieList list) async {
     if (await _lists.countLists() >= MovieList.maxPerAccount) {
       throw const ListLimitFailure();
     }
-    await _lists.createList(list);
+    return (saved: _lists.createList(list));
   }
 }
