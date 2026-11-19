@@ -460,4 +460,110 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get shelfGoToProfile => 'Ir para o Perfil';
+
+  @override
+  String get shelfTabLists => 'Listas';
+
+  @override
+  String get listsLoading => 'Carregando suas listas';
+
+  @override
+  String get listsEmpty => 'Nenhuma lista ainda.';
+
+  @override
+  String get listsCreateAction => 'Criar lista';
+
+  @override
+  String get listsNew => 'Nova lista';
+
+  @override
+  String listsAtLimit(int count) {
+    return 'Você chegou ao limite de $count listas.';
+  }
+
+  @override
+  String listsOptions(String name) {
+    return 'Opções da lista $name';
+  }
+
+  @override
+  String get listsRename => 'Renomear';
+
+  @override
+  String get listsDelete => 'Apagar';
+
+  @override
+  String get listsRenameTitle => 'Renomear lista';
+
+  @override
+  String get listsNameLabel => 'Nome da lista';
+
+  @override
+  String listsNameCounter(int length, int max) {
+    return '$length/$max';
+  }
+
+  @override
+  String get listsNameEmpty => 'Dê um nome à lista.';
+
+  @override
+  String listsNameTooLong(int max) {
+    return 'Use até $max caracteres. Emojis contam 2.';
+  }
+
+  @override
+  String get listsNameControl => 'Tire a quebra de linha ou o tab do nome.';
+
+  @override
+  String get listsCreate => 'Criar';
+
+  @override
+  String get listsSave => 'Salvar';
+
+  @override
+  String get listsCancel => 'Cancelar';
+
+  @override
+  String listsDeleteTitle(String name) {
+    return 'Apagar a lista $name?';
+  }
+
+  @override
+  String get listsDeleteBody =>
+      'Os filmes saem desta lista, mas continuam nas suas marcas e nas outras listas.';
+
+  @override
+  String get listsDeleted => 'Lista apagada.';
+
+  @override
+  String listsDeleting(String name) {
+    return 'Apagando a lista $name';
+  }
+
+  @override
+  String get listEmpty => 'Nenhum filme nesta lista.';
+
+  @override
+  String get listGone => 'Esta lista foi apagada.';
+
+  @override
+  String get listBackToLists => 'Voltar para as listas';
+
+  @override
+  String get listRemoveMovie => 'Tirar da lista';
+
+  @override
+  String get listMovieRemoved => 'Filme tirado da lista.';
+
+  @override
+  String get listUndo => 'Desfazer';
+
+  @override
+  String get addToListAction => 'Adicionar à lista';
+
+  @override
+  String get addToListInLists => 'Nas suas listas';
+
+  @override
+  String get addToListNone => 'Você ainda não tem listas.';
 }
