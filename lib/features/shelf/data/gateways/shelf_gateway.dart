@@ -48,9 +48,8 @@ final class MapFields extends FieldWrite {
       fields.entries.every((e) => other.fields[e.key] == e.value);
 
   @override
-  int get hashCode => Object.hashAllUnordered(
-    fields.entries.map((e) => (e.key, e.value)),
-  );
+  int get hashCode =>
+      Object.hashAllUnordered(fields.entries.map((e) => (e.key, e.value)));
 
   @override
   String toString() => 'MapFields($fields)';

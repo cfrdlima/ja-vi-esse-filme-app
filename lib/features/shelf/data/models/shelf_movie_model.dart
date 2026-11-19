@@ -6,6 +6,7 @@ import '../../domain/entities/shelf_movie.dart';
 import '../../domain/entities/shelf_page.dart';
 import '../../domain/entities/watched_on.dart';
 import '../gateways/shelf_gateway.dart';
+import 'list_id.dart';
 
 /// Converte o documento `users/{uid}/movies/{movieId}` (decisões 013, 018
 /// e 019), já com as datas em `DateTime`, na entidade do domínio.
@@ -23,9 +24,6 @@ abstract final class ShelfMovieModel {
   static const _rating = 'rating';
   static const _watchedOn = 'watchedOn';
   static const _lists = 'lists';
-
-  // Igual à `isListId` do `firestore.rules`: o id automático do Firestore.
-  static final _listId = RegExp(r'^[A-Za-z0-9]{20}$');
 
   /// Parse defensivo: uma marca que não é data é ignorada, e o documento sem
   /// nenhuma marca nem lista é [NotOnShelf]. A nota ou o dia ilegível, ou
@@ -58,7 +56,7 @@ abstract final class ShelfMovieModel {
   static Map<String, DateTime> _listsOf(Object? value) => switch (value) {
     final Map<String, Object?> lists => {
       for (final MapEntry(:key, :value) in lists.entries)
-        if (_listId.hasMatch(key) && value is DateTime) key: value,
+        if (listIdPattern.hasMatch(key) && value is DateTime) key: value,
     },
     _ => const {},
   };
@@ -70,7 +68,7 @@ abstract final class ShelfMovieModel {
       '$_lists.${_checkedListId(listId)}';
 
   static String _checkedListId(String listId) {
-    if (!_listId.hasMatch(listId)) {
+    if (!listIdPattern.hasMatch(listId)) {
       throw ArgumentError.value(listId, 'listId', 'fora do formato do id');
     }
     return listId;
