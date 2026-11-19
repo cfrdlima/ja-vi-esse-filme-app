@@ -73,6 +73,13 @@ class ShelfMarksNotifier extends ChangeNotifier {
   /// confirmou. Nulo nos outros casos, inclusive deslogado.
   ValueListenable<ShelfMovie?> get watchedMovie => _watchedMovie;
 
+  final _confirmedEntry = ValueNotifier<ShelfEntry?>(null);
+
+  /// O último evento da Estante, sem as escritas otimistas, para a folha
+  /// das listas (decisão 019) saber em que listas o filme está. Nulo sem a
+  /// Estante lida, inclusive deslogado.
+  ValueListenable<ShelfEntry?> get confirmedEntry => _confirmedEntry;
+
   /// Liga ou desliga a [mark]. Sem as marcas lidas (deslogado, carregando ou
   /// com erro), não faz nada: quem está deslogado passa pelo login antes.
   void toggle(ShelfMark mark) {
@@ -243,6 +250,7 @@ class ShelfMarksNotifier extends ChangeNotifier {
     if (_disposed) return;
     _state = state;
     notifyListeners();
+    _confirmedEntry.value = _confirmed;
     _watchedMovie.value = switch ((state, _confirmed)) {
       (final ShelfMarksReady ready, OnShelf(:final movie))
           when ready.isMarked(ShelfMark.watched) &&
@@ -256,6 +264,7 @@ class ShelfMarksNotifier extends ChangeNotifier {
   void dispose() {
     _disposed = true;
     _watchedMovie.dispose();
+    _confirmedEntry.dispose();
     unawaited(_accountSubscription.cancel());
     unawaited(_watchSubscription?.cancel());
     super.dispose();
