@@ -40,6 +40,20 @@ class _FakeListsGateway implements MovieListsGateway {
   /// Nunca completa a leitura do servidor.
   bool fetchHangs = false;
 
+  /// O filme como o servidor o tem; vazio, o documento não existe.
+  Map<String, Object?> serverMovie = const {};
+  Object? serverMovieFailure;
+
+  @override
+  Future<Map<String, Object?>> fetchMovieFromServer(
+    String uid,
+    int movieId,
+  ) async {
+    calls.add('read server $movieId');
+    if (serverMovieFailure case final Object error) throw error;
+    return serverMovie;
+  }
+
   @override
   Stream<List<ShelfDocument>> watchLists(String uid, int limit) {
     calls.add('lists $uid $limit');
@@ -124,6 +138,10 @@ class _FakeMoviesGateway implements ShelfGateway {
   /// Falha só no `update`, para o `delete` seguinte poder dar certo.
   Object? updateFailure;
 
+  /// Falha só no primeiro `update`, como a recusa de uma escrita feita com o
+  /// filme velho do aparelho.
+  Object? firstUpdateFailure;
+
   @override
   Stream<Map<String, Object?>> watchMovie(String uid, int movieId) =>
       const Stream.empty();
@@ -156,6 +174,10 @@ class _FakeMoviesGateway implements ShelfGateway {
   ) async {
     calls.add('update $uid $movieId');
     lastFields = fields;
+    if (firstUpdateFailure case final Object error) {
+      firstUpdateFailure = null;
+      throw error;
+    }
     if (updateFailure case final Object error) throw error;
   }
 
@@ -467,12 +489,99 @@ void main() {
     });
 
     // O aparelho via outra lista que no servidor já tinha saído.
-    test('deve apagar o filme quando as regras negam tirar a lista', () async {
-      moviesGateway.updateFailure = _firestoreError('permission-denied');
+    // O aparelho via outra lista que no servidor já tinha saído: as regras
+    // recusam o mapa vazio, e apagar levaria as marcas, a nota e o dia
+    // (`/revisar` da sessão 029).
+    group('com a recusa das regras', () {
+      Map<String, Object?> serverFields(
+        Set<String> listIds, {
+        bool watched = false,
+      }) => {
+        'title': 'Clube da Luta',
+        'cachedAt': at,
+        if (watched) 'watchedAt': at,
+        if (listIds.isNotEmpty) 'lists': {for (final id in listIds) id: at},
+      };
 
-      await repository.removeFromList(movieIn({_terrorId, _comedyId}), terror);
+      setUp(() {
+        moviesGateway.firstUpdateFailure = _firestoreError('permission-denied');
+      });
 
-      expect(moviesGateway.calls, ['update alice 550', 'delete alice 550']);
+      test('deve reler o filme do servidor', () async {
+        listsGateway.serverMovie = serverFields({_terrorId}, watched: true);
+
+        await repository.removeFromList(
+          movieIn({_terrorId, _comedyId}),
+          terror,
+        );
+
+        expect(listsGateway.calls, ['read server 550']);
+      });
+
+      test('deve refazer a escrita com o filme do servidor', () async {
+        listsGateway.serverMovie = serverFields({_terrorId}, watched: true);
+
+        await repository.removeFromList(
+          movieIn({_terrorId, _comedyId}),
+          terror,
+        );
+
+        expect(moviesGateway.lastFields, {'lists': const DeleteField()});
+      });
+
+      test('não deve apagar o filme marcado no servidor', () async {
+        listsGateway.serverMovie = serverFields({_terrorId}, watched: true);
+
+        await repository.removeFromList(
+          movieIn({_terrorId, _comedyId}),
+          terror,
+        );
+
+        expect(moviesGateway.calls, isNot(contains('delete alice 550')));
+      });
+
+      test(
+        'deve apagar quando no servidor a lista era o único motivo',
+        () async {
+          listsGateway.serverMovie = serverFields({_terrorId});
+
+          await repository.removeFromList(
+            movieIn({_terrorId, _comedyId}),
+            terror,
+          );
+
+          expect(moviesGateway.calls.last, 'delete alice 550');
+        },
+      );
+
+      test('não deve escrever quando o filme já saiu da lista', () async {
+        listsGateway.serverMovie = serverFields({_comedyId}, watched: true);
+
+        await repository.removeFromList(
+          movieIn({_terrorId, _comedyId}),
+          terror,
+        );
+
+        expect(moviesGateway.calls, ['update alice 550']);
+      });
+
+      test('não deve escrever quando o filme não existe mais', () async {
+        await repository.removeFromList(
+          movieIn({_terrorId, _comedyId}),
+          terror,
+        );
+
+        expect(moviesGateway.calls, ['update alice 550']);
+      });
+
+      test('deve falhar com NetworkFailure sem rede para reler', () async {
+        listsGateway.serverMovieFailure = _firestoreError('unavailable');
+
+        await expectLater(
+          repository.removeFromList(movieIn({_terrorId, _comedyId}), terror),
+          throwsA(isA<NetworkFailure>()),
+        );
+      });
     });
 
     test('deve aceitar o filme que já não existe', () async {
