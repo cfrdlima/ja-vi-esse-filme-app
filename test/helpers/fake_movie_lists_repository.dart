@@ -92,12 +92,43 @@ class FakeMovieListsRepository implements MovieListsRepository {
   Future<void> removeFromList(ShelfMovie movie, MovieList list) =>
       _write(ListWriteKind.remove, list, movie: movie);
 
-  @override
-  Stream<List<MovieList>> watchLists() => const Stream.empty();
+  final List<StreamController<List<MovieList>>> _listWatches = [];
+
+  int get watchListsCalls => _listWatches.length;
+
+  /// Quantos streams do `watchLists` ainda têm alguém ouvindo.
+  int get activeListWatches =>
+      _listWatches.where((watch) => watch.hasListener).length;
+
+  /// Alimenta o último `watchLists`.
+  void emitLists(List<MovieList> lists) => _listWatches.last.add(lists);
+
+  void emitListsError(Object error) => _listWatches.last.addError(error);
+
+  /// Encerra o último `watchLists`, como o `closeStreams()` do logout.
+  void endLists() => unawaited(_listWatches.last.close());
 
   @override
-  Stream<ShelfPage> watchList(MovieList list, {required int limit}) =>
-      const Stream.empty();
+  Stream<List<MovieList>> watchLists() {
+    final controller = StreamController<List<MovieList>>();
+    _listWatches.add(controller);
+    return controller.stream;
+  }
+
+  final List<StreamController<ShelfPage>> _pageWatches = [];
+
+  /// A lista e o limite de cada `watchList`, em ordem.
+  final List<({MovieList list, int limit})> pageCalls = [];
+
+  void emitPage(ShelfPage page) => _pageWatches.last.add(page);
+
+  @override
+  Stream<ShelfPage> watchList(MovieList list, {required int limit}) {
+    pageCalls.add((list: list, limit: limit));
+    final controller = StreamController<ShelfPage>();
+    _pageWatches.add(controller);
+    return controller.stream;
+  }
 
   @override
   Future<void> closeStreams() async {}
