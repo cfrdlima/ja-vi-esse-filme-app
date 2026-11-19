@@ -38,7 +38,7 @@ void main() {
     test('não deve gravar nada no teto', () async {
       lists.listsCount = MovieList.maxPerAccount;
 
-      await create(terror).catchError((Object _) {});
+      await create(terror).then((_) {}, onError: (Object _) {});
 
       expect(lists.writes, isEmpty);
     });
@@ -49,13 +49,22 @@ void main() {
       await expectLater(create(terror), throwsA(isA<NetworkFailure>()));
     });
 
-    test('deve completar quando o servidor confirma', () async {
-      final created = create(terror);
-      await pumpEventQueue();
+    // Passado o teto, quem chama pode pôr um filme na lista nova sem
+    // esperar o servidor, que offline demora (decisão 019).
+    test('deve devolver a escrita antes de o servidor confirmar', () async {
+      final created = await create(terror);
 
       lists.writes.single.complete();
 
-      await expectLater(created, completes);
+      await expectLater(created.saved, completes);
+    });
+
+    test('deve entregar na escrita a recusa do servidor', () async {
+      final created = await create(terror);
+
+      lists.writes.single.fail(const RateLimitFailure());
+
+      await expectLater(created.saved, throwsA(isA<RateLimitFailure>()));
     });
   });
 }
