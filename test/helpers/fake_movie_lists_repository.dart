@@ -130,6 +130,8 @@ class FakeMovieListsRepository implements MovieListsRepository {
     return controller.stream;
   }
 
+  var closeStreamsCalls = 0;
+
   @override
-  Future<void> closeStreams() async {}
+  Future<void> closeStreams() async => closeStreamsCalls++;
 }

@@ -8,6 +8,7 @@ import 'package:ja_vi_esse_filme/features/auth/domain/entities/auth_state.dart';
 import 'package:ja_vi_esse_filme/features/auth/domain/repositories/auth_repository.dart';
 import 'package:ja_vi_esse_filme/features/auth/presentation/state/session_notifier.dart';
 import 'package:ja_vi_esse_filme/features/auth/presentation/state/session_state.dart';
+import 'package:ja_vi_esse_filme/features/shelf/data/repositories/unavailable_movie_lists_repository.dart';
 import 'package:ja_vi_esse_filme/features/shelf/data/repositories/unavailable_shelf_repository.dart';
 import 'package:ja_vi_esse_filme/features/shelf/domain/repositories/shelf_repository.dart';
 import 'package:ja_vi_esse_filme/main.dart';
@@ -15,17 +16,20 @@ import 'package:provider/provider.dart';
 
 import 'helpers/fake_auth_repository.dart';
 import 'helpers/fake_link_opener.dart';
+import 'helpers/fake_movie_lists_repository.dart';
 import 'helpers/fake_shelf_repository.dart';
 import 'helpers/stub_movie_repository.dart';
 
 void main() {
   late FakeAuthRepository authRepository;
   late FakeShelfRepository shelfRepository;
+  late FakeMovieListsRepository movieListsRepository;
   late List<String> evictedPhotos;
 
   setUp(() {
     authRepository = FakeAuthRepository();
     shelfRepository = FakeShelfRepository();
+    movieListsRepository = FakeMovieListsRepository();
     evictedPhotos = [];
   });
   tearDown(() async {
@@ -38,6 +42,7 @@ void main() {
         movieRepository: StubMovieRepository(),
         authRepository: authRepository,
         shelfRepository: shelfRepository,
+        movieListsRepository: movieListsRepository,
         linkOpener: linkOpener ?? FakeLinkOpener(),
         appVersion: appVersion,
         evictPhoto: evictedPhotos.add,
@@ -178,6 +183,43 @@ void main() {
       );
 
       expect(repository, same(connected));
+    });
+  });
+
+  group('composeMovieListsRepository', () {
+    test('deve usar as listas indisponíveis quando o Firebase não subiu', () {
+      final repository = composeMovieListsRepository(
+        firebaseAvailable: false,
+        connect: () => throw StateError('não deveria tocar no Firebase'),
+      );
+
+      expect(repository, isA<UnavailableMovieListsRepository>());
+    });
+
+    test('deve conectar ao Firestore quando o Firebase subiu', () {
+      final connected = FakeMovieListsRepository();
+
+      final repository = composeMovieListsRepository(
+        firebaseAvailable: true,
+        connect: () => connected,
+      );
+
+      expect(repository, same(connected));
+    });
+  });
+
+  // O logout fecha os streams antes de limpar o cache (decisão 010).
+  group('closeUserDataStreams', () {
+    test('deve fechar os streams da Estante', () async {
+      await closeUserDataStreams(shelfRepository, movieListsRepository);
+
+      expect(shelfRepository.closeStreamsCalls, 1);
+    });
+
+    test('deve fechar os streams das listas', () async {
+      await closeUserDataStreams(shelfRepository, movieListsRepository);
+
+      expect(movieListsRepository.closeStreamsCalls, 1);
     });
   });
 
