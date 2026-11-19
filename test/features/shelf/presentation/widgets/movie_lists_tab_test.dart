@@ -137,10 +137,14 @@ void main() {
     await tester.tap(find.text(l10n.listsNew));
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextField), 'Ação');
+    await tester.pump();
     await tester.tap(find.text(l10n.listsCreate));
     await tester.pumpAndSettle();
 
-    expect(find.text('Ação'), findsOneWidget);
+    expect(
+      [find.text('Ação'), find.byType(TextField)],
+      [findsOneWidget, findsNothing],
+    );
   });
 
   testWidgets('deve desabilitar a Nova lista no teto', (tester) async {
@@ -179,6 +183,7 @@ void main() {
     await tester.tap(find.text(l10n.listsNew));
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextField), 'Ação');
+    await tester.pump();
     await tester.tap(find.text(l10n.listsCreate));
     await tester.pumpAndSettle();
 
@@ -199,10 +204,14 @@ void main() {
     await tester.tap(find.text(l10n.listsRename));
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextField), 'Suspense');
+    await tester.pump();
     await tester.tap(find.text(l10n.listsSave));
     await tester.pumpAndSettle();
 
-    expect(find.text('Suspense'), findsOneWidget);
+    expect(
+      [find.text('Suspense'), find.byType(TextField)],
+      [findsOneWidget, findsNothing],
+    );
   });
 
   testWidgets('deve perguntar antes de apagar', (tester) async {

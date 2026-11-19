@@ -7,6 +7,9 @@ abstract final class AppRoutes {
   static const profile = '/perfil';
   static const about = '$profile/sobre';
 
+  /// A lista personalizada [listId], empilhada na aba Estante (decisão 019).
+  static String shelfList(String listId) => '$shelf/listas/$listId';
+
   /// Detalhes do filme [id] dentro da aba [tabPath] ([discover] ou [search]),
   /// com a barra das abas visível e o voltar devolvendo a grade.
   static String movieDetails(String tabPath, int id) => '$tabPath/filme/$id';
