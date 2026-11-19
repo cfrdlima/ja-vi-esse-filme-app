@@ -268,6 +268,18 @@ abstract class AppLocalizations {
   /// **'Entre com o Google para guardar seus filmes.'**
   String get failureSignInRequired;
 
+  /// Criar lista com a conta já no teto de listas (decisão 019)
+  ///
+  /// In pt, this message translates to:
+  /// **'Você chegou ao limite de 50 listas. Apague uma para criar outra.'**
+  String get failureListLimit;
+
+  /// Pôr um filme numa lista que já tem o teto de filmes (decisão 019)
+  ///
+  /// In pt, this message translates to:
+  /// **'Esta lista chegou ao limite de 200 filmes.'**
+  String get failureListFull;
+
   /// Qualquer outra falha do TMDB (401, 404, 5xx, resposta inesperada) ou da conta. Neutra: não cita o TMDB
   ///
   /// In pt, this message translates to:

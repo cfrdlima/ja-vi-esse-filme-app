@@ -114,6 +114,13 @@ class AppLocalizationsPt extends AppLocalizations {
       'Entre com o Google para guardar seus filmes.';
 
   @override
+  String get failureListLimit =>
+      'Você chegou ao limite de 50 listas. Apague uma para criar outra.';
+
+  @override
+  String get failureListFull => 'Esta lista chegou ao limite de 200 filmes.';
+
+  @override
   String get failureGeneric => 'Algo deu errado. Tente de novo em instantes.';
 
   @override
