@@ -14,6 +14,7 @@ import 'package:ja_vi_esse_filme/features/profile/presentation/widgets/account_a
 import 'package:ja_vi_esse_filme/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../helpers/accessibility.dart';
 import '../../../../helpers/fake_auth_repository.dart';
 import '../../../../helpers/test_app.dart';
 
@@ -811,5 +812,101 @@ void main() {
       tester.widget<AnimatedSwitcher>(find.byType(AnimatedSwitcher)).duration,
       Duration.zero,
     );
+  });
+
+  // Testes de caracterização (decisão 020): o Perfil já passava na auditoria.
+  group('acessibilidade num celular estreito', () {
+    final ana = AppUser(
+      uid: 'abc123',
+      displayName: 'Ana Souza de Albuquerque Cavalcanti',
+      email: 'ana.souza.albuquerque@example.com',
+    );
+
+    Future<void> signedIn(WidgetTester tester, TextScaler textScaler) async {
+      repository.emit(SignedIn(ana));
+      await pumpProfile(tester, textScaler: textScaler);
+      await tester.pumpAndSettle();
+    }
+
+    Future<void> deleting(WidgetTester tester, TextScaler textScaler) async {
+      await signedIn(tester, textScaler);
+      final entry = find.widgetWithText(TextButton, l10n.profileDeleteAccount);
+      await tester.ensureVisible(entry);
+      await tester.pumpAndSettle();
+      await tester.tap(entry);
+      await tester.pumpAndSettle();
+      await tester.tap(
+        find.descendant(
+          of: find.byType(AlertDialog),
+          matching: find.text(l10n.profileDeleteAccount),
+        ),
+      );
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 1));
+    }
+
+    final states = <String, Future<void> Function(WidgetTester, TextScaler)>{
+      'sem conta': (tester, textScaler) async {
+        repository.emit(const SignedOut());
+        await pumpProfile(tester, textScaler: textScaler);
+        await tester.pump();
+      },
+      'na falha do login': (tester, textScaler) async {
+        repository.emit(const SignedOut());
+        await pumpProfile(tester, textScaler: textScaler);
+        await tester.pump();
+        await tester.ensureVisible(find.text(l10n.signInWithGoogle));
+        await tester.pump();
+        await tester.tap(find.text(l10n.signInWithGoogle));
+        repository.failSignIn(const NetworkFailure());
+        await tester.pump();
+      },
+      'com a conta aberta': signedIn,
+      'no aviso das marcas sem sincronizar': (tester, textScaler) async {
+        repository.synced = false;
+        await signedIn(tester, textScaler);
+        await tester.tap(find.text(l10n.profileSignOut));
+        await tester.pump();
+      },
+      'na falha do logout': (tester, textScaler) async {
+        repository.signOutError = const NetworkFailure();
+        await signedIn(tester, textScaler);
+        await tester.tap(find.text(l10n.profileSignOut));
+        await tester.pump();
+      },
+      'na confirmação de excluir a conta': (tester, textScaler) async {
+        await signedIn(tester, textScaler);
+        final entry = find.widgetWithText(
+          TextButton,
+          l10n.profileDeleteAccount,
+        );
+        await tester.ensureVisible(entry);
+        await tester.pumpAndSettle();
+        await tester.tap(entry);
+        await tester.pumpAndSettle();
+      },
+      'enquanto exclui a conta': deleting,
+      'na falha da exclusão': (tester, textScaler) async {
+        await deleting(tester, textScaler);
+        repository.failDeletion(const NetworkFailure());
+        await tester.pumpAndSettle();
+      },
+      'depois da conta excluída': (tester, textScaler) async {
+        await deleting(tester, textScaler);
+        repository.completeDeletion(const AccountDeleted());
+        await tester.pumpAndSettle();
+      },
+    };
+    final fonts = {'': TextScaler.noScaling, ' com a fonte 2x': largeFont};
+    for (final MapEntry(key: state, value: reach) in states.entries) {
+      for (final MapEntry(key: font, value: textScaler) in fonts.entries) {
+        testWidgets('deve ser acessível $state$font', (tester) async {
+          useNarrowPhone(tester);
+          await reach(tester, textScaler);
+
+          await expectAccessible(tester);
+        });
+      }
+    }
   });
 }
