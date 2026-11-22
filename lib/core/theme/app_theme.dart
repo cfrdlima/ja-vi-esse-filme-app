@@ -6,6 +6,7 @@ import 'app_sizes.dart';
 import 'app_spacing.dart';
 import 'app_theme_tokens.dart';
 import 'app_typography.dart';
+import 'reduced_motion_page_transitions.dart';
 
 /// `ThemeData` do app, montado a partir dos tokens do `MASTER.md`.
 abstract final class AppTheme {
@@ -28,6 +29,16 @@ abstract final class AppTheme {
       fontFamily: AppTypography.bodyFamily,
       textTheme: AppTypography.textTheme,
       extensions: const [AppThemeTokens.dark],
+      // Só o Android, que é o alvo (CLAUDE.md); as outras plataformas seguem
+      // as padrão do Flutter, com o gesto de voltar do iOS dentro da dela.
+      pageTransitionsTheme: PageTransitionsTheme(
+        builders: {
+          ...const PageTransitionsTheme().builders,
+          TargetPlatform.android: const ReducedMotionPageTransitions(
+            PredictiveBackPageTransitionsBuilder(),
+          ),
+        },
+      ),
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
           minimumSize: _minTouchTarget,
