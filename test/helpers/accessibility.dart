@@ -13,6 +13,13 @@ void useNarrowPhone(WidgetTester tester) {
   addTearDown(tester.view.reset);
 }
 
+/// Fonte em [largeFont] no app inteiro, para a tela que não monta um
+/// `MediaQuery` próprio por cima do `MaterialApp`.
+void useLargeFont(WidgetTester tester) {
+  tester.platformDispatcher.textScaleFactorTestValue = largeFont.scale(1);
+  addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+}
+
 /// Confere o layout sem vazar e as três guidelines do Flutter (decisão 020):
 /// alvo de toque de 48dp, rótulo em todo alvo e contraste AA.
 Future<void> expectAccessible(WidgetTester tester) async {

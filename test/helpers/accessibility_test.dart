@@ -42,6 +42,19 @@ void main() {
     });
   });
 
+  group('useLargeFont', () {
+    testWidgets('deve dobrar a fonte do app', (tester) async {
+      useLargeFont(tester);
+      await tester.pumpWidget(button());
+
+      final scaler = MediaQuery.textScalerOf(
+        tester.element(find.byType(Scaffold)),
+      );
+
+      expect(scaler.scale(10), 20);
+    });
+  });
+
   group('expectAccessible', () {
     testWidgets('deve aceitar o alvo de 48dp com rótulo', (tester) async {
       await tester.pumpWidget(button());
