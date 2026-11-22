@@ -10,6 +10,7 @@ import 'package:ja_vi_esse_filme/features/about/presentation/widgets/licenses_se
 import 'package:ja_vi_esse_filme/features/about/presentation/widgets/privacy_section.dart';
 import 'package:ja_vi_esse_filme/l10n/app_localizations.dart';
 
+import '../../../../helpers/accessibility.dart';
 import '../../../../helpers/test_app.dart';
 
 void main() {
@@ -192,6 +193,33 @@ void main() {
 
       expect(tester.takeException(), isNull);
     });
+  });
+
+  // Testes de caracterização (decisão 020): o Sobre já passava na auditoria.
+  group('acessibilidade num celular estreito', () {
+    final fonts = {'': TextScaler.noScaling, ' com a fonte 2x': largeFont};
+    for (final MapEntry(key: font, value: textScaler) in fonts.entries) {
+      testWidgets('deve ser acessível no topo$font', (tester) async {
+        useNarrowPhone(tester);
+        await pumpAbout(tester, textScaler: textScaler);
+
+        await expectAccessible(tester);
+      });
+
+      testWidgets('deve ser acessível no fim, com as licenças$font', (
+        tester,
+      ) async {
+        useNarrowPhone(tester);
+        await pumpAbout(tester, textScaler: textScaler);
+        await tester.drag(
+          find.byType(Scrollable).first,
+          const Offset(0, -9000),
+        );
+        await tester.pumpAndSettle();
+
+        await expectAccessible(tester);
+      });
+    }
   });
 }
 
