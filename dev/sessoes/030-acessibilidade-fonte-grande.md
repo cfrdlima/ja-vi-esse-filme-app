@@ -18,10 +18,10 @@ Garantir, com testes, que todas as telas do app cumprem o checklist de acessibil
 - [x] Detalhes: cabeçalho, marcas, "Adicionar à lista", elenco e trailers. **Feito:** tela deslogada (carregando, sucesso, fim com elenco e trailers, sem dados, erro e não encontrado), marcas, diário e folha. O calendário do diário não tem 48dp por dia abaixo de cerca de 392dp; o usuário escolheu a exceção registrada na decisão 020. Os hosts dos testes de widget ganharam a margem dos Detalhes, porque a guideline de alvo ignora o que encosta na borda (a quebra dos chips das marcas passava sem a margem)
 - [x] Estante: as 4 abas, a barra de marcas e o diário. **Feito:** convite, filmes com cópia vencida, vazio, erro e Listas cheia e vazia; validada sem o rótulo do pôster e com o menu da lista encolhido. Barra de marcas e diário vão com os Detalhes
 - [x] Tela da lista: linhas, menu, desfazer e diálogos de renomear e apagar. **Feito, com a primeira falha real:** o aviso com "Desfazer" vazava 0,8px e o de falha com "Tentar de novo" 169px, com a fonte 2x em 320dp. O `SnackBarAction` do Flutter 3.47 mede o rótulo sem a escala e põe a ação numa `Row` sem limite. Correção: `actionSnackBar` (`core/widgets`), com `Wrap`, `persist` e toque único, usado no desfazer e no `runWithNotice`
-- [ ] Folhas e diálogos: login, "Adicionar à lista", apagar a conta, sair com escrita pendente, desmarcar
+- [x] Folhas e diálogos: login, "Adicionar à lista", apagar a conta, sair com escrita pendente, desmarcar. **Feito:** Perfil (sem conta, falha do login, conta aberta, aviso sem sincronizar, falha do logout, confirmação, excluindo, falha e conta excluída), folha de login (aberta, entrando, falha), Sobre (topo e fim) e os diálogos de criar, renomear e apagar lista e de desmarcar. Cada arquivo validado com uma quebra de propósito (alvo encolhido ou rótulo tirado)
 
 ### Fonte grande (RED/GREEN/REFACTOR por tela)
-- [ ] Escala 2.0 sem overflow em cada tela e estado que hoje só tem 1.5 ou nada
+- [x] Escala 2.0 sem overflow em cada tela e estado que hoje só tem 1.5 ou nada. **Feito** junto com as guidelines: cada estado roda com a fonte normal e com 2x em 320dp
 - [ ] Skeleton dos detalhes com a altura da linha de texto escalada (BACKLOG, revisão da 011, S6)
 
 ### Leitor de tela
