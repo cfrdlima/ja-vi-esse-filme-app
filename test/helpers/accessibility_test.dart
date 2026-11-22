@@ -70,6 +70,18 @@ void main() {
       expect(failure, isA<TestFailure>());
     });
 
+    testWidgets('deve aceitar o alvo pequeno com a guideline dispensada', (
+      tester,
+    ) async {
+      await tester.pumpWidget(button(size: 40));
+
+      final failure = await _failureOf(
+        expectAccessible(tester, except: {androidTapTargetGuideline}),
+      );
+
+      expect(failure, isNull);
+    });
+
     testWidgets('deve recusar o alvo sem rótulo', (tester) async {
       await tester.pumpWidget(button(label: null));
 

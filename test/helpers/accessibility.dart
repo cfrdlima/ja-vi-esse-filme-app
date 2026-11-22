@@ -22,7 +22,16 @@ void useLargeFont(WidgetTester tester) {
 
 /// Confere o layout sem vazar e as três guidelines do Flutter (decisão 020):
 /// alvo de toque de 48dp, rótulo em todo alvo e contraste AA.
-Future<void> expectAccessible(WidgetTester tester) async {
+///
+/// A guideline de alvo ignora o que encosta na borda da tela, porque pode
+/// estar cortado: o widget testado sozinho precisa da margem da tela real.
+///
+/// O [except] dispensa uma guideline só nas exceções registradas na decisão
+/// 020, como o calendário do Material, que não cabe em 48dp por dia.
+Future<void> expectAccessible(
+  WidgetTester tester, {
+  Set<AccessibilityGuideline> except = const {},
+}) async {
   expect(tester.takeException(), isNull, reason: 'o layout não pode vazar');
   final semantics = tester.ensureSemantics();
   await tester.pump();
@@ -30,7 +39,7 @@ Future<void> expectAccessible(WidgetTester tester) async {
     // `evaluate` + `fail`, e não `expectLater(meetsGuideline)`: o matcher
     // registra a falha direto no teste, e o próprio teste do ajudante não
     // conseguiria conferir que ele recusa.
-    for (final guideline in _guidelines) {
+    for (final guideline in _guidelines.where((g) => !except.contains(g))) {
       final evaluation = await guideline.evaluate(tester);
       if (!evaluation.passed) fail(evaluation.reason ?? guideline.description);
     }
