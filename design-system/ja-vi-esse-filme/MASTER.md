@@ -125,7 +125,7 @@ Regras:
 - **Feedback de toque:** todo elemento clicável usa `InkWell`/ripple do Material (sem hover), alvo mínimo **48×48dp** e 8dp entre alvos.
 - **Durações:** curta 150 ms (estado de botão, seleção) · média 250 ms (entrada de conteúdo) · Hero/rotas 300 ms. Saída mais rápida que entrada. Curva `Curves.easeOutCubic`.
 - Mudança de estado nunca é instantânea, mas animação é sutil (fade + deslocamento ≤ 12dp).
-- **Movimento reduzido:** se `MediaQuery.disableAnimationsOf(context)` for `true`, pular animações não essenciais. A troca de tela já respeita isso pelo tema (`ReducedMotionPageTransitions`); `TabController` e animações próprias precisam checar.
+- **Movimento reduzido:** se `MediaQuery.disableAnimationsOf(context)` for `true`, pular animações não essenciais. A troca de tela já respeita isso pelo tema (`ReducedMotionPageTransitions`, que leva a zero os cerca de 40ms a que o Flutter já encurta a rota; o voltar perde a prévia animada); `TabController` e animações próprias precisam checar.
 
 ## 8. Anti-padrões (não usar)
 

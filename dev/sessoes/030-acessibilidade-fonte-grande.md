@@ -27,13 +27,20 @@ Garantir, com testes, que todas as telas do app cumprem o checklist de acessibil
 ### Leitor de tela
 - [x] `MoviePoster` com rótulo opcional, sem o cabeçalho dos detalhes montar um `Movie` ou cobrir o `Semantics` (BACKLOG, revisão da 011, S7). **Feito:** `MoviePoster.labeled(posterPath:, label:)`
 - [ ] Rótulos sem duplicar a leitura (ícone + texto lidos duas vezes) e estados anunciados (marcado, selecionado, carregando)
-- [x] Movimento reduzido (`MediaQuery.disableAnimations`) respeitado nos skeletons e transições. **Feito:** o skeleton já parava (`SkeletonPulse`); as transições de página do Material não olhavam o `disableAnimations`, e entrou o `ReducedMotionPageTransitions` no tema do Android (por cima do `PredictiveBackPageTransitionsBuilder`); as abas da Estante trocam com `animationDuration` zero
+- [x] Movimento reduzido (`MediaQuery.disableAnimations`) respeitado nos skeletons e transições. **Feito:** o skeleton já parava (`SkeletonPulse`); as transições de página do Material não olham o `disableAnimations` (o controller da rota só as encurta para 5%, cerca de 40ms), e entrou o `ReducedMotionPageTransitions` no tema do Android (por cima do `PredictiveBackPageTransitionsBuilder`), que as leva a zero; com o ajuste ligado, o voltar perde a prévia animada e o Hero ainda voa nos cerca de 40ms, como escolha consciente; as abas da Estante trocam com `animationDuration` zero
 
 ### Fechamento
 - [x] Verificação no emulador: TalkBack nas telas principais e fonte no máximo das configurações, com screenshots via MCP do Flutter. **Feito, sem login:** `Small_Phone` (360dp, Android 16) com `font_scale` 2.0 e as três escalas de animação em 0, screenshots por `adb screencap` (o MCP do Flutter não estava disponível): Descobrir, Detalhes (topo, sinopse, elenco e trailers), Buscar, Estante e Perfil sem conta e o Sobre, sem corte nem overflow; cancelar o seletor do Google volta ao Perfil sem erro. Leitor de tela pela árvore do `uiautomator` (o TalkBack ligado por `adb` capturava os toques): Descobrir, Detalhes e Estante sem leitura em dobro, o pôster do cabeçalho como um nó só ("Pôster de Homem de Ferro", S7), a nota como "Nota 7,7 de 10" e as abas como "Guia N de 4". O emulador não tem conta Google, e o login pede credencial: **a Estante, as Listas e os avisos com login ficam para o usuário conferir no aparelho**. A instalação falhou por falta de espaço e o Flutter desinstalou a versão antiga, apagando os dados locais do app nesse emulador. Um toque caiu num trailer e abriu o YouTube, fechado em seguida. As configurações do emulador voltaram ao original
 - [ ] `flutter analyze` limpo e `flutter test` verde
 - [x] Atualizar `MASTER.md`/`docs/DESIGN.md` se alguma regra mudar e marcar o item no `PLANO.md`. **Feito:** `MASTER.md` (seções 3, 7 e 9) e a skill `tela-4-estados` com o piso 2.0 em 320dp, o ajudante e o `actionSnackBar`; S6 e S7 saíram do BACKLOG
-- [ ] `/revisar`
+- [x] `/revisar`. **Feito:** `code-reviewer` (o diff não toca auth, storage, rede, config nem URL, então sem `security-auditor`); sem bloqueante, achados aceitos abaixo
+
+### Achados do `/revisar` (aceitos pelo usuário)
+- [x] Teste do `persist` do `actionSnackBar` sem pegar a remoção do `persist`: `pumpAndSettle` antes do `expect` (`action_snack_bar_test.dart:83-89`)
+- [x] Aviso com ação entra na fila atrás do atual: fechar o aviso atual antes de mostrar o novo, corrigir o comentário e testar dois avisos seguidos; a falha da remoção fecha o aviso certo (`action_snack_bar.dart:17-18`, `movie_list_screen.dart:181-197`). **Feito:** `showActionSnackBar` tira da fila e da tela os avisos anteriores e devolve o controle; com isso o `removeCurrentSnackBar` da falha fecha o "Desfazer" certo, e a tela da lista não precisou guardar o controle (se outro "Desfazer" estiver na tela, o aviso da falha o troca de qualquer jeito). Testes validados por mutação: sem o `persist` e sem limpar a fila, eles falham
+- [x] Justificativa da `ReducedMotionPageTransitions`: o Flutter já encurta a rota para 5% (cerca de 40ms); o Hero ainda voa e o gesto de voltar perde a prévia, como escolha consciente (comentário, log e `MASTER.md` §7)
+- [x] `disabledForegroundColor: inversePrimary` no botão do `actionSnackBar`, para ele não sumir durante a saída
+- [x] Nota da auditoria sobre o `FadeTransition` do skeleton marcada como resolvida
 
 ## Decisões
 - [020 — Piso de acessibilidade nos testes: escala 2.0 em 320dp e guidelines em toda tela](../decisoes/020-piso-de-acessibilidade-nos-testes.md)
@@ -49,7 +56,7 @@ Sonda temporária, fora do commit, com `androidTapTargetGuideline`, `labeledTapT
 Fora do alcance das guidelines (para o emulador e para os itens do BACKLOG):
 - S6: as barras do skeleton dos detalhes têm `tokens.spacing.md` de altura, que não cresce com a fonte (`movie_details_skeleton.dart:107`).
 - S7: o cabeçalho dos detalhes monta um `Movie` para usar o `MoviePoster` e cobre o `Semantics` dele com outro (`movie_details_content.dart:99-113`).
-- Movimento reduzido: o pôster, o Hero, o skeleton, o elenco e a conta respeitam o `disableAnimations`. Faltam o `FadeTransition` do skeleton dos detalhes e as transições de página do `go_router`, que precisam ser conferidos.
+- Movimento reduzido: o pôster, o Hero, o skeleton, o elenco e a conta respeitam o `disableAnimations`. Faltam o `FadeTransition` do skeleton dos detalhes e as transições de página do `go_router`, que precisam ser conferidos. (Resolvido: o skeleton já parava pelo `SkeletonPulse`, e a troca de tela ganhou o `ReducedMotionPageTransitions`.)
 - Regiões vivas: o vazio e o erro usam o `MoviesMessage` (com `liveRegion`) também na Estante e nas Listas. O aviso de escrita (`write_notice.dart`) precisa ser conferido.
 - A ordem de leitura e a leitura duplicada só aparecem no TalkBack.
 - Ruído: o `cached_network_image` lança `MissingPluginException` (`path_provider`) quando a tela monta pôster com URL nos testes. Não afeta as guidelines, mas um ajudante comum precisa do pôster sem rede ou de um cache fake.
