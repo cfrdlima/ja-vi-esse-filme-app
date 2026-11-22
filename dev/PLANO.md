@@ -3,9 +3,9 @@
 > Fonte da verdade do que construir. Atualizado por `/fechar-sessao`.
 
 ## Última sessão
-**028 — Fase 3: nota pessoal e dia em que assistiu** (fechada em 2026-11-18) · [log](sessoes/028-nota-e-data.md)
-Nota de 0,5 a 5 estrelas e dia em que assistiu no documento do filme, só com o Assistido (decisão 018), com regras e testes no emulador, painel nos Detalhes com estrelas ajustáveis pelo leitor de tela, confirmação antes de tirar o Assistido e a política 2.0 atualizada. Regras publicadas no projeto real; branch empilhada na 027, que espera o CI destravar.
-**Próximo passo:** o usuário roda a primeira limpeza (`dev/LIMPEZA-MENSAL.md`) e confere no console o S7, o aceite dos termos do Firebase e a conta de teste excluída; depois, publicar a política 2.0 e a página de exclusão atualizada. No código, o próximo item é o das listas personalizadas (Fase 3).
+**029 — Fase 3: listas personalizadas** (fechada em 2026-11-22) · [log](sessoes/029-listas-personalizadas.md)
+Listas em `users/{uid}/lists/{listId}` e o vínculo no mapa `lists` do documento do filme (decisão 019), com regras e testes no emulador, 4ª aba da Estante, tela da lista, "Adicionar à lista" nos Detalhes, exclusão da conta e limpeza mensal cobrindo as listas e as chaves órfãs. Regras publicadas no projeto real; branch empilhada na 028, que espera o CI destravar.
+**Próximo passo:** o usuário roda a primeira limpeza (`dev/LIMPEZA-MENSAL.md`) e confere no console o S7 e o aceite dos termos do Firebase; depois, publicar a política 2.0 e a página de exclusão atualizada. Com isso, a Fase 3 está completa, e o próximo item de código é o da Fase 4 (acessibilidade e fonte grande).
 
 ## Fase 0 — Fundação
 - [x] Criar projeto (`io.github.cfrdlima.ja_vi_esse_filme`), `analysis_options.yaml`, `.gitignore` com `env/*.json` (exceto `example.json`)
@@ -73,7 +73,7 @@ Nota de 0,5 a 5 estrelas e dia em que assistiu no documento do filme, só com o 
 
 ## Fase 3 — "Já vi esse filme"
 - [x] Nota pessoal e data em que assistiu, no documento do filme (sessão 028, decisão 018: `rating` de 1 a 10 em meias estrelas e `watchedOn` escolhido pelo usuário, só com o Assistido)
-- [ ] Listas personalizadas (criar, renomear, apagar, adicionar e remover filme), com o nome validado e o tamanho máximo no domínio, e as regras do Firestore cobrindo as listas. **Decisão 019 (sessão 029):** o vínculo é o mapa `lists` no documento do filme, e as listas ficam em `users/{uid}/lists/{listId}` só com o nome; não há `items` nem exclusão aninhada, e a exclusão da conta só ganha a coleção `lists`
+- [x] Listas personalizadas (criar, renomear, apagar, adicionar e remover filme), com o nome validado e o tamanho máximo no domínio, e as regras do Firestore cobrindo as listas. **Decisão 019 (sessão 029):** o vínculo é o mapa `lists` no documento do filme, e as listas ficam em `users/{uid}/lists/{listId}` só com o nome; não há `items` nem exclusão aninhada, e a exclusão da conta só ganha a coleção `lists`
 
 ## Fase 4 — Polimento e release
 - [ ] Acessibilidade e fonte grande
