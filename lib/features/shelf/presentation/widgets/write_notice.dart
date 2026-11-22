@@ -23,14 +23,12 @@ Future<void> runWithNotice(
     await action();
     if (onSuccess != null) messenger.showSnackBar(onSuccess);
   } on Failure catch (failure) {
-    messenger.showSnackBar(
-      actionSnackBar(
-        messenger: messenger,
-        message: failureMessage(l10n, failure),
-        actionLabel: l10n.retry,
-        onAction: () => unawaited(
-          runWithNotice(messenger, l10n, action, onSuccess: onSuccess),
-        ),
+    showActionSnackBar(
+      messenger: messenger,
+      message: failureMessage(l10n, failure),
+      actionLabel: l10n.retry,
+      onAction: () => unawaited(
+        runWithNotice(messenger, l10n, action, onSuccess: onSuccess),
       ),
     );
   }

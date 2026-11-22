@@ -178,14 +178,12 @@ class _ListMovies extends StatelessWidget {
     // O aviso com o "Desfazer" sai na hora: offline, o servidor pode levar
     // horas para confirmar, e o filme já some da grade (`/revisar` da
     // sessão 029). Só a recusa aparece depois.
-    messenger.showSnackBar(
-      actionSnackBar(
-        messenger: messenger,
-        message: l10n.listMovieRemoved,
-        actionLabel: l10n.listUndo,
-        onAction: () => unawaited(
-          runWithNotice(messenger, l10n, () => notifier.undoRemove(movie)),
-        ),
+    showActionSnackBar(
+      messenger: messenger,
+      message: l10n.listMovieRemoved,
+      actionLabel: l10n.listUndo,
+      onAction: () => unawaited(
+        runWithNotice(messenger, l10n, () => notifier.undoRemove(movie)),
       ),
     );
     await runWithNotice(messenger, l10n, () async {
