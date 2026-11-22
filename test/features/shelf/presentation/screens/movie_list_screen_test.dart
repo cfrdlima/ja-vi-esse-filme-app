@@ -19,6 +19,7 @@ import 'package:ja_vi_esse_filme/features/shelf/presentation/screens/movie_list_
 import 'package:ja_vi_esse_filme/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../helpers/accessibility.dart';
 import '../../../../helpers/fake_auth_repository.dart';
 import '../../../../helpers/fake_movie_lists_repository.dart';
 import '../../../../helpers/fake_shelf_repository.dart';
@@ -326,5 +327,55 @@ void main() {
     await emitPage(tester, [movie(550), movie(551)]);
 
     expect(tester.takeException(), isNull);
+  });
+
+  // Testes de caracterização (decisão 020): a tela já passava na auditoria.
+  group('acessibilidade num celular estreito', () {
+    final states = <String, Future<void> Function(WidgetTester)>{
+      'com os filmes': (tester) => emitPage(tester, [movie(550), movie(551)]),
+      'no vazio': (tester) => emitPage(tester, []),
+      'com o menu da lista aberto': (tester) async {
+        await emitPage(tester, [movie(550)]);
+        await tester.tap(find.byTooltip(l10n.listsOptions('Terror')));
+        await tester.pumpAndSettle();
+      },
+      'no diálogo de renomear': (tester) async {
+        await emitPage(tester, [movie(550)]);
+        await openMenuItem(tester, l10n.listsRename);
+      },
+      'no diálogo de apagar': (tester) async {
+        await emitPage(tester, [movie(550)]);
+        await openMenuItem(tester, l10n.listsDelete);
+      },
+      'no menu do toque longo': (tester) async {
+        await emitPage(tester, [movie(550)]);
+        await tester.longPress(find.bySemanticsLabel(RegExp('Filme 550')));
+        await tester.pumpAndSettle();
+      },
+      'no aviso da falha com o tentar de novo': (tester) async {
+        await emitPage(tester, [movie(550)]);
+        await removeByLongPress(tester);
+        lists.writes.single.fail(const NetworkFailure());
+        await tester.pumpAndSettle();
+      },
+      'no aviso com o desfazer': (tester) async {
+        await emitPage(tester, [movie(550)]);
+        await removeByLongPress(tester);
+        lists.writes.single.complete();
+        await tester.pumpAndSettle();
+      },
+    };
+    final fonts = {'': TextScaler.noScaling, ' com a fonte 2x': largeFont};
+    for (final MapEntry(key: state, value: reach) in states.entries) {
+      for (final MapEntry(key: font, value: textScaler) in fonts.entries) {
+        testWidgets('deve ser acessível $state$font', (tester) async {
+          useNarrowPhone(tester);
+          await pumpScreen(tester, textScaler: textScaler);
+          await reach(tester);
+
+          await expectAccessible(tester);
+        });
+      }
+    }
   });
 }
