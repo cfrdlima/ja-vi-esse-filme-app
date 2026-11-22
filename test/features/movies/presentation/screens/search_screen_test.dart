@@ -10,6 +10,7 @@ import 'package:ja_vi_esse_filme/features/movies/presentation/widgets/poster_ske
 import 'package:ja_vi_esse_filme/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../helpers/accessibility.dart';
 import '../../../../helpers/fake_movie_repository.dart';
 import '../../../../helpers/test_app.dart';
 
@@ -438,5 +439,50 @@ void main() {
 
       expect(tester.takeException(), isNull);
     });
+  });
+
+  // Testes de caracterização (decisão 020): a tela já passava na auditoria.
+  group('acessibilidade num celular estreito', () {
+    final states = <String, Future<void> Function(WidgetTester)>{
+      'no inicial': (_) async {},
+      'no sucesso': (tester) async {
+        await typeAndWait(tester, 'matrix');
+        await answer(tester);
+      },
+      'no vazio com um termo longo': (tester) async {
+        await typeAndWait(tester, 'um título de filme bem comprido ' * 3);
+        await answer(tester, count: 0);
+      },
+      'no erro': (tester) async {
+        await typeAndWait(tester, 'matrix');
+        repository.fail(const RateLimitFailure());
+        await tester.pump();
+      },
+      'no aviso de termo longo demais': (tester) async {
+        tester
+            .element(find.byType(SearchScreen))
+            .read<SearchNotifier>()
+            .onQueryChanged('a' * (SearchQuery.maxLength + 1));
+        await tester.pump();
+      },
+    };
+    for (final MapEntry(key: state, value: reach) in states.entries) {
+      testWidgets('deve ser acessível $state', (tester) async {
+        useNarrowPhone(tester);
+        await pumpScreen(tester);
+        await reach(tester);
+
+        await expectAccessible(tester);
+      });
+
+      testWidgets('deve ser acessível $state com a fonte 2x', (tester) async {
+        useNarrowPhone(tester);
+        useLargeFont(tester);
+        await pumpScreen(tester);
+        await reach(tester);
+
+        await expectAccessible(tester);
+      });
+    }
   });
 }
