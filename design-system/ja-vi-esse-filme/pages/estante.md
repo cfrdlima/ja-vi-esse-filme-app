@@ -11,7 +11,7 @@
 ## Estrutura
 - `Scaffold` com `AppBar` "Minha estante" e um `TabBar` no `bottom` com **Assistidos**, **Quero assistir**, **Favoritos** e **Listas**, nessa ordem: as três primeiras seguem a fileira de marcas dos Detalhes, e Listas fica por último (decisão 019). Começa em Assistidos.
 - `TabBarView` com uma grade por aba. Cada aba carrega na primeira vez que é aberta e depois fica viva: voltar a ela mostra os filmes e a rolagem em que estava.
-- Com fonte grande (escala acima de 1), o `TabBar` fica rolável (`isScrollable`), para o rótulo não ser cortado.
+- O `TabBar` é sempre rolável (`isScrollable`, alinhado ao início): com as quatro abas, "Quero assistir" saía cortado num Pixel 9 Pro mesmo com a fonte normal (sessão 029).
 - Sem conta, não há `TabBar`, só o convite (ver "Sem conta").
 
 ## Grade

@@ -72,8 +72,11 @@ class _ShelfTabs extends StatelessWidget {
         appBar: AppBar(
           title: title,
           bottom: TabBar(
-            // Com a fonte grande, rola em vez de cortar o rótulo.
-            isScrollable: MediaQuery.textScalerOf(context).scale(1) > 1,
+            // Com quatro abas, "Quero assistir" não cabe num celular nem com
+            // a fonte normal: rola em vez de cortar o rótulo (verificação no
+            // emulador da sessão 029).
+            isScrollable: true,
+            tabAlignment: TabAlignment.start,
             tabs: [
               for (final mark in ShelfMark.values)
                 Tab(text: shelfTabLabel(l10n, mark)),
