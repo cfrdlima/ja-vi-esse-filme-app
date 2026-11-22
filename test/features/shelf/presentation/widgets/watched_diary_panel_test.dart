@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ja_vi_esse_filme/core/error/failures.dart';
+import 'package:ja_vi_esse_filme/core/theme/app_spacing.dart';
 import 'package:ja_vi_esse_filme/features/shelf/domain/entities/movie_copy.dart';
 import 'package:ja_vi_esse_filme/features/shelf/domain/entities/rating.dart';
 import 'package:ja_vi_esse_filme/features/shelf/domain/entities/shelf_mark.dart';
@@ -11,6 +12,7 @@ import 'package:ja_vi_esse_filme/features/shelf/presentation/state/watched_diary
 import 'package:ja_vi_esse_filme/features/shelf/presentation/widgets/watched_diary_panel.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../helpers/accessibility.dart';
 import '../../../../helpers/fake_shelf_repository.dart';
 import '../../../../helpers/test_app.dart';
 
@@ -59,8 +61,13 @@ void main() {
           builder: (context) => MediaQuery(
             data: MediaQuery.of(context).copyWith(textScaler: textScaler),
             child: testApp(
-              home: const Scaffold(
-                body: SingleChildScrollView(child: WatchedDiaryPanel()),
+              home: Scaffold(
+                // A margem dos Detalhes: a guideline de alvo de toque ignora o
+                // que encosta na borda da tela (decisão 020).
+                body: SingleChildScrollView(
+                  padding: EdgeInsets.all(AppSpacing.standard.md),
+                  child: const WatchedDiaryPanel(),
+                ),
               ),
             ),
           ),
@@ -366,5 +373,56 @@ void main() {
 
       expect(tester.takeException(), isNull);
     });
+  });
+
+  // Testes de caracterização (decisão 020): o painel já passava na auditoria.
+  group('acessibilidade num celular estreito', () {
+    final states = <String, Future<void> Function(WidgetTester, TextScaler)>{
+      'com a nota e o dia sugerido': (tester, textScaler) => pumpPanel(
+        tester,
+        initial: watched(rating: Rating(7)),
+        textScaler: textScaler,
+      ),
+      'com a nota e o dia escolhido': (tester, textScaler) => pumpPanel(
+        tester,
+        initial: watched(
+          rating: Rating(7),
+          watchedOn: WatchedOn(year: 2026, month: 11, day: 8),
+        ),
+        textScaler: textScaler,
+      ),
+      'na recusa com o tentar de novo': (tester, textScaler) async {
+        await pumpPanel(tester, initial: watched(), textScaler: textScaler);
+        await tester.tap(star(2));
+        await tester.pump();
+        shelf.personalWrites.single.fail(const NetworkFailure());
+        await tester.pump();
+      },
+    };
+    final fonts = {'': TextScaler.noScaling, ' com a fonte 2x': largeFont};
+    for (final MapEntry(key: state, value: reach) in states.entries) {
+      for (final MapEntry(key: font, value: textScaler) in fonts.entries) {
+        testWidgets('deve ser acessível $state$font', (tester) async {
+          useNarrowPhone(tester);
+          await reach(tester, textScaler);
+
+          await expectAccessible(tester);
+        });
+      }
+    }
+    for (final MapEntry(key: font, value: textScaler) in fonts.entries) {
+      // Exceção da decisão 020: o calendário do Material tem 7 colunas num
+      // diálogo de largura fixa, e cada dia só chega a 48dp em telas a partir
+      // de cerca de 392dp (37,7dp em 320dp).
+      testWidgets('deve ser acessível no seletor do dia, menos no tamanho do '
+          'dia$font', (tester) async {
+        useNarrowPhone(tester);
+        await pumpPanel(tester, initial: watched(), textScaler: textScaler);
+        await tester.tap(find.text('10/11/2026 (dia da marca)'));
+        await tester.pumpAndSettle();
+
+        await expectAccessible(tester, except: {androidTapTargetGuideline});
+      });
+    }
   });
 }

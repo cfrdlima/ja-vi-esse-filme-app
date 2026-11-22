@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:ja_vi_esse_filme/core/error/failures.dart';
+import 'package:ja_vi_esse_filme/core/theme/app_spacing.dart';
 import 'package:ja_vi_esse_filme/features/auth/domain/entities/app_user.dart';
 import 'package:ja_vi_esse_filme/features/auth/domain/entities/auth_state.dart';
 import 'package:ja_vi_esse_filme/features/auth/domain/repositories/auth_repository.dart';
@@ -13,6 +15,7 @@ import 'package:ja_vi_esse_filme/features/shelf/domain/repositories/shelf_reposi
 import 'package:ja_vi_esse_filme/features/shelf/presentation/widgets/shelf_marks_section.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../helpers/accessibility.dart';
 import '../../../../helpers/fake_auth_repository.dart';
 import '../../../../helpers/fake_movie_lists_repository.dart';
 import '../../../../helpers/fake_shelf_repository.dart';
@@ -50,9 +53,12 @@ void main() {
           Provider<AuthRepository>.value(value: auth),
         ],
         child: testApp(
-          home: const Scaffold(
+          home: Scaffold(
+            // A margem dos Detalhes: a guideline de alvo de toque ignora o
+            // que encosta na borda da tela (decisão 020).
             body: SingleChildScrollView(
-              child: ShelfMarksSection(movieId: 550, title: 'Clube da Luta'),
+              padding: EdgeInsets.all(AppSpacing.standard.md),
+              child: const ShelfMarksSection(movieId: 550, title: 'Clube da Luta'),
             ),
           ),
         ),
@@ -207,5 +213,50 @@ void main() {
 
       expect(find.text('Tirar dos assistidos?'), findsNothing);
     });
+  });
+
+  // Testes de caracterização (decisão 020): as marcas já passavam na
+  // auditoria.
+  group('acessibilidade num celular estreito', () {
+    final states = <String, Future<void> Function(WidgetTester)>{
+      'com as três marcas e a nota': (tester) => pumpSection(
+        tester,
+        marks: ShelfMark.values.toSet(),
+        rating: Rating(7),
+      ),
+      'só com o Favorito': (tester) =>
+          pumpSection(tester, marks: {ShelfMark.favorite}),
+      'na confirmação de tirar o Assistido': (tester) async {
+        await pumpSection(
+          tester,
+          marks: {ShelfMark.watched},
+          rating: Rating(7),
+        );
+        await tapWatched(tester);
+      },
+      'no aviso da marca recusada': (tester) async {
+        await pumpSection(tester, marks: {ShelfMark.favorite});
+        await tester.tap(find.widgetWithText(FilterChip, 'Assistido'));
+        await tester.pump();
+        shelf.writes.single.fail(const NetworkFailure());
+        await tester.pumpAndSettle();
+      },
+    };
+    for (final MapEntry(key: state, value: reach) in states.entries) {
+      testWidgets('deve ser acessível $state', (tester) async {
+        useNarrowPhone(tester);
+        await reach(tester);
+
+        await expectAccessible(tester);
+      });
+
+      testWidgets('deve ser acessível $state com a fonte 2x', (tester) async {
+        useNarrowPhone(tester);
+        useLargeFont(tester);
+        await reach(tester);
+
+        await expectAccessible(tester);
+      });
+    }
   });
 }

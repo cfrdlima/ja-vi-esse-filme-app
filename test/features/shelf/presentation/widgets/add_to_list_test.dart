@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:ja_vi_esse_filme/core/error/failures.dart';
 import 'package:ja_vi_esse_filme/core/l10n/app_locale.dart';
 import 'package:ja_vi_esse_filme/core/l10n/failure_message.dart';
+import 'package:ja_vi_esse_filme/core/theme/app_spacing.dart';
 import 'package:ja_vi_esse_filme/features/auth/domain/entities/app_user.dart';
 import 'package:ja_vi_esse_filme/features/auth/domain/entities/auth_state.dart';
 import 'package:ja_vi_esse_filme/features/auth/domain/repositories/auth_repository.dart';
@@ -19,6 +20,7 @@ import 'package:ja_vi_esse_filme/features/shelf/presentation/widgets/shelf_marks
 import 'package:ja_vi_esse_filme/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../helpers/accessibility.dart';
 import '../../../../helpers/fake_auth_repository.dart';
 import '../../../../helpers/fake_movie_lists_repository.dart';
 import '../../../../helpers/fake_shelf_repository.dart';
@@ -67,9 +69,12 @@ void main() {
         child: MediaQuery(
           data: MediaQueryData(textScaler: textScaler),
           child: testApp(
-            home: const Scaffold(
+            home: Scaffold(
+              // A margem dos Detalhes: a guideline de alvo de toque ignora o
+              // que encosta na borda da tela (decisão 020).
               body: SingleChildScrollView(
-                child: ShelfMarksSection(movieId: 550, title: 'Clube da Luta'),
+                padding: EdgeInsets.all(AppSpacing.standard.md),
+                child: const ShelfMarksSection(movieId: 550, title: 'Clube da Luta'),
               ),
             ),
           ),
@@ -244,5 +249,62 @@ void main() {
     ]);
 
     expect(tester.takeException(), isNull);
+  });
+
+  // Testes de caracterização (decisão 020): a folha já passava na auditoria.
+  group('acessibilidade num celular estreito', () {
+    Future<void> signedIn(WidgetTester tester, TextScaler textScaler) =>
+        pumpDetails(
+          tester,
+          account: SignedIn(ana),
+          entry: const NotOnShelf(),
+          textScaler: textScaler,
+        );
+
+    final states = <String, Future<void> Function(WidgetTester, TextScaler)>{
+      'no botão sem conta': (tester, textScaler) =>
+          pumpDetails(tester, textScaler: textScaler),
+      'no botão com o filme nas listas': (tester, textScaler) => pumpDetails(
+        tester,
+        account: SignedIn(ana),
+        entry: inTerror(),
+        textScaler: textScaler,
+      ),
+      'na folha com as listas': (tester, textScaler) async {
+        await signedIn(tester, textScaler);
+        await openSheet(tester, [
+          terror,
+          MovieList(
+            id: 'Lst0aBcDeFgHiJkLmNoQ',
+            name: ListName('Uma lista com um nome bem comprido assim'),
+          ),
+        ]);
+      },
+      'na folha sem listas': (tester, textScaler) async {
+        await signedIn(tester, textScaler);
+        await openSheet(tester, []);
+      },
+      'no diálogo de criar lista pela folha': (tester, textScaler) async {
+        await signedIn(tester, textScaler);
+        await openSheet(tester, []);
+        // Com a fonte 2x, o "Nova lista" fica abaixo da dobra da folha.
+        final newList = find.text(l10n.listsNew, skipOffstage: false);
+        await tester.ensureVisible(newList);
+        await tester.pumpAndSettle();
+        await tester.tap(newList);
+        await tester.pumpAndSettle();
+      },
+    };
+    final fonts = {'': TextScaler.noScaling, ' com a fonte 2x': largeFont};
+    for (final MapEntry(key: state, value: reach) in states.entries) {
+      for (final MapEntry(key: font, value: textScaler) in fonts.entries) {
+        testWidgets('deve ser acessível $state$font', (tester) async {
+          useNarrowPhone(tester);
+          await reach(tester, textScaler);
+
+          await expectAccessible(tester);
+        });
+      }
+    }
   });
 }
