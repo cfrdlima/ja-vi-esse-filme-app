@@ -10,14 +10,14 @@ Garantir, com testes, que todas as telas do app cumprem o checklist de acessibil
 - [x] Auditoria: tabela tela × guideline (`androidTapTargetGuideline`, `labeledTapTargetGuideline`, `textContrastGuideline`) × escala (1.5 e 2.0), marcando o que já tem teste e o que falta. Hoje: guidelines só no roteador, Sobre, Perfil, pôster e botão do Google; escala em 12 arquivos de teste. **Feito:** sonda temporária (apagada) com as três guidelines em 360 e 320dp, escala 1.0 e 2.0: tudo passou, sem overflow. Detalhes em Notas
 - [ ] Consultar a `ui-ux-pro-max` (stack Flutter) sobre acessibilidade mobile (leitor de tela, ordem de foco, fonte grande e movimento reduzido); override em `pages/` se precisar
 - [x] Decidir se a escala 2.0 entra no `MASTER.md` como piso de teste no lugar da 1.5 (se mudar a regra, `/decisao`). **Feito:** decisão 020, com 2.0 em 320dp e as três guidelines em toda tela, por um ajudante comum
-- [ ] Ajudante de teste compartilhado para as guidelines e a escala, se a auditoria mostrar repetição (Refactor, sem mudar comportamento)
+- [x] Ajudante de teste compartilhado para as guidelines e a escala, se a auditoria mostrar repetição (Refactor, sem mudar comportamento). **Feito:** `test/helpers/accessibility.dart` com `useNarrowPhone`, `useLargeFont`, `largeFont` e `expectAccessible`, testado em `accessibility_test.dart`
 
 ### Guidelines por tela (RED/GREEN/REFACTOR por tela)
-- [ ] Descobrir: alvos, rótulos e contraste nos estados de sucesso, vazio e erro
-- [ ] Buscar: campo, botão de limpar e resultados; estados vazio e erro
-- [ ] Detalhes: cabeçalho, marcas, "Adicionar à lista", elenco e trailers
-- [ ] Estante: as 4 abas, a barra de marcas e o diário
-- [ ] Tela da lista: linhas, menu, desfazer e diálogos de renomear e apagar
+- [x] Descobrir: alvos, rótulos e contraste nos estados de sucesso, vazio e erro. **Feito:** caracterização validada com o chip encolhido (alvo) e o `Wrap` trocado por `Row` (vazamento)
+- [x] Buscar: campo, botão de limpar e resultados; estados vazio e erro. **Feito:** inicial, sucesso, vazio com termo longo, erro e termo longo demais; validada sem o `tooltip` do limpar
+- [x] Detalhes: cabeçalho, marcas, "Adicionar à lista", elenco e trailers. **Feito:** tela deslogada (carregando, sucesso, fim com elenco e trailers, sem dados, erro e não encontrado), marcas, diário e folha. O calendário do diário não tem 48dp por dia abaixo de cerca de 392dp; o usuário escolheu a exceção registrada na decisão 020. Os hosts dos testes de widget ganharam a margem dos Detalhes, porque a guideline de alvo ignora o que encosta na borda (a quebra dos chips das marcas passava sem a margem)
+- [x] Estante: as 4 abas, a barra de marcas e o diário. **Feito:** convite, filmes com cópia vencida, vazio, erro e Listas cheia e vazia; validada sem o rótulo do pôster e com o menu da lista encolhido. Barra de marcas e diário vão com os Detalhes
+- [x] Tela da lista: linhas, menu, desfazer e diálogos de renomear e apagar. **Feito, com a primeira falha real:** o aviso com "Desfazer" vazava 0,8px e o de falha com "Tentar de novo" 169px, com a fonte 2x em 320dp. O `SnackBarAction` do Flutter 3.47 mede o rótulo sem a escala e põe a ação numa `Row` sem limite. Correção: `actionSnackBar` (`core/widgets`), com `Wrap`, `persist` e toque único, usado no desfazer e no `runWithNotice`
 - [ ] Folhas e diálogos: login, "Adicionar à lista", apagar a conta, sair com escrita pendente, desmarcar
 
 ### Fonte grande (RED/GREEN/REFACTOR por tela)
@@ -44,7 +44,7 @@ Garantir, com testes, que todas as telas do app cumprem o checklist de acessibil
 ### Auditoria (2026-11-22)
 Sonda temporária, fora do commit, com `androidTapTargetGuideline`, `labeledTapTargetGuideline` e `textContrastGuideline` e a captura de exceção de layout, em tela de 360 e 320dp, com escala 1.0 e 2.0. Cobertura: Descobrir, Buscar, Detalhes (fixture `movie_details_full.json`), Estante deslogada, Perfil deslogado e logado, Sobre, Estante logada (Assistidos com cópia vencida, vazio, erro, Listas cheia e vazia), tela da lista (com filmes, vazia, menu e os diálogos de renomear e apagar), marcas com nota e o diálogo de desmarcar, a folha "Adicionar à lista" e o diálogo de excluir a conta.
 
-**Resultado: nenhuma falha.** O que as sessões anteriores fizeram tela a tela já cumpre as guidelines. O que falta é **teste de regressão**: hoje as guidelines só estão no roteador (Descobrir vazio), no Sobre (contraste), no Perfil, no pôster e no botão do Google, e a escala 2.0 em 320dp não é testada na maioria das telas.
+**Resultado: nenhuma falha.** (Corrigido depois: a sonda não abria `SnackBar`, e os avisos com ação vazavam com a fonte 2x; ver o checklist da tela da lista.) O que as sessões anteriores fizeram tela a tela já cumpre as guidelines. O que falta é **teste de regressão**: hoje as guidelines só estão no roteador (Descobrir vazio), no Sobre (contraste), no Perfil, no pôster e no botão do Google, e a escala 2.0 em 320dp não é testada na maioria das telas.
 
 Fora do alcance das guidelines (para o emulador e para os itens do BACKLOG):
 - S6: as barras do skeleton dos detalhes têm `tokens.spacing.md` de altura, que não cresce com a fonte (`movie_details_skeleton.dart:107`).

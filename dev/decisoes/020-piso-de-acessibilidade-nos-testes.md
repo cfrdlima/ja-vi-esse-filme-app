@@ -22,9 +22,13 @@ Opção 2.
 - **Ajudante comum** em `test/helpers/`, para a tela montar uma vez e chamar a checagem. Ele cuida do `ensureSemantics`, da view de 320dp e do `addTearDown` dela.
 - **Testes de caracterização.** Como o código já passa, esses testes não têm a fase RED. Cada um é validado quebrando o widget de propósito (alvo menor, rótulo tirado, largura fixa), para ver o teste falhar, e desfazendo a quebra. O log da sessão registra que foram validados assim.
 - O `MASTER.md` (seções 3 e 9) e a skill `tela-4-estados` passam a dizer 2.0 em 320dp.
+- **Exceções**, sempre com o `except` do ajudante e um comentário no teste com o motivo:
+  - **Calendário do Material** (`showDatePicker`, no diário): são 7 colunas num diálogo de largura fixa, e cada dia só chega a 48dp em telas a partir de cerca de 392dp (37,7dp em 320dp, 43,4dp em 360dp, 47,4dp em 388dp). É componente do sistema, igual ao do Android, e o TalkBack navega por ele com gestos, sem depender do tamanho do alvo. O teste dele dispensa só a `androidTapTargetGuideline`: rótulo, contraste e layout continuam valendo. Escolhido pelo usuário na sessão 030, em vez de abrir o seletor no modo de digitar.
 
 ## Consequências
 - Uma tela nova precisa caber em 2.0 e 320dp desde o primeiro widget test. Layouts com linha fixa (cabeçalho com pôster ao lado do texto, barras de chips) precisam quebrar ou rolar.
 - As guidelines não pegam tudo: a ordem de leitura, a leitura em dobro, o anúncio de estado e o movimento reduzido continuam dependendo de testes de semântica específicos e da verificação no emulador com o TalkBack.
 - O ajudante precisa montar pôsteres sem rede. Com URL, o `cached_network_image` lança `MissingPluginException` (`path_provider`) nos testes. As fixtures do ajudante usam filme sem `posterPath` ou um cache fake.
+- A `androidTapTargetGuideline` ignora o nó que encosta na borda da tela, porque ele pode estar cortado. Um widget testado sozinho, sem a margem da tela real, deixa passar alvo pequeno. Por isso o host do teste usa a margem da tela de verdade (`AppSpacing.standard.md` nos Detalhes).
+- O `SnackBarAction` do Flutter 3.47 não cabe com a fonte 2x em 320dp (mede o rótulo sem a escala e põe a ação numa `Row` sem limite). Os avisos com ação usam o `actionSnackBar` de `core/widgets`.
 - O contraste da `textContrastGuideline` só vale para o texto sobre cor sólida. Texto sobre imagem (pôster, backdrop) não é medido e continua coberto pela revisão visual.
