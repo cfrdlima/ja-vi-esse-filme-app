@@ -674,7 +674,10 @@ void main() {
       'no sucesso': (tester) => answer(tester, withoutImages),
       'no fim do sucesso, com elenco e trailers': (tester) async {
         await answer(tester, withoutImages);
-        await tester.drag(find.byType(Scrollable).first, const Offset(0, -5000));
+        await tester.drag(
+          find.byType(Scrollable).first,
+          const Offset(0, -5000),
+        );
         await tester.pump();
       },
       'sem os dados opcionais': (tester) => answer(tester, bare),

@@ -58,7 +58,10 @@ void main() {
             // que encosta na borda da tela (decisão 020).
             body: SingleChildScrollView(
               padding: EdgeInsets.all(AppSpacing.standard.md),
-              child: const ShelfMarksSection(movieId: 550, title: 'Clube da Luta'),
+              child: const ShelfMarksSection(
+                movieId: 550,
+                title: 'Clube da Luta',
+              ),
             ),
           ),
         ),
