@@ -8,7 +8,7 @@ Garantir, com testes, que todas as telas do app cumprem o checklist de acessibil
 ## Checklist
 ### Preparação
 - [x] Auditoria: tabela tela × guideline (`androidTapTargetGuideline`, `labeledTapTargetGuideline`, `textContrastGuideline`) × escala (1.5 e 2.0), marcando o que já tem teste e o que falta. Hoje: guidelines só no roteador, Sobre, Perfil, pôster e botão do Google; escala em 12 arquivos de teste. **Feito:** sonda temporária (apagada) com as três guidelines em 360 e 320dp, escala 1.0 e 2.0: tudo passou, sem overflow. Detalhes em Notas
-- [ ] Consultar a `ui-ux-pro-max` (stack Flutter) sobre acessibilidade mobile (leitor de tela, ordem de foco, fonte grande e movimento reduzido); override em `pages/` se precisar
+- [x] Consultar a `ui-ux-pro-max` (stack Flutter) sobre acessibilidade mobile (leitor de tela, ordem de foco, fonte grande e movimento reduzido); override em `pages/` se precisar. **Feito:** movimento reduzido, texto sem corte, alvo de 48dp no Android e toast. Sem override. Conflito: a skill pede toast que some em 3 a 5 s; o aviso com ação continua persistente, como o padrão do `SnackBar` com ação no Flutter 3.47 e o critério 2.2.1 da WCAG (tempo ajustável)
 - [x] Decidir se a escala 2.0 entra no `MASTER.md` como piso de teste no lugar da 1.5 (se mudar a regra, `/decisao`). **Feito:** decisão 020, com 2.0 em 320dp e as três guidelines em toda tela, por um ajudante comum
 - [x] Ajudante de teste compartilhado para as guidelines e a escala, se a auditoria mostrar repetição (Refactor, sem mudar comportamento). **Feito:** `test/helpers/accessibility.dart` com `useNarrowPhone`, `useLargeFont`, `largeFont` e `expectAccessible`, testado em `accessibility_test.dart`
 
@@ -22,15 +22,15 @@ Garantir, com testes, que todas as telas do app cumprem o checklist de acessibil
 
 ### Fonte grande (RED/GREEN/REFACTOR por tela)
 - [x] Escala 2.0 sem overflow em cada tela e estado que hoje só tem 1.5 ou nada. **Feito** junto com as guidelines: cada estado roda com a fonte normal e com 2x em 320dp
-- [ ] Skeleton dos detalhes com a altura da linha de texto escalada (BACKLOG, revisão da 011, S6)
+- [x] Skeleton dos detalhes com a altura da linha de texto escalada (BACKLOG, revisão da 011, S6). **Feito:** a linha tem o tamanho do `bodyLarge` com a escala do sistema (16 com a fonte normal, 32 com 2x)
 
 ### Leitor de tela
-- [ ] `MoviePoster` com rótulo opcional, sem o cabeçalho dos detalhes montar um `Movie` ou cobrir o `Semantics` (BACKLOG, revisão da 011, S7)
+- [x] `MoviePoster` com rótulo opcional, sem o cabeçalho dos detalhes montar um `Movie` ou cobrir o `Semantics` (BACKLOG, revisão da 011, S7). **Feito:** `MoviePoster.labeled(posterPath:, label:)`
 - [ ] Rótulos sem duplicar a leitura (ícone + texto lidos duas vezes) e estados anunciados (marcado, selecionado, carregando)
-- [ ] Movimento reduzido (`MediaQuery.disableAnimations`) respeitado nos skeletons e transições
+- [x] Movimento reduzido (`MediaQuery.disableAnimations`) respeitado nos skeletons e transições. **Feito:** o skeleton já parava (`SkeletonPulse`); as transições de página do Material não olhavam o `disableAnimations`, e entrou o `ReducedMotionPageTransitions` no tema do Android (por cima do `PredictiveBackPageTransitionsBuilder`); as abas da Estante trocam com `animationDuration` zero
 
 ### Fechamento
-- [ ] Verificação no emulador: TalkBack nas telas principais e fonte no máximo das configurações, com screenshots via MCP do Flutter
+- [ ] Verificação no emulador: TalkBack nas telas principais e fonte no máximo das configurações, com screenshots via MCP do Flutter. **Parcial:** `Small_Phone` (360dp, Android 16) com `font_scale` 2.0 e as três escalas de animação em 0, screenshots por `adb screencap` (o MCP do Flutter não estava disponível): Descobrir, Detalhes (topo, sinopse, elenco e trailers), Buscar e Perfil sem conta, sem corte nem overflow. A instalação falhou por falta de espaço e o Flutter desinstalou a versão antiga, apagando os dados locais do app nesse emulador. Faltam as telas com login (Estante, lista, avisos) e o TalkBack, que pedem o usuário
 - [ ] `flutter analyze` limpo e `flutter test` verde
 - [ ] Atualizar `MASTER.md`/`docs/DESIGN.md` se alguma regra mudar e marcar o item no `PLANO.md`
 - [ ] `/revisar`
