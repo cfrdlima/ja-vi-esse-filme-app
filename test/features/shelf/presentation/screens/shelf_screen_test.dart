@@ -197,6 +197,23 @@ void main() {
     });
 
     group('com conta', () {
+      testWidgets('deve trocar de aba sem animar com o reduzir movimento', (
+        tester,
+      ) async {
+        tester.platformDispatcher.accessibilityFeaturesTestValue =
+            const FakeAccessibilityFeatures(disableAnimations: true);
+        addTearDown(
+          tester.platformDispatcher.clearAccessibilityFeaturesTestValue,
+        );
+        await pumpSignedIn(tester);
+
+        final tabs = DefaultTabController.of(
+          tester.element(find.byType(TabBar)),
+        );
+
+        expect(tabs.animationDuration, Duration.zero);
+      });
+
       testWidgets('deve mostrar as três abas', (tester) async {
         await pumpSignedIn(tester);
 
