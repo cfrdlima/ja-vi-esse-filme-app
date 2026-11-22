@@ -27,6 +27,7 @@ import 'package:ja_vi_esse_filme/features/shelf/presentation/widgets/shelf_marks
 import 'package:ja_vi_esse_filme/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../helpers/accessibility.dart';
 import '../../../../helpers/fake_auth_repository.dart';
 import '../../../../helpers/fake_link_opener.dart';
 import '../../../../helpers/fake_movie_repository.dart';
@@ -637,5 +638,72 @@ void main() {
         inExclusiveRange(gridWidth, AppSizes.detailsPosterWidth),
       );
     });
+  });
+
+  // Testes de caracterização (decisão 020): a tela já passava na auditoria.
+  group('acessibilidade num celular estreito', () {
+    Future<void> answer(WidgetTester tester, MovieDetails details) async {
+      repository.completeDetails(details);
+      await tester.pump();
+      await tester.pump();
+    }
+
+    // Sem pôster nem foto: com URL, o `cached_network_image` pede o
+    // `path_provider`, que não existe no teste (decisão 020).
+    final withoutImages = MovieDetails(
+      id: complete.id,
+      title: complete.title,
+      overview: complete.overview,
+      releaseDate: complete.releaseDate,
+      runtime: complete.runtime,
+      voteAverage: complete.voteAverage,
+      genres: complete.genres,
+      cast: [
+        for (final member in complete.cast)
+          CastMember(
+            id: member.id,
+            name: member.name,
+            character: member.character,
+          ),
+      ],
+      trailers: complete.trailers,
+    );
+
+    final states = <String, Future<void> Function(WidgetTester)>{
+      'carregando': (_) async {},
+      'no sucesso': (tester) => answer(tester, withoutImages),
+      'no fim do sucesso, com elenco e trailers': (tester) async {
+        await answer(tester, withoutImages);
+        await tester.drag(find.byType(Scrollable).first, const Offset(0, -5000));
+        await tester.pump();
+      },
+      'sem os dados opcionais': (tester) => answer(tester, bare),
+      'no erro': (tester) async {
+        repository.failDetails(const NetworkFailure());
+        await tester.pump();
+      },
+      'no não encontrado': (tester) async {
+        repository.failDetails(const NotFoundFailure());
+        await tester.pump();
+      },
+    };
+    for (final MapEntry(key: state, value: reach) in states.entries) {
+      testWidgets('deve ser acessível $state', (tester) async {
+        useNarrowPhone(tester);
+        await tester.pumpWidget(screen());
+        await reach(tester);
+
+        await expectAccessible(tester);
+      });
+
+      testWidgets('deve ser acessível $state com a fonte 2x', (tester) async {
+        useNarrowPhone(tester);
+        useLargeFont(tester);
+        await tester.pumpWidget(screen());
+        await reach(tester);
+
+        await expectAccessible(tester);
+      });
+    }
   });
 }
