@@ -10,37 +10,31 @@ void main() {
 
   setUp(() => actions = 0);
 
+  Future<void> pumpHost(WidgetTester tester) =>
+      tester.pumpWidget(testApp(home: const Scaffold(body: SizedBox())));
+
+  Future<ScaffoldFeatureController<SnackBar, SnackBarClosedReason>> show(
+    WidgetTester tester, {
+    String message = 'Filme tirado da lista.',
+    String actionLabel = 'Desfazer',
+  }) async {
+    final controller = showActionSnackBar(
+      messenger: ScaffoldMessenger.of(tester.element(find.byType(Scaffold))),
+      message: message,
+      actionLabel: actionLabel,
+      onAction: () => actions++,
+    );
+    await tester.pumpAndSettle();
+    return controller;
+  }
+
   Future<void> showNotice(
     WidgetTester tester, {
     String message = 'Filme tirado da lista.',
     String actionLabel = 'Desfazer',
   }) async {
-    await tester.pumpWidget(
-      testApp(
-        home: Scaffold(
-          body: Builder(
-            builder: (context) => Center(
-              child: TextButton(
-                onPressed: () {
-                  final messenger = ScaffoldMessenger.of(context);
-                  messenger.showSnackBar(
-                    actionSnackBar(
-                      messenger: messenger,
-                      message: message,
-                      actionLabel: actionLabel,
-                      onAction: () => actions++,
-                    ),
-                  );
-                },
-                child: const Text('Mostrar'),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-    await tester.tap(find.text('Mostrar'));
-    await tester.pumpAndSettle();
+    await pumpHost(tester);
+    await show(tester, message: message, actionLabel: actionLabel);
   }
 
   testWidgets('deve mostrar a mensagem', (tester) async {
@@ -78,14 +72,55 @@ void main() {
     expect(actions, 1);
   });
 
-  // Como o `SnackBarAction` do Material: o aviso com ação só sai pelo toque
-  // ou por outro aviso, e não some antes de quem usa leitor de tela chegar.
+  // Durante a saída, o botão desabilitado continua com a cor da ação, como o
+  // `SnackBarAction`, e não pisca quase invisível sobre o fundo.
+  testWidgets('deve manter a cor da ação enquanto o aviso sai', (tester) async {
+    await showNotice(tester);
+
+    await tester.tap(find.text('Desfazer'));
+    await tester.pump();
+    // O tempo da animação da cor do botão, antes de o aviso acabar de sair.
+    await tester.pump(kThemeChangeDuration);
+
+    final context = tester.element(find.text('Desfazer'));
+    expect(
+      DefaultTextStyle.of(context).style.color,
+      Theme.of(context).colorScheme.inversePrimary,
+    );
+  });
+
+  // O aviso com ação não some sozinho antes de quem usa leitor de tela
+  // chegar até ela.
   testWidgets('deve ficar na tela até o toque', (tester) async {
     await showNotice(tester);
 
     await tester.pump(const Duration(minutes: 1));
+    await tester.pumpAndSettle();
 
     expect(find.byType(SnackBar), findsOneWidget);
+  });
+
+  // Persistente, um aviso deixaria o seguinte preso na fila até o toque.
+  testWidgets('deve trocar na hora o aviso anterior pelo novo', (tester) async {
+    await showNotice(tester, message: 'Primeiro');
+
+    await show(tester, message: 'Segundo');
+
+    expect(
+      [find.text('Primeiro'), find.text('Segundo')],
+      [findsNothing, findsOneWidget],
+    );
+  });
+
+  testWidgets('deve avisar quando outro aviso toma o lugar', (tester) async {
+    await pumpHost(tester);
+    final first = await show(tester, message: 'Primeiro');
+    var replaced = false;
+    first.closed.then((_) => replaced = true).ignore();
+
+    await show(tester, message: 'Segundo');
+
+    expect(replaced, isTrue);
   });
 
   testWidgets('deve ser acessível com a fonte 2x num celular estreito', (

@@ -329,6 +329,28 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  // `/revisar` da sessão 030: com a fila, o "Desfazer" do segundo filme
+  // ficava atrás do primeiro e aparecia depois da falha, valendo para um
+  // filme que já tinha voltado à grade.
+  testWidgets('não deve mostrar o desfazer da remoção que falhou', (
+    tester,
+  ) async {
+    await pumpScreen(tester);
+    await emitPage(tester, [movie(550), movie(551)]);
+    await removeByLongPress(tester);
+    lists.writes.single.complete();
+    await tester.pumpAndSettle();
+
+    await tester.longPress(find.bySemanticsLabel(RegExp('Filme 551')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(l10n.listRemoveMovie));
+    await tester.pump();
+    lists.writes.last.fail(const NetworkFailure());
+    await tester.pumpAndSettle();
+
+    expect(find.text(l10n.listUndo), findsNothing);
+  });
+
   // Testes de caracterização (decisão 020): a tela já passava na auditoria.
   group('acessibilidade num celular estreito', () {
     final states = <String, Future<void> Function(WidgetTester)>{
