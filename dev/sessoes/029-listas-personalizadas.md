@@ -60,8 +60,8 @@ Permitir que o usuário logado crie, renomeie e apague listas próprias e adicio
 - [x] Política 2.0 (`docs/PRIVACIDADE.md`), página de exclusão (`docs/EXCLUSAO-DA-CONTA.md`) e diálogo da exclusão da conta citando as listas
 - [x] Rotas novas no `go_router` e montagem no `main.dart`. **Feito:** `/estante/listas/:listId` com os Detalhes empilhados; o logout fecha os streams da Estante e das listas (`closeUserDataStreams`)
 - [x] `PLANO.md`: o item das listas sem a exclusão aninhada dos `items` (decisão 019)
-- [ ] Verificação no emulador (screenshot via MCP do Flutter) e deploy das regras no projeto real, com confirmação
-- [ ] `/revisar` (`code-reviewer` e `security-auditor`)
+- [x] Verificação no emulador (screenshot via MCP do Flutter) e deploy das regras no projeto real, com confirmação. **Feito:** regras publicadas com a conta dona do projeto; verificação por `adb` (o MCP do Flutter não estava disponível) com a conta de teste escolhida pelo usuário
+- [x] `/revisar` (`code-reviewer` e `security-auditor`). **Feito:** sem bloqueante; 12 achados tratados nesta sessão, 5 no backlog
 
 ## Decisões
 - [019 — Listas personalizadas: mapa de listas no documento do filme](../decisoes/019-listas-personalizadas.md) (emenda na 013)
@@ -69,6 +69,14 @@ Permitir que o usuário logado crie, renomeie e apague listas próprias e adicio
 ## Commits
 
 ## Notas
+- **Emulador (`Pixel_9_Pro`, projeto real, conta de teste descartável escolhida pelo usuário, sessão de 2026-11-22):**
+  - Regras publicadas antes (`firebase deploy --only firestore:rules --project ja-vi-esse-filme --account` da conta dona; a padrão da CLI deu 403 na 028). Nenhum `PERMISSION_DENIED` no log durante o teste.
+  - Aba Listas vazia com "Criar lista"; o diálogo mostra o rótulo e o contador (14/50), e o ✓ do teclado cria. A lista aparece na hora.
+  - Detalhes: "Adicionar à lista" abre a folha com a lista; marcar a caixa grava, e o botão vira "Nas suas listas".
+  - Tela da lista: o filme aparece pela consulta `orderBy('lists.<id>')` no Firestore real, sem índice manual. Toque longo abre a folha "Tirar da lista"; o filme só da lista sai (documento apagado) e o "Desfazer" aparece na hora e o põe de volta. Renomear pelo menu muda o título. Apagar com o filme dentro passa pelo laço de lotes e volta à aba com "Lista apagada.".
+  - **Achado:** com quatro abas, "Quero assistir" saía cortado com a fonte normal. Corrigido com o `TabBar` sempre rolável (teste e override do `estante.md`).
+  - Fonte do sistema em 2.0: abas rolam com os rótulos inteiros; diálogo com nome longo (46/50) e linha com reticências, sem overflow; diálogo de apagar com o nome inteiro.
+  - Dados de teste apagados pela própria tela (a lista; o filme saiu junto, porque só estava nela). A fonte do emulador voltou a 1.0.
 - **Regras (sessão 029):** o `keys().join(',')` existe e serve para validar as chaves do mapa; a junção também confere o tamanho exato, para uma chave com vírgula não se passar por duas. O `size()` de string conta unidades UTF-16 (25 emojis cabem em 50, 26 não), o mesmo que o `length` do Dart.
 - **Empilhada:** base na `feature/028-nota-e-data`; o PR vai com essa base, como a 026 a 028 (PRs #21 a #24 esperam o CI destravar).
 - **Tamanho:** se a sessão crescer demais, a UI (Estado e UI) pode ir para a 030, com domínio, regras, data e exclusão fechados aqui.
