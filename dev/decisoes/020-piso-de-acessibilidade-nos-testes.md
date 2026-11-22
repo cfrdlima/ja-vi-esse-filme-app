@@ -30,5 +30,5 @@ Opção 2.
 - As guidelines não pegam tudo: a ordem de leitura, a leitura em dobro, o anúncio de estado e o movimento reduzido continuam dependendo de testes de semântica específicos e da verificação no emulador com o TalkBack.
 - O ajudante precisa montar pôsteres sem rede. Com URL, o `cached_network_image` lança `MissingPluginException` (`path_provider`) nos testes. As fixtures do ajudante usam filme sem `posterPath` ou um cache fake.
 - A `androidTapTargetGuideline` ignora o nó que encosta na borda da tela, porque ele pode estar cortado. Um widget testado sozinho, sem a margem da tela real, deixa passar alvo pequeno. Por isso o host do teste usa a margem da tela de verdade (`AppSpacing.standard.md` nos Detalhes).
-- O `SnackBarAction` do Flutter 3.47 não cabe com a fonte 2x em 320dp (mede o rótulo sem a escala e põe a ação numa `Row` sem limite). Os avisos com ação usam o `actionSnackBar` de `core/widgets`.
+- O `SnackBarAction` do Flutter 3.47 não cabe com a fonte 2x em 320dp (mede o rótulo sem a escala e põe a ação numa `Row` sem limite). Os avisos com ação usam o `showActionSnackBar` de `core/widgets`.
 - O contraste da `textContrastGuideline` só vale para o texto sobre cor sólida. Texto sobre imagem (pôster, backdrop) não é medido e continua coberto pela revisão visual.

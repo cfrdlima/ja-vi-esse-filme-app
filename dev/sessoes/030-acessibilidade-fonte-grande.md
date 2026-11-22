@@ -1,6 +1,6 @@
 # Sessão 030 — Fase 4: acessibilidade e fonte grande
 
-**Data**: 2026-11-22 · **Branch**: `feature/030-acessibilidade-fonte-grande` (empilhada na `feature/029-listas-personalizadas`) · **Status**: aberta
+**Data**: 2026-11-22 · **Branch**: `feature/030-acessibilidade-fonte-grande` (empilhada na `feature/029-listas-personalizadas`) · **Status**: fechada
 
 ## Objetivo
 Garantir, com testes, que todas as telas do app cumprem o checklist de acessibilidade do `MASTER.md`: alvos de toque ≥ 48dp, rótulos nos clicáveis, contraste AA e fonte grande (escala 1.5 e 2.0, o máximo do Android) sem overflow. As lacunas encontradas são corrigidas em ciclos TDD, e a verificação final é feita no emulador com o TalkBack e a fonte no máximo.
@@ -17,7 +17,7 @@ Garantir, com testes, que todas as telas do app cumprem o checklist de acessibil
 - [x] Buscar: campo, botão de limpar e resultados; estados vazio e erro. **Feito:** inicial, sucesso, vazio com termo longo, erro e termo longo demais; validada sem o `tooltip` do limpar
 - [x] Detalhes: cabeçalho, marcas, "Adicionar à lista", elenco e trailers. **Feito:** tela deslogada (carregando, sucesso, fim com elenco e trailers, sem dados, erro e não encontrado), marcas, diário e folha. O calendário do diário não tem 48dp por dia abaixo de cerca de 392dp; o usuário escolheu a exceção registrada na decisão 020. Os hosts dos testes de widget ganharam a margem dos Detalhes, porque a guideline de alvo ignora o que encosta na borda (a quebra dos chips das marcas passava sem a margem)
 - [x] Estante: as 4 abas, a barra de marcas e o diário. **Feito:** convite, filmes com cópia vencida, vazio, erro e Listas cheia e vazia; validada sem o rótulo do pôster e com o menu da lista encolhido. Barra de marcas e diário vão com os Detalhes
-- [x] Tela da lista: linhas, menu, desfazer e diálogos de renomear e apagar. **Feito, com a primeira falha real:** o aviso com "Desfazer" vazava 0,8px e o de falha com "Tentar de novo" 169px, com a fonte 2x em 320dp. O `SnackBarAction` do Flutter 3.47 mede o rótulo sem a escala e põe a ação numa `Row` sem limite. Correção: `actionSnackBar` (`core/widgets`), com `Wrap`, `persist` e toque único, usado no desfazer e no `runWithNotice`
+- [x] Tela da lista: linhas, menu, desfazer e diálogos de renomear e apagar. **Feito, com a primeira falha real:** o aviso com "Desfazer" vazava 0,8px e o de falha com "Tentar de novo" 169px, com a fonte 2x em 320dp. O `SnackBarAction` do Flutter 3.47 mede o rótulo sem a escala e põe a ação numa `Row` sem limite. Correção: `showActionSnackBar` (`core/widgets`), com `Wrap`, `persist` e toque único, usado no desfazer e no `runWithNotice`
 - [x] Folhas e diálogos: login, "Adicionar à lista", apagar a conta, sair com escrita pendente, desmarcar. **Feito:** Perfil (sem conta, falha do login, conta aberta, aviso sem sincronizar, falha do logout, confirmação, excluindo, falha e conta excluída), folha de login (aberta, entrando, falha), Sobre (topo e fim) e os diálogos de criar, renomear e apagar lista e de desmarcar. Cada arquivo validado com uma quebra de propósito (alvo encolhido ou rótulo tirado)
 
 ### Fonte grande (RED/GREEN/REFACTOR por tela)
@@ -26,28 +26,63 @@ Garantir, com testes, que todas as telas do app cumprem o checklist de acessibil
 
 ### Leitor de tela
 - [x] `MoviePoster` com rótulo opcional, sem o cabeçalho dos detalhes montar um `Movie` ou cobrir o `Semantics` (BACKLOG, revisão da 011, S7). **Feito:** `MoviePoster.labeled(posterPath:, label:)`
-- [ ] Rótulos sem duplicar a leitura (ícone + texto lidos duas vezes) e estados anunciados (marcado, selecionado, carregando)
+- [x] Rótulos sem duplicar a leitura (ícone + texto lidos duas vezes) e estados anunciados (marcado, selecionado, carregando). **Parcial:** no emulador, sem login, Descobrir, Detalhes e Estante sem leitura em dobro, e o carregando dos Detalhes anunciado (`liveRegion`); as marcas e as listas, que só aparecem com login, ficam para o usuário conferir no aparelho com o TalkBack
 - [x] Movimento reduzido (`MediaQuery.disableAnimations`) respeitado nos skeletons e transições. **Feito:** o skeleton já parava (`SkeletonPulse`); as transições de página do Material não olham o `disableAnimations` (o controller da rota só as encurta para 5%, cerca de 40ms), e entrou o `ReducedMotionPageTransitions` no tema do Android (por cima do `PredictiveBackPageTransitionsBuilder`), que as leva a zero; com o ajuste ligado, o voltar perde a prévia animada e o Hero ainda voa nos cerca de 40ms, como escolha consciente; as abas da Estante trocam com `animationDuration` zero
 
 ### Fechamento
 - [x] Verificação no emulador: TalkBack nas telas principais e fonte no máximo das configurações, com screenshots via MCP do Flutter. **Feito, sem login:** `Small_Phone` (360dp, Android 16) com `font_scale` 2.0 e as três escalas de animação em 0, screenshots por `adb screencap` (o MCP do Flutter não estava disponível): Descobrir, Detalhes (topo, sinopse, elenco e trailers), Buscar, Estante e Perfil sem conta e o Sobre, sem corte nem overflow; cancelar o seletor do Google volta ao Perfil sem erro. Leitor de tela pela árvore do `uiautomator` (o TalkBack ligado por `adb` capturava os toques): Descobrir, Detalhes e Estante sem leitura em dobro, o pôster do cabeçalho como um nó só ("Pôster de Homem de Ferro", S7), a nota como "Nota 7,7 de 10" e as abas como "Guia N de 4". O emulador não tem conta Google, e o login pede credencial: **a Estante, as Listas e os avisos com login ficam para o usuário conferir no aparelho**. A instalação falhou por falta de espaço e o Flutter desinstalou a versão antiga, apagando os dados locais do app nesse emulador. Um toque caiu num trailer e abriu o YouTube, fechado em seguida. As configurações do emulador voltaram ao original
-- [ ] `flutter analyze` limpo e `flutter test` verde
-- [x] Atualizar `MASTER.md`/`docs/DESIGN.md` se alguma regra mudar e marcar o item no `PLANO.md`. **Feito:** `MASTER.md` (seções 3, 7 e 9) e a skill `tela-4-estados` com o piso 2.0 em 320dp, o ajudante e o `actionSnackBar`; S6 e S7 saíram do BACKLOG
+- [x] `flutter analyze` limpo e `flutter test` verde. **Feito:** formato sem mudança, `No issues found!` e `+2006: All tests passed!`; `gitleaks` não instalado na máquina (roda no CI)
+- [x] Atualizar `MASTER.md`/`docs/DESIGN.md` se alguma regra mudar e marcar o item no `PLANO.md`. **Feito:** `MASTER.md` (seções 3, 7 e 9) e a skill `tela-4-estados` com o piso 2.0 em 320dp, o ajudante e o `showActionSnackBar`; S6 e S7 saíram do BACKLOG
 - [x] `/revisar`. **Feito:** `code-reviewer` (o diff não toca auth, storage, rede, config nem URL, então sem `security-auditor`); sem bloqueante, achados aceitos abaixo
 
 ### Achados do `/revisar` (aceitos pelo usuário)
-- [x] Teste do `persist` do `actionSnackBar` sem pegar a remoção do `persist`: `pumpAndSettle` antes do `expect` (`action_snack_bar_test.dart:83-89`)
+- [x] Teste do `persist` do `showActionSnackBar` sem pegar a remoção do `persist`: `pumpAndSettle` antes do `expect` (`action_snack_bar_test.dart:83-89`)
 - [x] Aviso com ação entra na fila atrás do atual: fechar o aviso atual antes de mostrar o novo, corrigir o comentário e testar dois avisos seguidos; a falha da remoção fecha o aviso certo (`action_snack_bar.dart:17-18`, `movie_list_screen.dart:181-197`). **Feito:** `showActionSnackBar` tira da fila e da tela os avisos anteriores e devolve o controle; com isso o `removeCurrentSnackBar` da falha fecha o "Desfazer" certo, e a tela da lista não precisou guardar o controle (se outro "Desfazer" estiver na tela, o aviso da falha o troca de qualquer jeito). Testes validados por mutação: sem o `persist` e sem limpar a fila, eles falham
 - [x] Justificativa da `ReducedMotionPageTransitions`: o Flutter já encurta a rota para 5% (cerca de 40ms); o Hero ainda voa e o gesto de voltar perde a prévia, como escolha consciente (comentário, log e `MASTER.md` §7)
-- [x] `disabledForegroundColor: inversePrimary` no botão do `actionSnackBar`, para ele não sumir durante a saída
+- [x] `disabledForegroundColor: inversePrimary` no botão do `showActionSnackBar`, para ele não sumir durante a saída
 - [x] Nota da auditoria sobre o `FadeTransition` do skeleton marcada como resolvida
 
 ## Decisões
 - [020 — Piso de acessibilidade nos testes: escala 2.0 em 320dp e guidelines em toda tela](../decisoes/020-piso-de-acessibilidade-nos-testes.md)
 
 ## Commits
+Só os da sessão 030 (a branch está empilhada na 029, então `git log main..HEAD` traz também as sessões 025 a 029).
+- `17caa5d` docs: abre sessão 030 com a auditoria de acessibilidade e a decisão 020
+- `8a4b18b` test: ajudante de acessibilidade com 320dp, fonte 2.0 e as três guidelines
+- `a178b81` test: ajudante dobra a fonte do app inteiro
+- `a883a1c` test: Descobrir acessível em 320dp com a fonte normal e 2x
+- `55a3e58` test: Buscar acessível em 320dp com a fonte normal e 2x
+- `2fdd1c0` test: Detalhes acessíveis em 320dp com a fonte normal e 2x
+- `057dffa` test: Estante acessível em 320dp com a fonte normal e 2x
+- `b69f6db` test: tela da lista acessível em 320dp e aviso com ação que cabe com a fonte 2x
+- `bed7f98` fix: Desfazer e Tentar de novo cabem no aviso com a fonte 2x em 320dp
+- `8deb4da` test: ajudante dispensa uma guideline só nas exceções da decisão 020
+- `11d0442` test: marcas, diário e Adicionar à lista acessíveis em 320dp com a fonte normal e 2x
+- `5dc00a3` docs: exceção do calendário, margem dos hosts e aviso com ação na decisão 020
+- `2f2bbb6` test: Perfil acessível em 320dp com a fonte normal e 2x
+- `9dad258` test: Sobre e folha de login acessíveis em 320dp com a fonte normal e 2x
+- `565f3bd` docs: checklist da sessão 030 com as guidelines por tela
+- `707a340` test: linha do skeleton dos Detalhes cresce com a fonte grande
+- `10c62a1` fix: linha do skeleton dos Detalhes com a altura da letra escalada
+- `fd2d097` test: pôster com rótulo próprio para o leitor de tela
+- `0a36076` refactor: cabeçalho dos Detalhes usa o pôster com rótulo, sem montar um Movie
+- `bb054cc` test: troca de tela sem animação com o reduzir movimento
+- `90964d8` add: transição de página que respeita o reduzir movimento no Android
+- `394a83a` test: abas da Estante trocam sem animar com o reduzir movimento
+- `5907fd4` fix: abas da Estante trocam sem animar com o reduzir movimento
+- `e7961e6` docs: S6, S7, movimento reduzido e a verificação parcial no emulador na sessão 030
+- `f74b8a9` docs: piso 2.0 em 320dp no MASTER e na tela-4-estados, PLANO e BACKLOG da sessão 030
+- `19e921e` test: aviso com ação troca o anterior na hora, fica até o toque e mantém a cor ao sair
+- `f717ec3` fix: aviso com ação troca o anterior em vez de entrar na fila
+- `0553a1f` docs: justificativa da transição sem animação e achados do /revisar da sessão 030
+- `a0cfd1e` chore: formata testes da sessão 030
 
 ## Notas
+### Pendências ao fechar
+- No aparelho, com login e a fonte 2x: Estante, Listas, tela da lista, os avisos com "Desfazer" e "Tentar de novo", e o TalkBack nas marcas e nas listas.
+- A branch continua empilhada (PRs #21 a #25 abertos, CI falhando em cerca de 2 s); a integração espera o CI destravar.
+- Sugestões do `/revisar` não aceitas foram para o BACKLOG.
+
 ### Auditoria (2026-11-22)
 Sonda temporária, fora do commit, com `androidTapTargetGuideline`, `labeledTapTargetGuideline` e `textContrastGuideline` e a captura de exceção de layout, em tela de 360 e 320dp, com escala 1.0 e 2.0. Cobertura: Descobrir, Buscar, Detalhes (fixture `movie_details_full.json`), Estante deslogada, Perfil deslogado e logado, Sobre, Estante logada (Assistidos com cópia vencida, vazio, erro, Listas cheia e vazia), tela da lista (com filmes, vazia, menu e os diálogos de renomear e apagar), marcas com nota e o diálogo de desmarcar, a folha "Adicionar à lista" e o diálogo de excluir a conta.
 

@@ -110,3 +110,7 @@ Ideias que surgiram e não estão no plano imediato. Marque **[prioritário]** o
 - `ShelfMoviesView`: juntar `onLongPress` e `longPressLabel` num par obrigatório, para não haver ação do leitor de tela sem rótulo (`/revisar` da sessão 029)
 - Listas: `newList` dentro do `try`, conferir a conta depois da contagem e mostrar andamento quando a contagem offline demora (`/revisar` da sessão 029)
 - `deleteList`: um filme apagado entre a leitura e o `commit` derruba o lote com `not-found`; tratar como "ler de novo" (`/revisar` da sessão 029)
+- `showActionSnackBar`: o `if (_pressed) return` do botão é redundante com o `onPressed: null`; decidir entre os dois (`/revisar` da sessão 030)
+- `showActionSnackBar`: rever o layout da ação no `Wrap` (alinhamento quando ela desce de linha) (`/revisar` da sessão 030)
+- `ReducedMotionPageTransitions`: conferir se o `delegatedTransition` do fallback deve sumir também com o reduzir movimento (`/revisar` da sessão 030)
+- Testes da sessão 030: deixar mais firmes as duas asserções apontadas pelo `code-reviewer` (`/revisar` da sessão 030)
