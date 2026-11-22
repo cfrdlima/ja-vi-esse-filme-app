@@ -640,4 +640,47 @@ void main() {
       expect(notifier.watchedMovie.value, isNull);
     });
   });
+
+  group('filme confirmado, para as listas (decisão 019)', () {
+    test('deve começar sem filme confirmado', () {
+      expect(notifier.confirmedEntry.value, isNull);
+    });
+
+    test('deve dar o que a Estante confirmou', () async {
+      final movie = movieWith({ShelfMark.favorite});
+      await signInAs(ana);
+
+      await emitEntry(OnShelf(movie));
+
+      expect(notifier.confirmedEntry.value, OnShelf(movie));
+    });
+
+    test('deve dar o filme fora da Estante', () async {
+      await signInAs(ana);
+
+      await emitEntry(const NotOnShelf());
+
+      expect(notifier.confirmedEntry.value, const NotOnShelf());
+    });
+
+    test('deve esquecer o filme quando a conta sai', () async {
+      await signInAs(ana);
+      await emitEntry(const NotOnShelf());
+
+      account.add(const SignedOut());
+      await pumpEventQueue();
+
+      expect(notifier.confirmedEntry.value, isNull);
+    });
+
+    test('deve esquecer o filme quando o stream acaba no logout', () async {
+      await signInAs(ana);
+      await emitEntry(const NotOnShelf());
+
+      shelf.endWatch();
+      await pumpEventQueue();
+
+      expect(notifier.confirmedEntry.value, isNull);
+    });
+  });
 }

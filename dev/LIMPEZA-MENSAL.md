@@ -38,6 +38,7 @@ unset TMDB_READ_TOKEN
 gcloud auth application-default revoke
 ```
 
+- **Etapas:** primeiro os `users/{uid}` sem conta, depois as chaves de lista sem a lista delas (o filme que fica sem marca e sem lista é apagado, decisão 019), por fim as cópias vencidas. A etapa das chaves lê todos os filmes que estão em alguma lista: cerca de uma leitura por filme assim, mais uma por lista.
 - **Saída:** só contagens. Com falhas ou uma parada (limite do TMDB, token recusado, 404 seguidos, cota, teto de escritas), o script sai com código 1 e explica o que fazer. Um filme sem título no TMDB não muda o código de saída.
 - **Travas:** o script recusa rodar com variável de emulador no ambiente ou com projeto `demo-`. Ele também se recusa a apagar quando o Auth não devolve nenhuma conta. Acima de 5 contas sem dados (ou 20% dos `users/{uid}`, o que for maior), ele só apaga com `--confirm-orphans` igual à contagem da simulação.
 - **Credencial:** o `application-default login` grava um token de longa duração em `~/.config/gcloud/`. Por isso ele é feito a cada execução e revogado no fim.
@@ -47,5 +48,5 @@ gcloud auth application-default revoke
 
 Data e contagens da saída. Um mês sem linha é um mês esquecido.
 
-| Data | Sem conta apagados | Cópias vencidas | Renovadas | Filmes apagados | Falhas | Sem título | Puladas | Parada |
-|---|---|---|---|---|---|---|---|---|
+| Data | Sem conta apagados | Chaves sem lista (filmes, apagados) | Cópias vencidas | Renovadas | Filmes apagados | Falhas | Sem título | Puladas | Parada |
+|---|---|---|---|---|---|---|---|---|---|

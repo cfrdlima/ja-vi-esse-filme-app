@@ -1,4 +1,5 @@
 import { renewExpiredCopies } from './expired-copies.js';
+import { removeOrphanListKeys } from './orphan-list-keys.js';
 import { deleteOrphanUserData } from './orphan-user-data.js';
 
 export class UsageError extends Error {
@@ -50,14 +51,21 @@ function positiveInteger(value) {
   return Number(value);
 }
 
-// Primeiro os dados sem conta, para não gastar requisições ao TMDB com
-// cópias que vão ser apagadas. Num erro, o relatório parcial vai junto.
+// Primeiro os dados sem conta e os filmes só em listas apagadas, para não
+// gastar requisições ao TMDB com cópias que vão ser apagadas. Num erro, o
+// relatório parcial vai junto.
 export async function runCleanup({ auth, db, source, dryRun, confirmOrphans = null, now = new Date() }) {
   const orphans = await deleteOrphanUserData({ auth, db, dryRun, confirmOrphans });
-  const partial = { orphanUsers: orphans.orphanUsers, needsConfirmation: orphans.needsConfirmation, copies: null };
+  const partial = {
+    orphanUsers: orphans.orphanUsers,
+    needsConfirmation: orphans.needsConfirmation,
+    listKeys: null,
+    copies: null,
+  };
   try {
-    // Na simulação, os órfãos continuam lá: as cópias deles não contam.
+    // Na simulação, os órfãos continuam lá: os filmes deles não contam.
     const skipUserIds = dryRun ? orphans.orphanIds : new Set();
+    partial.listKeys = await removeOrphanListKeys({ db, dryRun, skipUserIds });
     partial.copies = await renewExpiredCopies({ db, source, now, dryRun, skipUserIds });
     return partial;
   } catch (error) {
@@ -76,13 +84,21 @@ const STOP_MESSAGES = {
 };
 
 // Só contagens: nunca uid, e-mail, título nem token (decisão 017).
-export function formatReport({ projectId, dryRun, orphanUsers, needsConfirmation, copies }) {
+export function formatReport({ projectId, dryRun, orphanUsers, needsConfirmation, listKeys, copies }) {
   const lines = [
     `Limpeza mensal do Firestore — projeto ${projectId}`,
     `Dados sem conta ${dryRun ? 'encontrados' : 'apagados'}: ${orphanUsers} users/{uid}`,
   ];
   if (dryRun && needsConfirmation) {
     lines.push(`Acima do limite: na execução real, confirme com --confirm-orphans ${orphanUsers}.`);
+  }
+  if (listKeys === null) {
+    lines.push('Chaves de lista sem lista: a etapa não terminou.');
+  } else {
+    lines.push(
+      `Chaves de lista sem lista ${dryRun ? 'encontradas' : 'tiradas'}: ${listKeys.keys}, ` +
+        `em ${listKeys.movies} filmes (filmes apagados: ${listKeys.removed})`,
+    );
   }
   if (copies === null) {
     lines.push('Cópias vencidas: a etapa não terminou.');

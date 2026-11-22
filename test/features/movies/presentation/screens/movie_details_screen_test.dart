@@ -499,6 +499,7 @@ void main() {
           l10n.shelfMarkWatched,
           l10n.shelfMarkWatchlist,
           l10n.shelfMarkFavorite,
+          l10n.addToListAction,
           l10n.movieOverviewTitle,
           l10n.movieNoOverview,
         ],

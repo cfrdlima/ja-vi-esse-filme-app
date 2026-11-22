@@ -38,7 +38,7 @@ Se você não tem mais o app ou não consegue abri-lo, peça a exclusão por e-m
 
 Se o pedido vier de outro endereço, pedimos que você escreva de novo do endereço da conta. Não excluímos uma conta sem essa confirmação.
 
-Para atender o pedido, o responsável pelo app vê no console do Firebase o e-mail e o identificador da conta e os filmes marcados, com as notas e os dias, só para apagá-los.
+Para atender o pedido, o responsável pelo app vê no console do Firebase o e-mail e o identificador da conta e os filmes marcados, com as notas e os dias, e as listas, com os nomes, só para apagá-los.
 
 No pedido por e-mail, o acesso do app à sua conta Google continua lá até você removê-lo em <https://myaccount.google.com/permissions>. Pelo app, essa remoção é tentada sozinha.
 
@@ -46,7 +46,8 @@ No pedido por e-mail, o acesso do app à sua conta Google continua lá até voc�
 
 - os filmes que você marcou como **assistidos**, **quero assistir** e **favoritos**, com as datas em que cada marca entrou;
 - a nota e o dia em que você assistiu, nos filmes assistidos em que você os deu;
-- o título e o caminho do pôster de cada filme marcado, copiados do TMDB (o app nunca guarda a imagem);
+- as suas **listas**, com os nomes e os filmes de cada uma;
+- o título e o caminho do pôster de cada filme marcado ou posto numa lista, copiados do TMDB (o app nunca guarda a imagem);
 - a sua conta no app, no Firebase Authentication: nome, e-mail, endereço da foto, o identificador da sua conta Google, o identificador da conta no app e as datas de criação e do último acesso.
 
 Pelo app, ele também tenta revogar o acesso do app à sua conta Google e apaga a cópia local desses dados no aparelho. Se a revogação não acontecer, você pode removê-la em <https://myaccount.google.com/permissions>.
@@ -56,7 +57,7 @@ O app não envia dados da sua conta ao TMDB, então não há nada para apagar l�
 ## O que fica guardado por um tempo
 
 - **Backups e registros do Google.** Os dados ficam no Firebase, um serviço do Google. Depois da exclusão, o Google os remove dos sistemas ativos e dos backups em até cerca de **180 dias**, e guarda os endereços IP dos acessos ao login por algumas semanas. Por isso não prometemos um apagamento imediato de todas as cópias.
-- **Outros aparelhos.** Se a conta estiver aberta em outro aparelho, ele guarda uma cópia local das marcas, das notas e dos dias até você sair da conta nele, ou até o app perceber que a conta não existe mais e você abri-lo de novo. Saia da conta nos outros aparelhos antes de excluir. Uma marca feita em outro aparelho logo depois da exclusão pode ficar guardada sem conta ligada a ela. Uma limpeza feita uma vez por mês apaga esses dados, e você também pode pedir por e-mail: apagamos todos os dados que ficaram sem conta.
+- **Outros aparelhos.** Se a conta estiver aberta em outro aparelho, ele guarda uma cópia local das marcas, das notas, dos dias e das listas até você sair da conta nele, ou até o app perceber que a conta não existe mais e você abri-lo de novo. Saia da conta nos outros aparelhos antes de excluir. Uma marca ou uma lista feita em outro aparelho logo depois da exclusão pode ficar guardada sem conta ligada a ela. Uma limpeza feita uma vez por mês apaga esses dados, e você também pode pedir por e-mail: apagamos todos os dados que ficaram sem conta.
 - **O seu e-mail de pedido.** Se você pediu por e-mail, guardamos as mensagens do pedido por **6 meses** depois do atendimento, como registro de que ele foi atendido. Depois desse prazo, elas são apagadas.
 
 ## Dúvidas

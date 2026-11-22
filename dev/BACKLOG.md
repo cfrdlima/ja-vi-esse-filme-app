@@ -107,3 +107,8 @@ Ideias que surgiram e não estão no plano imediato. Marque **[prioritário]** o
 - Mostrar a nota pessoal e o dia em que assistiu na grade da aba Assistidos da Estante (sessão 028)
 - Ordenar a aba Assistidos pelo dia escolhido (`watchedOn`) em vez do `watchedAt`, se fizer falta; pede índice composto (decisões 014 e 018, sessão 028)
 - `gitleaks` local: instalar o binário 8.30.1 do CI (hoje roda a imagem 8.21.2 em container) para o `/fechar-sessao` usar a mesma versão (sessão 028)
+- Listas: operações longas (contagem com volta para o cache, laço do `deleteList`) conferirem uma geração marcada pelo `closeStreams()`, para nenhuma chamada ao SDK sair depois do `terminate()` do logout (`security-auditor` da sessão 029, I8)
+- Listas: mensagens do teto de listas e da lista cheia com placeholder de `MovieList.maxPerAccount` e `MovieList.maxMovies`, sem o número no texto do ARB (`/revisar` da sessão 029)
+- `ShelfMoviesView`: juntar `onLongPress` e `longPressLabel` num par obrigatório, para não haver ação do leitor de tela sem rótulo (`/revisar` da sessão 029)
+- Listas: `newList` dentro do `try`, conferir a conta depois da contagem e mostrar andamento quando a contagem offline demora (`/revisar` da sessão 029)
+- `deleteList`: um filme apagado entre a leitura e o `commit` derruba o lote com `not-found`; tratar como "ler de novo" (`/revisar` da sessão 029)

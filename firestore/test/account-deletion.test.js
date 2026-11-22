@@ -8,9 +8,12 @@ import {
   limit,
   query,
   setDoc,
+  Timestamp,
   writeBatch,
 } from 'firebase/firestore';
 import {
+  LIST_ID,
+  OTHER_LIST_ID,
   OTHER_UID,
   OWNER_UID,
   collectionsInApp,
@@ -50,6 +53,15 @@ describe('exclusão dos documentos da conta', () => {
         await setDoc(doc(db, 'users', OWNER_UID, 'movies', id), validMovie());
       }
       await setDoc(doc(db, 'users', OTHER_UID, 'movies', '550'), validMovie());
+      // Listas e um filme só numa lista, sem marca (decisão 019).
+      for (const id of [LIST_ID, OTHER_LIST_ID, 'Lst2aBcDeFgHiJkLmNoP']) {
+        await setDoc(doc(db, 'users', OWNER_UID, 'lists', id), { name: 'Terror' });
+      }
+      const { watchedAt: _, ...copy } = validMovie();
+      await setDoc(doc(db, 'users', OWNER_UID, 'movies', '600'), {
+        ...copy,
+        lists: { [LIST_ID]: Timestamp.now() },
+      });
     });
   });
 
@@ -83,6 +95,18 @@ describe('exclusão dos documentos da conta', () => {
     await deleteAccountDocuments(db, OWNER_UID);
 
     assert.equal(await remainingIn(OWNER_UID), 0);
+  });
+
+  test('deve apagar as listas do dono', async () => {
+    const db = googleContext(testEnv, OWNER_UID).firestore();
+
+    await deleteAccountDocuments(db, OWNER_UID);
+
+    let lists;
+    await testEnv.withSecurityRulesDisabled(async (context) => {
+      lists = await getDocs(collection(context.firestore(), 'users', OWNER_UID, 'lists'));
+    });
+    assert.equal(lists.size, 0);
   });
 
   test('não deve apagar os documentos de outro usuário', async () => {

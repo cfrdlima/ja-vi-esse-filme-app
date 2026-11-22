@@ -33,9 +33,13 @@ import 'features/auth/presentation/state/session_notifier.dart';
 import 'features/movies/data/datasources/movie_remote_data_source.dart';
 import 'features/movies/data/repositories/tmdb_movie_repository.dart';
 import 'features/movies/domain/repositories/movie_repository.dart';
+import 'features/shelf/data/gateways/cloud_firestore_movie_lists_gateway.dart';
 import 'features/shelf/data/gateways/cloud_firestore_shelf_gateway.dart';
+import 'features/shelf/data/repositories/firestore_movie_lists_repository.dart';
 import 'features/shelf/data/repositories/firestore_shelf_repository.dart';
+import 'features/shelf/data/repositories/unavailable_movie_lists_repository.dart';
 import 'features/shelf/data/repositories/unavailable_shelf_repository.dart';
+import 'features/shelf/domain/repositories/movie_lists_repository.dart';
 import 'features/shelf/domain/repositories/shelf_repository.dart';
 import 'firebase_options.dart';
 
@@ -52,14 +56,22 @@ Future<void> main() async {
         firebaseAvailable: firebaseAvailable,
         connect: () => _connectFirestoreShelf(writeLock),
       );
+      final movieListsRepository = composeMovieListsRepository(
+        firebaseAvailable: firebaseAvailable,
+        connect: () => _connectFirestoreLists(writeLock),
+      );
       runApp(
         MainApp(
           movieRepository: _composeMovieRepository(),
           authRepository: composeAuthRepository(
             firebaseAvailable: firebaseAvailable,
-            connect: () => _connectFirebaseAuth(shelfRepository, writeLock),
+            connect: () => _connectFirebaseAuth(
+              () => closeUserDataStreams(shelfRepository, movieListsRepository),
+              writeLock,
+            ),
           ),
           shelfRepository: shelfRepository,
+          movieListsRepository: movieListsRepository,
           linkOpener: UrlLauncherLinkOpener(),
           appVersion: AppConfig.appVersion,
           evictPhoto: _evictCachedImage,
@@ -93,6 +105,29 @@ ShelfRepository composeShelfRepository({
   required ShelfRepository Function() connect,
 }) => firebaseAvailable ? connect() : const UnavailableShelfRepository();
 
+/// Sem o Firebase, [connect] não é chamado, como na Estante.
+@visibleForTesting
+MovieListsRepository composeMovieListsRepository({
+  required bool firebaseAvailable,
+  required MovieListsRepository Function() connect,
+}) => firebaseAvailable ? connect() : const UnavailableMovieListsRepository();
+
+/// Os streams da Estante e das listas, que o logout fecha antes de limpar o
+/// cache do Firestore (decisão 010).
+@visibleForTesting
+Future<void> closeUserDataStreams(
+  ShelfRepository shelf,
+  MovieListsRepository lists,
+) async {
+  // Uma falha na Estante não pode deixar as listas ouvindo durante o
+  // `terminate()`.
+  try {
+    await shelf.closeStreams();
+  } finally {
+    await lists.closeStreams();
+  }
+}
+
 /// Sem o Firebase, [connect] não é chamado: o `FirebaseAuth.instance`
 /// lançaria `no-app` e derrubaria o app inteiro.
 @visibleForTesting
@@ -104,16 +139,16 @@ AuthRepository composeAuthRepository({
 // A foto da conta só fica no cache em memória (ver `AccountAvatar`).
 void _evictCachedImage(String url) => unawaited(NetworkImage(url).evict());
 
-// O logout fecha os streams da Estante antes de limpar o cache do
-// Firestore (decisão 010). No início, o cache de uma conta que já saiu é
+// O logout fecha os streams da Estante e das listas antes de limpar o cache
+// do Firestore (decisão 010). No início, o cache de uma conta que já saiu é
 // limpo, caso a limpeza do último logout tenha falhado.
 AuthRepository _connectFirebaseAuth(
-  ShelfRepository shelf,
+  Future<void> Function() closeStreams,
   UserDataWriteLock writeLock,
 ) {
   final firestore = FirebaseFirestore.instance;
   final cache = FirestoreAccountCache(
-    closeStreams: shelf.closeStreams,
+    closeStreams: closeStreams,
     terminate: firestore.terminate,
     clearPersistence: firestore.clearPersistence,
     waitForPendingWrites: firestore.waitForPendingWrites,
@@ -143,11 +178,23 @@ ShelfRepository _connectFirestoreShelf(UserDataWriteLock writeLock) =>
       currentUid: () => FirebaseAuth.instance.currentUser?.uid,
     );
 
+// As escritas num filme vão pelo mesmo gateway da Estante (decisão 019).
+MovieListsRepository _connectFirestoreLists(UserDataWriteLock writeLock) =>
+    FirestoreMovieListsRepository(
+      lists: CloudFirestoreMovieListsGateway(
+        firestore: FirebaseFirestore.instance,
+      ),
+      movies: CloudFirestoreShelfGateway(firestore: FirebaseFirestore.instance),
+      currentUid: () => FirebaseAuth.instance.currentUser?.uid,
+      writeLock: writeLock,
+    );
+
 class MainApp extends StatefulWidget {
   const MainApp({
     required this.movieRepository,
     required this.authRepository,
     required this.shelfRepository,
+    required this.movieListsRepository,
     required this.linkOpener,
     required this.appVersion,
     required this.evictPhoto,
@@ -157,6 +204,7 @@ class MainApp extends StatefulWidget {
   final MovieRepository movieRepository;
   final AuthRepository authRepository;
   final ShelfRepository shelfRepository;
+  final MovieListsRepository movieListsRepository;
   final ExternalLinkOpener linkOpener;
   final String appVersion;
 
@@ -189,6 +237,9 @@ class _MainAppState extends State<MainApp> {
         Provider<ExternalLinkOpener>.value(value: widget.linkOpener),
         Provider<AuthRepository>.value(value: widget.authRepository),
         Provider<ShelfRepository>.value(value: widget.shelfRepository),
+        Provider<MovieListsRepository>.value(
+          value: widget.movieListsRepository,
+        ),
         // Não preguiçoso: a sessão passa a ouvir a conta desde o início, e
         // não só quando a primeira tela a pedir.
         ChangeNotifierProvider(

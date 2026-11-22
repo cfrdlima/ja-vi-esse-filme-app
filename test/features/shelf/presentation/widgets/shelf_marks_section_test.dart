@@ -8,11 +8,13 @@ import 'package:ja_vi_esse_filme/features/shelf/domain/entities/rating.dart';
 import 'package:ja_vi_esse_filme/features/shelf/domain/entities/shelf_entry.dart';
 import 'package:ja_vi_esse_filme/features/shelf/domain/entities/shelf_mark.dart';
 import 'package:ja_vi_esse_filme/features/shelf/domain/entities/shelf_movie.dart';
+import 'package:ja_vi_esse_filme/features/shelf/domain/repositories/movie_lists_repository.dart';
 import 'package:ja_vi_esse_filme/features/shelf/domain/repositories/shelf_repository.dart';
 import 'package:ja_vi_esse_filme/features/shelf/presentation/widgets/shelf_marks_section.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../helpers/fake_auth_repository.dart';
+import '../../../../helpers/fake_movie_lists_repository.dart';
 import '../../../../helpers/fake_shelf_repository.dart';
 import '../../../../helpers/test_app.dart';
 
@@ -42,6 +44,9 @@ void main() {
       MultiProvider(
         providers: [
           Provider<ShelfRepository>.value(value: shelf),
+          Provider<MovieListsRepository>.value(
+            value: FakeMovieListsRepository(),
+          ),
           Provider<AuthRepository>.value(value: auth),
         ],
         child: testApp(

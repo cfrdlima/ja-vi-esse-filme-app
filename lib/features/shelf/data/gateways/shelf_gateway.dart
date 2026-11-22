@@ -34,6 +34,27 @@ final class ServerTime extends FieldWrite {
   String toString() => 'ServerTime()';
 }
 
+/// Um mapa com as próprias escritas, como o `lists` do filme (decisão 019):
+/// com `merge`, as chaves que ficam de fora não mudam.
+final class MapFields extends FieldWrite {
+  const MapFields(this.fields);
+
+  final Map<String, FieldWrite> fields;
+
+  @override
+  bool operator ==(Object other) =>
+      other is MapFields &&
+      other.fields.length == fields.length &&
+      fields.entries.every((e) => other.fields[e.key] == e.value);
+
+  @override
+  int get hashCode =>
+      Object.hashAllUnordered(fields.entries.map((e) => (e.key, e.value)));
+
+  @override
+  String toString() => 'MapFields($fields)';
+}
+
 /// Remove o campo (`FieldValue.delete()`).
 final class DeleteField extends FieldWrite {
   const DeleteField();

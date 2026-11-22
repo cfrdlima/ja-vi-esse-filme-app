@@ -15,7 +15,9 @@ import '../../features/movies/presentation/state/movie_details_notifier.dart';
 import '../../features/movies/presentation/state/search_notifier.dart';
 import '../../features/profile/presentation/screens/profile_screen.dart';
 import '../../features/shelf/data/sources/tmdb_movie_copy_source.dart';
+import '../../features/shelf/domain/entities/movie_list.dart';
 import '../../features/shelf/domain/repositories/movie_copy_source.dart';
+import '../../features/shelf/presentation/screens/movie_list_screen.dart';
 import '../../features/shelf/presentation/screens/shelf_screen.dart';
 import 'app_routes.dart';
 import 'app_shell.dart';
@@ -58,7 +60,10 @@ GoRouter createAppRouter({
           create: (_) => TmdbMovieCopySource(movies: movieRepository),
           child: const ShelfScreen(),
         ),
-        routes: [_movieDetailsRoute(movieRepository)],
+        routes: [
+          _movieDetailsRoute(movieRepository),
+          _movieListRoute(movieRepository),
+        ],
       ),
       tabBranch(
         path: AppRoutes.profile,
@@ -104,6 +109,29 @@ GoRoute _movieDetailsRoute(MovieRepository movieRepository) => GoRoute(
       ),
     );
   },
+);
+
+/// Uma lista personalizada (decisão 019), com os Detalhes empilhados nela.
+/// A renovação das cópias vencidas usa o mesmo TMDB da aba: o provider da
+/// aba não chega às sub-rotas.
+GoRoute _movieListRoute(MovieRepository movieRepository) => GoRoute(
+  path: 'listas/:listId',
+  pageBuilder: (_, state) => MaterialPage(
+    key: state.pageKey,
+    child: Provider<MovieCopySource>(
+      create: (_) => TmdbMovieCopySource(movies: movieRepository),
+      child: MovieListScreen(
+        // Outra lista é outro notifier, como nos Detalhes.
+        key: ValueKey(state.pathParameters['listId']),
+        listId: state.pathParameters['listId']!,
+        initial: switch (state.extra) {
+          final MovieList list => list,
+          _ => null,
+        },
+      ),
+    ),
+  ),
+  routes: [_movieDetailsRoute(movieRepository)],
 );
 
 /// Sub-rota do Perfil. A página é explícita pelo mesmo motivo da rota de

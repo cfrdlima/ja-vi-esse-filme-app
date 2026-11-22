@@ -13,17 +13,27 @@ abstract final class FirestoreFields {
   /// `ServerTimestampBehavior.estimate`. Com escrita pendente, [pendingAt]
   /// traz a hora local, que entra no lugar do `null`; sem escrita pendente,
   /// ele é nulo. As regras nunca deixam um `null` gravado de verdade.
+  ///
+  /// Os mapas (como o `lists` do filme, decisão 019) são lidos do mesmo
+  /// jeito, um nível abaixo.
   static Map<String, Object?> read(
     Map<String, dynamic>? data, {
     required DateTime? pendingAt,
   }) => {
     for (final MapEntry(:key, :value) in (data ?? {}).entries)
-      key: switch (value) {
+      key: _readValue(value, pendingAt),
+  };
+
+  static Object? _readValue(Object? value, DateTime? pendingAt) =>
+      switch (value) {
         final Timestamp at => at.toDate().toUtc(),
         null => pendingAt,
+        final Map<Object?, Object?> map => {
+          for (final MapEntry(:key, :value) in map.entries)
+            '$key': _readValue(value, pendingAt),
+        },
         _ => value,
-      },
-  };
+      };
 
   static Map<String, Object> write(Map<String, FieldWrite> fields) => {
     for (final MapEntry(:key, :value) in fields.entries)
@@ -31,6 +41,7 @@ abstract final class FirestoreFields {
         SetField(:final value) => value,
         ServerTime() => FieldValue.serverTimestamp(),
         DeleteField() => FieldValue.delete(),
+        MapFields(:final fields) => write(fields),
       },
   };
 }

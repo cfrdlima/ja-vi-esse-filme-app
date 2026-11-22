@@ -81,8 +81,7 @@ void main() {
   }
 
   ShelfTabNotifier newNotifier() => ShelfTabNotifier(
-    mark: ShelfMark.watchlist,
-    shelf: shelf,
+    watchPage: (limit) => shelf.watchShelf(ShelfMark.watchlist, limit: limit),
     account: account.stream,
     newRenewer: () {
       final renewer = ExpiredCopyRenewer(

@@ -268,6 +268,18 @@ abstract class AppLocalizations {
   /// **'Entre com o Google para guardar seus filmes.'**
   String get failureSignInRequired;
 
+  /// Criar lista com a conta já no teto de listas (decisão 019)
+  ///
+  /// In pt, this message translates to:
+  /// **'Você chegou ao limite de 50 listas. Apague uma para criar outra.'**
+  String get failureListLimit;
+
+  /// Pôr um filme numa lista que já tem o teto de filmes (decisão 019)
+  ///
+  /// In pt, this message translates to:
+  /// **'Esta lista chegou ao limite de 200 filmes.'**
+  String get failureListFull;
+
   /// Qualquer outra falha do TMDB (401, 404, 5xx, resposta inesperada) ou da conta. Neutra: não cita o TMDB
   ///
   /// In pt, this message translates to:
@@ -691,7 +703,7 @@ abstract class AppLocalizations {
   /// Texto do diálogo: o que é apagado, que não tem volta e que o seletor do Google abre
   ///
   /// In pt, this message translates to:
-  /// **'Vamos apagar seus assistidos, quero assistir e favoritos, com as notas e os dias em que assistiu, e a sua conta no app. Não dá para desfazer. Para confirmar, escolha a sua conta Google de novo.'**
+  /// **'Vamos apagar seus assistidos, quero assistir e favoritos, com as notas e os dias em que assistiu, as suas listas e a sua conta no app. Não dá para desfazer. Para confirmar, escolha a sua conta Google de novo.'**
   String get deleteAccountDialogBody;
 
   /// Fecha o diálogo da exclusão sem fazer nada
@@ -807,6 +819,198 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Ir para o Perfil'**
   String get shelfGoToProfile;
+
+  /// Rótulo da 4ª aba da Estante, com as listas personalizadas (decisão 019)
+  ///
+  /// In pt, this message translates to:
+  /// **'Listas'**
+  String get shelfTabLists;
+
+  /// Rótulo do skeleton da aba Listas e da folha Adicionar à lista
+  ///
+  /// In pt, this message translates to:
+  /// **'Carregando suas listas'**
+  String get listsLoading;
+
+  /// Vazio da aba Listas
+  ///
+  /// In pt, this message translates to:
+  /// **'Nenhuma lista ainda.'**
+  String get listsEmpty;
+
+  /// Botão do vazio da aba Listas, que abre o diálogo do nome
+  ///
+  /// In pt, this message translates to:
+  /// **'Criar lista'**
+  String get listsCreateAction;
+
+  /// Botão no topo da aba Listas e item da folha Adicionar à lista; também o título do diálogo de criar
+  ///
+  /// In pt, this message translates to:
+  /// **'Nova lista'**
+  String get listsNew;
+
+  /// Aviso abaixo do Nova lista desabilitado, no teto de listas
+  ///
+  /// In pt, this message translates to:
+  /// **'Você chegou ao limite de {count} listas.'**
+  String listsAtLimit(int count);
+
+  /// Dica do botão de menu de cada lista
+  ///
+  /// In pt, this message translates to:
+  /// **'Opções da lista {name}'**
+  String listsOptions(String name);
+
+  /// Item do menu de uma lista
+  ///
+  /// In pt, this message translates to:
+  /// **'Renomear'**
+  String get listsRename;
+
+  /// Item do menu de uma lista e ação do diálogo de apagar
+  ///
+  /// In pt, this message translates to:
+  /// **'Apagar'**
+  String get listsDelete;
+
+  /// Título do diálogo de renomear
+  ///
+  /// In pt, this message translates to:
+  /// **'Renomear lista'**
+  String get listsRenameTitle;
+
+  /// Rótulo visível do campo do nome
+  ///
+  /// In pt, this message translates to:
+  /// **'Nome da lista'**
+  String get listsNameLabel;
+
+  /// Contador do campo do nome, em unidades que as regras contam (um emoji conta 2)
+  ///
+  /// In pt, this message translates to:
+  /// **'{length}/{max}'**
+  String listsNameCounter(int length, int max);
+
+  /// Erro do campo do nome vazio
+  ///
+  /// In pt, this message translates to:
+  /// **'Dê um nome à lista.'**
+  String get listsNameEmpty;
+
+  /// Erro do campo do nome longo demais
+  ///
+  /// In pt, this message translates to:
+  /// **'Use até {max} caracteres. Emojis contam 2.'**
+  String listsNameTooLong(int max);
+
+  /// Erro do campo do nome com caractere de controle
+  ///
+  /// In pt, this message translates to:
+  /// **'Tire a quebra de linha ou o tab do nome.'**
+  String get listsNameControl;
+
+  /// Ação do diálogo de criar lista
+  ///
+  /// In pt, this message translates to:
+  /// **'Criar'**
+  String get listsCreate;
+
+  /// Ação do diálogo de renomear lista
+  ///
+  /// In pt, this message translates to:
+  /// **'Salvar'**
+  String get listsSave;
+
+  /// Ação de cancelar dos diálogos das listas
+  ///
+  /// In pt, this message translates to:
+  /// **'Cancelar'**
+  String get listsCancel;
+
+  /// Título do diálogo de apagar uma lista
+  ///
+  /// In pt, this message translates to:
+  /// **'Apagar a lista {name}?'**
+  String listsDeleteTitle(String name);
+
+  /// Texto do diálogo de apagar uma lista
+  ///
+  /// In pt, this message translates to:
+  /// **'Os filmes saem desta lista, mas continuam nas suas marcas e nas outras listas.'**
+  String get listsDeleteBody;
+
+  /// Aviso depois de apagar uma lista
+  ///
+  /// In pt, this message translates to:
+  /// **'Lista apagada.'**
+  String get listsDeleted;
+
+  /// Rótulo para o leitor de tela da linha da lista sendo apagada
+  ///
+  /// In pt, this message translates to:
+  /// **'Apagando a lista {name}'**
+  String listsDeleting(String name);
+
+  /// Vazio da tela de uma lista
+  ///
+  /// In pt, this message translates to:
+  /// **'Nenhum filme nesta lista.'**
+  String get listEmpty;
+
+  /// Tela de uma lista apagada em outro aparelho
+  ///
+  /// In pt, this message translates to:
+  /// **'Esta lista foi apagada.'**
+  String get listGone;
+
+  /// Botão da tela de uma lista apagada
+  ///
+  /// In pt, this message translates to:
+  /// **'Voltar para as listas'**
+  String get listBackToLists;
+
+  /// Ação do toque longo num filme da lista e ação do leitor de tela
+  ///
+  /// In pt, this message translates to:
+  /// **'Tirar da lista'**
+  String get listRemoveMovie;
+
+  /// Aviso depois de tirar um filme da lista
+  ///
+  /// In pt, this message translates to:
+  /// **'Filme tirado da lista.'**
+  String get listMovieRemoved;
+
+  /// Ação do aviso de filme tirado da lista
+  ///
+  /// In pt, this message translates to:
+  /// **'Desfazer'**
+  String get listUndo;
+
+  /// Botão nos Detalhes quando o filme não está em nenhuma lista
+  ///
+  /// In pt, this message translates to:
+  /// **'Adicionar à lista'**
+  String get addToListAction;
+
+  /// Botão nos Detalhes quando o filme está em alguma lista
+  ///
+  /// In pt, this message translates to:
+  /// **'Nas suas listas'**
+  String get addToListInLists;
+
+  /// Folha Adicionar à lista sem nenhuma lista
+  ///
+  /// In pt, this message translates to:
+  /// **'Você ainda não tem listas.'**
+  String get addToListNone;
+
+  /// Tela de uma lista aberta quando a conta sai
+  ///
+  /// In pt, this message translates to:
+  /// **'Você saiu da conta. Suas listas voltam quando você entrar.'**
+  String get listSignedOut;
 }
 
 class _AppLocalizationsDelegate

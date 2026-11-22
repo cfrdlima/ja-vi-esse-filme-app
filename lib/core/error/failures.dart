@@ -58,6 +58,16 @@ final class SignInRequiredFailure extends Failure {
   const SignInRequiredFailure();
 }
 
+/// A conta já tem o teto de listas personalizadas (decisão 019).
+final class ListLimitFailure extends Failure {
+  const ListLimitFailure();
+}
+
+/// A lista já tem o teto de filmes (decisão 019).
+final class ListFullFailure extends Failure {
+  const ListFullFailure();
+}
+
 /// Qualquer outra resposta que o app não sabe tratar (status inesperado ou
 /// corpo que não é o JSON esperado).
 final class UnexpectedFailure extends Failure {

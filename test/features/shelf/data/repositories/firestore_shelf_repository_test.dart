@@ -327,6 +327,20 @@ void main() {
       expect(gateway.calls, ['delete alice 550']);
     });
 
+    // O filme continua numa lista (decisão 019).
+    test('deve atualizar, e não apagar, o filme numa lista', () async {
+      final movie = ShelfMovie(
+        copy: copy,
+        cachedAt: DateTime.utc(2026, 11, 1),
+        marks: {ShelfMark.watched: watchedAt},
+        lists: {'Lst0aBcDeFgHiJkLmNoP': watchedAt},
+      );
+
+      await repository.removeMark(movie, ShelfMark.watched);
+
+      expect(gateway.calls, ['update alice 550']);
+    });
+
     test('deve aceitar o documento que já não existe', () async {
       gateway.failure = _firestoreError('not-found');
       final movie = movieWith({ShelfMark.watched, ShelfMark.favorite});

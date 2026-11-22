@@ -37,6 +37,25 @@ void main() {
       expect(fields['watchedAt'], isNull);
     });
 
+    // As horas do mapa lists (decisão 019) ficam um nível abaixo.
+    test('deve converter o Timestamp dentro de um mapa', () {
+      final at = DateTime.utc(2026, 11, 2);
+
+      final fields = FirestoreFields.read({
+        'lists': {'Lst0aBcDeFgHiJkLmNoP': Timestamp.fromDate(at)},
+      }, pendingAt: null);
+
+      expect(fields['lists'], {'Lst0aBcDeFgHiJkLmNoP': at});
+    });
+
+    test('deve estimar a data pendente dentro de um mapa', () {
+      final fields = FirestoreFields.read({
+        'lists': {'Lst0aBcDeFgHiJkLmNoP': null},
+      }, pendingAt: now);
+
+      expect(fields['lists'], {'Lst0aBcDeFgHiJkLmNoP': now});
+    });
+
     test('deve devolver o mapa vazio sem documento', () {
       expect(FirestoreFields.read(null, pendingAt: null), isEmpty);
     });
@@ -53,6 +72,16 @@ void main() {
       final fields = FirestoreFields.write({'cachedAt': const ServerTime()});
 
       expect(fields['cachedAt'], FieldValue.serverTimestamp());
+    });
+
+    test('deve converter os campos de um MapFields', () {
+      final fields = FirestoreFields.write({
+        'lists': const MapFields({'Lst0aBcDeFgHiJkLmNoP': ServerTime()}),
+      });
+
+      expect(fields['lists'], {
+        'Lst0aBcDeFgHiJkLmNoP': FieldValue.serverTimestamp(),
+      });
     });
 
     test('deve trocar o DeleteField pelo delete do SDK', () {

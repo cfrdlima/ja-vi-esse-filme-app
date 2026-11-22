@@ -14,12 +14,13 @@ import '../../../auth/presentation/widgets/google_sign_in_button.dart';
 import '../../../movies/presentation/widgets/paged_movies_view.dart';
 import '../../../movies/presentation/widgets/poster_grid.dart';
 import '../../domain/entities/shelf_mark.dart';
+import '../widgets/movie_lists_tab.dart';
 import '../widgets/shelf_tab.dart';
 
 /// A aba Estante (override `estante.md`): sem conta, o convite para entrar;
-/// com conta, as abas Assistidos, Quero assistir e Favoritos. Lê do contexto
-/// o `SessionNotifier`, o `ShelfRepository`, o `AuthRepository` e o
-/// `MovieCopySource`.
+/// com conta, as abas Assistidos, Quero assistir, Favoritos e Listas
+/// (decisão 019). Lê do contexto o `SessionNotifier`, o `ShelfRepository`,
+/// o `MovieListsRepository`, o `AuthRepository` e o `MovieCopySource`.
 class ShelfScreen extends StatelessWidget {
   const ShelfScreen({super.key});
 
@@ -66,16 +67,20 @@ class _ShelfTabs extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     return DefaultTabController(
-      length: ShelfMark.values.length,
+      length: ShelfMark.values.length + 1,
       child: Scaffold(
         appBar: AppBar(
           title: title,
           bottom: TabBar(
-            // Com a fonte grande, rola em vez de cortar o rótulo.
-            isScrollable: MediaQuery.textScalerOf(context).scale(1) > 1,
+            // Com quatro abas, "Quero assistir" não cabe num celular nem com
+            // a fonte normal: rola em vez de cortar o rótulo (verificação no
+            // emulador da sessão 029).
+            isScrollable: true,
+            tabAlignment: TabAlignment.start,
             tabs: [
               for (final mark in ShelfMark.values)
                 Tab(text: shelfTabLabel(l10n, mark)),
+              Tab(text: l10n.shelfTabLists),
             ],
           ),
         ),
@@ -83,6 +88,7 @@ class _ShelfTabs extends StatelessWidget {
           children: [
             for (final (index, mark) in ShelfMark.values.indexed)
               ShelfTab(mark: mark, index: index),
+            const MovieListsTab(),
           ],
         ),
       ),

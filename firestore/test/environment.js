@@ -37,3 +37,11 @@ export function validMovie() {
     watchedAt: serverTimestamp(),
   };
 }
+
+// Ids automáticos do Firestore (doc()): 20 caracteres [A-Za-z0-9] (decisão 019).
+export const LIST_ID = 'Lst0aBcDeFgHiJkLmNoP';
+export const OTHER_LIST_ID = 'Lst1aBcDeFgHiJkLmNoP';
+
+export function listIdAt(index) {
+  return `Lst${String(index).padStart(17, '0')}`;
+}

@@ -10,16 +10,20 @@ import 'package:ja_vi_esse_filme/features/auth/domain/entities/auth_state.dart';
 import 'package:ja_vi_esse_filme/features/auth/domain/repositories/auth_repository.dart';
 import 'package:ja_vi_esse_filme/features/auth/presentation/state/session_notifier.dart';
 import 'package:ja_vi_esse_filme/features/auth/presentation/widgets/google_sign_in_button.dart';
+import 'package:ja_vi_esse_filme/features/shelf/domain/entities/list_name.dart';
 import 'package:ja_vi_esse_filme/features/shelf/domain/entities/movie_copy.dart';
+import 'package:ja_vi_esse_filme/features/shelf/domain/entities/movie_list.dart';
 import 'package:ja_vi_esse_filme/features/shelf/domain/entities/shelf_mark.dart';
 import 'package:ja_vi_esse_filme/features/shelf/domain/entities/shelf_movie.dart';
 import 'package:ja_vi_esse_filme/features/shelf/domain/entities/shelf_page.dart';
 import 'package:ja_vi_esse_filme/features/shelf/domain/repositories/movie_copy_source.dart';
+import 'package:ja_vi_esse_filme/features/shelf/domain/repositories/movie_lists_repository.dart';
 import 'package:ja_vi_esse_filme/features/shelf/domain/repositories/shelf_repository.dart';
 import 'package:ja_vi_esse_filme/features/shelf/presentation/screens/shelf_screen.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../helpers/fake_auth_repository.dart';
+import '../../../../helpers/fake_movie_lists_repository.dart';
 import '../../../../helpers/fake_shelf_repository.dart';
 import '../../../../helpers/test_app.dart';
 
@@ -36,6 +40,7 @@ class _SilentCopySource implements MovieCopySource {
 
 void main() {
   late FakeShelfRepository shelf;
+  late FakeMovieListsRepository lists;
   late FakeAuthRepository auth;
   late _SilentCopySource source;
 
@@ -57,6 +62,7 @@ void main() {
 
   setUp(() {
     shelf = FakeShelfRepository();
+    lists = FakeMovieListsRepository();
     auth = FakeAuthRepository();
     source = _SilentCopySource();
   });
@@ -81,6 +87,11 @@ void main() {
               builder: (_, state) =>
                   Text('detalhes ${state.pathParameters['id']}'),
             ),
+            GoRoute(
+              path: 'listas/:listId',
+              builder: (_, state) =>
+                  Text('lista ${state.pathParameters['listId']}'),
+            ),
           ],
         ),
         GoRoute(path: '/descobrir', builder: (_, _) => const Text('descobrir')),
@@ -91,6 +102,7 @@ void main() {
       providers: [
         Provider<AuthRepository>.value(value: auth),
         Provider<ShelfRepository>.value(value: shelf),
+        Provider<MovieListsRepository>.value(value: lists),
         Provider<MovieCopySource>.value(value: source),
         ChangeNotifierProvider(
           create: (_) => SessionNotifier(repository: auth),
@@ -195,6 +207,40 @@ void main() {
           ].every((f) => f.evaluate().length == 1),
           isTrue,
         );
+      });
+
+      testWidgets('deve mostrar a aba Listas por último', (tester) async {
+        await pumpSignedIn(tester);
+
+        final labels = [
+          for (final tab in tester.widgetList<Tab>(find.byType(Tab))) tab.text,
+        ];
+        expect(labels.last, 'Listas');
+      });
+
+      // Com quatro abas, "Quero assistir" saía cortado num Pixel 9 Pro com a
+      // fonte normal (verificação no emulador da sessão 029).
+      testWidgets('deve rolar as abas mesmo com a fonte normal', (
+        tester,
+      ) async {
+        await pumpSignedIn(tester);
+
+        expect(tester.widget<TabBar>(find.byType(TabBar)).isScrollable, isTrue);
+      });
+
+      testWidgets('deve abrir a lista tocada na aba Listas', (tester) async {
+        await pumpSignedIn(tester);
+        await tester.tap(find.text('Listas'));
+        await settleTabs(tester);
+        lists.emitLists([
+          MovieList(id: 'Lst0aBcDeFgHiJkLmNoP', name: ListName('Terror')),
+        ]);
+        await tester.pump();
+
+        await tester.tap(find.text('Terror'));
+        await tester.pumpAndSettle();
+
+        expect(find.text('lista Lst0aBcDeFgHiJkLmNoP'), findsOneWidget);
       });
 
       testWidgets('deve abrir na aba dos assistidos', (tester) async {
@@ -412,6 +458,21 @@ void main() {
         await tester.pump();
 
         expect(shelf.activeShelves, 0);
+      });
+
+      testWidgets('deve parar de ouvir as listas ao começar a sair', (
+        tester,
+      ) async {
+        await pumpSignedIn(tester);
+        await tester.tap(find.text('Listas'));
+        await settleTabs(tester);
+        auth.syncGate = Completer<void>();
+
+        unawaited(sessionOf(tester).signOut());
+        await tester.pump();
+        await tester.pump();
+
+        expect(lists.activeListWatches, 0);
       });
 
       // Uma aba aberta pela primeira vez durante a saída assinaria a

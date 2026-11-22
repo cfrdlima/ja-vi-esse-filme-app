@@ -99,6 +99,19 @@
 - **Otimista**, como as marcas: a nota e o dia aparecem na hora e ficam na tela até a escrita terminar; só a recusa do servidor volta o valor, com a mensagem da falha e o `RetryButton.text` abaixo do bloco, como região viva.
 - **Desmarcar o Assistido com nota ou dia:** antes, um `AlertDialog` "Tirar dos assistidos?" com "Sua nota e o dia em que assistiu também serão apagados." e as ações "Cancelar" e "Tirar". Sem nota nem dia, desmarca na hora, como antes. Se outro aparelho tirar o Assistido com o diálogo aberto, o "Tirar" não faz nada.
 
+### Adicionar à lista (sessão 029, decisão 019)
+> Consulta à `ui-ux-pro-max` na sessão 029: ver a seção "Aba Listas" do `estante.md`. A folha com caixas de seleção é padrão geral (fallback).
+
+- **Onde:** um `OutlinedButton.icon` logo abaixo dos chips das marcas (e do bloco da nota, se ele aparecer): `playlist_add` com "Adicionar à lista" quando o filme não está em nenhuma, e `playlist_add_check` com "Nas suas listas" quando está. Sem a contagem: o filme pode guardar a chave de uma lista apagada em outro aparelho, que contaria a mais. Alvo de 48dp.
+- **Sem conta:** o toque abre a folha de login, como as marcas. Depois de entrar, abre a folha das listas.
+- **Folha:** `showModalBottomSheet` com o mesmo visual da folha de login. Título "Adicionar à lista" em `titleLarge`, com o `CloseButton` ao lado, e um `CheckboxListTile` por lista, em ordem alfabética, com o nome numa linha. A folha fica na altura padrão do Material e rola por dentro, e o "Nova lista" fica no fim.
+  - **Marcar e desmarcar são otimistas:** a caixa muda na hora. Se o servidor recusar, a caixa volta, e a mensagem da falha aparece abaixo da lista com o `RetryButton.text`, como região viva.
+  - **Lista cheia (200 filmes):** o app só conta os filmes da lista no toque (contar todas ao abrir custaria uma leitura por lista). A caixa marca, volta, e a mensagem "Esta lista chegou ao limite de 200 filmes." aparece abaixo das caixas.
+  - **Nova lista:** um `ListTile` com o ícone `add` abre o diálogo do nome do `estante.md`. Criar a lista também põe o filme nela, e a caixa nova já aparece marcada.
+  - **Sem listas:** "Você ainda não tem listas." no lugar das caixas, com o "Nova lista" logo abaixo.
+  - **Carregando:** um skeleton de três linhas. **Erro:** a mensagem e "Tentar de novo".
+- **Fechar a folha** com o gesto para baixo, com o toque fora ou com o `CloseButton` não desfaz nada: cada caixa já gravou.
+
 ### Folha de login
 - `showModalBottomSheet` com fundo `surfaceContainerHigh`, raio `lg` só nos cantos de cima, scrim a 50% e alça de arrastar. Fecha com o gesto para baixo, com o toque fora e com o `CloseButton` no canto (tooltip do Material).
 - Conteúdo, com padding `lg`: título "Entre para guardar seus filmes" em `titleLarge`; texto "Com a conta Google, suas marcas ficam salvas e aparecem em qualquer aparelho." em `bodyMedium` `onSurfaceVariant`; e o botão "Entrar com o Google" do Perfil (override `perfil.md`), com o mesmo estado de "entrando".

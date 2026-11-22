@@ -395,4 +395,123 @@ void main() {
       expect(page.hasMore, isTrue);
     });
   });
+
+  group('ShelfMovieModel com as listas (decisão 019)', () {
+    const terror = 'Lst0aBcDeFgHiJkLmNoP';
+    const comedy = 'Lst1aBcDeFgHiJkLmNoP';
+    final addedAt = DateTime.utc(2026, 11, 4);
+
+    Map<String, Object?> listsOnly(Object? lists) => {
+      'title': 'Clube da Luta',
+      'cachedAt': cachedAt,
+      'lists': lists,
+    };
+
+    test('deve ler o filme só numa lista, sem marca', () {
+      final movie = onShelf(
+        ShelfMovieModel.fromDocument(550, listsOnly({terror: addedAt})),
+      );
+
+      expect(movie.addedToListAt(terror), addedAt);
+    });
+
+    test('deve ler as listas do filme marcado', () {
+      final movie = onShelf(
+        ShelfMovieModel.fromDocument(550, {
+          ...document(),
+          'lists': {terror: addedAt, comedy: addedAt},
+        }),
+      );
+
+      expect(movie.listIds, {terror, comedy});
+    });
+
+    test('deve ignorar a chave fora do formato do id', () {
+      final movie = onShelf(
+        ShelfMovieModel.fromDocument(550, {
+          ...document(),
+          'lists': {'curta': addedAt, terror: addedAt},
+        }),
+      );
+
+      expect(movie.listIds, {terror});
+    });
+
+    test('deve ignorar a lista cujo valor não é data', () {
+      final movie = onShelf(
+        ShelfMovieModel.fromDocument(550, {
+          ...document(),
+          'lists': {terror: 'ontem', comedy: addedAt},
+        }),
+      );
+
+      expect(movie.listIds, {comedy});
+    });
+
+    test('deve ignorar lists que não é mapa', () {
+      final movie = onShelf(
+        ShelfMovieModel.fromDocument(550, {
+          ...document(),
+          'lists': [terror],
+        }),
+      );
+
+      expect(movie.listIds, isEmpty);
+    });
+
+    test('deve tratar sem marca e sem lista legível como fora da Estante', () {
+      expect(
+        ShelfMovieModel.fromDocument(550, listsOnly({'curta': addedAt})),
+        const NotOnShelf(),
+      );
+    });
+
+    test('deve ordenar a lista pelo campo dela no mapa', () {
+      expect(ShelfMovieModel.listOrderField(terror), 'lists.$terror');
+    });
+
+    // O id vira caminho de campo: um ponto abriria outro campo.
+    test('deve recusar o id fora do formato no campo de ordem', () {
+      expect(
+        () => ShelfMovieModel.listOrderField('Lst0aBcDeFgHi.kLmNoP'),
+        throwsArgumentError,
+      );
+    });
+
+    test('deve pôr o filme na lista com a hora do servidor e a cópia', () {
+      final copy = MovieCopy(movieId: 550, title: 'Clube da Luta');
+
+      expect(ShelfMovieModel.addToListFields(copy, terror), {
+        'lists': const MapFields({terror: ServerTime()}),
+        ...ShelfMovieModel.copyFields(copy),
+      });
+    });
+
+    test('deve tirar só a chave da lista quando sobra outra', () {
+      final movie = onShelf(
+        ShelfMovieModel.fromDocument(
+          550,
+          listsOnly({terror: addedAt, comedy: addedAt}),
+        ),
+      );
+
+      expect(ShelfMovieModel.removeFromListFields(movie, terror), {
+        'lists.$terror': const DeleteField(),
+      });
+    });
+
+    // As regras recusam o mapa vazio.
+    test('deve tirar o mapa inteiro com a última lista', () {
+      final movie = onShelf(
+        ShelfMovieModel.fromDocument(550, {
+          ...document(),
+          'lists': {terror: addedAt},
+        }),
+      );
+
+      expect(ShelfMovieModel.removeFromListFields(movie, terror), {
+        'lists': const DeleteField(),
+      });
+    });
+  });
 }

@@ -199,5 +199,97 @@ void main() {
         movieWith({ShelfMark.watched: watchedAt}),
       );
     });
+
+    group('listas (decisão 019)', () {
+      const terror = 'Lst0aBcDeFgHiJkLmNoP';
+      const comedy = 'Lst1aBcDeFgHiJkLmNoP';
+      final addedAt = DateTime.utc(2026, 11, 3);
+
+      ShelfMovie inLists(
+        Map<String, DateTime> lists, {
+        Map<ShelfMark, DateTime> marks = const {},
+      }) => ShelfMovie(
+        copy: copy,
+        cachedAt: cachedAt,
+        marks: marks,
+        lists: lists,
+      );
+
+      test('deve aceitar o filme só numa lista, sem marca', () {
+        expect(inLists({terror: addedAt}).isInList(terror), isTrue);
+      });
+
+      test('deve dizer que o filme não está numa lista', () {
+        final movie = movieWith({ShelfMark.watched: watchedAt});
+
+        expect(movie.isInList(terror), isFalse);
+      });
+
+      test('deve devolver as listas do filme', () {
+        final movie = inLists({terror: addedAt, comedy: addedAt});
+
+        expect(movie.listIds, {terror, comedy});
+      });
+
+      test('deve devolver quando o filme entrou na lista', () {
+        expect(inLists({terror: addedAt}).addedToListAt(terror), addedAt);
+      });
+
+      test('deve continuar com outra marca ao tirar a única lista', () {
+        final movie = inLists(
+          {terror: addedAt},
+          marks: {ShelfMark.favorite: watchedAt},
+        );
+
+        expect(movie.staysWithoutList(terror), isTrue);
+      });
+
+      test('deve continuar com outra lista ao tirar uma', () {
+        final movie = inLists({terror: addedAt, comedy: addedAt});
+
+        expect(movie.staysWithoutList(terror), isTrue);
+      });
+
+      test('não deve continuar sem marca ao tirar a única lista', () {
+        expect(inLists({terror: addedAt}).staysWithoutList(terror), isFalse);
+      });
+
+      test('deve continuar numa lista ao tirar a única marca', () {
+        final movie = inLists(
+          {terror: addedAt},
+          marks: {ShelfMark.watched: watchedAt},
+        );
+
+        expect(movie.staysWithoutMark(ShelfMark.watched), isTrue);
+      });
+
+      test('não deve continuar fora de lista ao tirar a única marca', () {
+        final movie = movieWith({ShelfMark.watched: watchedAt});
+
+        expect(movie.staysWithoutMark(ShelfMark.watched), isFalse);
+      });
+
+      test('deve continuar com outra marca ao tirar uma', () {
+        final movie = movieWith({
+          ShelfMark.watched: watchedAt,
+          ShelfMark.favorite: watchedAt,
+        });
+
+        expect(movie.staysWithoutMark(ShelfMark.watched), isTrue);
+      });
+
+      test('não deve deixar mudar as listas por fora', () {
+        final lists = {terror: addedAt};
+        final movie = inLists(lists);
+
+        lists[comedy] = addedAt;
+
+        expect(movie.isInList(comedy), isFalse);
+      });
+
+      test('deve ser diferente de outro filme em outra lista', () {
+        expect(inLists({terror: addedAt}), isNot(inLists({comedy: addedAt})));
+      });
+    });
   });
 }
