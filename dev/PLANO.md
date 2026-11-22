@@ -76,7 +76,7 @@ Listas em `users/{uid}/lists/{listId}` e o vínculo no mapa `lists` do documento
 - [x] Listas personalizadas (criar, renomear, apagar, adicionar e remover filme), com o nome validado e o tamanho máximo no domínio, e as regras do Firestore cobrindo as listas. **Decisão 019 (sessão 029):** o vínculo é o mapa `lists` no documento do filme, e as listas ficam em `users/{uid}/lists/{listId}` só com o nome; não há `items` nem exclusão aninhada, e a exclusão da conta só ganha a coleção `lists`
 
 ## Fase 4 — Polimento e release
-- [ ] Acessibilidade e fonte grande
+- [x] Acessibilidade e fonte grande. **Sessão 030:** decisão 020 (fonte 2x em 320dp e as três guidelines em toda tela, com o ajudante `test/helpers/accessibility.dart`), o `actionSnackBar` no lugar do `SnackBarAction`, que vazava com a fonte 2x, a troca de tela e de aba sem animação com o reduzir movimento, e os itens S6 e S7 da revisão da 011. Exceção registrada: o calendário do Material abaixo de cerca de 392dp. Falta conferir no aparelho, com login, a Estante, as Listas e os avisos com a fonte 2x
 - [ ] Ícone, splash, nome do app
 - [ ] Crash reporting (Crashlytics ou Sentry — exige decisão de dependência); ao entrar, tirar o `debugPrint` do reporter do release (`kDebugMode`) e atualizar a política
 - [ ] Política de privacidade: nenhum marcador `A REVISAR`, vigência com data explícita, cópia publicada igual ao `docs/PRIVACIDADE.md` e permissões do manifest mesclado iguais às da política, e os números do cache de imagens (30 dias, cerca de 200) conferidos no `flutter_cache_manager` da versão em uso
