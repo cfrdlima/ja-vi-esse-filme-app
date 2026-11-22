@@ -84,6 +84,42 @@ void main() {
     semantics.dispose();
   });
 
+  group('com rótulo próprio', () {
+    // Revisão da sessão 011 (S7): o cabeçalho dos Detalhes lê "Pôster de…",
+    // sem montar um `Movie` nem cobrir o `Semantics` do pôster com outro.
+    Future<void> pumpLabeled(WidgetTester tester, {String? posterPath}) =>
+        tester.pumpWidget(
+          testApp(
+            home: Center(
+              child: SizedBox(
+                width: 120,
+                child: MoviePoster.labeled(
+                  posterPath: posterPath,
+                  label: 'Pôster de Matrix',
+                ),
+              ),
+            ),
+          ),
+        );
+
+    testWidgets('deve anunciar o rótulo dado como imagem', (tester) async {
+      final semantics = tester.ensureSemantics();
+      await pumpLabeled(tester);
+
+      expect(
+        tester.getSemantics(find.byType(MoviePoster)),
+        matchesSemantics(label: 'Pôster de Matrix', isImage: true),
+      );
+      semantics.dispose();
+    });
+
+    testWidgets('deve carregar o pôster do caminho dado', (tester) async {
+      await pumpLabeled(tester, posterPath: '/p.jpg');
+
+      expect(image(tester).imageUrl, 'https://image.tmdb.org/t/p/w342/p.jpg');
+    });
+  });
+
   testWidgets('deve usar as durações de fade do design system', (tester) async {
     await pumpPoster(tester, withPoster);
 
