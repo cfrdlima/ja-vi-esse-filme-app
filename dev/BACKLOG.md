@@ -33,8 +33,6 @@ Ideias que surgiram e não estão no plano imediato. Marque **[prioritário]** o
 - Buscar: `context.read` nos callbacks e `context.select` só no corpo da `SearchScreen`, para a tela inteira não reconstruir a cada troca de estado (revisão da sessão 010, S3)
 - Validação do termo de busca sem exceção a cada tecla: um resultado sealed no domínio (válido/inválido com motivo), mantendo a factory que lança (revisão da sessão 010, S4)
 - Segunda barreira para conteúdo adulto: descartar no parse os itens com `adult == true`, caso o TMDB ignore o `include_adult=false` (auditoria da sessão 010)
-- Barras do skeleton dos detalhes com a altura de uma linha de texto (do `textTheme`, com a escala da fonte), e não com o token de espaçamento `md`, que não cresce com a fonte grande (revisão da sessão 011, S6)
-- `MoviePoster` com um rótulo de acessibilidade opcional, para o cabeçalho dos detalhes não montar um `Movie` só para reaproveitar o pôster nem cobrir o `Semantics` dele com outro (revisão da sessão 011, S7)
 - Caracteres de controle bidirecional (ex.: U+202E) em nome, personagem ou sinopse vindos do TMDB, que é editado pela comunidade: hoje só embaralham a exibição, mas pedem tratamento quando um dado do TMDB virar link ou ação (auditoria da sessão 011)
 - Rever o `pageBuilder` explícito da rota de detalhes a cada upgrade do go_router. A 18.1.0 procura o `MaterialApp` do pacote `material_ui`, e não acha o do `flutter/material.dart`. Por isso as rotas sem `pageBuilder` saem como `NoTransitionPage`, sem transição. Hoje só os detalhes empilham; uma rota empilhada nova também precisa de `MaterialPage` até o pacote reconhecer o app (sessão 012)
 - Premissas do shell e do Hero (revisão da sessão 012, C1, C2 e C7):
@@ -112,3 +110,7 @@ Ideias que surgiram e não estão no plano imediato. Marque **[prioritário]** o
 - `ShelfMoviesView`: juntar `onLongPress` e `longPressLabel` num par obrigatório, para não haver ação do leitor de tela sem rótulo (`/revisar` da sessão 029)
 - Listas: `newList` dentro do `try`, conferir a conta depois da contagem e mostrar andamento quando a contagem offline demora (`/revisar` da sessão 029)
 - `deleteList`: um filme apagado entre a leitura e o `commit` derruba o lote com `not-found`; tratar como "ler de novo" (`/revisar` da sessão 029)
+- `showActionSnackBar`: o `if (_pressed) return` do botão é redundante com o `onPressed: null`; decidir entre os dois (`/revisar` da sessão 030)
+- `showActionSnackBar`: rever o layout da ação no `Wrap` (alinhamento quando ela desce de linha) (`/revisar` da sessão 030)
+- `ReducedMotionPageTransitions`: conferir se o `delegatedTransition` do fallback deve sumir também com o reduzir movimento (`/revisar` da sessão 030)
+- Testes da sessão 030: deixar mais firmes as duas asserções apontadas pelo `code-reviewer` (`/revisar` da sessão 030)

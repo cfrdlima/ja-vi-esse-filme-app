@@ -9,6 +9,7 @@ import '../../../../core/error/retry_wait.dart';
 import '../../../../core/l10n/failure_message.dart';
 import '../../../../core/routing/app_routes.dart';
 import '../../../../core/theme/app_theme_tokens.dart';
+import '../../../../core/widgets/action_snack_bar.dart';
 import '../../../../core/widgets/retry_button.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../auth/domain/repositories/auth_repository.dart';
@@ -177,15 +178,12 @@ class _ListMovies extends StatelessWidget {
     // O aviso com o "Desfazer" sai na hora: offline, o servidor pode levar
     // horas para confirmar, e o filme já some da grade (`/revisar` da
     // sessão 029). Só a recusa aparece depois.
-    messenger.showSnackBar(
-      SnackBar(
-        content: Text(l10n.listMovieRemoved),
-        action: SnackBarAction(
-          label: l10n.listUndo,
-          onPressed: () => unawaited(
-            runWithNotice(messenger, l10n, () => notifier.undoRemove(movie)),
-          ),
-        ),
+    showActionSnackBar(
+      messenger: messenger,
+      message: l10n.listMovieRemoved,
+      actionLabel: l10n.listUndo,
+      onAction: () => unawaited(
+        runWithNotice(messenger, l10n, () => notifier.undoRemove(movie)),
       ),
     );
     await runWithNotice(messenger, l10n, () async {

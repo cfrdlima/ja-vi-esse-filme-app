@@ -22,6 +22,7 @@ import 'package:ja_vi_esse_filme/features/shelf/domain/repositories/shelf_reposi
 import 'package:ja_vi_esse_filme/features/shelf/presentation/screens/shelf_screen.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../helpers/accessibility.dart';
 import '../../../../helpers/fake_auth_repository.dart';
 import '../../../../helpers/fake_movie_lists_repository.dart';
 import '../../../../helpers/fake_shelf_repository.dart';
@@ -196,6 +197,23 @@ void main() {
     });
 
     group('com conta', () {
+      testWidgets('deve trocar de aba sem animar com o reduzir movimento', (
+        tester,
+      ) async {
+        tester.platformDispatcher.accessibilityFeaturesTestValue =
+            const FakeAccessibilityFeatures(disableAnimations: true);
+        addTearDown(
+          tester.platformDispatcher.clearAccessibilityFeaturesTestValue,
+        );
+        await pumpSignedIn(tester);
+
+        final tabs = DefaultTabController.of(
+          tester.element(find.byType(TabBar)),
+        );
+
+        expect(tabs.animationDuration, Duration.zero);
+      });
+
       testWidgets('deve mostrar as três abas', (tester) async {
         await pumpSignedIn(tester);
 
@@ -595,5 +613,79 @@ void main() {
         expect(tester.takeException(), isNull);
       });
     });
+  });
+
+  // Testes de caracterização (decisão 020): a tela já passava na auditoria.
+  group('acessibilidade num celular estreito', () {
+    Future<void> openLists(WidgetTester tester) async {
+      await tester.ensureVisible(find.text('Listas'));
+      await settleTabs(tester);
+      await tester.tap(find.text('Listas'));
+      await settleTabs(tester);
+    }
+
+    final states = <String, Future<void> Function(WidgetTester)>{
+      'no convite para entrar': (tester) async {
+        auth.emit(const SignedOut());
+        await tester.pumpAndSettle();
+      },
+      'com os filmes, um deles com a cópia vencida': (tester) async {
+        auth.emit(SignedIn(ana));
+        await tester.pump();
+        await tester.pump();
+        await emitPage(
+          tester,
+          page([movie(7), movie(8, cachedAt: DateTime.utc(2000)), movie(9)]),
+        );
+      },
+      'no vazio': (tester) async {
+        auth.emit(SignedIn(ana));
+        await tester.pump();
+        await tester.pump();
+        await emitPage(tester, page([]));
+      },
+      'no erro': (tester) async {
+        auth.emit(SignedIn(ana));
+        await tester.pump();
+        await tester.pump();
+        shelf.emitShelfError(const NetworkFailure());
+        await tester.pump();
+        await tester.pump();
+      },
+      'na aba Listas': (tester) async {
+        auth.emit(SignedIn(ana));
+        await tester.pump();
+        await tester.pump();
+        await openLists(tester);
+        lists.emitLists([
+          MovieList(
+            id: 'Lst0aBcDeFgHiJkLmNoP',
+            name: ListName('Terror dos anos oitenta e noventa'),
+          ),
+          MovieList(id: 'Lst0aBcDeFgHiJkLmNoQ', name: ListName('Comédias')),
+        ]);
+        await tester.pump();
+      },
+      'na aba Listas vazia': (tester) async {
+        auth.emit(SignedIn(ana));
+        await tester.pump();
+        await tester.pump();
+        await openLists(tester);
+        lists.emitLists([]);
+        await tester.pump();
+      },
+    };
+    final fonts = {'': TextScaler.noScaling, ' com a fonte 2x': largeFont};
+    for (final MapEntry(key: state, value: reach) in states.entries) {
+      for (final MapEntry(key: font, value: textScaler) in fonts.entries) {
+        testWidgets('deve ser acessível $state$font', (tester) async {
+          useNarrowPhone(tester);
+          await tester.pumpWidget(shelfApp(textScaler: textScaler));
+          await reach(tester);
+
+          await expectAccessible(tester);
+        });
+      }
+    }
   });
 }

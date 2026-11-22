@@ -280,7 +280,7 @@ void main() {
 
     expect([
       find.text(failureMessage(l10n, const NetworkFailure())),
-      find.widgetWithText(SnackBarAction, l10n.retry),
+      find.widgetWithText(SnackBar, l10n.retry),
     ], everyElement(findsOneWidget));
   });
 

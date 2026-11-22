@@ -68,6 +68,11 @@ class _ShelfTabs extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     return DefaultTabController(
       length: ShelfMark.values.length + 1,
+      // Com o "Remover animações", a aba troca de uma vez; `null` é a
+      // duração padrão do Material.
+      animationDuration: MediaQuery.disableAnimationsOf(context)
+          ? Duration.zero
+          : null,
       child: Scaffold(
         appBar: AppBar(
           title: title,

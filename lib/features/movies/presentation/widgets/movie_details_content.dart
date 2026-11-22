@@ -6,7 +6,6 @@ import '../../../../core/widgets/section_title.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../shelf/domain/entities/movie_copy.dart';
 import '../../../shelf/presentation/widgets/shelf_marks_section.dart';
-import '../../domain/entities/movie.dart';
 import '../../domain/entities/movie_details.dart';
 import '../formatting/movie_format.dart';
 import 'cast_member_card.dart';
@@ -96,20 +95,12 @@ class _Header extends StatelessWidget {
       children: [
         SizedBox(
           width: AppSizes.detailsPosterWidth,
-          child: Semantics(
-            label: l10n.moviePosterOf(title),
-            image: true,
-            excludeSemantics: true,
-            child: PosterHero(
-              key: posterKey,
-              movieId: details.id,
-              child: MoviePoster(
-                movie: Movie(
-                  id: details.id,
-                  title: title,
-                  posterPath: details.posterPath,
-                ),
-              ),
+          child: PosterHero(
+            key: posterKey,
+            movieId: details.id,
+            child: MoviePoster.labeled(
+              posterPath: details.posterPath,
+              label: l10n.moviePosterOf(title),
             ),
           ),
         ),

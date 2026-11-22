@@ -3,9 +3,9 @@
 > Fonte da verdade do que construir. Atualizado por `/fechar-sessao`.
 
 ## Última sessão
-**029 — Fase 3: listas personalizadas** (fechada em 2026-11-22) · [log](sessoes/029-listas-personalizadas.md)
-Listas em `users/{uid}/lists/{listId}` e o vínculo no mapa `lists` do documento do filme (decisão 019), com regras e testes no emulador, 4ª aba da Estante, tela da lista, "Adicionar à lista" nos Detalhes, exclusão da conta e limpeza mensal cobrindo as listas e as chaves órfãs. Regras publicadas no projeto real; branch empilhada na 028, que espera o CI destravar.
-**Próximo passo:** o usuário roda a primeira limpeza (`dev/LIMPEZA-MENSAL.md`) e confere no console o S7 e o aceite dos termos do Firebase; depois, publicar a política 2.0 e a página de exclusão atualizada. Com isso, a Fase 3 está completa, e o próximo item de código é o da Fase 4 (acessibilidade e fonte grande).
+**030 — Fase 4: acessibilidade e fonte grande** (fechada em 2026-11-22) · [log](sessoes/030-acessibilidade-fonte-grande.md)
+Decisão 020: toda tela testada em 320dp com a fonte normal e 2x e as três guidelines do Flutter, pelo `test/helpers/accessibility.dart`; o `showActionSnackBar` troca o `SnackBarAction`, que vazava com a fonte 2x, e a troca de tela e de aba respeita o reduzir movimento. Branch empilhada na 029, que espera o CI destravar.
+**Próximo passo:** o usuário confere no aparelho, com login, a fonte 2x e o TalkBack na Estante, nas Listas e nos avisos; depois, o próximo item da Fase 4 (ícone, splash e nome do app).
 
 ## Fase 0 — Fundação
 - [x] Criar projeto (`io.github.cfrdlima.ja_vi_esse_filme`), `analysis_options.yaml`, `.gitignore` com `env/*.json` (exceto `example.json`)
@@ -76,7 +76,7 @@ Listas em `users/{uid}/lists/{listId}` e o vínculo no mapa `lists` do documento
 - [x] Listas personalizadas (criar, renomear, apagar, adicionar e remover filme), com o nome validado e o tamanho máximo no domínio, e as regras do Firestore cobrindo as listas. **Decisão 019 (sessão 029):** o vínculo é o mapa `lists` no documento do filme, e as listas ficam em `users/{uid}/lists/{listId}` só com o nome; não há `items` nem exclusão aninhada, e a exclusão da conta só ganha a coleção `lists`
 
 ## Fase 4 — Polimento e release
-- [ ] Acessibilidade e fonte grande
+- [x] Acessibilidade e fonte grande. **Sessão 030:** decisão 020 (fonte 2x em 320dp e as três guidelines em toda tela, com o ajudante `test/helpers/accessibility.dart`), o `showActionSnackBar` no lugar do `SnackBarAction`, que vazava com a fonte 2x, a troca de tela e de aba sem animação com o reduzir movimento, e os itens S6 e S7 da revisão da 011. Exceção registrada: o calendário do Material abaixo de cerca de 392dp. Falta conferir no aparelho, com login, a Estante, as Listas e os avisos com a fonte 2x
 - [ ] Ícone, splash, nome do app
 - [ ] Crash reporting (Crashlytics ou Sentry — exige decisão de dependência); ao entrar, tirar o `debugPrint` do reporter do release (`kDebugMode`) e atualizar a política
 - [ ] Política de privacidade: nenhum marcador `A REVISAR`, vigência com data explícita, cópia publicada igual ao `docs/PRIVACIDADE.md` e permissões do manifest mesclado iguais às da política, e os números do cache de imagens (30 dias, cerca de 200) conferidos no `flutter_cache_manager` da versão em uso

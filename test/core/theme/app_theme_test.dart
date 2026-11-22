@@ -6,6 +6,7 @@ import 'package:ja_vi_esse_filme/core/theme/app_spacing.dart';
 import 'package:ja_vi_esse_filme/core/theme/app_theme.dart';
 import 'package:ja_vi_esse_filme/core/theme/app_theme_tokens.dart';
 import 'package:ja_vi_esse_filme/core/theme/app_typography.dart';
+import 'package:ja_vi_esse_filme/core/theme/reduced_motion_page_transitions.dart';
 
 const _minTouchTarget = 48.0;
 final _scrim50 = AppColors.scrim.withValues(alpha: 0.5);
@@ -193,5 +194,12 @@ void main() {
       final icon = theme.navigationBarTheme.iconTheme!.resolve({})!;
       expect(icon.color, AppColors.mutedForeground);
     });
+  });
+
+  // Com o "Remover animações" do Android, a troca de tela não anima.
+  test('deve trocar de tela respeitando o reduzir movimento no Android', () {
+    final android = theme.pageTransitionsTheme.builders[TargetPlatform.android];
+
+    expect(android, isA<ReducedMotionPageTransitions>());
   });
 }

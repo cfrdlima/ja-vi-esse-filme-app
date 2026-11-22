@@ -9,6 +9,7 @@ import 'package:ja_vi_esse_filme/features/auth/presentation/widgets/google_sign_
 import 'package:ja_vi_esse_filme/features/auth/presentation/widgets/sign_in_sheet.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../helpers/accessibility.dart';
 import '../../../../helpers/fake_auth_repository.dart';
 import '../../../../helpers/test_app.dart';
 
@@ -160,5 +161,46 @@ void main() {
     await openSheet(tester);
 
     expect(tester.takeException(), isNull);
+  });
+
+  // Testes de caracterização (decisão 020): a folha já passava na auditoria.
+  group('acessibilidade num celular estreito', () {
+    Future<void> tapGoogle(WidgetTester tester) async {
+      final button = find.text('Entrar com o Google');
+      await tester.ensureVisible(button);
+      await tester.pumpAndSettle();
+      await tester.tap(button);
+      await tester.pump();
+    }
+
+    final states = <String, Future<void> Function(WidgetTester)>{
+      'aberta': openSheet,
+      'durante o login': (tester) async {
+        await openSheet(tester);
+        await tapGoogle(tester);
+      },
+      'na falha do login': (tester) async {
+        await openSheet(tester);
+        await tapGoogle(tester);
+        auth.failSignIn(const NetworkFailure());
+        await tester.pumpAndSettle();
+      },
+    };
+    for (final MapEntry(key: state, value: reach) in states.entries) {
+      testWidgets('deve ser acessível $state', (tester) async {
+        useNarrowPhone(tester);
+        await reach(tester);
+
+        await expectAccessible(tester);
+      });
+
+      testWidgets('deve ser acessível $state com a fonte 2x', (tester) async {
+        useNarrowPhone(tester);
+        useLargeFont(tester);
+        await reach(tester);
+
+        await expectAccessible(tester);
+      });
+    }
   });
 }

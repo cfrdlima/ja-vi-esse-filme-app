@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/error/failures.dart';
 import '../../../../core/l10n/failure_message.dart';
+import '../../../../core/widgets/action_snack_bar.dart';
 import '../../../../l10n/app_localizations.dart';
 
 /// Roda a [action] e, se ela falhar, mostra a falha num `SnackBar` com
@@ -22,15 +23,12 @@ Future<void> runWithNotice(
     await action();
     if (onSuccess != null) messenger.showSnackBar(onSuccess);
   } on Failure catch (failure) {
-    messenger.showSnackBar(
-      SnackBar(
-        content: Text(failureMessage(l10n, failure)),
-        action: SnackBarAction(
-          label: l10n.retry,
-          onPressed: () => unawaited(
-            runWithNotice(messenger, l10n, action, onSuccess: onSuccess),
-          ),
-        ),
+    showActionSnackBar(
+      messenger: messenger,
+      message: failureMessage(l10n, failure),
+      actionLabel: l10n.retry,
+      onAction: () => unawaited(
+        runWithNotice(messenger, l10n, action, onSuccess: onSuccess),
       ),
     );
   }

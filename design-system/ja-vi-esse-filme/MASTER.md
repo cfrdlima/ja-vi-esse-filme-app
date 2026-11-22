@@ -80,7 +80,7 @@ Regras:
 - Família padrão do app: Inter. Qualquer estilo fora da tabela (inclusive o `primaryTextTheme`) sai em Inter, nunca em Roboto.
 - `letterSpacing` 0 em todos os estilos, exceto `label*` com 0,1. Não herdar os espaçamentos do M3 (0,25–0,5), que deixam a Inter aberta demais.
 - Corpo base 16; nada de texto corrido abaixo de 12.
-- Tamanhos respeitam o `textScaler` do sistema; testar com 1.5 sem overflow.
+- Tamanhos respeitam o `textScaler` do sistema; testar com 2.0 (o máximo do Android) numa tela de 320dp sem overflow (decisão 020).
 
 ## 4. Espaçamento, raios e elevação
 
@@ -125,7 +125,7 @@ Regras:
 - **Feedback de toque:** todo elemento clicável usa `InkWell`/ripple do Material (sem hover), alvo mínimo **48×48dp** e 8dp entre alvos.
 - **Durações:** curta 150 ms (estado de botão, seleção) · média 250 ms (entrada de conteúdo) · Hero/rotas 300 ms. Saída mais rápida que entrada. Curva `Curves.easeOutCubic`.
 - Mudança de estado nunca é instantânea, mas animação é sutil (fade + deslocamento ≤ 12dp).
-- **Movimento reduzido:** se `MediaQuery.disableAnimationsOf(context)` for `true`, pular animações não essenciais.
+- **Movimento reduzido:** se `MediaQuery.disableAnimationsOf(context)` for `true`, pular animações não essenciais. A troca de tela já respeita isso pelo tema (`ReducedMotionPageTransitions`, que leva a zero os cerca de 40ms a que o Flutter já encurta a rota; o voltar perde a prévia animada); `TabController` e animações próprias precisam checar.
 
 ## 8. Anti-padrões (não usar)
 
@@ -144,7 +144,7 @@ Regras:
 - [ ] Só tokens do tema (nenhum `Color(0x…)` ou tamanho mágico no widget)
 - [ ] Contraste AA nos textos; 3:1 em bordas e ícones
 - [ ] `Semantics` em pôster e ícone clicável; alvos ≥ 48dp
-- [ ] `textScaler` 1.5 sem overflow
+- [ ] `textScaler` 2.0 em 320dp sem overflow e as três guidelines (`expectAccessible` de `test/helpers/accessibility.dart`, decisão 020)
 - [ ] Ripple em todo clicável; Hero do pôster quando houver navegação para detalhes
 - [ ] Movimento reduzido respeitado
 - [ ] Os 4 estados implementados e testados
