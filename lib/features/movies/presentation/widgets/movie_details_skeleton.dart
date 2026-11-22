@@ -93,6 +93,11 @@ class _Lines extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final tokens = theme.extension<AppThemeTokens>()!;
+    // O tamanho da letra do corpo, com a escala do sistema: com a fonte
+    // grande, o texto que chega no lugar cresce, e a linha cresce junto.
+    final lineHeight = MediaQuery.textScalerOf(
+      context,
+    ).scale(theme.textTheme.bodyLarge!.fontSize!);
     return FadeTransition(
       opacity: opacity,
       child: Column(
@@ -104,7 +109,7 @@ class _Lines extends StatelessWidget {
               child: FractionallySizedBox(
                 widthFactor: width,
                 child: Container(
-                  height: tokens.spacing.md,
+                  height: lineHeight,
                   decoration: BoxDecoration(
                     color: theme.colorScheme.surfaceContainer,
                     borderRadius: BorderRadius.circular(tokens.radii.sm),
