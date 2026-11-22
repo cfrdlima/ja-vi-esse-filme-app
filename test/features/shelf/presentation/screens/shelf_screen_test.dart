@@ -218,6 +218,14 @@ void main() {
         expect(labels.last, 'Listas');
       });
 
+      // Com quatro abas, "Quero assistir" saía cortado num Pixel 9 Pro com a
+      // fonte normal (verificação no emulador da sessão 029).
+      testWidgets('deve rolar as abas mesmo com a fonte normal', (tester) async {
+        await pumpSignedIn(tester);
+
+        expect(tester.widget<TabBar>(find.byType(TabBar)).isScrollable, isTrue);
+      });
+
       testWidgets('deve abrir a lista tocada na aba Listas', (tester) async {
         await pumpSignedIn(tester);
         await tester.tap(find.text('Listas'));
