@@ -11,20 +11,32 @@ import '../../domain/entities/movie.dart';
 /// falhar, mostra um placeholder desenhado. Com [onTap], vira um botão do
 /// tamanho do pôster.
 class MoviePoster extends StatelessWidget {
-  const MoviePoster({required this.movie, this.onTap, super.key});
+  /// Pôster da grade, lido pelo título do filme.
+  MoviePoster({required Movie movie, this.onTap, super.key})
+    : posterPath = movie.posterPath,
+      label = movie.title;
 
-  final Movie movie;
+  /// Pôster lido pelo [label], como o "Pôster de…" do cabeçalho dos Detalhes,
+  /// que não tem um `Movie` em mãos.
+  const MoviePoster.labeled({
+    required this.posterPath,
+    required this.label,
+    super.key,
+  }) : onTap = null;
+
+  final String? posterPath;
+
+  /// O que o leitor de tela lê; vazio vira "sem título".
+  final String label;
   final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     final radii = Theme.of(context).extension<AppThemeTokens>()!.radii;
-    final path = movie.posterPath;
+    final path = posterPath;
     final onTap = this.onTap;
     return Semantics(
-      label: movie.title.isEmpty
-          ? AppLocalizations.of(context).movieUntitled
-          : movie.title,
+      label: label.isEmpty ? AppLocalizations.of(context).movieUntitled : label,
       image: true,
       // O `excludeSemantics` tira a ação do InkWell da árvore; ela é repetida
       // aqui para o leitor de tela poder tocar.

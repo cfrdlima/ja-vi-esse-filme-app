@@ -190,8 +190,8 @@ void main() {
       await tester.pumpWidget(screen(preview: preview));
 
       expect(
-        tester.widget<MoviePoster>(find.byType(MoviePoster)).movie,
-        preview,
+        tester.widget<MoviePoster>(find.byType(MoviePoster)).posterPath,
+        preview.posterPath,
       );
     });
 

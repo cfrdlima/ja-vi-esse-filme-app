@@ -71,6 +71,13 @@ Future<GoRouter> pumpAppRouter(
   return router;
 }
 
+/// O pôster do filme 1: o da grade lê o título, e o do cabeçalho dos
+/// Detalhes, que pousa no fim do voo, lê "Pôster de…".
+bool isFirstMovie(MoviePoster poster) => {
+  'Filme 1',
+  lookupAppLocalizations(AppLocale.locale).moviePosterOf('Filme 1'),
+}.contains(poster.label);
+
 Future<void> tapDestination(WidgetTester tester, String label) async {
   await tester.tap(
     find.descendant(of: find.byType(NavigationBar), matching: find.text(label)),
@@ -672,7 +679,7 @@ void main() {
         tester
             .getSize(
               find.byWidgetPredicate(
-                (widget) => widget is MoviePoster && widget.movie.id == 1,
+                (widget) => widget is MoviePoster && isFirstMovie(widget),
               ),
             )
             .width,
@@ -703,7 +710,7 @@ void main() {
 
       final size = tester.getSize(
         find.byWidgetPredicate(
-          (widget) => widget is MoviePoster && widget.movie.id == 1,
+          (widget) => widget is MoviePoster && isFirstMovie(widget),
         ),
       );
       expect(size.width / size.height, closeTo(2 / 3, 0.01));
